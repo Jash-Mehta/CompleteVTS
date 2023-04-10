@@ -33,12 +33,14 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
   final controller = ScrollController();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   ScrollController vehicleRecordController = new ScrollController();
+  ScrollController notificationController = new ScrollController();
   // TextEditingController searchController = new TextEditingController();
   late bool isSearch = false;
   late bool _isLoading = false;
   late MainBloc _mainBloc;
   int pageNumber = 10;
   int pageSize = 1;
+  int value = 0;
   late String srNo = "";
   late String vehicleRegNo = "";
   late String imeino = "", branchName = "", userType = "";
@@ -110,12 +112,13 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
   @override
   void initState() {
     super.initState();
-    getdata();
+    getdataDM();
     setState(() {
       isValue = false;
     });
-    controller.addListener(() {
-      if (controller.position.maxScrollExtent == controller.offset) {
+    notificationController.addListener(() {
+      if (notificationController.position.maxScrollExtent ==
+          notificationController.offset) {
         setState(() {
           print("Scroll ${pageNumber}");
           getdata();
@@ -135,17 +138,19 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
         actions: [
           GestureDetector(
             onTap: () {
-              isfilter = true; 
+              isfilter = true;
               setState(() {});
             },
-            child: !isfilter ? Container(
-              margin: EdgeInsets.only(right: 10),
-              child: Image.asset(
-                "assets/filter.png",
-                height: 40,
-                width: 40,
-              ),
-            ): Container(
+            child: !isfilter
+                ? Container(
+                    margin: EdgeInsets.only(right: 10),
+                    child: Image.asset(
+                      "assets/filter.png",
+                      height: 40,
+                      width: 40,
+                    ),
+                  )
+                : Container(
                     margin: EdgeInsets.only(right: 10),
                     child: IconButton(
                         onPressed: () {
@@ -161,6 +166,22 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
     );
   }
 
+   getdataDM() async {
+    sharedPreferences = await SharedPreferences.getInstance();
+    if (sharedPreferences.getString("auth_token") != null) {
+      token = sharedPreferences.getString("auth_token")!;
+    }
+    if (token != "" || vendorid != 0 || branchid != 0) {
+      print(token);
+      getallbranch();
+      // getfilter();
+      // getTravelSummaryFilter();
+      setState(() {});
+    } else {
+      print("null");
+    }
+  }
+
   getdata() async {
     sharedPreferences = await SharedPreferences.getInstance();
     if (sharedPreferences.getString("auth_token") != null) {
@@ -172,12 +193,6 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
     }
     if (sharedPreferences.getInt("BranchId") != null) {
       branchid = sharedPreferences.getInt("BranchId")!;
-    }
-    if (token != "" || vendorid != 0 || branchid != 0) {
-      getallbranch();
-    }
-    if (token != "" || vendorid != 0 || branchid != 0 || searchText != '') {
-      _getSearchDataVehicledetailReport();
     }
   }
 
@@ -236,16 +251,15 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
             });
           } else if (state is GetVehicleReportLoadedState) {
             print("Enter in report  loaded state------------------");
-            setState(() {
-              print("Setstate entered......");
-              _isLoading = false;
-              totalVehicleRecords = state.vehicleReportResponse.totalRecords!;
-              print("Total vehicle records are:$totalgeofenceCreateRecords");
-              allVehicleDetaildatalist!.clear();
+            if (state.vehicleReportResponse.data != null) {
+              pageSize++;
+              setState(() {
+                _isLoading = false;
+                value = state.vehicleReportResponse.totalRecords!;
+              });
               allVehicleDetaildatalist!
-                  .addAll(state.vehicleReportResponse.data!);
-              print("List is--------------$allVehicleDetaildatalist");
-            });
+                    .addAll(state.vehicleReportResponse.data!);
+            }
           } else if (state is GetVehicleReportErrorState) {
             setState(() {
               _isLoading = false;
@@ -320,13 +334,11 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
                                             fontSize: 18),
                                       ),
                                       onPressed: () {
-                                        // Navigator.pop(context);
+                                       
                                         setState(() {
                                           isfilter = false;
                                           applyclicked = true;
                                         });
-                                        Navigator.pop(
-                                            context, {"FilterAlert": false});
                                       },
                                     ),
                                   ],
@@ -584,7 +596,7 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
                 ),
               )
             : SingleChildScrollView(
-                controller: controller,
+                controller: notificationController,
                 child: Column(
                   children: [
                     Container(
@@ -655,7 +667,8 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold))
                               : isSelected
-                                  ? Text("${searchVehStrdata!.length} Search Records found",
+                                  ? Text(
+                                      "${searchVehStrdata!.length} Search Records found",
                                       style: TextStyle(
                                           fontSize: 18,
                                           fontWeight: FontWeight.bold))

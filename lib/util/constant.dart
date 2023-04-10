@@ -260,11 +260,11 @@ static String dateandtimewisesearch =
   static String overspeedfilterurl =
       baseUrl + 'VehicleWiseOverSpeedReport/FilterOverSpeed';
   static String vehiclestatusgroupurl =
-      baseUrl + 'VehicleStatusGroupByReport/GetVehicleStatusGroupByReport';
+      baseUrl + 'VehicleStatusGroupByReport/GetVehicleStatusGroupByReport?VendorId=';
   static String vehiclestatusreporturl =
-      baseUrl + 'VehicleStatusReport/GetVehicleStatusReport';
+      baseUrl + 'VehicleStatusReport/GetVehicleStatusReport?VendorId=';
   static String vehiclestatussummaryurl =
-      baseUrl + 'VehicleStatusSummaryReport/GetVehicleStatusSummaryReport';
+      baseUrl + 'VehicleStatusSummaryReport/GetVehicleStatusSummaryReport?VendorId=';
   static String vehiclestatusfilter =
       baseUrl + 'VehicleStatusReport/FilterVehicleStatusReport';
   static String vehiclegroupfilter =

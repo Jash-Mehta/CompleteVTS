@@ -33,6 +33,7 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
   final controller = ScrollController();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   ScrollController vehicleRecordController = new ScrollController();
+  ScrollController notificationController = new ScrollController();
   TextEditingController searchController = new TextEditingController();
   late bool isSearch = false;
   bool isData = false;
@@ -47,7 +48,7 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
   var osvfvehnolisttiletext;
   bool isdwdc = false;
   var dwdcdeviceno;
-  late int value = 0;
+  int value = 0;
   var fromDateController,
       toDateController,
       fromTimeController,
@@ -136,14 +137,15 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    getdata();
+    getdataDT();
     setState(() {
       // isvalue = false;
     });
-    controller.addListener(() {
-      if (controller.position.maxScrollExtent == controller.offset) {
+    notificationController.addListener(() {
+      if (notificationController.position.maxScrollExtent ==
+          notificationController.offset) {
         setState(() {
-          // getdata();
+          getdata();
           getallbranch();
         });
       }
@@ -151,7 +153,7 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
     _mainBloc = BlocProvider.of(context);
   }
 
-  getdata() async {
+  getdataDT() async {
     sharedPreferences = await SharedPreferences.getInstance();
     if (sharedPreferences.getString("auth_token") != null) {
       token = sharedPreferences.getString("auth_token")!;
@@ -221,6 +223,94 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
     );
   }
 
+  getdata() async {
+    sharedPreferences = await SharedPreferences.getInstance();
+    if (sharedPreferences.getString("auth_token") != null) {
+      token = sharedPreferences.getString("auth_token")!;
+      print("token ${token}");
+    }
+    if (sharedPreferences.getInt("SrNo") != null) {
+      vendorid = sharedPreferences.getInt("SrNo")!;
+    }
+    if (sharedPreferences.getInt("vehicleRegNo") != null) {
+      vendorid = sharedPreferences.getInt("vehicleRegNo")!;
+    }
+    if (sharedPreferences.getInt("imeino") != null) {
+      branchid = sharedPreferences.getInt("imeino")!;
+    }
+    if (sharedPreferences.getString("latitude") != null) {
+      userName = sharedPreferences.getString("latitude")!;
+    }
+    if (sharedPreferences.getString("longitude") != null) {
+      vendorName = sharedPreferences.getString("longitude")!;
+    }
+    if (sharedPreferences.getString("address") != null) {
+      branchName = sharedPreferences.getString("address")!;
+    }
+    if (sharedPreferences.getString("transDate") != null) {
+      userType = sharedPreferences.getString("transDate")!;
+    }
+    if (sharedPreferences.getString("transTime") != null) {
+      userType = sharedPreferences.getString("transTime")!;
+    }
+    if (sharedPreferences.getString("speed") != null) {
+      userType = sharedPreferences.getString("speed")!;
+    }
+    if (sharedPreferences.getString("overSpeed") != null) {
+      userType = sharedPreferences.getString("overSpeed")!;
+    }
+    if (sharedPreferences.getString("updatedOn") != null) {
+      userType = sharedPreferences.getString("updatedOn")!;
+    }
+    if (sharedPreferences.getString("distancetravel") != null) {
+      userType = sharedPreferences.getString("distancetravel")!;
+    }
+    if (sharedPreferences.getString("speedLimit") != null) {
+      userType = sharedPreferences.getString("speedLimit")!;
+    }
+    if (sharedPreferences.getString("searchText") != null) {
+      userType = sharedPreferences.getString("searchText")!;
+    }
+
+    print("branchid ${branchid}   Vendor id   ${vendorid}");
+
+    //print(""+vendorid.toString()+" "+branchid.toString()+" "+userName+" "+vendorName+" "+branchName+" "+userType);
+    print("" +
+        vehicleRegNo.toString() +
+        " " +
+        imeino.toString() +
+        " " +
+        latitude.toString() +
+        " " +
+        longitude.toString() +
+        " " +
+        address.toString() +
+        " " +
+        transDate.toString() +
+        " " +
+        transTime.toString() +
+        " " +
+        speed.toString() +
+        " " +
+        overSpeed.toString() +
+        " " +
+        updatedOn.toString() +
+        " " +
+        distancetravel.toString() +
+        " " +
+        speedLimit.toString() +
+        " " +
+        searchText);
+
+    if (token != "" ||
+        vehicleRegNo != 0 ||
+        imeino != 0 ||
+        transDate != "" ||
+        overSpeed != "") {
+      // _getOverSpeedCreatedetail();
+    }
+  }
+
   _vehicleMaster() {
     return LoadingOverlay(
         isLoading: _isLoading,
@@ -232,16 +322,6 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
         ),
         child: BlocListener<MainBloc, MainState>(
             listener: (context, state) {
-              // // Date wise travel history driver code data
-              // if (state is DateWiseDriverCodeLoadingState) {
-              //   print("Entering in DateWiseDriverCodeLoadingState");
-              // } else if (state is DateWiseDriverCodeLoadedState) {
-              //   print("Entering in DateWiseDriverCodeLoadedState");
-              //   datewisedrivercode!.clear();
-              //   datewisedrivercode!.addAll(state.dmfdriverCoderesponse.data!);
-              // } else if (state is DateWiseDriverCodeErorrState) {
-              //   print("Search Datewise Travel Driver code  ErrorState ");
-              // }
               if (state is VehicleVSrNoLoadingState) {
                 const Center(
                   child: CircularProgressIndicator(),
@@ -251,10 +331,6 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
                   print("overspeed vehicle filter data is Loaded state");
                   datewisedrivercode!.clear();
                   datewisedrivercode!.addAll(state.vehiclevsrnoresponse.data!);
-                  // overspeedfilter!.addAll(state.overspeedFilter.data!);
-                  // datewisedrivercode!.forEach((element) {
-                  //   print("Overspeed vehicle filter element is Printed");
-                  // });
                 }
               } else if (state is VehicleVSrNoErorrState) {
                 print("Something went Wrong  data VehicleVSrNoErorrState");
@@ -320,15 +396,13 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
                 });
               } else if (state is DateWiseTravelHistoryLoadedState) {
                 if (state.datedisetravelhistoryresponse.data != null) {
+                  pageNumber++;
                   print("Date wise travel data loaded");
                   setState(() {
                     _isLoading = false;
-                    isData = false;
-                    dwth!.clear();
-                    dwth!.addAll(state.datedisetravelhistoryresponse.data!);
+                    value = state.datedisetravelhistoryresponse.totalRecords!;
                   });
-                } else {
-                  print("data not found");
+                  dwth!.addAll(state.datedisetravelhistoryresponse.data!);
                 }
               } else if (state is DateWiseTravelHistoryErrorState) {
                 setState(() {
@@ -338,6 +412,7 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
             },
             child: isfilter
                 ? SingleChildScrollView(
+                    controller: notificationController,
                     child: Padding(
                       padding: const EdgeInsets.all(0),
                       //left: 8, top: 16.0, right: 8.0),
@@ -382,6 +457,7 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
                                             todateInput.text = "";
                                             fromTimeInput.text = "";
                                             fromdateInput.text = "";
+                                            osvfvehnolisttiletext = "-select-";
                                             setState(() {});
                                           },
                                         ),
@@ -616,13 +692,20 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
                                               width: 2)),
                                       child: ListTile(
                                         leading: Text(
-                                          osvfvehnolisttiletext.toString() ??
-                                              "All",
+                                          osvfvehnolisttiletext ?? "-select-",
                                           style: TextStyle(
                                               fontSize: 16,
                                               fontWeight: FontWeight.w400),
                                         ),
-                                        trailing: IconButton(
+                                        trailing:isdwdc ? IconButton(
+                                      icon: Icon(
+                                        Icons.keyboard_arrow_up,
+                                      ),  
+                                      onPressed: () {
+                                        isdwdc = false;
+                                        setState(() {});
+                                      },
+                                    ): IconButton(
                                           icon: Icon(
                                             Icons.keyboard_arrow_down,
                                           ),
@@ -953,7 +1036,7 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
                     ),
                   )
                 : SingleChildScrollView(
-                    controller: controller,
+                    controller: notificationController,
                     child: Column(children: [
                       Container(
                           decoration: BoxDecoration(

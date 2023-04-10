@@ -34,6 +34,7 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
   final controller = ScrollController();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   ScrollController vehicleRecordController = new ScrollController();
+  ScrollController notificationController = new ScrollController();
   TextEditingController searchController = new TextEditingController();
   late bool isSearch = false;
   bool isvalue = false;
@@ -49,6 +50,7 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
   int pageNumber = 1;
   int pageSize = 10;
   int srNo = 1;
+  int value = 0;
   String vehicleRegNo = "";
   String branchName = "", userType = "";
   int imeino = 862430050555255;
@@ -177,11 +179,16 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
 
   @override
   void initState() {
-    getdata();
     super.initState();
-    controller.addListener(() {
-      if (controller.position.maxScrollExtent == controller.offset) {
-        print("Scroll ${pagenumber}");
+    getdata();
+    setState(() {});
+    notificationController.addListener(() {
+      if (notificationController.position.maxScrollExtent ==
+          notificationController.offset) {
+        setState(() {
+          print("Scroll ${pagenumber}");
+          getallbranch();
+        });
       }
     });
     _mainBloc = BlocProvider.of(context);
@@ -195,6 +202,7 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
     if (token != "" || vendorid != 0 || branchid != 0) {
       print(token);
       getallbranch();
+      setState(() {});
     } else {
       print("null");
     }
@@ -332,42 +340,34 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                 _isLoading = true;
               });
             } else if (state is OverSpeedLoadedState) {
-              if (state.OverspeedReportResponse.data != null) {
-                if (state.OverspeedReportResponse.data!.length == 0) {
-                  setState(() {
-                    overspeedlist!.clear();
-                    _isLoading = false;
-                    pageNumber++;
-                  });
-                  Fluttertoast.showToast(
-                    msg: "Smething went wrong",
-                    toastLength: Toast.LENGTH_SHORT,
-                    timeInSecForIosWeb: 1,
-                  );
-                } else {
+              print("overspeed data is Loaded state!!");
+              setState(() {
+                if (state.OverspeedReportResponse.data != null) {
+                  pageNumber++;
                   setState(() {
                     _isLoading = false;
-                    overspeedlist!.addAll(state.OverspeedReportResponse.data!);
                     // pageNumber++;
+                    value = state.OverspeedReportResponse.totalRecords!;
                   });
+                  overspeedlist!.addAll(state.OverspeedReportResponse.data!);
                 }
-                print("overspeed data is Loaded state!!");
-                overspeedlist!.clear();
-                overspeedlist!.addAll(state.OverspeedReportResponse.data!);
-                overspeedlist!.forEach((element) {
-                  print("Overspeed element is Printed");
-                });
-              } else if (state is OverSpeedErrorState) {
-                print("Something went Wrong  data");
-                setState(() {
-                  _isLoading = false;
-                });
-              }
+              });
+            } else if (state is OverSpeedErrorState) {
+              print("Something went Wrong  data");
+              setState(() {
+                _isLoading = false;
+              });
+              Fluttertoast.showToast(
+                msg: "Smething went wrong",
+                toastLength: Toast.LENGTH_SHORT,
+                timeInSecForIosWeb: 1,
+              );
             }
           },
           child: isfilter
               ? SingleChildScrollView(
-                  controller: controller, padding: const EdgeInsets.all(0),
+                  controller: notificationController,
+                  padding: const EdgeInsets.all(0),
                   //left: 8, top: 16.0, right: 8.0),
                   child: Container(
                     margin: const EdgeInsets.all(0.0),
@@ -407,6 +407,7 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                         todateInput.text = "";
                                         fromTimeInput.text = "";
                                         fromdateInput.text = "";
+                                        osvfvehnolisttiletext = "-Select-";
                                         setState(() {});
                                       },
                                     ),
@@ -640,13 +641,21 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                   child: ListTile(
                                     leading: Text(
                                       osvfvehnolisttiletext == null
-                                          ? "ALL"
+                                          ? "-Select-"
                                           : osvfvehnolisttiletext,
                                       style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w400),
                                     ),
-                                    trailing: IconButton(
+                                    trailing: isosvf ? IconButton(
+                                      icon: Icon(
+                                        Icons.keyboard_arrow_up,
+                                      ),  
+                                      onPressed: () {
+                                        isosvf = false;
+                                        setState(() {});
+                                      },
+                                    ): IconButton(
                                       icon: Icon(Icons.keyboard_arrow_down),
                                       onPressed: () {
                                         isosvf = true;
@@ -955,7 +964,7 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                   ),
                 )
               : SingleChildScrollView(
-                  controller: controller,
+                  controller: notificationController,
                   child: Column(children: [
                     Container(
                         decoration: const BoxDecoration(
@@ -1529,436 +1538,18 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                               );
                                             });
                                       }))
-                                  : BlocBuilder<MainBloc, MainState>(
-                                      builder: (context, state) {
-                                      return ListView.builder(
-                                          shrinkWrap: true,
-                                          controller: vehicleRecordController,
-                                          itemCount: overspeedlist!.length,
-                                          itemBuilder: (context, index) {
-                                            var article = overspeedlist![index];
-
-                                            return Card(
-                                              margin:
-                                                  EdgeInsets.only(bottom: 15),
-                                              shape: RoundedRectangleBorder(
-                                                side: BorderSide(
-                                                    width: 1,
-                                                    color: MyColors
-                                                        .textBoxBorderColorCode),
-                                                borderRadius:
-                                                    BorderRadius.circular(10.0),
-                                              ),
-                                              child: Container(
-                                                padding: const EdgeInsets.only(
-                                                    top: 15,
-                                                    left: 14,
-                                                    right: 14,
-                                                    bottom: 15),
-                                                width: MediaQuery.of(context)
-                                                    .size
-                                                    .width,
-                                                decoration: const BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.all(
-                                                          Radius.circular(10)),
-                                                ),
-                                                child: SingleChildScrollView(
-                                                  // controller: overSpeedScrollController,
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                            top: 20.0,
-                                                            left: 15,
-                                                            right: 15,
-                                                            bottom: 20),
-                                                    child: Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                      .only(
-                                                                  top: 15.0,
-                                                                  bottom: 15),
-                                                          child: Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .spaceAround,
-                                                            children: [
-                                                              Expanded(
-                                                                child: Column(
-                                                                  mainAxisAlignment:
-                                                                      MainAxisAlignment
-                                                                          .start,
-                                                                  crossAxisAlignment:
-                                                                      CrossAxisAlignment
-                                                                          .start,
-                                                                  children: const [
-                                                                    Text(
-                                                                      "Sr.No",
-                                                                      style: TextStyle(
-                                                                          color: MyColors
-                                                                              .textprofiledetailColorCode,
-                                                                          fontSize:
-                                                                              18),
-                                                                    ),
-                                                                    Text(
-                                                                      "1",
-                                                                      style: TextStyle(
-                                                                          color: MyColors
-                                                                              .text5ColorCode,
-                                                                          fontSize:
-                                                                              18),
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                              Expanded(
-                                                                  child: Column(
-                                                                mainAxisAlignment:
-                                                                    MainAxisAlignment
-                                                                        .start,
-                                                                crossAxisAlignment:
-                                                                    CrossAxisAlignment
-                                                                        .start,
-                                                                children: [
-                                                                  Text(
-                                                                    "IMEI NO",
-                                                                    style: TextStyle(
-                                                                        color: MyColors
-                                                                            .textprofiledetailColorCode,
-                                                                        fontSize:
-                                                                            18),
-                                                                  ),
-                                                                  Text(
-                                                                    article
-                                                                        .imeino
-                                                                        .toString(),
-                                                                    textAlign:
-                                                                        TextAlign
-                                                                            .left,
-                                                                    style: TextStyle(
-                                                                        color: MyColors
-                                                                            .text5ColorCode,
-                                                                        fontSize:
-                                                                            18),
-                                                                  ),
-                                                                ],
-                                                              ))
-                                                            ],
-                                                          ),
-                                                        ),
-                                                        Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                      .only(
-                                                                  top: 15.0,
-                                                                  bottom: 15),
-                                                          child: Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .spaceAround,
-                                                            children: [
-                                                              Expanded(
-                                                                child: Column(
-                                                                  mainAxisAlignment:
-                                                                      MainAxisAlignment
-                                                                          .start,
-                                                                  crossAxisAlignment:
-                                                                      CrossAxisAlignment
-                                                                          .start,
-                                                                  children: [
-                                                                    Text(
-                                                                      "Trans Time",
-                                                                      style: TextStyle(
-                                                                          color: MyColors
-                                                                              .textprofiledetailColorCode,
-                                                                          fontSize:
-                                                                              18),
-                                                                    ),
-                                                                    Text(
-                                                                      article
-                                                                          .transTime
-                                                                          .toString(),
-                                                                      style: TextStyle(
-                                                                          color: MyColors
-                                                                              .text5ColorCode,
-                                                                          fontSize:
-                                                                              18),
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                              Expanded(
-                                                                  child: Column(
-                                                                mainAxisAlignment:
-                                                                    MainAxisAlignment
-                                                                        .start,
-                                                                crossAxisAlignment:
-                                                                    CrossAxisAlignment
-                                                                        .start,
-                                                                children: [
-                                                                  Text(
-                                                                    "Speed",
-                                                                    style: TextStyle(
-                                                                        color: MyColors
-                                                                            .textprofiledetailColorCode,
-                                                                        fontSize:
-                                                                            18),
-                                                                  ),
-                                                                  Text(
-                                                                    article
-                                                                        .speed
-                                                                        .toString(),
-                                                                    textAlign:
-                                                                        TextAlign
-                                                                            .left,
-                                                                    style: TextStyle(
-                                                                        color: MyColors
-                                                                            .text5ColorCode,
-                                                                        fontSize:
-                                                                            18),
-                                                                  ),
-                                                                ],
-                                                              ))
-                                                            ],
-                                                          ),
-                                                        ),
-                                                        Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                      .only(
-                                                                  top: 15.0,
-                                                                  bottom: 15),
-                                                          child: Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .spaceAround,
-                                                            children: [
-                                                              Expanded(
-                                                                child: Column(
-                                                                  mainAxisAlignment:
-                                                                      MainAxisAlignment
-                                                                          .start,
-                                                                  crossAxisAlignment:
-                                                                      CrossAxisAlignment
-                                                                          .start,
-                                                                  children: [
-                                                                    Text(
-                                                                      "Overspeed kmph",
-                                                                      style: TextStyle(
-                                                                          color: MyColors
-                                                                              .textprofiledetailColorCode,
-                                                                          fontSize:
-                                                                              18),
-                                                                    ),
-                                                                    Text(
-                                                                      article
-                                                                          .overSpeed
-                                                                          .toString(),
-                                                                      style: TextStyle(
-                                                                          color: MyColors
-                                                                              .text5ColorCode,
-                                                                          fontSize:
-                                                                              18),
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                              Expanded(
-                                                                  child: Column(
-                                                                mainAxisAlignment:
-                                                                    MainAxisAlignment
-                                                                        .start,
-                                                                crossAxisAlignment:
-                                                                    CrossAxisAlignment
-                                                                        .start,
-                                                                children: [
-                                                                  Text(
-                                                                    "Distance Travel",
-                                                                    style: TextStyle(
-                                                                        color: MyColors
-                                                                            .textprofiledetailColorCode,
-                                                                        fontSize:
-                                                                            18),
-                                                                  ),
-                                                                  Text(
-                                                                    article
-                                                                        .distancetravel
-                                                                        .toString(),
-                                                                    textAlign:
-                                                                        TextAlign
-                                                                            .left,
-                                                                    style: TextStyle(
-                                                                        color: MyColors
-                                                                            .text5ColorCode,
-                                                                        fontSize:
-                                                                            18),
-                                                                  ),
-                                                                ],
-                                                              ))
-                                                            ],
-                                                          ),
-                                                        ),
-                                                        Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                      .only(
-                                                                  top: 15.0,
-                                                                  bottom: 15),
-                                                          child: Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .spaceAround,
-                                                            children: [
-                                                              Expanded(
-                                                                child: Column(
-                                                                  mainAxisAlignment:
-                                                                      MainAxisAlignment
-                                                                          .start,
-                                                                  crossAxisAlignment:
-                                                                      CrossAxisAlignment
-                                                                          .start,
-                                                                  children: [
-                                                                    Text(
-                                                                      "Lattitude",
-                                                                      style: TextStyle(
-                                                                          color: MyColors
-                                                                              .textprofiledetailColorCode,
-                                                                          fontSize:
-                                                                              18),
-                                                                    ),
-                                                                    Text(
-                                                                      article
-                                                                          .latitude
-                                                                          .toString(),
-                                                                      style: TextStyle(
-                                                                          color: MyColors
-                                                                              .text5ColorCode,
-                                                                          fontSize:
-                                                                              18),
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                              Expanded(
-                                                                  child: Column(
-                                                                mainAxisAlignment:
-                                                                    MainAxisAlignment
-                                                                        .start,
-                                                                crossAxisAlignment:
-                                                                    CrossAxisAlignment
-                                                                        .start,
-                                                                children: [
-                                                                  Text(
-                                                                    "Longitude",
-                                                                    style: TextStyle(
-                                                                        color: MyColors
-                                                                            .textprofiledetailColorCode,
-                                                                        fontSize:
-                                                                            18),
-                                                                  ),
-                                                                  Text(
-                                                                    article
-                                                                        .longitude
-                                                                        .toString(),
-                                                                    textAlign:
-                                                                        TextAlign
-                                                                            .left,
-                                                                    style: TextStyle(
-                                                                        color: MyColors
-                                                                            .text5ColorCode,
-                                                                        fontSize:
-                                                                            18),
-                                                                  ),
-                                                                ],
-                                                              ))
-                                                            ],
-                                                          ),
-                                                        ),
-                                                        Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                      .only(
-                                                                  top: 15.0,
-                                                                  bottom: 15),
-                                                          child: Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .spaceAround,
-                                                            children: [
-                                                              Expanded(
-                                                                child: Column(
-                                                                  mainAxisAlignment:
-                                                                      MainAxisAlignment
-                                                                          .start,
-                                                                  crossAxisAlignment:
-                                                                      CrossAxisAlignment
-                                                                          .start,
-                                                                  children: [
-                                                                    const Text(
-                                                                      "Address",
-                                                                      style: TextStyle(
-                                                                          color: MyColors
-                                                                              .textprofiledetailColorCode,
-                                                                          fontSize:
-                                                                              18),
-                                                                    ),
-                                                                    Text(
-                                                                      article
-                                                                          .address
-                                                                          .toString(),
-                                                                      style: const TextStyle(
-                                                                          color: MyColors
-                                                                              .text5ColorCode,
-                                                                          fontSize:
-                                                                              18),
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            );
-                                          });
-                                    }),
-                              searchData!.isEmpty
-                                  ? Text(
-                                      "Data Not Found..",
-                                      style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold),
-                                    )
-                                  : _isLoading
-                                      ? Text(
-                                          "Data Loading..",
-                                          style: TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold),
-                                        )
-                                      : Padding(
-                                          padding:
-                                              const EdgeInsets.only(top: 20.0),
-                                          child: ListView.builder(
+                                  : !isSearch
+                                      ? BlocBuilder<MainBloc, MainState>(
+                                          builder: (context, state) {
+                                          return ListView.builder(
                                               shrinkWrap: true,
                                               controller:
                                                   vehicleRecordController,
-                                              itemCount: searchData!.length,
+                                              itemCount: overspeedlist!.length,
                                               itemBuilder: (context, index) {
-                                                print("loading is $_isLoading");
+                                                var article =
+                                                    overspeedlist![index];
 
-                                                // print("search data list item are---------------${searchData!.elementAt(index).distanceTravel.toString()}");
-                                                var article = searchData!
-                                                    .elementAt(index);
                                                 return Card(
                                                   margin: EdgeInsets.only(
                                                       bottom: 15),
@@ -1972,16 +1563,18 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                                             10.0),
                                                   ),
                                                   child: Container(
-                                                    padding: EdgeInsets.only(
-                                                        top: 15,
-                                                        left: 14,
-                                                        right: 14,
-                                                        bottom: 15),
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            top: 15,
+                                                            left: 14,
+                                                            right: 14,
+                                                            bottom: 15),
                                                     width:
                                                         MediaQuery.of(context)
                                                             .size
                                                             .width,
-                                                    decoration: BoxDecoration(
+                                                    decoration:
+                                                        const BoxDecoration(
                                                       borderRadius:
                                                           BorderRadius.all(
                                                               Radius.circular(
@@ -2024,7 +1617,7 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                                                       crossAxisAlignment:
                                                                           CrossAxisAlignment
                                                                               .start,
-                                                                      children: [
+                                                                      children: const [
                                                                         Text(
                                                                           "Sr.No",
                                                                           style: TextStyle(
@@ -2058,7 +1651,9 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                                                             fontSize: 18),
                                                                       ),
                                                                       Text(
-                                                                        "${article.imeino}",
+                                                                        article
+                                                                            .imeino
+                                                                            .toString(),
                                                                         textAlign:
                                                                             TextAlign.left,
                                                                         style: TextStyle(
@@ -2100,7 +1695,9 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                                                               fontSize: 18),
                                                                         ),
                                                                         Text(
-                                                                          "${article.transTime}",
+                                                                          article
+                                                                              .transTime
+                                                                              .toString(),
                                                                           style: TextStyle(
                                                                               color: MyColors.text5ColorCode,
                                                                               fontSize: 18),
@@ -2126,7 +1723,9 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                                                             fontSize: 18),
                                                                       ),
                                                                       Text(
-                                                                        "${article.speedLimit}",
+                                                                        article
+                                                                            .speed
+                                                                            .toString(),
                                                                         textAlign:
                                                                             TextAlign.left,
                                                                         style: TextStyle(
@@ -2168,7 +1767,9 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                                                               fontSize: 18),
                                                                         ),
                                                                         Text(
-                                                                          "${article.overSpeed}",
+                                                                          article
+                                                                              .overSpeed
+                                                                              .toString(),
                                                                           style: TextStyle(
                                                                               color: MyColors.text5ColorCode,
                                                                               fontSize: 18),
@@ -2194,7 +1795,9 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                                                             fontSize: 18),
                                                                       ),
                                                                       Text(
-                                                                        "${article.distancetravel}",
+                                                                        article
+                                                                            .distancetravel
+                                                                            .toString(),
                                                                         textAlign:
                                                                             TextAlign.left,
                                                                         style: TextStyle(
@@ -2236,7 +1839,9 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                                                               fontSize: 18),
                                                                         ),
                                                                         Text(
-                                                                          "${article.latitude}",
+                                                                          article
+                                                                              .latitude
+                                                                              .toString(),
                                                                           style: TextStyle(
                                                                               color: MyColors.text5ColorCode,
                                                                               fontSize: 18),
@@ -2262,7 +1867,9 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                                                             fontSize: 18),
                                                                       ),
                                                                       Text(
-                                                                        "${article.longitude}",
+                                                                        article
+                                                                            .longitude
+                                                                            .toString(),
                                                                         textAlign:
                                                                             TextAlign.left,
                                                                         style: TextStyle(
@@ -2297,15 +1904,17 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                                                           CrossAxisAlignment
                                                                               .start,
                                                                       children: [
-                                                                        Text(
+                                                                        const Text(
                                                                           "Address",
                                                                           style: TextStyle(
                                                                               color: MyColors.textprofiledetailColorCode,
                                                                               fontSize: 18),
                                                                         ),
                                                                         Text(
-                                                                          "-",
-                                                                          style: TextStyle(
+                                                                          article
+                                                                              .address
+                                                                              .toString(),
+                                                                          style: const TextStyle(
                                                                               color: MyColors.text5ColorCode,
                                                                               fontSize: 18),
                                                                         ),
@@ -2321,7 +1930,331 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                                     ),
                                                   ),
                                                 );
-                                              }))
+                                              });
+                                        })
+                                      : searchData!.isEmpty
+                                          ? Text(
+                                              "Data Not Found..",
+                                              style: TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold),
+                                            )
+                                          : _isLoading
+                                              ? Text(
+                                                  "Data Loading..",
+                                                  style: TextStyle(
+                                                      fontSize: 18,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                )
+                                              : Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          top: 20.0),
+                                                  child: ListView.builder(
+                                                      shrinkWrap: true,
+                                                      controller:
+                                                          vehicleRecordController,
+                                                      itemCount:
+                                                          searchData!.length,
+                                                      itemBuilder:
+                                                          (context, index) {
+                                                        print(
+                                                            "loading is $_isLoading");
+
+                                                        // print("search data list item are---------------${searchData!.elementAt(index).distanceTravel.toString()}");
+                                                        var article =
+                                                            searchData!
+                                                                .elementAt(
+                                                                    index);
+                                                        return Card(
+                                                          margin:
+                                                              EdgeInsets.only(
+                                                                  bottom: 15),
+                                                          shape:
+                                                              RoundedRectangleBorder(
+                                                            side: BorderSide(
+                                                                width: 1,
+                                                                color: MyColors
+                                                                    .textBoxBorderColorCode),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10.0),
+                                                          ),
+                                                          child: Container(
+                                                            padding:
+                                                                EdgeInsets.only(
+                                                                    top: 15,
+                                                                    left: 14,
+                                                                    right: 14,
+                                                                    bottom: 15),
+                                                            width:
+                                                                MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .width,
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              borderRadius: BorderRadius
+                                                                  .all(Radius
+                                                                      .circular(
+                                                                          10)),
+                                                            ),
+                                                            child:
+                                                                SingleChildScrollView(
+                                                              // controller: overSpeedScrollController,
+                                                              child: Padding(
+                                                                padding: const EdgeInsets
+                                                                        .only(
+                                                                    top: 20.0,
+                                                                    left: 15,
+                                                                    right: 15,
+                                                                    bottom: 20),
+                                                                child: Column(
+                                                                  crossAxisAlignment:
+                                                                      CrossAxisAlignment
+                                                                          .start,
+                                                                  children: [
+                                                                    Padding(
+                                                                      padding: const EdgeInsets
+                                                                              .only(
+                                                                          top:
+                                                                              15.0,
+                                                                          bottom:
+                                                                              15),
+                                                                      child:
+                                                                          Row(
+                                                                        mainAxisAlignment:
+                                                                            MainAxisAlignment.spaceAround,
+                                                                        children: [
+                                                                          Expanded(
+                                                                            child:
+                                                                                Column(
+                                                                              mainAxisAlignment: MainAxisAlignment.start,
+                                                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                                                              children: [
+                                                                                Text(
+                                                                                  "Sr.No",
+                                                                                  style: TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
+                                                                                ),
+                                                                                Text(
+                                                                                  "1",
+                                                                                  style: TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
+                                                                                ),
+                                                                              ],
+                                                                            ),
+                                                                          ),
+                                                                          Expanded(
+                                                                              child: Column(
+                                                                            mainAxisAlignment:
+                                                                                MainAxisAlignment.start,
+                                                                            crossAxisAlignment:
+                                                                                CrossAxisAlignment.start,
+                                                                            children: [
+                                                                              Text(
+                                                                                "IMEI NO",
+                                                                                style: TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
+                                                                              ),
+                                                                              Text(
+                                                                                "${article.imeino}",
+                                                                                textAlign: TextAlign.left,
+                                                                                style: TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
+                                                                              ),
+                                                                            ],
+                                                                          ))
+                                                                        ],
+                                                                      ),
+                                                                    ),
+                                                                    Padding(
+                                                                      padding: const EdgeInsets
+                                                                              .only(
+                                                                          top:
+                                                                              15.0,
+                                                                          bottom:
+                                                                              15),
+                                                                      child:
+                                                                          Row(
+                                                                        mainAxisAlignment:
+                                                                            MainAxisAlignment.spaceAround,
+                                                                        children: [
+                                                                          Expanded(
+                                                                            child:
+                                                                                Column(
+                                                                              mainAxisAlignment: MainAxisAlignment.start,
+                                                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                                                              children: [
+                                                                                Text(
+                                                                                  "Trans Time",
+                                                                                  style: TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
+                                                                                ),
+                                                                                Text(
+                                                                                  "${article.transTime}",
+                                                                                  style: TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
+                                                                                ),
+                                                                              ],
+                                                                            ),
+                                                                          ),
+                                                                          Expanded(
+                                                                              child: Column(
+                                                                            mainAxisAlignment:
+                                                                                MainAxisAlignment.start,
+                                                                            crossAxisAlignment:
+                                                                                CrossAxisAlignment.start,
+                                                                            children: [
+                                                                              Text(
+                                                                                "Speed",
+                                                                                style: TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
+                                                                              ),
+                                                                              Text(
+                                                                                "${article.speedLimit}",
+                                                                                textAlign: TextAlign.left,
+                                                                                style: TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
+                                                                              ),
+                                                                            ],
+                                                                          ))
+                                                                        ],
+                                                                      ),
+                                                                    ),
+                                                                    Padding(
+                                                                      padding: const EdgeInsets
+                                                                              .only(
+                                                                          top:
+                                                                              15.0,
+                                                                          bottom:
+                                                                              15),
+                                                                      child:
+                                                                          Row(
+                                                                        mainAxisAlignment:
+                                                                            MainAxisAlignment.spaceAround,
+                                                                        children: [
+                                                                          Expanded(
+                                                                            child:
+                                                                                Column(
+                                                                              mainAxisAlignment: MainAxisAlignment.start,
+                                                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                                                              children: [
+                                                                                Text(
+                                                                                  "Overspeed kmph",
+                                                                                  style: TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
+                                                                                ),
+                                                                                Text(
+                                                                                  "${article.overSpeed}",
+                                                                                  style: TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
+                                                                                ),
+                                                                              ],
+                                                                            ),
+                                                                          ),
+                                                                          Expanded(
+                                                                              child: Column(
+                                                                            mainAxisAlignment:
+                                                                                MainAxisAlignment.start,
+                                                                            crossAxisAlignment:
+                                                                                CrossAxisAlignment.start,
+                                                                            children: [
+                                                                              Text(
+                                                                                "Distance Travel",
+                                                                                style: TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
+                                                                              ),
+                                                                              Text(
+                                                                                "${article.distancetravel}",
+                                                                                textAlign: TextAlign.left,
+                                                                                style: TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
+                                                                              ),
+                                                                            ],
+                                                                          ))
+                                                                        ],
+                                                                      ),
+                                                                    ),
+                                                                    Padding(
+                                                                      padding: const EdgeInsets
+                                                                              .only(
+                                                                          top:
+                                                                              15.0,
+                                                                          bottom:
+                                                                              15),
+                                                                      child:
+                                                                          Row(
+                                                                        mainAxisAlignment:
+                                                                            MainAxisAlignment.spaceAround,
+                                                                        children: [
+                                                                          Expanded(
+                                                                            child:
+                                                                                Column(
+                                                                              mainAxisAlignment: MainAxisAlignment.start,
+                                                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                                                              children: [
+                                                                                Text(
+                                                                                  "Lattitude",
+                                                                                  style: TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
+                                                                                ),
+                                                                                Text(
+                                                                                  "${article.latitude}",
+                                                                                  style: TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
+                                                                                ),
+                                                                              ],
+                                                                            ),
+                                                                          ),
+                                                                          Expanded(
+                                                                              child: Column(
+                                                                            mainAxisAlignment:
+                                                                                MainAxisAlignment.start,
+                                                                            crossAxisAlignment:
+                                                                                CrossAxisAlignment.start,
+                                                                            children: [
+                                                                              Text(
+                                                                                "Longitude",
+                                                                                style: TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
+                                                                              ),
+                                                                              Text(
+                                                                                "${article.longitude}",
+                                                                                textAlign: TextAlign.left,
+                                                                                style: TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
+                                                                              ),
+                                                                            ],
+                                                                          ))
+                                                                        ],
+                                                                      ),
+                                                                    ),
+                                                                    Padding(
+                                                                      padding: const EdgeInsets
+                                                                              .only(
+                                                                          top:
+                                                                              15.0,
+                                                                          bottom:
+                                                                              15),
+                                                                      child:
+                                                                          Row(
+                                                                        mainAxisAlignment:
+                                                                            MainAxisAlignment.spaceAround,
+                                                                        children: [
+                                                                          Expanded(
+                                                                            child:
+                                                                                Column(
+                                                                              mainAxisAlignment: MainAxisAlignment.start,
+                                                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                                                              children: [
+                                                                                Text(
+                                                                                  "Address",
+                                                                                  style: TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
+                                                                                ),
+                                                                                Text(
+                                                                                  "-",
+                                                                                  style: TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
+                                                                                ),
+                                                                              ],
+                                                                            ),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        );
+                                                      }))
                             ]))
                   ])),
         ));

@@ -31,6 +31,7 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
   final controller = ScrollController();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   ScrollController vehicleRecordController = new ScrollController();
+  ScrollController notificationController = new ScrollController();
   TextEditingController searchController = new TextEditingController();
   late bool isSearch = false;
   bool applyclicked = false;
@@ -38,6 +39,7 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
   late MainBloc _mainBloc;
   int pageNumber = 1;
   int pageSize = 10;
+  int value = 0;
   String deviceno = "DC00001";
   late String srNo = "";
   late String vehicleRegNo = "";
@@ -111,10 +113,11 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
     // TODO: implement initState
     super.initState();
     getdataVS();
-    controller.addListener(() {
-      if (controller.position.maxScrollExtent == controller.offset) {
+    notificationController.addListener(() {
+      if (notificationController.position.maxScrollExtent ==
+          notificationController.offset) {
         setState(() {
-          getdataVS();
+          getdata();
           getallbranch();
         });
       }
@@ -188,18 +191,93 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
     );
   }
 
-  // getdata() async {
-  //   sharedPreferences = await SharedPreferences.getInstance();
-  //   if (sharedPreferences.getString("auth_token") != null) {
-  //     token = sharedPreferences.getString("auth_token")!;
-  //     print("token ${token}");
-  //   }
-  //   if (token != "" || vendorid != 0 || branchid != 0) {
-  //     print(token);
-  //   }
+  getdata() async {
+    sharedPreferences = await SharedPreferences.getInstance();
+    if (sharedPreferences.getString("auth_token") != null) {
+      token = sharedPreferences.getString("auth_token")!;
+      print("token ${token}");
+    }
+    if (sharedPreferences.getInt("SrNo") != null) {
+      vendorid = sharedPreferences.getInt("SrNo")!;
+    }
+    if (sharedPreferences.getInt("vehicleRegNo") != null) {
+      vendorid = sharedPreferences.getInt("vehicleRegNo")!;
+    }
+    if (sharedPreferences.getInt("imeino") != null) {
+      branchid = sharedPreferences.getInt("imeino")!;
+    }
+    if (sharedPreferences.getString("latitude") != null) {
+      userName = sharedPreferences.getString("latitude")!;
+    }
+    if (sharedPreferences.getString("longitude") != null) {
+      vendorName = sharedPreferences.getString("longitude")!;
+    }
+    if (sharedPreferences.getString("address") != null) {
+      branchName = sharedPreferences.getString("address")!;
+    }
+    if (sharedPreferences.getString("transDate") != null) {
+      userType = sharedPreferences.getString("transDate")!;
+    }
+    if (sharedPreferences.getString("transTime") != null) {
+      userType = sharedPreferences.getString("transTime")!;
+    }
+    if (sharedPreferences.getString("speed") != null) {
+      userType = sharedPreferences.getString("speed")!;
+    }
+    if (sharedPreferences.getString("overSpeed") != null) {
+      userType = sharedPreferences.getString("overSpeed")!;
+    }
+    if (sharedPreferences.getString("updatedOn") != null) {
+      userType = sharedPreferences.getString("updatedOn")!;
+    }
+    if (sharedPreferences.getString("distancetravel") != null) {
+      userType = sharedPreferences.getString("distancetravel")!;
+    }
+    if (sharedPreferences.getString("speedLimit") != null) {
+      userType = sharedPreferences.getString("speedLimit")!;
+    }
+    if (sharedPreferences.getString("searchText") != null) {
+      userType = sharedPreferences.getString("searchText")!;
+    }
 
-  //   //print(""+vendorid.toString()+" "+branchid.toString()+" "+userName+" "+vendorName+" "+branchName+" "+userType);
-  // }
+    print("branchid ${branchid}   Vendor id   ${vendorid}");
+
+    //print(""+vendorid.toString()+" "+branchid.toString()+" "+userName+" "+vendorName+" "+branchName+" "+userType);
+    print("" +
+        vehicleRegNo.toString() +
+        " " +
+        imeino.toString() +
+        " " +
+        latitude.toString() +
+        " " +
+        longitude.toString() +
+        " " +
+        address.toString() +
+        " " +
+        transDate.toString() +
+        " " +
+        transTime.toString() +
+        " " +
+        speed.toString() +
+        " " +
+        overSpeed.toString() +
+        " " +
+        updatedOn.toString() +
+        " " +
+        distancetravel.toString() +
+        " " +
+        speedLimit.toString() +
+        " " +
+        searchText);
+
+    if (token != "" ||
+        vehicleRegNo != 0 ||
+        imeino != 0 ||
+        transDate != "" ||
+        overSpeed != "") {
+      // _getOverSpeedCreatedetail();
+    }
+  }
 
   _vehicleMaster() {
     return LoadingOverlay(
@@ -224,7 +302,6 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
             print("Search Device master error");
             setState(() {
               _isLoading = false;
-             
             });
           }
           // device master driver code filter
@@ -256,12 +333,15 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
               _isLoading = true;
             });
           } else if (state is DeviceMasterReportLoadedState) {
-            print("Device master data loaded");
-            setState(() {
-              _isLoading = false;
-              data!.clear();
+            if (state.deviceData.data != null) {
+              pageNumber++;
+              print("Device master data loaded");
+              setState(() {
+                _isLoading = false;
+                value = state.deviceData.totalRecords!;
+              });
               data!.addAll(state.deviceData.data!);
-            });
+            }
           } else if (state is DeviceMasterReportErorrState) {
             print("Device master error");
             setState(() {
@@ -271,6 +351,7 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
         },
         child: isfilter
             ? SingleChildScrollView(
+                controller: notificationController,
                 child: Padding(
                   padding: const EdgeInsets.all(0),
                   //left: 8, top: 16.0, right: 8.0),
@@ -308,8 +389,8 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
                                             fontSize: 18),
                                       ),
                                       onPressed: () {
+                                        dmdfdeviceno = "-Select-";
                                         setState(() {});
-                                        // Navigator.pop(context,{"FilterAlert":false});
                                       },
                                     ),
                                   ],
@@ -340,7 +421,7 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
                                               vendorid: "1",
                                               branchid: "1",
                                               deviceno: dmdfdeviceno == null
-                                                  ? "ALL"
+                                                  ? "All"
                                                   : dmdfdeviceno,
                                               pagenumber: 1,
                                               pagesize: 10));
@@ -536,16 +617,24 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
                                   child: ListTile(
                                     leading: Text(
                                       dmdfdeviceno == null
-                                          ? "All"
+                                          ? "-select-"
                                           : dmdfdeviceno,
                                       style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w400),
                                     ),
-                                    trailing: IconButton(
+                                    trailing: isdmdf ? IconButton(
+                                      icon: Icon(
+                                        Icons.keyboard_arrow_up,
+                                      ),  
+                                      onPressed: () {
+                                        isdmdf = false;
+                                        setState(() {});
+                                      },
+                                    ): IconButton(
                                       icon: Icon(
                                         Icons.keyboard_arrow_down,
-                                      ),
+                                      ),  
                                       onPressed: () {
                                         isdmdf = true;
                                         setState(() {});
@@ -565,6 +654,8 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
                                       height: 200,
                                       width: double.infinity,
                                       child: ListView.builder(
+                                        shrinkWrap: true,
+                                        controller: vehicleRecordController,
                                         itemCount: dmdfdata!.length,
                                         itemBuilder:
                                             (BuildContext context, int index) {
@@ -602,7 +693,7 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
                 ),
               )
             : SingleChildScrollView(
-                controller: controller,
+                controller: notificationController,
                 child: Column(
                   children: [
                     Container(
@@ -1433,8 +1524,5 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
         searchText: searchClass.searchStr,
       ));
     }
-    // traveldata!.forEach((userDetail) {
-    //   if (userDetail.vehicleregNo!.contains(text)) searchdata!.add(userDetail);
-    // });
   }
 }

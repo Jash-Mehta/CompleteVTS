@@ -6,11 +6,11 @@ class DeviceMasterModel {
   int? totalPages;
   int? totalRecords;
   String? nextPage;
-  Null? previousPage;
+  String? previousPage;
   List<DeviceData>? data;
   bool? succeeded;
-  Null? errors;
-  Null? message;
+  String? errors;
+  String? message;
 
   DeviceMasterModel(
       {this.pageNumber,

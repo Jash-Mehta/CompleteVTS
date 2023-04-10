@@ -32,6 +32,7 @@ class _DriverWiseVehicleAssignScreenState
   final controller = ScrollController();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   ScrollController vehicleRecordController = new ScrollController();
+  ScrollController notificationController = new ScrollController();
   TextEditingController searchController = new TextEditingController();
   late bool isSearch = false;
   late bool isValue = false;
@@ -40,6 +41,7 @@ class _DriverWiseVehicleAssignScreenState
   late MainBloc _mainBloc;
   int pageNumber = 1;
   int pageSize = 10;
+  int value = 0;
   late String srNo = "";
   late String vehicleRegNo = "";
   late String imeino = "", branchName = "", userType = "";
@@ -48,8 +50,6 @@ class _DriverWiseVehicleAssignScreenState
   late int branchid = 1, vendorid = 1;
   // List<OverSpeeddDetail>? data = [];
   // List<OverSpeeddDetail>? searchData = [];
-
-  ScrollController notificationController = new ScrollController();
 
   int totalVehicleRecords = 0;
 
@@ -112,14 +112,12 @@ class _DriverWiseVehicleAssignScreenState
   @override
   void initState() {
     super.initState();
-    getdata();
-    setState(() {
-      // isvalue = false;
-    });
-    controller.addListener(() {
-      if (controller.position.maxScrollExtent == controller.offset) {
+    getdataDV();
+    notificationController.addListener(() {
+      if (notificationController.position.maxScrollExtent ==
+          notificationController.offset) {
         setState(() {
-          getdata();
+          getData();
           getallbranch();
         });
       }
@@ -127,7 +125,7 @@ class _DriverWiseVehicleAssignScreenState
     _mainBloc = BlocProvider.of(context);
   }
 
-  getdata() async {
+  getdataDV() async {
     sharedPreferences = await SharedPreferences.getInstance();
     if (sharedPreferences.getString("auth_token") != null) {
       token = sharedPreferences.getString("auth_token")!;
@@ -157,7 +155,9 @@ class _DriverWiseVehicleAssignScreenState
     return Scaffold(
       drawer: MenuDrawer() /*.getMenuDrawer(context)*/,
       appBar: AppBar(
-        title: !isfilter ? Text("Driver Wise Vehicle Assign Master") : Text("Filter"), 
+        title: !isfilter
+            ? Text("Driver Wise Vehicle Assign Master")
+            : Text("Filter"),
         actions: [
           GestureDetector(
             onTap: () {
@@ -169,14 +169,16 @@ class _DriverWiseVehicleAssignScreenState
                     : Text("Driver code not loaded");
               });
             },
-            child: !isfilter ? Container(
-              margin: EdgeInsets.only(right: 10),
-              child: Image.asset(
-                "assets/filter.png",
-                height: 40,
-                width: 40,
-              ),
-            ): Container(
+            child: !isfilter
+                ? Container(
+                    margin: EdgeInsets.only(right: 10),
+                    child: Image.asset(
+                      "assets/filter.png",
+                      height: 40,
+                      width: 40,
+                    ),
+                  )
+                : Container(
                     margin: EdgeInsets.only(right: 10),
                     child: IconButton(
                         onPressed: () {
@@ -291,13 +293,13 @@ class _DriverWiseVehicleAssignScreenState
         isSearch = true;
       });
       _mainBloc.add(SearchDriverwiseVehAssignDetailsEvent(
-          token: token,
-          vendorid: vendorid,
-          branchid: branchid,
-           pageSize: pageSize,
-          pageNumber: pageNumber,
-          searchText: searchController.text,
-         ));
+        token: token,
+        vendorid: vendorid,
+        branchid: branchid,
+        pageSize: pageSize,
+        pageNumber: pageNumber,
+        searchText: searchController.text,
+      ));
     }
     // traveldata!.forEach((userDetail) {
     //   if (userDetail.vehicleregNo!.contains(text)) searchdata!.add(userDetail);
@@ -328,11 +330,17 @@ class _DriverWiseVehicleAssignScreenState
             print("Driver wise vehicle assign driver code went wrong");
           }
           if (state is DriverWiseVehicleAssignLoadingState) {
-            const Center(child: CircularProgressIndicator());
+            setState(() {
+              _isLoading = true;
+            });
           } else if (state is DriverWiseVehicleAssignLoadedState) {
             if (state.DriverWiseVehicleAssignResponse.data != null) {
+              pageNumber++;
               print("Driver wise vehicle data loaded");
-              driverwisevehicledata!.clear();
+              setState(() {
+                _isLoading = false;
+                value = state.DriverWiseVehicleAssignResponse.totalRecords;
+              });
               driverwisevehicledata!
                   .addAll(state.DriverWiseVehicleAssignResponse.data);
             }
@@ -351,7 +359,7 @@ class _DriverWiseVehicleAssignScreenState
             print("Driver wise vehicle filter went wrong");
           }
           //! Search DriverWise Vehicle----------------------------------------------------
-         if (state is SearchDriverVehAssignReportLoadingState) {
+          if (state is SearchDriverVehAssignReportLoadingState) {
             setState(() {
               _isLoading = true;
             });
@@ -371,6 +379,7 @@ class _DriverWiseVehicleAssignScreenState
         },
         child: isfilter
             ? SingleChildScrollView(
+                controller: notificationController,
                 child: Padding(
                   padding: const EdgeInsets.all(0),
                   //left: 8, top: 16.0, right: 8.0),
@@ -408,7 +417,7 @@ class _DriverWiseVehicleAssignScreenState
                                             fontSize: 18),
                                       ),
                                       onPressed: () {
-                                        Navigator.pop(context);
+                                        dwdcvsrnolisttiletext = "-select-";
                                         setState(() {});
                                       },
                                     ),
@@ -640,13 +649,21 @@ class _DriverWiseVehicleAssignScreenState
                                   child: ListTile(
                                     leading: Text(
                                       dwdcvsrnolisttiletext == null
-                                          ? "All"
+                                          ? "-select-"
                                           : dwdcvsrnolisttiletext,
                                       style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w400),
                                     ),
-                                    trailing: IconButton(
+                                    trailing:isdwdc ? IconButton(
+                                      icon: Icon(
+                                        Icons.keyboard_arrow_up,
+                                      ),  
+                                      onPressed: () {
+                                        isdwdc = false;
+                                        setState(() {});
+                                      },
+                                    ): IconButton(
                                       icon: Icon(
                                         Icons.keyboard_arrow_down,
                                       ),
@@ -669,6 +686,8 @@ class _DriverWiseVehicleAssignScreenState
                                       height: 200,
                                       width: double.infinity,
                                       child: ListView.builder(
+                                        shrinkWrap: true,
+                                        controller: vehicleRecordController,
                                         itemCount: driverwisedrivercode!.length,
                                         itemBuilder:
                                             (BuildContext context, int index) {
@@ -709,7 +728,7 @@ class _DriverWiseVehicleAssignScreenState
                 ),
               )
             : SingleChildScrollView(
-                controller: controller,
+                controller: notificationController,
                 child: Column(
                   children: [
                     Container(
@@ -864,7 +883,7 @@ class _DriverWiseVehicleAssignScreenState
                                       builder: (context, state) {
                                     return ListView.builder(
                                         shrinkWrap: true,
-                                        controller: notificationController,
+                                        controller: vehicleRecordController,
                                         itemCount: filterdata!.length,
                                         itemBuilder: (context, index) {
                                           var article = filterdata![index];
@@ -1070,7 +1089,7 @@ class _DriverWiseVehicleAssignScreenState
                                           builder: (context, state) {
                                         return ListView.builder(
                                             shrinkWrap: true,
-                                            controller: notificationController,
+                                            controller: vehicleRecordController,
                                             itemCount:
                                                 driverwisevehicledata!.length,
                                             itemBuilder: (context, index) {
@@ -1286,8 +1305,9 @@ class _DriverWiseVehicleAssignScreenState
                                             return ListView.builder(
                                                 shrinkWrap: true,
                                                 controller:
-                                                    notificationController,
-                                                itemCount: searchdatalist!.length,
+                                                    vehicleRecordController,
+                                                itemCount:
+                                                    searchdatalist!.length,
                                                 itemBuilder: (context, index) {
                                                   var article =
                                                       searchdatalist![index];
