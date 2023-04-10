@@ -6,11 +6,11 @@ class VehicleStatusGroupModel {
   int? totalPages;
   int? totalRecords;
   String? nextPage;
-  Null? previousPage;
+  String? previousPage;
   List<DatewiseTravelHoursData>? data;
   bool? succeeded;
-  Null? errors;
-  Null? message;
+  String? errors;
+  String? message;
 
   VehicleStatusGroupModel(
       {this.pageNumber,

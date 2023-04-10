@@ -771,9 +771,9 @@
     },
     {
       "name": "xml",
-      "rootUri": "file:///C:/Users/jashm/AppData/Local/Pub/Cache/hosted/pub.dev/xml-6.2.2",
+      "rootUri": "file:///C:/Users/jashm/AppData/Local/Pub/Cache/hosted/pub.dev/xml-6.1.0",
       "packageUri": "lib/",
-      "languageVersion": "2.18"
+      "languageVersion": "2.17"
     },
     {
       "name": "flutter_vts",
@@ -782,7 +782,7 @@
       "languageVersion": "2.12"
     }
   ],
-  "generated": "2023-04-05T05:34:04.610796Z",
+  "generated": "2023-04-10T09:55:30.397859Z",
   "generator": "pub",
   "generatorVersion": "2.19.6"
 }

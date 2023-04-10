@@ -90,7 +90,7 @@ class _DateAndTimeWiseDistanceScreenState
   bool isfilter = false;
   bool applyclicked = false;
   List<VehicleVSrNoData>? osvfdata = [];
-   bool isosvf = false;
+  bool isosvf = false;
   var osvfvehno;
   var osvfvehnolisttiletext;
   var vendoritems = [
@@ -344,6 +344,7 @@ class _DateAndTimeWiseDistanceScreenState
           } else if (state is DateAndTimeWiseTravelLoadedState) {
             print("Entering in Date And Time Wise loaded state");
             if (state.dateandtimewisetravelResponse.data != null) {
+              pageNumber++;
               setState(() {
                 _isLoading = false;
                 // pageNumber++;
@@ -373,7 +374,7 @@ class _DateAndTimeWiseDistanceScreenState
             print("Entering in Date And Time Wise Filter error state");
             setState(() {
               _isLoading = false;
-               filterData!.clear();
+              filterData!.clear();
             });
           }
           //! Search Data a nd Time Wise
@@ -388,7 +389,7 @@ class _DateAndTimeWiseDistanceScreenState
               _isLoading = false;
               searchData!.clear();
             });
-              searchData!.addAll(state.dateandtimewisesearchResponse.data!);
+            searchData!.addAll(state.dateandtimewisesearchResponse.data!);
           } else if (state is DateAndTimeWiseSearchErrorState) {
             print("Entering in Date And Time Wise search loading state");
             setState(() {
@@ -443,6 +444,7 @@ class _DateAndTimeWiseDistanceScreenState
                                             todateInput.text = "";
                                             fromTimeInput.text = "";
                                             fromdateInput.text = "";
+                                            osvfvehnolisttiletext = "-select-";
                                             setState(() {});
                                           },
                                         ),
@@ -686,13 +688,21 @@ class _DateAndTimeWiseDistanceScreenState
                                       child: ListTile(
                                         leading: Text(
                                           osvfvehnolisttiletext == null
-                                              ? "ALL"
+                                              ? "-select-"
                                               : osvfvehnolisttiletext,
                                           style: TextStyle(
                                               fontSize: 16,
                                               fontWeight: FontWeight.w400),
                                         ),
-                                        trailing: IconButton(
+                                        trailing:isosvf ? IconButton(
+                                      icon: Icon(
+                                        Icons.keyboard_arrow_up,
+                                      ),  
+                                      onPressed: () {
+                                        isosvf = false;
+                                        setState(() {});
+                                      },
+                                    ): IconButton(
                                           icon: Icon(Icons.keyboard_arrow_down),
                                           onPressed: () {
                                             isosvf = true;
@@ -734,8 +744,7 @@ class _DateAndTimeWiseDistanceScreenState
                                                     print(article.vehicleRegNo);
                                                     setState(() {
                                                       isosvf = false;
-                                                      osvfvehno = article
-                                                          .vsrNo
+                                                      osvfvehno = article.vsrNo
                                                           .toString();
                                                       print(
                                                           "This is vehicleregno - " +

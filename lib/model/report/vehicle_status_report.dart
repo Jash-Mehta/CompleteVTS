@@ -6,11 +6,11 @@ class VehicleStatusReportModel {
   int? totalPages;
   int? totalRecords;
   String? nextPage;
-  Null? previousPage;
+  String? previousPage;
   List<VehicleStatusReportData>? data;
   bool? succeeded;
-  Null? errors;
-  Null? message;
+  String? errors;
+  String? message;
 
   VehicleStatusReportModel(
       {this.pageNumber,

@@ -5144,26 +5144,35 @@ class WebService {
     int pagenumber,
     int pagesize,
   ) async {
-    // print(
-    //     "${searchStrClass.searchStr}-----Enter in SEARCH dm future api ----$searchText");
-    // String vehiclestatusurl = Constant.vehiclestatusgroupurl +
-    //     vendorId.toString() +
-    //     "&BranchId=1" +
-    //     branchId.toString() +
-    //     "&SearchText=" +
-    //     searchText +
-    //     "&PageNumber=1" +
-    //     // pageNumber.toString() +
-    //     "&PageSize=10";
-    // // pageSize.toString();
+    String vehiclestatusurl = Constant.vehiclestatusgroupurl +
+        vendorId.toString() +
+        "&BranchId=" +
+        branchid.toString() +
+        "&ARAI_NONARAI=" +
+        araino.toString() +
+        "&FromDate=" +
+        fromdate.toString() +
+        "&FromTime=" +
+        fromTime.toString() +
+        "&ToDate=" +
+        toDate.toString() +
+        "&ToTime=" +
+        toTime.toString() +
+        "&IMEINO=" +
+        imeno.toString() +
+        "&PageNumber=" +
+        pagenumber.toString() +
+        "&PageSize=" +
+        pagesize.toString();
 
-    String vehiclestatusurl =
-        'https://vtsgpsapi.m-techinnovations.com/api/VehicleStatusGroupByReport/GetVehicleStatusGroupByReport?VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=01-sep-2022&FromTime=08:30&ToDate=30-sep-2022&ToTime=18:30&IMEINO=867322033819244&PageNumber=1&PageSize=10';
+    print("This is vehicle status report url " + vehiclestatusurl);
+    // String vehiclestatusurl =
+    //     'https://vtsgpsapi.m-techinnovations.com/api/VehicleStatusGroupByReport/GetVehicleStatusGroupByReport?VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=01-sep-2022&FromTime=08:30&ToDate=30-sep-2022&ToTime=18:30&IMEINO=867322033819244&PageNumber=1&PageSize=10';
 
     final response = await http.get(
       Uri.parse(vehiclestatusurl),
       headers: <String, String>{
-        // 'Content-Type': 'application/json; charset=UTF-8',
+        'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': "Bearer ${token}",
       },
     );
@@ -5188,34 +5197,48 @@ class WebService {
     int pagenumber,
     int pagesize,
   ) async {
-    // print(
-    //     "${searchStrClass.searchStr}-----Enter in SEARCH dm future api ----$searchText");
-    // String vehiclestatusurl = Constant.vehiclestatusgroupurl +
-    //     vendorId.toString() +
-    //     "&BranchId=1" +
-    //     branchId.toString() +
-    //     "&SearchText=" +
-    //     searchText +
-    //     "&PageNumber=1" +
-    //     // pageNumber.toString() +
-    //     "&PageSize=10";
-    // // pageSize.toString();
+    String vehiclestatusreporturl = Constant.vehiclestatusreporturl +
+        vendorId.toString() +
+        "&BranchId=" +
+        branchid.toString() +
+        "&ARAI_NONARAI=" +
+        araino.toString() +
+        "&FromDate=" +
+        fromdate.toString() +
+        "&FromTime" +
+        fromTime.toString() +
+        "&ToDate=" +
+        toDate.toString() +
+        "&ToTime=" +
+        toTime.toString() +
+        "&IMEINO=" +
+        imeno.toString() +
+        "&PageNumber=" +
+        pagenumber.toString() +
+        "&PageSize=" +
+        pagesize.toString();
 
-    String vehiclestatusreporturl =
-        'https://vtsgpsapi.m-techinnovations.com/api/VehicleStatusGroupByReport/GetVehicleStatusGroupByReport?VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=01-sep-2022&FromTime=08:30&ToDate=30-sep-2022&ToTime=18:30&IMEINO=867322033819244&PageNumber=1&PageSize=10';
+    print("This is vehicle status report url " + vehiclestatusreporturl);
 
-    final response = await http.get(
-      Uri.parse(vehiclestatusreporturl),
-      headers: <String, String>{
-        // 'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': "Bearer ${token}",
-      },
-    );
+    // String vehiclestatusreporturl =
+    //     'https://vtsgpsapi.m-techinnovations.com/api/VehicleStatusGroupByReport/GetVehicleStatusGroupByReport?VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=01-sep-2022&FromTime=08:30&ToDate=30-sep-2022&ToTime=18:30&IMEINO=867322033819244&PageNumber=1&PageSize=10';
 
-    var jsonBody =
-        VehicleStatusReportModel.fromJson(json.decode(response.body));
-    print("JSon  dm body are:-------------$jsonBody");
-    return jsonBody;
+    final response = await http
+        .get(Uri.parse(vehiclestatusreporturl), headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    });
+    if (response.statusCode == 200) {
+      print("Successfully getting your data");
+      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
+
+      var travelsummaryjson = VehicleStatusReportModel.fromJson(jsonbody);
+      print("Json decoded body_" + travelsummaryjson.toString());
+      return travelsummaryjson;
+    } else {
+      print(response.body);
+      throw Exception('Failed to load data');
+    }
   }
 
 //  Vehicle status summary
@@ -5232,84 +5255,67 @@ class WebService {
     int pagenumber,
     int pagesize,
   ) async {
-    // print(
-    //     "${searchStrClass.searchStr}-----Enter in SEARCH dm future api ----$searchText");
-    // String vehiclestatusurl = Constant.vehiclestatusgroupurl +
-    //     vendorId.toString() +
-    //     "&BranchId=1" +
-    //     branchId.toString() +
-    //     "&SearchText=" +
-    //     searchText +
-    //     "&PageNumber=1" +
-    //     // pageNumber.toString() +
-    //     "&PageSize=10";
-    // // pageSize.toString();
+    String vehiclestatussummaryurl = Constant.vehiclestatussummaryurl +
+        vendorId.toString() +
+        "&BranchId=" +
+        branchid.toString() +
+        "&ARAI_NONARAI=" +
+        araino.toString() +
+        "&FromDate=" +
+        fromdate.toString() +
+        "&FromTime" +
+        fromTime.toString() +
+        "&ToDate=" +
+        toDate.toString() +
+        "&ToTime=" +
+        toTime.toString() +
+        "&IMEINO=" +
+        imeno.toString() +
+        "&PageNumber=" +
+        pagenumber.toString() +
+        "&PageSize=" +
+        pagesize.toString();
 
-    String vehiclestatussummaryurl =
-        'https://vtsgpsapi.m-techinnovations.com/api/VehicleStatusGroupByReport/GetVehicleStatusGroupByReport?VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=01-sep-2022&FromTime=08:30&ToDate=30-sep-2022&ToTime=18:30&IMEINO=867322033819244&PageNumber=1&PageSize=10';
+   
 
-    final response = await http.get(
-      Uri.parse(vehiclestatussummaryurl),
-      headers: <String, String>{
-        // 'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': "Bearer ${token}",
-      },
-    );
+    // String vehiclestatussummaryurl =
+    //     'https://vtsgpsapi.m-techinnovations.com/api/VehicleStatusSummaryReport/GetVehicleStatusSummaryReport?VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=01-sep-2022&FromTime=12:30&ToDate=30-sep-2022&ToTime=19:30&IMEINO=867322033819244&PageNumber=1&PageSize=10';
 
-    var jsonBody =
-        VehicleStatusSummaryModel.fromJson(json.decode(response.body));
-    print("JSon  dm body are:-------------$jsonBody");
-    return jsonBody;
+    print("This is vehicle status summary url " + vehiclestatussummaryurl);
+    final response = await http
+        .get(Uri.parse(vehiclestatussummaryurl), headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    });
+    if (response.statusCode == 200) {
+      print("Successfully getting your data");
+      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
+
+      var travelsummaryjson = VehicleStatusSummaryModel.fromJson(jsonbody);
+      print("Json decoded body_" + travelsummaryjson.toString());
+      return travelsummaryjson;
+    } else {
+      print(response.body);
+      throw Exception('Failed to load data');
+    }
   }
-}
 
-Future<SearchVehOverSpeedRpt> searchOverSpeedCreateDetails(
-    String token,
-    String vehicleRegNo,
-    int imeino,
-    int latitude,
-    int longitude,
-    String address,
-    int transDate,
-    int transTime,
-    int speed,
-    int overSpeed,
-    int updatedOn,
-    int distancetravel,
-    int speedLimit,
-    String searchText) async {
-  print(Constant.searchOverSpeedReportUrl +
-      "" +
-      vehicleRegNo.toString() +
-      "/" +
-      imeino.toString() +
-      "/" +
-      latitude.toString() +
-      "/" +
-      longitude.toString() +
-      "/" +
-      address.toString() +
-      "/" +
-      transDate.toString() +
-      "/" +
-      transTime.toString() +
-      "/" +
-      speed.toString() +
-      "/" +
-      overSpeed.toString() +
-      "/" +
-      updatedOn.toString() +
-      "/" +
-      distancetravel.toString() +
-      "/" +
-      speedLimit.toString() +
-      "/" +
-      searchText);
-
-  //required this.vehicleRegNo,required this.imeino,required this.latitude,required this.longitude,required this.address,required this.transDate,
-  //     required this.transTime,required this.speed,required this.overSpeed,required this.updatedOn,required this.distancetravel,required this.speedLimit,required this.searchText
-  final response = await http.get(
-    Uri.parse(Constant.searchOverSpeedReportUrl +
+  Future<SearchVehOverSpeedRpt> searchOverSpeedCreateDetails(
+      String token,
+      String vehicleRegNo,
+      int imeino,
+      int latitude,
+      int longitude,
+      String address,
+      int transDate,
+      int transTime,
+      int speed,
+      int overSpeed,
+      int updatedOn,
+      int distancetravel,
+      int speedLimit,
+      String searchText) async {
+    print(Constant.searchOverSpeedReportUrl +
         "" +
         vehicleRegNo.toString() +
         "/" +
@@ -5335,12 +5341,44 @@ Future<SearchVehOverSpeedRpt> searchOverSpeedCreateDetails(
         "/" +
         speedLimit.toString() +
         "/" +
-        searchText),
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    },
-  );
-  print(response.body);
-  return SearchVehOverSpeedRpt.fromJson(jsonDecode(response.body));
+        searchText);
+
+    //required this.vehicleRegNo,required this.imeino,required this.latitude,required this.longitude,required this.address,required this.transDate,
+    //     required this.transTime,required this.speed,required this.overSpeed,required this.updatedOn,required this.distancetravel,required this.speedLimit,required this.searchText
+    final response = await http.get(
+      Uri.parse(Constant.searchOverSpeedReportUrl +
+          "" +
+          vehicleRegNo.toString() +
+          "/" +
+          imeino.toString() +
+          "/" +
+          latitude.toString() +
+          "/" +
+          longitude.toString() +
+          "/" +
+          address.toString() +
+          "/" +
+          transDate.toString() +
+          "/" +
+          transTime.toString() +
+          "/" +
+          speed.toString() +
+          "/" +
+          overSpeed.toString() +
+          "/" +
+          updatedOn.toString() +
+          "/" +
+          distancetravel.toString() +
+          "/" +
+          speedLimit.toString() +
+          "/" +
+          searchText),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    print(response.body);
+    return SearchVehOverSpeedRpt.fromJson(jsonDecode(response.body));
+  }
 }

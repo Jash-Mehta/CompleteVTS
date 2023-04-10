@@ -6,11 +6,11 @@ class VehicleStatusSummaryModel {
   int? totalPages;
   int? totalRecords;
   String? nextPage;
-  Null? previousPage;
-  List<DatewiseStatusWiseTravelSummaryData>? data;
+  String? previousPage;
+  List<StatusSummaryData>? data;
   bool? succeeded;
-  Null? errors;
-  Null? message;
+  String? errors;
+  String? message;
 
   VehicleStatusSummaryModel(
       {this.pageNumber,
@@ -36,11 +36,12 @@ class VehicleStatusSummaryModel {
     nextPage = json['nextPage'];
     previousPage = json['previousPage'];
     if (json['data'] != null) {
-      data = <DatewiseStatusWiseTravelSummaryData>[];
+      data = <StatusSummaryData>[];
       json['data'].forEach((v) {
-        var reportdata = v['datewiseTravelHoursData'] as List<dynamic>;
-        reportdata.forEach((element) {
-          data!.add(new DatewiseStatusWiseTravelSummaryData.fromJson(element));
+        var summarydata =
+            v['datewiseStatusWiseTravelSummaryData'] as List<dynamic>;
+        summarydata.forEach((element) {
+          data!.add(new StatusSummaryData.fromJson(element));
         });
       });
     }
@@ -75,15 +76,14 @@ class Data {
   List<DateWiseTravelSummaryDataTotalHours>?
       dateWiseTravelSummaryDataTotalHours;
   String? totalTravelHoursSummary;
-  List<DatewiseStatusWiseTravelSummaryData>?
-      datewiseTravelHoursData;
+  List<StatusSummaryData>? datewiseStatusWiseTravelSummaryData;
 
   Data(
       {this.fromDate,
       this.toDate,
       this.dateWiseTravelSummaryDataTotalHours,
       this.totalTravelHoursSummary,
-      this.datewiseTravelHoursData});
+      this.datewiseStatusWiseTravelSummaryData});
 
   Data.fromJson(Map<String, dynamic> json) {
     fromDate = json['fromDate'];
@@ -97,12 +97,11 @@ class Data {
       });
     }
     totalTravelHoursSummary = json['totalTravelHoursSummary'];
-    if (json['datewiseTravelHoursData'] != null) {
-      datewiseTravelHoursData =
-          <DatewiseStatusWiseTravelSummaryData>[];
-      json['datewiseTravelHoursData'].forEach((v) {
-        datewiseTravelHoursData!
-            .add(new DatewiseStatusWiseTravelSummaryData.fromJson(v));
+    if (json['datewiseStatusWiseTravelSummaryData'] != null) {
+      datewiseStatusWiseTravelSummaryData = <StatusSummaryData>[];
+      json['datewiseStatusWiseTravelSummaryData'].forEach((v) {
+        datewiseStatusWiseTravelSummaryData!
+            .add(new StatusSummaryData.fromJson(v));
       });
     }
   }
@@ -118,9 +117,9 @@ class Data {
           .toList();
     }
     data['totalTravelHoursSummary'] = this.totalTravelHoursSummary;
-    if (this.datewiseTravelHoursData != null) {
-      data['datewiseTravelHoursData'] = this
-          .datewiseTravelHoursData!
+    if (this.datewiseStatusWiseTravelSummaryData != null) {
+      data['datewiseStatusWiseTravelSummaryData'] = this
+          .datewiseStatusWiseTravelSummaryData!
           .map((v) => v.toJson())
           .toList();
     }
@@ -147,7 +146,7 @@ class DateWiseTravelSummaryDataTotalHours {
   }
 }
 
-class DatewiseStatusWiseTravelSummaryData {
+class StatusSummaryData {
   int? srNo;
   String? tDate;
   String? imei;
@@ -155,7 +154,7 @@ class DatewiseStatusWiseTravelSummaryData {
   String? vehicleStatus;
   String? vehicleStatusTime;
 
-  DatewiseStatusWiseTravelSummaryData(
+  StatusSummaryData(
       {this.srNo,
       this.tDate,
       this.imei,
@@ -163,7 +162,7 @@ class DatewiseStatusWiseTravelSummaryData {
       this.vehicleStatus,
       this.vehicleStatusTime});
 
-  DatewiseStatusWiseTravelSummaryData.fromJson(Map<String, dynamic> json) {
+  StatusSummaryData.fromJson(Map<String, dynamic> json) {
     srNo = json['srNo'];
     tDate = json['tDate'];
     imei = json['imei'];

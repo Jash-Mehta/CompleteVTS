@@ -210,7 +210,7 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
           } else if (state is TravelSummaryErrorState) {
             print("Something went Wrong");
             setState(() {
-              _isLoading = true;
+              _isLoading = false;
             });
           }
         },

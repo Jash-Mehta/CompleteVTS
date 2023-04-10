@@ -32,6 +32,7 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
   final controller = ScrollController();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   ScrollController vehicleRecordController = new ScrollController();
+  ScrollController notificationController = new ScrollController();
   TextEditingController searchController = new TextEditingController();
   late bool isSearch = false;
   bool isincrement = false;
@@ -123,6 +124,7 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
   late MainBloc _mainBloc;
   int pageNumber = 1;
   int pageSize = 10;
+  int value = 0;
   SearchStringClass searchClass = SearchStringClass(searchStr: '');
 
   String SfromTime = "12%3A30";
@@ -140,11 +142,12 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
     setState(() {
       // isvalue = false;
     });
-    controller.addListener(() {
-      if (controller.position.maxScrollExtent == controller.offset) {
+    notificationController.addListener(() {
+      if (notificationController.position.maxScrollExtent ==
+          notificationController.offset) {
         setState(() {
-          getframedata();
-          // getallbranch();
+          getdata();
+          getallbranch();
         });
       }
     });
@@ -396,12 +399,13 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
             });
           } else if (state is VehicleWiseTravelLoadedState) {
             if (state.vehiclewisetravelResponse.data != null) {
+              pageNumber++;
               print("Vehicle Wise data loaded");
               setState(() {
                 _isLoading = false;
-                vehicledata!.clear();
-                vehicledata!.addAll(state.vehiclewisetravelResponse.data!);
+                value = state.vehiclewisetravelResponse.totalRecords!;
               });
+              vehicledata!.addAll(state.vehiclewisetravelResponse.data!);
             }
           } else if (state is VehicleWiseTravelErrorState) {
             print("Vehicle Wise data error state");
@@ -421,15 +425,15 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
             });
           } else if (state is VehicleWiseSearchLoadedState) {
             print("Entering in Vehicle Wise search loaded state");
-             setState(() {
-                _isLoading = false;
-              });
+            setState(() {
+              _isLoading = false;
+            });
             if (state.vehiclewisesearchResponse.data != null) {
               setState(() {
                 _isLoading = false;
                 searchdata!.clear();
               });
-               searchdata!.addAll(state.vehiclewisesearchResponse.data!);
+              searchdata!.addAll(state.vehiclewisesearchResponse.data!);
             }
           } else if (state is VehicleWiseSearchErrorState) {
             print("Vehicle Wise search error state");
@@ -441,6 +445,7 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
         },
         child: isfilter
             ? SingleChildScrollView(
+              controller: notificationController,
                 child: Padding(
                   padding: const EdgeInsets.all(0),
                   //left: 8, top: 16.0, right: 8.0),
@@ -482,6 +487,7 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
                                         todateInput.text = "";
                                         fromTimeInput.text = "";
                                         fromdateInput.text = "";
+                                        vwdvehiclenolisttiletext="-select-";
                                         setState(() {});
                                       },
                                     ),
@@ -691,13 +697,21 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
                                   child: ListTile(
                                     leading: Text(
                                       vwdvehiclenolisttiletext == null
-                                          ? "ALL"
+                                          ? "-select-"
                                           : vwdvehiclenolisttiletext,
                                       style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w400),
                                     ),
-                                    trailing: IconButton(
+                                    trailing:isvwd ? IconButton(
+                                      icon: Icon(
+                                        Icons.keyboard_arrow_up,
+                                      ),  
+                                      onPressed: () {
+                                        isvwd = false;
+                                        setState(() {});
+                                      },
+                                    ): IconButton(
                                       icon: Icon(
                                         Icons.keyboard_arrow_down,
                                       ),
@@ -1315,7 +1329,7 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
                 ),
               )
             : SingleChildScrollView(
-                controller: controller,
+                controller: notificationController,
                 child: Column(
                   children: [
                     Container(
@@ -1411,7 +1425,7 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
                                             fontWeight: FontWeight.bold),
                                       );
                                     }),
-                          Container(
+                         applyclicked ? Container(
                             margin: EdgeInsets.only(top: 10, bottom: 20),
                             padding: EdgeInsets.all(15),
                             decoration: BoxDecoration(
@@ -1469,7 +1483,7 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
                                 ),
                               ],
                             ),
-                          ),
+                          ):SizedBox(),
                           applyclicked
                               ? Padding(
                                   padding: const EdgeInsets.only(top: 20.0),

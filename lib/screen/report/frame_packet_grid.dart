@@ -32,9 +32,10 @@ class _FramePacketGridState extends State<FramePacketGrid> {
   final controller = ScrollController();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   ScrollController vehicleRecordController = new ScrollController();
+  ScrollController notificationController = new ScrollController();
   TextEditingController searchController = new TextEditingController();
   late bool isSearch = false;
-
+  int value = 0;
   late bool _isLoading = false;
   late MainBloc _mainBloc;
   late String srNo = "";
@@ -142,8 +143,9 @@ class _FramePacketGridState extends State<FramePacketGrid> {
     // TODO: implement initState
     super.initState();
     getdataDM();
-    controller.addListener(() {
-      if (controller.position.maxScrollExtent == controller.offset) {
+    notificationController.addListener(() {
+      if (notificationController.position.maxScrollExtent ==
+          notificationController.offset) {
         setState(() {
           getdata();
           getallbranch();
@@ -160,7 +162,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
     }
     if (token != "" || vendorid != 0 || branchid != 0) {
       print(token);
-      getallbranch();
+      // getallbranch();
       // getTravelSummaryFilter();
       setState(() {});
     } else {
@@ -419,12 +421,16 @@ class _FramePacketGridState extends State<FramePacketGrid> {
               _isLoading = true;
             });
           } else if (state is FramePacketGridLoadedState) {
-            print("Frame grid  loaded");
-            setState(() {
-              _isLoading = false;
-              framepacketgriddata!.clear();
-              framepacketgriddata!.addAll(state.FramePacketGridResponse.data!);
-            });
+            if (state.FramePacketGridResponse.data != null) {
+              pageNumber++;
+              print("Frame grid  loaded");
+              setState(() {
+                _isLoading = false;
+                value = state.FramePacketGridResponse.totalRecords!;
+              });
+              framepacketgriddata!
+                    .addAll(state.FramePacketGridResponse.data!);
+            }
           } else if (state is FramePacketGridErrorState) {
             print("Frame grid error");
             setState(() {
@@ -457,6 +463,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
         },
         child: isfilter
             ? SingleChildScrollView(
+              controller: notificationController,
                 child: Padding(
                   padding: const EdgeInsets.all(0),
                   //left: 8, top: 16.0, right: 8.0),
@@ -498,6 +505,8 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                         todateInput.text = "";
                                         fromTimeInput.text = "";
                                         fromdateInput.text = "";
+                                        fpgolisttiletext="-select-";
+                                        fpgdclisttiletext="-select-";
                                         setState(() {});
                                       },
                                     ),
@@ -712,13 +721,21 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                   child: ListTile(
                                     leading: Text(
                                       fpgdclisttiletext == null
-                                          ? "ALL"
+                                          ? "-select-"
                                           : fpgdclisttiletext,
                                       style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w400),
                                     ),
-                                    trailing: IconButton(
+                                    trailing:isfpgdc ? IconButton(
+                                      icon: Icon(
+                                        Icons.keyboard_arrow_up,
+                                      ),  
+                                      onPressed: () {
+                                        isfpgdc = false;
+                                        setState(() {});
+                                      },
+                                    ): IconButton(
                                       icon: Icon(
                                         Icons.keyboard_arrow_down,
                                       ),
@@ -813,13 +830,21 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                   child: ListTile(
                                     leading: Text(
                                       fpgolisttiletext == null
-                                          ? "ALL"
+                                          ? "-select-"
                                           : fpgolisttiletext,
                                       style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w400),
                                     ),
-                                    trailing: IconButton(
+                                    trailing:isfpgo ? IconButton(
+                                      icon: Icon(
+                                        Icons.keyboard_arrow_up,
+                                      ),  
+                                      onPressed: () {
+                                        isfpgo = false;
+                                        setState(() {});
+                                      },
+                                    ): IconButton(
                                       icon: Icon(
                                         Icons.keyboard_arrow_down,
                                       ),
@@ -1438,7 +1463,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                 ),
               )
             : SingleChildScrollView(
-                controller: controller,
+                controller: notificationController,
                 child: Column(
                   children: [
                     Container(
@@ -1520,7 +1545,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                   fontSize: 18, fontWeight: FontWeight.bold),
                             );
                           }),
-                          Container(
+                         applyclicked ? Container(
                             margin: EdgeInsets.only(top: 10, bottom: 20),
                             padding: EdgeInsets.all(15),
                             decoration: BoxDecoration(
@@ -1578,7 +1603,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                 ),
                               ],
                             ),
-                          ),
+                          ):SizedBox(),
                           applyclicked
                               ? framefiltergriddata!.isEmpty
                                   ? Center(

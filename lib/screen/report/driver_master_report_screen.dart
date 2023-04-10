@@ -31,9 +31,10 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
   final controller = ScrollController();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   ScrollController vehicleRecordController = new ScrollController();
+  ScrollController notificationController = new ScrollController();
   TextEditingController searchController = new TextEditingController();
   late bool isSearch = false;
-
+  int value = 0;
   late bool _isLoading = false;
   late MainBloc _mainBloc;
   int pageNumber = 1;
@@ -101,11 +102,13 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
     // TODO: implement initState
     super.initState();
     getdataDM();
-    controller.addListener(() {
-      if (controller.position.maxScrollExtent == controller.offset) {
+    notificationController.addListener(() {
+      if (notificationController.position.maxScrollExtent ==
+          notificationController.offset) {
         setState(() {
           getdata();
           getallbranch();
+          // getfilter();
         });
       }
     });
@@ -120,6 +123,7 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
     if (token != "" || vendorid != 0 || branchid != 0) {
       print(token);
       getallbranch();
+      // getfilter();
       // getTravelSummaryFilter();
       setState(() {});
     } else {
@@ -135,6 +139,17 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
         pageSize: pageSize,
         pageNumber: pageNumber));
   }
+
+  // getfilter() {
+  //   _mainBloc.add(DriverMasterFilterEvent(
+  //     token: token,
+  //     vendorId: vendorid,
+  //     branchid: branchid,
+  //     drivercode: "ALL",
+  //     pagenumber: pageNumber,
+  //     pagesize: pageSize,
+  //   ));
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -295,11 +310,13 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
               });
             } else if (state is DriverMasterFilterLoadedState) {
               print("Driver master FILTER data loaded");
-              setState(() {
-                _isLoading = false;
-                filterData!.clear();
+              if (state.driverMasterFilter.data != null) {
+                setState(() {
+                  _isLoading = false;
+                  value = state.driverMasterFilter.totalRecords!;
+                });
                 filterData!.addAll(state.driverMasterFilter.data!);
-              });
+              }
             } else if (state is DriverMasterErrorState) {
               setState(() {
                 _isLoading = false;
@@ -311,12 +328,15 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
               });
               print("Entering in loading state");
             } else if (state is DriverMasterLoadedState) {
-              setState(() {
-                print("Driver master data loaded");
-                _isLoading = false;
-                data!.clear();
+              print("Driver master data loaded");
+              if (state.drivermasterreportresponse.data != null) {
+                pageNumber++;
+                setState(() {
+                  _isLoading = false;
+                  value = state.drivermasterreportresponse.totalRecords!;
+                });
                 data!.addAll(state.drivermasterreportresponse.data!);
-              });
+              }
             } else if (state is DriverMasterErrorState) {
               setState(() {
                 _isLoading = false;
@@ -343,6 +363,7 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
           },
           child: isfilter
               ? SingleChildScrollView(
+                  controller: notificationController,
                   child: Padding(
                     padding: const EdgeInsets.all(0),
                     //left: 8, top: 16.0, right: 8.0),
@@ -380,9 +401,8 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
                                               fontSize: 18),
                                         ),
                                         onPressed: () {
+                                          dmdcvehnolisttiletext = "-select-";
                                           setState(() {
-                                            isfilter = false;
-                                            applyclicked = true;
                                           });
                                         },
                                       ),
@@ -413,11 +433,11 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
                                             _mainBloc
                                                 .add(DriverMasterFilterEvent(
                                               token: token,
-                                              vendorId: 1,
-                                              branchid: 1,
+                                              vendorId: vendorid,
+                                              branchid: branchid,
                                               drivercode: dmdcvehno,
-                                              pagenumber: 1,
-                                              pagesize: 10,
+                                              pagenumber: pageSize,
+                                              pagesize: pageSize,
                                             ));
                                             setState(() {
                                               isfilter = false;
@@ -613,13 +633,21 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
                                     child: ListTile(
                                       leading: Text(
                                         dmdcvehnolisttiletext == null
-                                            ? "ALL"
+                                            ? "-select-"
                                             : dmdcvehnolisttiletext,
                                         style: TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.w400),
                                       ),
-                                      trailing: IconButton(
+                                      trailing:isdmdc ? IconButton(
+                                      icon: Icon(
+                                        Icons.keyboard_arrow_up,
+                                      ),  
+                                      onPressed: () {
+                                        isdmdc = false;
+                                        setState(() {});
+                                      },
+                                    ): IconButton(
                                         icon: Icon(Icons.keyboard_arrow_down),
                                         onPressed: () {
                                           isdmdc = true;
@@ -686,7 +714,7 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
                   ),
                 )
               : SingleChildScrollView(
-                  controller: controller,
+                  controller: notificationController,
                   child: Column(children: [
                     Container(
                         decoration: BoxDecoration(

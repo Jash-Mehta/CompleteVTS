@@ -6,11 +6,11 @@ class DriverMasterReport {
   int? totalPages;
   int? totalRecords;
   String? nextPage;
-  Null? previousPage;
+  String? previousPage;
   List<DriverMasterData>? data;
   bool? succeeded;
-  Null? errors;
-  Null? message;
+  String? errors;
+  String? message;
 
   DriverMasterReport(
       {this.pageNumber,
