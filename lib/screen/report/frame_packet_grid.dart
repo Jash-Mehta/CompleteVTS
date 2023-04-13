@@ -422,9 +422,10 @@ class _FramePacketGridState extends State<FramePacketGrid> {
             });
           } else if (state is FramePacketGridLoadedState) {
             if (state.FramePacketGridResponse.data != null) {
-              pageNumber++;
               print("Frame grid  loaded");
               setState(() {
+                // framepacketgriddata!.clear();
+                pageNumber++;
                 _isLoading = false;
                 value = state.FramePacketGridResponse.totalRecords!;
               });

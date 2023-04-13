@@ -426,13 +426,14 @@ class _FramePacketState extends State<FramePacket> {
             });
           } else if (state is FramePacketLoadedState) {
             if (state.FramePacketResponse.data != null) {
-              pageNumber++;
               print("Frame packet data loaded");
               setState(() {
-                 value = state.FramePacketResponse.totalRecords!;
+                pageNumber++;
+                _isLoading = false;
+                value = state.FramePacketResponse.totalRecords!;
               });
               framedata!.addAll(state.FramePacketResponse.data!);
-            } 
+            }
           } else if (state is FramePacketErrorState) {
             print("Frame packet data error state");
             setState(() {
@@ -468,7 +469,7 @@ class _FramePacketState extends State<FramePacket> {
         },
         child: isfilter
             ? SingleChildScrollView(
-              controller: notificationController,
+                controller: notificationController,
                 child: Padding(
                   padding: const EdgeInsets.all(0),
                   //left: 8, top: 16.0, right: 8.0),
@@ -731,23 +732,25 @@ class _FramePacketState extends State<FramePacket> {
                                           fontSize: 16,
                                           fontWeight: FontWeight.w400),
                                     ),
-                                    trailing:isfpdc ? IconButton(
-                                      icon: Icon(
-                                        Icons.keyboard_arrow_up,
-                                      ),  
-                                      onPressed: () {
-                                        isfpdc = false;
-                                        setState(() {});
-                                      },
-                                    ): IconButton(
-                                      icon: Icon(
-                                        Icons.keyboard_arrow_down,
-                                      ),
-                                      onPressed: () {
-                                        isfpdc = true;
-                                        setState(() {});
-                                      },
-                                    ),
+                                    trailing: isfpdc
+                                        ? IconButton(
+                                            icon: Icon(
+                                              Icons.keyboard_arrow_up,
+                                            ),
+                                            onPressed: () {
+                                              isfpdc = false;
+                                              setState(() {});
+                                            },
+                                          )
+                                        : IconButton(
+                                            icon: Icon(
+                                              Icons.keyboard_arrow_down,
+                                            ),
+                                            onPressed: () {
+                                              isfpdc = true;
+                                              setState(() {});
+                                            },
+                                          ),
                                   )),
                               isfpdc
                                   ? Container(
@@ -840,23 +843,25 @@ class _FramePacketState extends State<FramePacket> {
                                           fontSize: 16,
                                           fontWeight: FontWeight.w400),
                                     ),
-                                    trailing:isfpgo ? IconButton(
-                                      icon: Icon(
-                                        Icons.keyboard_arrow_up,
-                                      ),  
-                                      onPressed: () {
-                                        isfpgo = false;
-                                        setState(() {});
-                                      },
-                                    ):  IconButton(
-                                      icon: Icon(
-                                        Icons.keyboard_arrow_down,
-                                      ),
-                                      onPressed: () {
-                                        isfpgo = true;
-                                        setState(() {});
-                                      },
-                                    ),
+                                    trailing: isfpgo
+                                        ? IconButton(
+                                            icon: Icon(
+                                              Icons.keyboard_arrow_up,
+                                            ),
+                                            onPressed: () {
+                                              isfpgo = false;
+                                              setState(() {});
+                                            },
+                                          )
+                                        : IconButton(
+                                            icon: Icon(
+                                              Icons.keyboard_arrow_down,
+                                            ),
+                                            onPressed: () {
+                                              isfpgo = true;
+                                              setState(() {});
+                                            },
+                                          ),
                                   )),
                               isfpgo
                                   ? Container(
@@ -1563,65 +1568,70 @@ class _FramePacketState extends State<FramePacket> {
                                             fontWeight: FontWeight.bold),
                                       );
                                     }),
-                         applyclicked ? Container(
-                            margin: EdgeInsets.only(top: 10, bottom: 20),
-                            padding: EdgeInsets.all(15),
-                            decoration: BoxDecoration(
-                                color: MyColors.bluereportColorCode,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10))),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Text("From Date  -  To Date",
-                                        style: TextStyle(fontSize: 18)),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Text(
-                                        fromDateController != null
-                                            ? fromDateController + "  -  "
-                                            : "01-sep-2022" + "  -  ",
-                                        style: TextStyle(fontSize: 18)),
-                                    Text(
-                                        toDateController != null
-                                            ? toDateController
-                                            : "30-sep-2022" + "  -  ",
-                                        style: TextStyle(fontSize: 18)),
-                                  ],
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(top: 10),
-                                  child: Row(
-                                    // mainAxisAlignment: MainAxisAlignment.start,
-                                    // crossAxisAlignment: CrossAxisAlignment.start,
+                          applyclicked
+                              ? Container(
+                                  margin: EdgeInsets.only(top: 10, bottom: 20),
+                                  padding: EdgeInsets.all(15),
+                                  decoration: BoxDecoration(
+                                      color: MyColors.bluereportColorCode,
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(10))),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      Expanded(
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                      Row(
+                                        children: [
+                                          Text("From Date  -  To Date",
+                                              style: TextStyle(fontSize: 18)),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Text(
+                                              fromDateController != null
+                                                  ? fromDateController + "  -  "
+                                                  : "01-sep-2022" + "  -  ",
+                                              style: TextStyle(fontSize: 18)),
+                                          Text(
+                                              toDateController != null
+                                                  ? toDateController
+                                                  : "30-sep-2022" + "  -  ",
+                                              style: TextStyle(fontSize: 18)),
+                                        ],
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.only(top: 10),
+                                        child: Row(
+                                          // mainAxisAlignment: MainAxisAlignment.start,
+                                          // crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            Text(
-                                              "VehicleRegNo",
-                                              style: TextStyle(fontSize: 18),
+                                            Expanded(
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    "VehicleRegNo",
+                                                    style:
+                                                        TextStyle(fontSize: 18),
+                                                  ),
+                                                  Text("MH12AB0015",
+                                                      style: TextStyle(
+                                                          fontSize: 18)),
+                                                ],
+                                              ),
                                             ),
-                                            Text("MH12AB0015",
-                                                style: TextStyle(fontSize: 18)),
                                           ],
                                         ),
                                       ),
                                     ],
                                   ),
-                                ),
-                              ],
-                            ),
-                          ) : SizedBox(),
+                                )
+                              : SizedBox(),
                           applyclicked
                               ? framefilterdata!.isEmpty
                                   ? Center(

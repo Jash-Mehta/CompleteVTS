@@ -178,6 +178,8 @@ class Constant {
   //     baseUrl + 'FramePacketReport/FillFramePacket?ARAI_NONARAI=arai';
   static String FramePacketReportUrl =
       baseUrl + 'FramePacketReport/GetFramepacketReport?VendorId=';
+  static String FramePacketGridUrl = baseUrl +
+      '/FramePacketGridviewReport/FilterFramePacketGridViewReport?VendorId=';
   // https://vtsgpsapi.m-techinnovations.com/api/FramePacketReport/GetFramepacketReport?VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=01-sep-2022&FromTime=12:30&ToDate=30-sep-2022&ToTime=18:30&IMEINO=867322033819244&FramePacketOption=datapacket&PageNumber=1&PageSize=10
   static String getFramePacketReportSearchUrl =
       baseUrl + 'FramePacketReport/GetFramepacketReport?VendorId=';
@@ -214,40 +216,39 @@ class Constant {
   // TimeWiseTravelHistoryReport/GetAllTimeWiseTravelHistory
   static String datewisesearch = baseUrl +
       'DateWiseTravelHistorySummaryReport/SearchDatewiseTravelHistorySummary';
-  static String searchvehiclestatusgroupurl =
-      baseUrl + 'VehicleStatusGroupByReport/SearchVehicleStatusGroupByReport?VendorId=';
+  static String searchvehiclestatusgroupurl = baseUrl +
+      'VehicleStatusGroupByReport/SearchVehicleStatusGroupByReport?VendorId=';
 
-   static String vehiclewisetravelhistory =
+  static String vehiclewisetravelhistory =
       baseUrl + 'VehicleWiseTravelHistoryReport/GetAllVehicleWiseTravelHistory';
 
-    static String vehiclewisefilter =
-      baseUrl + 'VehicleWiseTravelHistoryReport/ApplyFilterVehicleWiseTravelHistory';
+  static String vehiclewisefilter = baseUrl +
+      'VehicleWiseTravelHistoryReport/ApplyFilterVehicleWiseTravelHistory';
 
-    static String vehicletimewisefilter =
-      baseUrl + 'VehiclewiseTimewiseTravelHistoryReport/ApplyFilterVehicleWiseTimeWiseTravelHistory';
+  static String vehicletimewisefilter = baseUrl +
+      'VehiclewiseTimewiseTravelHistoryReport/ApplyFilterVehicleWiseTimeWiseTravelHistory';
 
-     static String vehiclewisesearch =
+  static String vehiclewisesearch =
       baseUrl + 'VehicleWiseTravelHistoryReport/SearchVehicleWiseTravelHistory';
-  
-      static String vehicletimewisesearch =
-      baseUrl + 'VehiclewiseTimewiseTravelHistoryReport/SearchVehicleWiseTimeWiseTravelHistory';
 
-    static String vehicletimewisetravelhistory =
-      baseUrl + 'VehiclewiseTimewiseTravelHistoryReport/GetAllVehicleWiseTimeWiseTravelHistory';
-      
+  static String vehicletimewisesearch = baseUrl +
+      'VehiclewiseTimewiseTravelHistoryReport/SearchVehicleWiseTimeWiseTravelHistory';
 
- static String dateandtimewisedistance =
+  static String vehicletimewisetravelhistory = baseUrl +
+      'VehiclewiseTimewiseTravelHistoryReport/GetAllVehicleWiseTimeWiseTravelHistory';
+
+  static String dateandtimewisedistance =
       baseUrl + 'TimeWiseTravelHistoryReport/GetAllTimeWiseTravelHistory';
- static String dateandtimewisefilter =
+  static String dateandtimewisefilter =
       baseUrl + 'TimeWiseTravelHistoryReport/ApplyFilterTimeWiseTravelHistory';
-static String dateandtimewisesearch =
+  static String dateandtimewisesearch =
       baseUrl + 'TimeWiseTravelHistoryReport/SearchTimeWiseTravelHistory';
 
   static String getVehcleReportUrl =
       baseUrl + 'VehicleMasterReports/GetVehicleReport?VendorId=';
   static String searchVehicleReporturl =
       baseUrl + 'VehicleMasterReports/SearchVehicleReport?VendorId=';
-     static String filterVehicleReporturl =
+  static String filterVehicleReporturl =
       baseUrl + 'VehicleMasterReports/ApplyFilterVehicleMaster?VendorId=';
   static String devicemasterfilterurl =
       baseUrl + 'DeviceMasterReports/FilterApplyDeviceReport';
@@ -259,43 +260,51 @@ static String dateandtimewisesearch =
       baseUrl + 'DeviceMasterReports/DeviceMasterReport?VendorId=';
   static String overspeedfilterurl =
       baseUrl + 'VehicleWiseOverSpeedReport/FilterOverSpeed';
-  static String vehiclestatusgroupurl =
-      baseUrl + 'VehicleStatusGroupByReport/GetVehicleStatusGroupByReport?VendorId=';
+  static String vehiclestatusgroupurl = baseUrl +
+      'VehicleStatusGroupByReport/GetVehicleStatusGroupByReport?VendorId=';
   static String vehiclestatusreporturl =
       baseUrl + 'VehicleStatusReport/GetVehicleStatusReport?VendorId=';
-  static String vehiclestatussummaryurl =
-      baseUrl + 'VehicleStatusSummaryReport/GetVehicleStatusSummaryReport?VendorId=';
+  static String vehiclestatussummaryurl = baseUrl +
+      'VehicleStatusSummaryReport/GetVehicleStatusSummaryReport?VendorId=';
   static String vehiclestatusfilter =
       baseUrl + 'VehicleStatusReport/FilterVehicleStatusReport';
-  static String vehiclegroupfilter =
-      baseUrl + 'VehicleStatusGroupByReport/FilterVehicleStatusGroupByReport?VendorId=';
-  static String vehiclesummaryfilter =
-      baseUrl + 'VehicleStatusSummaryReport/FilterVehicleStatusSummaryReport?VendorId=';
+  static String vehiclegroupfilter = baseUrl +
+      'VehicleStatusGroupByReport/FilterVehicleStatusGroupByReport?VendorId=';
+  static String vehiclesummaryfilter = baseUrl +
+      'VehicleStatusSummaryReport/FilterVehicleStatusSummaryReport?VendorId=';
 
-   static String framefilterurl =
+  static String framefilterurl =
       baseUrl + 'FramePacketReport/FilterFramepacketReport';
-   static String framegridfilterurl =
+  static String framegridfilterurl =
       baseUrl + 'FramePacketGridviewReport/FilterFramePacketGridViewReport';
-    static String getDeviceMasterReportUrl = baseUrl + 'DeviceMasterReports/DeviceMasterReport?VendorId=';
+  static String getDeviceMasterReportUrl =
+      baseUrl + 'DeviceMasterReports/DeviceMasterReport?VendorId=';
 
-  static String searchDeviceMasterReportUrl = baseUrl + 'DeviceMasterReports/SearchDeviceMasterReport?VendorId=';
+  static String searchDeviceMasterReportUrl =
+      baseUrl + 'DeviceMasterReports/SearchDeviceMasterReport?VendorId=';
 
-  static String getdriverwisevehassignReportUrl = baseUrl + 'DriverWiseVehicalAssignReports/GetDriverVehicleAssign?VendorId=';
+  static String getdriverwisevehassignReportUrl = baseUrl +
+      'DriverWiseVehicalAssignReports/GetDriverVehicleAssign?VendorId=';
 
-  static String searchDriverwiseAssignReportUrl = baseUrl + 'DriverWiseVehicalAssignReports/SearchDriverVehicleAssign?VendorId=1';
+  static String searchDriverwiseAssignReportUrl = baseUrl +
+      'DriverWiseVehicalAssignReports/SearchDriverVehicleAssign?VendorId=1';
 
- static String searchDatewiseTravelrurl = baseUrl + '/DateWiseTravelHistoryReport/SearchDatewiseTravelHistory?VendorId=';
-  static String searchdrivermasterurl = baseUrl + '/DriverMasterReports/SearchDriverMasterReport?VendorId=';
- 
-  static String searchFramePacketrurl = baseUrl + 'FramePacketReport/SearchFramepacketReport?VendorId=';
+  static String searchDatewiseTravelrurl = baseUrl +
+      '/DateWiseTravelHistoryReport/SearchDatewiseTravelHistory?VendorId=';
+  static String searchdrivermasterurl =
+      baseUrl + '/DriverMasterReports/SearchDriverMasterReport?VendorId=';
 
-   static String searchFramePacketgridurl = baseUrl + '/FramePacketGridviewReport/SearchFramePacketGridViewReport?VendorId=1';
+  static String searchFramePacketrurl =
+      baseUrl + 'FramePacketReport/SearchFramepacketReport?VendorId=';
 
-  static String searchvehiclestatusreporturl = baseUrl + 'VehicleStatusReport/SearchVehicleStatusReport?VendorId=';
+  static String searchFramePacketgridurl = baseUrl +
+      '/FramePacketGridviewReport/SearchFramePacketGridViewReport?VendorId=1';
 
-   static String searchvehiclestatussummaryurl =
-      baseUrl + 'VehicleStatusSummaryReport/SearchVehicleStatusSummaryReport?VendorId=';
-   
+  static String searchvehiclestatusreporturl =
+      baseUrl + 'VehicleStatusReport/SearchVehicleStatusReport?VendorId=';
+
+  static String searchvehiclestatussummaryurl = baseUrl +
+      'VehicleStatusSummaryReport/SearchVehicleStatusSummaryReport?VendorId=';
 
   //  https://vtsgpsapi.m-techinnovations.com/api/FramePacketGridviewReport/FillFramePacket?ARAI_NONARAI=arai
 

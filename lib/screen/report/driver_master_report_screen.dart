@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_vts/bloc/main_bloc.dart';
 import 'package:flutter_vts/bloc/main_event.dart';
@@ -7,13 +8,18 @@ import 'package:flutter_vts/util/custom_app_bar.dart';
 import 'package:flutter_vts/util/menu_drawer.dart';
 import 'package:loading_overlay/loading_overlay.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:permission_handler/permission_handler.dart';
+import 'package:open_file/open_file.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:pdf/pdf.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../model/Driver_Master/driver_master.dart';
 import '../../model/Driver_Master/driver_master_drivercode.dart';
 import '../../model/Driver_Master/search_driver_master_report_response.dart';
 import '../../model/alert/all_alert_master_response.dart';
 import 'package:flutter_vts/model/report/search_overspeed_response.dart';
-
 import '../../model/Driver_Master/driver_master_filter.dart';
 import '../../model/report/over_speed_report_response.dart';
 import '../../model/searchString.dart';
@@ -46,6 +52,7 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
   late String token = "";
   late int branchid = 1, vendorid = 1;
   List<DriverMasterData>? data = [];
+  List<DriverMasterData>? pdfdatalist = [];
   List<FindDriverMasterData>? searchData = [];
   SearchStringClass searchClass = SearchStringClass(searchStr: '');
   List<FilterData>? filterData = [];
@@ -402,8 +409,7 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
                                         ),
                                         onPressed: () {
                                           dmdcvehnolisttiletext = "-select-";
-                                          setState(() {
-                                          });
+                                          setState(() {});
                                         },
                                       ),
                                     ],
@@ -639,21 +645,24 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
                                             fontSize: 16,
                                             fontWeight: FontWeight.w400),
                                       ),
-                                      trailing:isdmdc ? IconButton(
-                                      icon: Icon(
-                                        Icons.keyboard_arrow_up,
-                                      ),  
-                                      onPressed: () {
-                                        isdmdc = false;
-                                        setState(() {});
-                                      },
-                                    ): IconButton(
-                                        icon: Icon(Icons.keyboard_arrow_down),
-                                        onPressed: () {
-                                          isdmdc = true;
-                                          setState(() {});
-                                        },
-                                      ),
+                                      trailing: isdmdc
+                                          ? IconButton(
+                                              icon: Icon(
+                                                Icons.keyboard_arrow_up,
+                                              ),
+                                              onPressed: () {
+                                                isdmdc = false;
+                                                setState(() {});
+                                              },
+                                            )
+                                          : IconButton(
+                                              icon: Icon(
+                                                  Icons.keyboard_arrow_down),
+                                              onPressed: () {
+                                                isdmdc = true;
+                                                setState(() {});
+                                              },
+                                            ),
                                     )),
                                 isdmdc
                                     ? Container(
@@ -742,27 +751,44 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
                                 ],
                               ),
                             ),
-                            Container(
-                              margin: const EdgeInsets.only(left: 15),
-                              padding: const EdgeInsets.only(
-                                  top: 6.0, left: 15, right: 15, bottom: 6),
-                              decoration: BoxDecoration(
-                                  color: MyColors.lightblueColorCode,
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(20))),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.file_copy_sharp,
-                                    color: MyColors.analyticActiveColorCode,
-                                  ),
-                                  Text(
-                                    "Download",
-                                    style: TextStyle(
-                                        color:
-                                            MyColors.analyticActiveColorCode),
-                                  ),
-                                ],
+                            GestureDetector(
+                              onTap: () async {
+                                pdfdatalist!.addAll(data!);
+                                setState(() {});
+                                var status = await Permission.storage.status;
+                                if (await Permission.storage
+                                    .request()
+                                    .isGranted) {
+                                  final pdfFile = await PdfInvoiceApi.generate(
+                                      pdfdatalist!);
+                                  PdfApi.openFile(pdfFile);
+                                } else {
+                                  print("Request is not accepted");
+                                  await Permission.storage.request();
+                                }
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.only(left: 15),
+                                padding: const EdgeInsets.only(
+                                    top: 6.0, left: 15, right: 15, bottom: 6),
+                                decoration: const BoxDecoration(
+                                    color: MyColors.lightblueColorCode,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(20))),
+                                child: Row(
+                                  children: const [
+                                    Icon(
+                                      Icons.file_copy_sharp,
+                                      color: MyColors.analyticActiveColorCode,
+                                    ),
+                                    Text(
+                                      "Download",
+                                      style: TextStyle(
+                                          color:
+                                              MyColors.analyticActiveColorCode),
+                                    ),
+                                  ],
+                                ),
                               ),
                             )
                           ],
@@ -1618,5 +1644,169 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
         pagesize: pageSize,
       ));
     }
+  }
+}
+
+class PdfInvoiceApi {
+  static Future<File> generate(List<DriverMasterData> pdflist) async {
+    final pdf = pw.Document();
+    double fontsize = 8.0;
+    pdf.addPage(pw.Page(
+      pageFormat: PdfPageFormat.a5,
+      build: (context) {
+        return pw.Column(children: [
+          pw.Center(
+              child: pw.Text("DRIVER MASTER REPORT",
+                  style: pw.TextStyle(
+                      fontSize: 20.0, fontWeight: pw.FontWeight.bold))),
+          pw.Container(
+            margin: const pw.EdgeInsets.only(top: 10.0),
+            child: pw.Table(
+              border: pw.TableBorder.all(color: PdfColors.black, width: 0.8),
+              children: [
+                pw.TableRow(children: [
+                  pw.Padding(
+                    padding:
+                        pw.EdgeInsets.only(top: 8.0, bottom: 8.0, left: 2.0,right: 5.0),
+                    child: pw.Text(
+                      "Sr No",
+                      style: pw.TextStyle(
+                        fontSize: 12.0, fontWeight: pw.FontWeight.bold
+                      ),
+                    ),
+                  ),
+                  pw.Padding(
+                    padding: pw.EdgeInsets.only(top: 8.0, bottom: 8.0,right: 5.0),
+                    child: pw.Text(
+                      "Driver Code",
+                      style: pw.TextStyle(
+                        fontSize: 12.0, fontWeight: pw.FontWeight.bold
+                      ),
+                    ),
+                  ),
+                  pw.Padding(
+                    padding: pw.EdgeInsets.only(top: 8.0, bottom: 8.0,right: 5.0),
+                    child: pw.Text(
+                      "Driver Name",
+                      style: pw.TextStyle(
+                        fontSize: 12.0, fontWeight: pw.FontWeight.bold
+                      ),
+                    ),
+                  ),
+                  pw.Padding(
+                    padding: pw.EdgeInsets.only(top: 8.0, bottom: 8.0,right: 5.0),
+                    child: pw.Text(
+                      "Licence No",
+                      style: pw.TextStyle(
+                        fontSize: 12.0, fontWeight: pw.FontWeight.bold
+                      ),
+                    ),
+                  ),
+                  pw.Padding(
+                    padding:
+                        pw.EdgeInsets.only(left: 5.0, top: 8.0, bottom: 8.0,right: 5.0),
+                    child: pw.Text(
+                      "Mobile No",
+                      style: pw.TextStyle(
+                        fontSize: 12.0,  fontWeight: pw.FontWeight.bold
+                      ),
+                    ),
+                  ),
+                  pw.Padding(
+                    padding:
+                        pw.EdgeInsets.only(left: 5.0, top: 8.0, bottom: 8.0,right: 5.0),
+                    child: pw.Text(
+                      "Date Of Join",
+                      style: pw.TextStyle(
+                        fontSize: 12.0, fontWeight: pw.FontWeight.bold
+                      ),
+                    ),
+                  ),
+                ])
+              ],
+            ),
+          ),
+          pw.Expanded(
+              child: pw.ListView.builder(
+                  itemBuilder: (pw.Context context, int index) {
+                    var article = pdflist[index];
+                    return pw.Table(
+                        border: pw.TableBorder.all(
+                            color: PdfColors.black, width: 0.8),
+                        children: [
+                          pw.TableRow(
+
+                            children: [
+                            // pw.SizedBox(
+                            //   width: 3,
+                            // ),
+                            pw.Padding(padding: pw.EdgeInsets.only(left: 5.0, top: 8.0, bottom: 8.0,right: 5.0),
+                            child:  pw.Text(article.srNo.toString(),
+                                style: pw.TextStyle(fontSize: fontsize)),),
+                           
+                            // pw.SizedBox(
+                            //   width: 3.0,
+                            // ),
+                             pw.Padding(padding: pw.EdgeInsets.only(left: 5.0, top: 8.0, bottom: 8.0,right: 5.0),
+                            child:  pw.Text(article.driverCode.toString(),
+                                style: pw.TextStyle(fontSize: fontsize)),),
+                            // pw.SizedBox(
+                            //   width: 3.0,
+                            // ),
+                             pw.Padding(padding:  pw.EdgeInsets.only(left: 5.0, top: 8.0, bottom: 8.0,right: 5.0),
+                            child:  pw.Text(article.driverName.toString(),
+                                style: pw.TextStyle(fontSize: fontsize)),),
+                            // pw.SizedBox(
+                            //   width: 3.0,
+                            // ),
+                              pw.Padding(padding: pw.EdgeInsets.only(left: 5.0, top: 8.0, bottom: 8.0,right: 5.0),
+                            child:  pw.Text(article.licenceNo.toString(),
+                                style: pw.TextStyle(fontSize: fontsize)),),
+                            // pw.SizedBox(
+                            //   width: 3.0,
+                            // ),
+                              pw.Padding(padding:  pw.EdgeInsets.only(left: 5.0, top: 8.0, bottom: 8.0,right: 5.0),
+                            child:  pw.Text(article.mobileNo.toString(),
+                                style: pw.TextStyle(fontSize: fontsize)),),
+                            // pw.SizedBox(
+                            //   width: 3.0,
+                            // ),
+                              pw.Padding(padding:  pw.EdgeInsets.only(left: 5.0, top: 8.0, bottom: 8.0,right: 5.0),
+                            child:  pw.Text(article.doj.toString(),
+                                style: pw.TextStyle(fontSize: fontsize)),),
+                            // pw.SizedBox(
+                            //   width: 3.0,
+                            // ),
+                          ])
+                        ]);
+                  },
+                  itemCount: pdflist.length))
+        ]);
+      },
+    ));
+
+    return PdfApi.saveDocument(name: 'DriverMasterReport.pdf', pdf: pdf);
+  }
+}
+
+class PdfApi {
+  static Future<File> saveDocument({
+    required String name,
+    required pw.Document pdf,
+  }) async {
+    final bytes = await pdf.save();
+
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File('${dir.path}/$name');
+
+    await file.writeAsBytes(bytes);
+
+    return file;
+  }
+
+  static Future openFile(File file) async {
+    final url = file.path;
+
+    await OpenFile.open(url);
   }
 }
