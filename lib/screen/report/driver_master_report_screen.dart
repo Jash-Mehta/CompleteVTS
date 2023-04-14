@@ -320,11 +320,12 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
               if (state.driverMasterFilter.data != null) {
                 setState(() {
                   _isLoading = false;
+                  filterData!.clear();
                   value = state.driverMasterFilter.totalRecords!;
                 });
                 filterData!.addAll(state.driverMasterFilter.data!);
               }
-            } else if (state is DriverMasterErrorState) {
+            } else if (state is DriverMasterFilterErorrState) {
               setState(() {
                 _isLoading = false;
               });
@@ -337,8 +338,8 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
             } else if (state is DriverMasterLoadedState) {
               print("Driver master data loaded");
               if (state.drivermasterreportresponse.data != null) {
-                pageNumber++;
                 setState(() {
+                  pageNumber++;
                   _isLoading = false;
                   value = state.drivermasterreportresponse.totalRecords!;
                 });
@@ -442,7 +443,7 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
                                               vendorId: vendorid,
                                               branchid: branchid,
                                               drivercode: dmdcvehno,
-                                              pagenumber: pageSize,
+                                              pagenumber: 1,
                                               pagesize: pageSize,
                                             ));
                                             setState(() {
@@ -1666,74 +1667,71 @@ class PdfInvoiceApi {
               children: [
                 pw.TableRow(children: [
                   pw.Padding(
-                    padding:
-                        pw.EdgeInsets.only(top: 8.0, bottom: 8.0, left: 5.0,right: 5.0),
-                    child: pw.SizedBox( 
-                      width: 30,
-                      child:pw.Text(
-                      "Sr No",
-                      style: pw.TextStyle(
-                        fontSize: 12.0, fontWeight: pw.FontWeight.bold
-                      ),
-                    ),)
-                  ),
+                      padding: pw.EdgeInsets.only(
+                          top: 8.0, bottom: 8.0, left: 5.0, right: 5.0),
+                      child: pw.SizedBox(
+                        width: 30,
+                        child: pw.Text(
+                          "Sr No",
+                          style: pw.TextStyle(
+                              fontSize: 12.0, fontWeight: pw.FontWeight.bold),
+                        ),
+                      )),
                   pw.Padding(
-                    padding: pw.EdgeInsets.only(top: 8.0, bottom: 8.0,right: 5.0,left: 5.0),
-                    child: pw.SizedBox( 
-                      width: 50,
-                      child:pw.Text(
-                      "Driver Code",
-                      style: pw.TextStyle(
-                        fontSize: 12.0, fontWeight: pw.FontWeight.bold
-                      ),
-                    ),)
-                  ),
+                      padding: pw.EdgeInsets.only(
+                          top: 8.0, bottom: 8.0, right: 5.0, left: 5.0),
+                      child: pw.SizedBox(
+                        width: 50,
+                        child: pw.Text(
+                          "Driver Code",
+                          style: pw.TextStyle(
+                              fontSize: 12.0, fontWeight: pw.FontWeight.bold),
+                        ),
+                      )),
                   pw.Padding(
-                    padding: pw.EdgeInsets.only(left: 5.0, top: 8.0, bottom: 8.0,right: 5.0),
-                    child: pw.SizedBox( 
-                      width: 50,
-                      child:pw.Text(
-                      "Driver Name",
-                      style: pw.TextStyle(
-                        fontSize: 12.0, fontWeight: pw.FontWeight.bold
-                      ),
-                    ),)
-                  ),
+                      padding: pw.EdgeInsets.only(
+                          left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
+                      child: pw.SizedBox(
+                        width: 50,
+                        child: pw.Text(
+                          "Driver Name",
+                          style: pw.TextStyle(
+                              fontSize: 12.0, fontWeight: pw.FontWeight.bold),
+                        ),
+                      )),
                   pw.Padding(
-                    padding: pw.EdgeInsets.only(left: 5.0, top: 8.0, bottom: 8.0,right: 5.0),
-                    child: pw.SizedBox( 
-                      width: 50,
-                      child:pw.Text(
-                      "Licence No",
-                      style: pw.TextStyle(
-                        fontSize: 12.0, fontWeight: pw.FontWeight.bold
-                      ),
-                    ),)
-                  ),
+                      padding: pw.EdgeInsets.only(
+                          left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
+                      child: pw.SizedBox(
+                        width: 50,
+                        child: pw.Text(
+                          "Licence No",
+                          style: pw.TextStyle(
+                              fontSize: 12.0, fontWeight: pw.FontWeight.bold),
+                        ),
+                      )),
                   pw.Padding(
-                    padding:
-                        pw.EdgeInsets.only(left: 5.0, top: 8.0, bottom: 8.0,right: 5.0),
-                    child: pw.SizedBox( 
-                      width: 50,
-                      child:pw.Text(
-                      "Mobile Number",
-                      style: pw.TextStyle(
-                        fontSize: 12.0, fontWeight: pw.FontWeight.bold
-                      ),
-                    ),)
-                  ),
+                      padding: pw.EdgeInsets.only(
+                          left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
+                      child: pw.SizedBox(
+                        width: 50,
+                        child: pw.Text(
+                          "Mobile Number",
+                          style: pw.TextStyle(
+                              fontSize: 12.0, fontWeight: pw.FontWeight.bold),
+                        ),
+                      )),
                   pw.Padding(
-                    padding:
-                        pw.EdgeInsets.only(left: 5.0, top: 8.0, bottom: 8.0,right: 5.0),
-                    child: pw.SizedBox( 
-                      width: 50,
-                      child:pw.Text(
-                      "Date of join",
-                      style: pw.TextStyle(
-                        fontSize: 12.0, fontWeight: pw.FontWeight.bold
-                      ),
-                    ),)
-                  ),
+                      padding: pw.EdgeInsets.only(
+                          left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
+                      child: pw.SizedBox(
+                        width: 50,
+                        child: pw.Text(
+                          "Date of join",
+                          style: pw.TextStyle(
+                              fontSize: 12.0, fontWeight: pw.FontWeight.bold),
+                        ),
+                      )),
                 ])
               ],
             ),
@@ -1742,64 +1740,86 @@ class PdfInvoiceApi {
               child: pw.ListView.builder(
                   itemBuilder: (pw.Context context, int index) {
                     var article = pdflist[index];
-                    return  pw.Table(
+                    return pw.Table(
                         border: pw.TableBorder.all(
                             color: PdfColors.black, width: 0.8),
                         children: [
-                          pw.TableRow(
-
-                            children: [
+                          pw.TableRow(children: [
                             // pw.SizedBox(
                             //   width: 3,
                             // ),
-                            
+
                             // -------------------------------------------------------
-                            pw.Padding(padding: pw.EdgeInsets.only(left: 5.0, top: 8.0, bottom: 8.0,right: 5.0),
-                            child: pw.SizedBox(
-                              width: 20,
-                              child:pw.Text(article.srNo.toString(),
-                                style: pw.TextStyle(fontSize: fontsize)),),),
-                           
+                            pw.Padding(
+                              padding: pw.EdgeInsets.only(
+                                  left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
+                              child: pw.SizedBox(
+                                width: 20,
+                                child: pw.Text(article.srNo.toString(),
+                                    style: pw.TextStyle(fontSize: fontsize)),
+                              ),
+                            ),
+
                             // pw.SizedBox(
                             //   width: 3.0,
                             // ),
-                             pw.Padding(padding: pw.EdgeInsets.only(left: 5.0, top: 8.0, bottom: 8.0,right: 5.0),
-                            child: pw.SizedBox(
-                              width: 40,
-                              child:pw.Text(article.driverCode.toString(),
-                                style: pw.TextStyle(fontSize: fontsize)),),),
+                            pw.Padding(
+                              padding: pw.EdgeInsets.only(
+                                  left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
+                              child: pw.SizedBox(
+                                width: 40,
+                                child: pw.Text(article.driverCode.toString(),
+                                    style: pw.TextStyle(fontSize: fontsize)),
+                              ),
+                            ),
                             // pw.SizedBox(
                             //   width: 3.0,
                             // ),
-                             pw.Padding(padding:  pw.EdgeInsets.only(left: 5.0, top: 8.0, bottom: 8.0,right: 5.0),
-                            child: pw.SizedBox(
-                              width: 40,
-                              child:pw.Text(article.driverName.toString(),
-                                style: pw.TextStyle(fontSize: fontsize)),),),
+                            pw.Padding(
+                              padding: pw.EdgeInsets.only(
+                                  left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
+                              child: pw.SizedBox(
+                                width: 40,
+                                child: pw.Text(article.driverName.toString(),
+                                    style: pw.TextStyle(fontSize: fontsize)),
+                              ),
+                            ),
                             // pw.SizedBox(
                             //   width: 3.0,
                             // ),
-                              pw.Padding(padding: pw.EdgeInsets.only(left: 5.0, top: 8.0, bottom: 8.0,right: 5.0),
-                            child:  pw.SizedBox(
-                              width: 40,
-                              child:pw.Text(article.licenceNo.toString(),
-                                style: pw.TextStyle(fontSize: fontsize)),),),
+                            pw.Padding(
+                              padding: pw.EdgeInsets.only(
+                                  left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
+                              child: pw.SizedBox(
+                                width: 40,
+                                child: pw.Text(article.licenceNo.toString(),
+                                    style: pw.TextStyle(fontSize: fontsize)),
+                              ),
+                            ),
                             // pw.SizedBox(
                             //   width: 3.0,
                             // ),
-                              pw.Padding(padding:  pw.EdgeInsets.only(left: 5.0, top: 8.0, bottom: 8.0,right: 5.0),
-                            child:  pw.SizedBox(
-                              width: 40,
-                              child:pw.Text(article.mobileNo.toString(),
-                                style: pw.TextStyle(fontSize: fontsize)),),),
+                            pw.Padding(
+                              padding: pw.EdgeInsets.only(
+                                  left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
+                              child: pw.SizedBox(
+                                width: 40,
+                                child: pw.Text(article.mobileNo.toString(),
+                                    style: pw.TextStyle(fontSize: fontsize)),
+                              ),
+                            ),
                             // pw.SizedBox(
                             //   width: 3.0,
                             // ),
-                              pw.Padding(padding:  pw.EdgeInsets.only(left: 5.0, top: 8.0, bottom: 8.0,right: 5.0),
-                            child:  pw.SizedBox(
-                              width: 40,
-                              child:pw.Text(article.doj.toString(),
-                                style: pw.TextStyle(fontSize: fontsize)),),),
+                            pw.Padding(
+                              padding: pw.EdgeInsets.only(
+                                  left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
+                              child: pw.SizedBox(
+                                width: 40,
+                                child: pw.Text(article.doj.toString(),
+                                    style: pw.TextStyle(fontSize: fontsize)),
+                              ),
+                            ),
                             // pw.SizedBox(
                             //   width: 3.0,
                             // ),
