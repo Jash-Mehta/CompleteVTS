@@ -3965,16 +3965,12 @@ class WebService {
         'Authorization': "Bearer ${token}",
       },
     );
-    if (response.statusCode == 200) {
-      print("Response code of Veh status is:-------->>${response.statusCode}");
-      print("Response body is:-------->>${response.body}");
+   
       var jsonBody =
           SearchVehicleStatusRpt.fromJson(json.decode(response.body));
       print("JSon  assign body are:-------------$jsonBody");
       return jsonBody;
-    } else {
-      throw Exception('Failed to load data');
-    }
+   
   }
 
   /// Search api for Vehicle status group by
@@ -4080,14 +4076,12 @@ class WebService {
     );
 
     // if (response.statusCode == 200) {
-    print("Successfully getting your data${response.statusCode}");
-    print("JSon  response body are:-------------${response.body}");
+   
 
     var jsonBody =
         SearchVehicleStatusSummaryRpt.fromJson(json.decode(response.body));
 
-    print(
-        "JSon search vehicl summary  dm body are:-------------${jsonBody.data!}");
+    
     return jsonBody;
     // }
     // else {
@@ -4668,7 +4662,7 @@ class WebService {
     // pageSize.toString();
     // String searchdmdataurl =
     //     "https://vtsgpsapi.m-techinnovations.com/api/FramePacketReport/SearchFramepacketReport?VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=01-sep-2022&FromTime=12%3A30&ToDate=30-sep-2022&ToTime=18%3A30&SearchText=MH12&FramePacketOption=loginpacket&PageNumber=1&PageSize=10";
-    https: //vtsgpsapi.m-techinnovations.com/api/FramePacketReport/SearchFramepacketReport?VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=01-sep-2022&FromTime=07:00&ToDate=30-sep-2022&ToTime=18:00&SearchText=MH12&FramePacketOption=loginpacket&PageNumber=1&PageSize=10
+    // https: //vtsgpsapi.m-techinnovations.com/api/FramePacketReport/SearchFramepacketReport?VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=01-sep-2022&FromTime=07:00&ToDate=30-sep-2022&ToTime=18:00&SearchText=MH12&FramePacketOption=loginpacket&PageNumber=1&PageSize=10
 
     print("Search frame url is:----$searchdmdataurl");
     final response = await http.get(
@@ -4678,17 +4672,13 @@ class WebService {
         'Authorization': "Bearer ${token}",
       },
     );
-    if (response.statusCode == 200) {
-      print("Response body is:-------->>${response.statusCode}");
-      print("Response body is:-------->>${response.body}");
-      var jsonBody = SearchFramePcktRpt.fromJson(json.decode(response.body));
-      print("JSon  assign body are:-------------$jsonBody");
-      return jsonBody;
-    } else {
-      throw Exception('Failed to load data');
-    }
+
+    var jsonBody = SearchFramePcktRpt.fromJson(json.decode(response.body));
+
+    return jsonBody;
   }
 
+//! SearchFramePacket GridAPI------------------------------
   Future<SearchFramepacketgrid> searchTextFramePcktgrid(
     String token,
     int vendorId,
@@ -4703,27 +4693,19 @@ class WebService {
     int pagenumber,
     int pagesize,
   ) async {
-    // print(
-    //     "${searchStrClass.searchStr}-----Enter in SEARCH assign future api ----$searchText");
-    String searchdmdataurl = Constant.searchFramePacketrurl +
-        // vendorId.toString() +
-        "&BranchId=1" +
-        // branchId.toString() +
-        "&ARAI_NONARAI=arai" +
-        "&FromDate=01-sep-2022" +
-        "&FromTime=12:30" +
-        "&ToDate=30-sep-2022" +
-        "&ToTime=19:30" +
-        "&SearchText=" +
-        searchText +
-        "&FramePacketOption=datapacket" +
-        "&PageNumber=1" +
-        // pageNumber.toString() +
-        "&PageSize=10";
-    // pageSize.toString();
-    // String searchdmdataurl =
-    //     "https://vtsgpsapi.m-techinnovations.com/api/FramePacketGridviewReport/SearchFramePacketGridViewReport?VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=01-sep-2022&FromTime=12%3A30&ToDate=30-sep-2022&ToTime=19%3A30&SearchText=MH12&FramePacketOption=healthpacket&PageNumber=1&PageSize=10 ";
-    //     print("Search frame url is:----$searchdmdataurl");
+    String searchdmdataurl = Constant.searchFramePacketgridurl +
+        "$vendorId" +
+        "&BranchId=$branchid" +
+        "&ARAI_NONARAI=$araino" +
+        "&FromDate=$fromdate" +
+        "&FromTime=$fromTime" +
+        "&ToDate=$toDate" +
+        "&ToTime=$toTime" +
+        "&SearchText=$searchText" +
+        "&FramePacketOption=$frampacketoption" +
+        "&PageNumber=$pagenumber" +
+        "&PageSize=$pagesize";
+    print("Search Grid URl-------------------" + searchdmdataurl);
     final response = await http.get(
       Uri.parse(searchdmdataurl),
       headers: <String, String>{
@@ -4731,15 +4713,8 @@ class WebService {
         'Authorization': "Bearer ${token}",
       },
     );
-    if (response.statusCode == 200) {
-      print("Response body is:-------->>${response.statusCode}");
-      print("Response body is:-------->>${response.body}");
-      var jsonBody = SearchFramepacketgrid.fromJson(json.decode(response.body));
-      print("JSon  assign body are:-------------$jsonBody");
-      return jsonBody;
-    } else {
-      throw Exception('Failed to load data');
-    }
+    var jsonBody = SearchFramepacketgrid.fromJson(json.decode(response.body));
+    return jsonBody;
   }
 
   Future<SearchVehicleStatusGroupRpt> searchvehstatusgrouprpt(

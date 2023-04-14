@@ -100,6 +100,8 @@ import '../model/report/search_frame_pckt_report.dart';
 import '../model/report/search_overspeed_response.dart';
 import '../model/report/search_overspeed_response.dart';
 import '../model/report/search_vehicle_status_group_response.dart';
+import '../model/report/search_vehicle_status_response.dart';
+import '../model/report/search_vehicle_status_summary.dart';
 import '../model/report/vehicle_group_filter.dart';
 import '../model/report/vehicle_status_filter_report.dart';
 import '../model/report/vehicle_status_group.dart';
@@ -2303,6 +2305,28 @@ class VehicleStatuFilterErrorState extends MainState {
   // TODO: implement props
   List<Object> get props => throw UnimplementedError();
 }
+//! Vehicle Summary Search------------------
+class SearchVehicleStatusSummaryLoadingState extends MainState {
+  List<Object> get props => throw UnimplementedError();
+}
+
+class SearchVehicleStatusSummaryLoadedState extends MainState {
+  SearchVehicleStatusSummaryRpt searchVehicleStatusGroupResponse;
+  SearchVehicleStatusSummaryLoadedState({required this.searchVehicleStatusGroupResponse});
+
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+
+class SearchVehicleStatusSummaryErrorState extends MainState {
+  String msg;
+  SearchVehicleStatusSummaryErrorState({required this.msg});
+
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
 
 // ! here we start--------------
 //! TravelSummary ------All Data State------------
@@ -3071,6 +3095,31 @@ class SearchFramePacketGridErrorState extends MainState {
     List<Object> get props => throw UnimplementedError();
   }
 
+
+
+
+//!State for get vehicle status report...
+class SearchVehicleStatusReportLoadingState extends MainState {
+  List<Object> get props => throw UnimplementedError();
+}
+
+class SearchVehicleStatusReportLoadedState extends MainState {
+  SearchVehicleStatusRpt searchvehicleStatusGroupResponse;
+  SearchVehicleStatusReportLoadedState({required this.searchvehicleStatusGroupResponse});
+
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+
+class SearchVehicleStatusReportErrorState extends MainState {
+  String msg;
+  SearchVehicleStatusReportErrorState({required this.msg});
+
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
 
 
 

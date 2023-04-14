@@ -438,11 +438,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           yield SearchOverSpeedCreateLoadedState(
               searchOverSpeedCreateResponse: search_overspeed_response);
         } catch (e) {
-          print(e.toString());
-          //   yield SearchOverSpeedCreateErrorState(msg: e.toString());
-          // }
+          // print(e.toString());
+          yield SearchOverSpeedCreateErrorState(msg: e.toString());
         }
-        ;
       }
 
       // ----------------------------------------------------
@@ -2241,6 +2239,59 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         } catch (e) {
           print(e.toString());
           yield SearchVehicleStatusGroupErrorState(msg: e.toString());
+        }
+      }
+      
+      //! ---------------- // Search Vehicle Status Report --------------
+      else if (event is SearchVehicleStatusEvent) {
+        try {
+          yield SearchVehicleStatusReportLoadingState();
+          var vehiclestatusreportresponse =
+          await webService.searchvehstatusrpt(
+            event.token,
+            event.vendorId,
+            event.branchid,
+            event.araino,
+            event.fromdate,
+            event.fromTime,
+            event.toDate,
+            event.toTime,
+            event.searchText,
+            event.pagenumber,
+            event.pagesize,
+          );
+          yield SearchVehicleStatusReportLoadedState(
+              searchvehicleStatusGroupResponse: vehiclestatusreportresponse);
+        } catch (e) {
+          print(e.toString());
+        }
+        yield SearchVehicleStatusReportErrorState(msg: "Enetr in Error state...");
+
+      }
+      //! Search Vehicle Status Summary----------------
+      //  ------------------- // Search Vehicle Status Summary--------------
+
+      else if (event is SearchvehicleStatusSummaryEvent) {
+        try {
+          yield SearchVehicleStatusGroupLoadingState();
+          var vehiclestatussummaryresponse =
+          await webService.searchvehicleStatusSummary(
+            event.token,
+            event.vendorId,
+            event.branchid,
+            event.araino,
+            event.fromdate,
+            event.fromTime,
+            event.toDate,
+            event.toTime,
+            event.searchText,
+            event.pagenumber,
+            event.pagesize,
+          );
+          yield SearchVehicleStatusSummaryLoadedState(
+              searchVehicleStatusGroupResponse:  vehiclestatussummaryresponse);
+        } catch (e) {
+          print(e.toString());
         }
       }
 
