@@ -6,11 +6,11 @@ class FrameGridFilterMode {
   int? totalPages;
   int? totalRecords;
   String? nextPage;
-  Null? previousPage;
+  String? previousPage;
   List<FrameGridFilterData>? data;
   bool? succeeded;
-  Null? errors;
-  Null? message;
+  String? errors;
+  String? message;
 
   FrameGridFilterMode(
       {this.pageNumber,
