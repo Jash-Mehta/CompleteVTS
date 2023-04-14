@@ -694,21 +694,24 @@ class _DateAndTimeWiseDistanceScreenState
                                               fontSize: 16,
                                               fontWeight: FontWeight.w400),
                                         ),
-                                        trailing:isosvf ? IconButton(
-                                      icon: Icon(
-                                        Icons.keyboard_arrow_up,
-                                      ),  
-                                      onPressed: () {
-                                        isosvf = false;
-                                        setState(() {});
-                                      },
-                                    ): IconButton(
-                                          icon: Icon(Icons.keyboard_arrow_down),
-                                          onPressed: () {
-                                            isosvf = true;
-                                            setState(() {});
-                                          },
-                                        ),
+                                        trailing: isosvf
+                                            ? IconButton(
+                                                icon: Icon(
+                                                  Icons.keyboard_arrow_up,
+                                                ),
+                                                onPressed: () {
+                                                  isosvf = false;
+                                                  setState(() {});
+                                                },
+                                              )
+                                            : IconButton(
+                                                icon: Icon(
+                                                    Icons.keyboard_arrow_down),
+                                                onPressed: () {
+                                                  isosvf = true;
+                                                  setState(() {});
+                                                },
+                                              ),
                                       )),
                                   isosvf
                                       ? Container(
@@ -2600,7 +2603,7 @@ class _DateAndTimeWiseDistanceScreenState
           toDate: todate,
           toTime: StoTime,
           searchtxt: searchClass.searchStr,
-          pagenumber: pageNumber,
+          pagenumber: 1,
           pagesize: pageSize,
         ));
       }

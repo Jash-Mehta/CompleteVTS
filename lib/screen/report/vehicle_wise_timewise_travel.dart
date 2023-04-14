@@ -510,7 +510,7 @@ class _VehicleWiseTimeWiseTravelState extends State<VehicleWiseTimeWiseTravel> {
                                                       vtwdvehicleno == null
                                                           ? "ALL"
                                                           : vtwdvehicleno,
-                                                  pagenumber: pageNumber,
+                                                  pagenumber: 1,
                                                   pagesize: pageSize));
                                           setState(() {
                                             isfilter = false;
@@ -2375,7 +2375,7 @@ class _VehicleWiseTimeWiseTravelState extends State<VehicleWiseTimeWiseTravel> {
           toDate: todate,
           toTime: StoTime,
           searchtxt: searchClass.searchStr,
-          pagenumber: pageNumber,
+          pagenumber: 1,
           pagesize: pageSize,
         ));
       }

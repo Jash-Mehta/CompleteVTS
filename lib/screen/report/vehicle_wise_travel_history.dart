@@ -527,7 +527,7 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
                                               vehiclelist: vwdvehicleno == null
                                                   ? "ALL"
                                                   : vwdvehicleno,
-                                              pagenumber: pageNumber,
+                                              pagenumber: 1,
                                               pagesize: pageSize));
                                           setState(() {
                                             isfilter = false;
@@ -2390,7 +2390,7 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
           fromdate: fromdate,
           toDate: todate,
           searchtxt: searchClass.searchStr,
-          pagenumber: pageNumber,
+          pagenumber: 1,
           pagesize: pageSize,
         ));
       }

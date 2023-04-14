@@ -1677,7 +1677,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                                             fontSize: 18),
                                                                       ),
                                                                       Text(
-                                                                        "1",
+                                                                        "-",
                                                                         style: TextStyle(
                                                                             color:
                                                                                 MyColors.text5ColorCode,
@@ -1779,7 +1779,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                                               18),
                                                                     ),
                                                                     Text(
-                                                                      "1",
+                                                                      "-",
                                                                       textAlign:
                                                                           TextAlign
                                                                               .left,
@@ -1822,7 +1822,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                                             fontSize: 18),
                                                                       ),
                                                                       Text(
-                                                                        "09/03/2022",
+                                                                        "-",
                                                                         style: TextStyle(
                                                                             color:
                                                                                 MyColors.text5ColorCode,
@@ -1850,7 +1850,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                                               18),
                                                                     ),
                                                                     Text(
-                                                                      "12:01:31",
+                                                                      "-",
                                                                       textAlign:
                                                                           TextAlign
                                                                               .left,
@@ -1964,7 +1964,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                                             fontSize: 18),
                                                                       ),
                                                                       Text(
-                                                                        "0000",
+                                                                        "-",
                                                                         style: TextStyle(
                                                                             color:
                                                                                 MyColors.text5ColorCode,
@@ -1992,7 +1992,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                                               18),
                                                                     ),
                                                                     Text(
-                                                                      "idea",
+                                                                      "-",
                                                                       textAlign:
                                                                           TextAlign
                                                                               .left,
@@ -2035,7 +2035,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                                             fontSize: 18),
                                                                       ),
                                                                       Text(
-                                                                        "1",
+                                                                        "-",
                                                                         style: TextStyle(
                                                                             color:
                                                                                 MyColors.text5ColorCode,
@@ -2063,7 +2063,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                                               18),
                                                                     ),
                                                                     Text(
-                                                                      "1",
+                                                                      "-",
                                                                       textAlign:
                                                                           TextAlign
                                                                               .left,
@@ -2134,7 +2134,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                                               18),
                                                                     ),
                                                                     Text(
-                                                                      "Idea",
+                                                                      "-",
                                                                       textAlign:
                                                                           TextAlign
                                                                               .left,
@@ -2177,7 +2177,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                                             fontSize: 18),
                                                                       ),
                                                                       Text(
-                                                                        "1",
+                                                                        "-",
                                                                         style: TextStyle(
                                                                             color:
                                                                                 MyColors.text5ColorCode,
@@ -2205,7 +2205,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                                               18),
                                                                     ),
                                                                     Text(
-                                                                      "1",
+                                                                      "-",
                                                                       textAlign:
                                                                           TextAlign
                                                                               .left,
@@ -2319,7 +2319,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                                             fontSize: 18),
                                                                       ),
                                                                       Text(
-                                                                        "21",
+                                                                        "-",
                                                                         style: TextStyle(
                                                                             color:
                                                                                 MyColors.text5ColorCode,
@@ -2347,7 +2347,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                                               18),
                                                                     ),
                                                                     Text(
-                                                                      "00912",
+                                                                      "-",
                                                                       textAlign:
                                                                           TextAlign
                                                                               .left,
@@ -2390,7 +2390,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                                             fontSize: 18),
                                                                       ),
                                                                       Text(
-                                                                        "0.5 km",
+                                                                        "-",
                                                                         style: TextStyle(
                                                                             color:
                                                                                 MyColors.text5ColorCode,
@@ -2461,7 +2461,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                                             fontSize: 18),
                                                                       ),
                                                                       Text(
-                                                                        "09/03/2022",
+                                                                        "-",
                                                                         style: TextStyle(
                                                                             color:
                                                                                 MyColors.text5ColorCode,
@@ -2489,7 +2489,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                                               18),
                                                                     ),
                                                                     Text(
-                                                                      "12:30:01",
+                                                                      "-",
                                                                       textAlign:
                                                                           TextAlign
                                                                               .left,
@@ -2669,7 +2669,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                                             fontSize: 18),
                                                                       ),
                                                                       Text(
-                                                                        "1",
+                                                                        "-",
                                                                         style: TextStyle(
                                                                             color:
                                                                                 MyColors.text5ColorCode,
@@ -2771,7 +2771,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                                               18),
                                                                     ),
                                                                     Text(
-                                                                      "1",
+                                                                      "-",
                                                                       textAlign:
                                                                           TextAlign
                                                                               .left,
@@ -2814,7 +2814,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                                             fontSize: 18),
                                                                       ),
                                                                       Text(
-                                                                        "09/03/2022",
+                                                                        "-",
                                                                         style: TextStyle(
                                                                             color:
                                                                                 MyColors.text5ColorCode,
@@ -2842,7 +2842,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                                               18),
                                                                     ),
                                                                     Text(
-                                                                      "12:01:31",
+                                                                      "-",
                                                                       textAlign:
                                                                           TextAlign
                                                                               .left,
@@ -2958,7 +2958,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                                             fontSize: 18),
                                                                       ),
                                                                       Text(
-                                                                        "0000",
+                                                                        "-",
                                                                         style: TextStyle(
                                                                             color:
                                                                                 MyColors.text5ColorCode,
@@ -2986,7 +2986,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                                               18),
                                                                     ),
                                                                     Text(
-                                                                      "idea",
+                                                                      "-",
                                                                       textAlign:
                                                                           TextAlign
                                                                               .left,
@@ -3029,7 +3029,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                                             fontSize: 18),
                                                                       ),
                                                                       Text(
-                                                                        "1",
+                                                                        "-",
                                                                         style: TextStyle(
                                                                             color:
                                                                                 MyColors.text5ColorCode,
@@ -3057,7 +3057,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                                               18),
                                                                     ),
                                                                     Text(
-                                                                      "1",
+                                                                      "-",
                                                                       textAlign:
                                                                           TextAlign
                                                                               .left,
@@ -3171,7 +3171,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                                             fontSize: 18),
                                                                       ),
                                                                       Text(
-                                                                        "1",
+                                                                        "-",
                                                                         style: TextStyle(
                                                                             color:
                                                                                 MyColors.text5ColorCode,
@@ -3199,7 +3199,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                                               18),
                                                                     ),
                                                                     Text(
-                                                                      "1",
+                                                                      "-",
                                                                       textAlign:
                                                                           TextAlign
                                                                               .left,
@@ -3384,7 +3384,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                                             fontSize: 18),
                                                                       ),
                                                                       Text(
-                                                                        "0.5 km",
+                                                                        "-",
                                                                         style: TextStyle(
                                                                             color:
                                                                                 MyColors.text5ColorCode,
@@ -3455,7 +3455,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                                             fontSize: 18),
                                                                       ),
                                                                       Text(
-                                                                        "09/03/2022",
+                                                                        "-",
                                                                         style: TextStyle(
                                                                             color:
                                                                                 MyColors.text5ColorCode,
@@ -3483,7 +3483,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                                               18),
                                                                     ),
                                                                     Text(
-                                                                      "12:30:01",
+                                                                      "-",
                                                                       textAlign:
                                                                           TextAlign
                                                                               .left,
@@ -3766,7 +3766,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                                                 style: TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
                                                                               ),
                                                                               Text(
-                                                                                "09/03/2022",
+                                                                                "-",
                                                                                 style: TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
                                                                               ),
                                                                             ],
@@ -3785,7 +3785,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                                               style: TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
                                                                             ),
                                                                             Text(
-                                                                              "12:01:31",
+                                                                              "-",
                                                                               textAlign: TextAlign.left,
                                                                               style: TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
                                                                             ),
@@ -3872,7 +3872,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                                                 style: TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
                                                                               ),
                                                                               Text(
-                                                                                "0000",
+                                                                                "-",
                                                                                 style: TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
                                                                               ),
                                                                             ],
@@ -3891,7 +3891,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                                               style: TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
                                                                             ),
                                                                             Text(
-                                                                              "idea",
+                                                                              "-",
                                                                               textAlign: TextAlign.left,
                                                                               style: TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
                                                                             ),
@@ -3944,7 +3944,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                                               style: TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
                                                                             ),
                                                                             Text(
-                                                                              "1",
+                                                                              "-",
                                                                               textAlign: TextAlign.left,
                                                                               style: TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
                                                                             ),
@@ -3997,7 +3997,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                                               style: TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
                                                                             ),
                                                                             Text(
-                                                                              "Idea",
+                                                                              "-",
                                                                               textAlign: TextAlign.left,
                                                                               style: TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
                                                                             ),
@@ -4031,7 +4031,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                                                 style: TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
                                                                               ),
                                                                               Text(
-                                                                                "1",
+                                                                                "-",
                                                                                 style: TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
                                                                               ),
                                                                             ],
@@ -4050,7 +4050,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                                               style: TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
                                                                             ),
                                                                             Text(
-                                                                              "1",
+                                                                              "-",
                                                                               textAlign: TextAlign.left,
                                                                               style: TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
                                                                             ),
@@ -4156,7 +4156,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                                               style: TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
                                                                             ),
                                                                             Text(
-                                                                              "00912",
+                                                                              "-",
                                                                               textAlign: TextAlign.left,
                                                                               style: TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
                                                                             ),
@@ -4190,7 +4190,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                                                 style: TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
                                                                               ),
                                                                               Text(
-                                                                                "0.5 km",
+                                                                                "-",
                                                                                 style: TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
                                                                               ),
                                                                             ],
@@ -4243,7 +4243,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                                                 style: TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
                                                                               ),
                                                                               Text(
-                                                                                "09/03/2022",
+                                                                                "-",
                                                                                 style: TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
                                                                               ),
                                                                             ],
@@ -4262,7 +4262,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                                               style: TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
                                                                             ),
                                                                             Text(
-                                                                              "12:30:01",
+                                                                              "-",
                                                                               textAlign: TextAlign.left,
                                                                               style: TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
                                                                             ),

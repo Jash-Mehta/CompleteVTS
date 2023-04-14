@@ -416,7 +416,7 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
                                                   : vsrdcvehicleno.toString(),
                                           imeno: imeino,
                                           pagesize: pageSize,
-                                          pagenumber: pageNumber,
+                                          pagenumber: 1,
                                         ));
                                         setState(() {
                                           isFilter = false;

@@ -212,7 +212,7 @@ class _FramePacketState extends State<FramePacket> {
     return Scaffold(
       drawer: MenuDrawer() /*.getMenuDrawer(context)*/,
       appBar: AppBar(
-        title: !isfilter ? Text("FRAME PACKET DATA") : Text("Filter"),
+        title: !isfilter ? Text("FRAME PACKET REPORT") : Text("Filter"),
         actions: [
           GestureDetector(
             onTap: () {
@@ -3573,7 +3573,7 @@ class _FramePacketState extends State<FramePacket> {
           toTime: StoTime,
           formTime: SfromTime,
           framepacketoption: Sframpacketoption,
-          pageNumber: pageNumber,
+          pageNumber: 1,
           pageSize: pageSize,
           searchText: searchClass.searchStr,
         ));

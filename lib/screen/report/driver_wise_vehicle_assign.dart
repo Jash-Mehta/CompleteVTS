@@ -206,9 +206,7 @@ class _DriverWiseVehicleAssignScreenState
     if (sharedPreferences.getInt("vehicleRegNo") != null) {
       vendorid = sharedPreferences.getInt("vehicleRegNo")!;
     }
-    if (sharedPreferences.getInt("imeino") != null) {
-      branchid = sharedPreferences.getInt("imeino")!;
-    }
+
     if (sharedPreferences.getString("latitude") != null) {
       userName = sharedPreferences.getString("latitude")!;
     }
@@ -246,32 +244,6 @@ class _DriverWiseVehicleAssignScreenState
     print("branchid ${branchid}   Vendor id   ${vendorid}");
 
     //print(""+vendorid.toString()+" "+branchid.toString()+" "+userName+" "+vendorName+" "+branchName+" "+userType);
-    print("" +
-        vehicleRegNo.toString() +
-        " " +
-        imeino.toString() +
-        " " +
-        latitude.toString() +
-        " " +
-        longitude.toString() +
-        " " +
-        address.toString() +
-        " " +
-        transDate.toString() +
-        " " +
-        transTime.toString() +
-        " " +
-        speed.toString() +
-        " " +
-        overSpeed.toString() +
-        " " +
-        updatedOn.toString() +
-        " " +
-        distancetravel.toString() +
-        " " +
-        speedLimit.toString() +
-        " " +
-        searchText);
 
     if (token != "" ||
         vehicleRegNo != 0 ||
@@ -295,9 +267,9 @@ class _DriverWiseVehicleAssignScreenState
       _mainBloc.add(SearchDriverwiseVehAssignDetailsEvent(
         token: token,
         vendorid: vendorid,
-        branchid: branchid,
+        branchid: 1,
         pageSize: pageSize,
-        pageNumber: pageNumber,
+        pageNumber: 1,
         searchText: searchController.text,
       ));
     }
@@ -367,10 +339,8 @@ class _DriverWiseVehicleAssignScreenState
             setState(() {
               _isLoading = false;
               searchdatalist!.clear();
-              searchdatalist!.addAll(state.searchvehassignResponse.data!);
-              print(
-                  "${state.searchvehassignResponse.data!}------SearchDriverWiseVehicleAssignLoadedState---------Data list are--------$searchdatalist");
             });
+            searchdatalist!.addAll(state.searchvehassignResponse.data!);
           } else if (state is SearchDriverVehAssignReportErrorState) {
             setState(() {
               _isLoading = false;
@@ -455,7 +425,7 @@ class _DriverWiseVehicleAssignScreenState
                                                       ? "ALL"
                                                       : dwdcvehicleno
                                                           .toString(),
-                                                  pagenumber: pageNumber,
+                                                  pagenumber: 1,
                                                   pagesize: pageSize));
                                           setState(() {
                                             isfilter = false;
@@ -655,23 +625,25 @@ class _DriverWiseVehicleAssignScreenState
                                           fontSize: 16,
                                           fontWeight: FontWeight.w400),
                                     ),
-                                    trailing:isdwdc ? IconButton(
-                                      icon: Icon(
-                                        Icons.keyboard_arrow_up,
-                                      ),  
-                                      onPressed: () {
-                                        isdwdc = false;
-                                        setState(() {});
-                                      },
-                                    ): IconButton(
-                                      icon: Icon(
-                                        Icons.keyboard_arrow_down,
-                                      ),
-                                      onPressed: () {
-                                        isdwdc = true;
-                                        setState(() {});
-                                      },
-                                    ),
+                                    trailing: isdwdc
+                                        ? IconButton(
+                                            icon: Icon(
+                                              Icons.keyboard_arrow_up,
+                                            ),
+                                            onPressed: () {
+                                              isdwdc = false;
+                                              setState(() {});
+                                            },
+                                          )
+                                        : IconButton(
+                                            icon: Icon(
+                                              Icons.keyboard_arrow_down,
+                                            ),
+                                            onPressed: () {
+                                              isdwdc = true;
+                                              setState(() {});
+                                            },
+                                          ),
                                   )),
                               isdwdc
                                   ? Container(

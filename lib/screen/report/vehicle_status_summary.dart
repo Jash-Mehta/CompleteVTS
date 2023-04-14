@@ -649,13 +649,13 @@ class _VehicleStatusSummaryState extends State<VehicleStatusSummary> {
                                           fontSize: 16,
                                           fontWeight: FontWeight.w400),
                                     ),
-                                    trailing: isvsrdc
+                                    trailing: isdmdc
                                         ? IconButton(
                                             icon: Icon(
                                               Icons.keyboard_arrow_up,
                                             ),
                                             onPressed: () {
-                                              isvsrdc = false;
+                                              isdmdc = false;
                                               setState(() {});
                                             },
                                           )
@@ -1607,13 +1607,17 @@ class _VehicleStatusSummaryState extends State<VehicleStatusSummary> {
                                                                                 MyColors.textprofiledetailColorCode,
                                                                             fontSize: 18),
                                                                       ),
-                                                                      Text(
-                                                                        article
-                                                                            .imei!,
-                                                                        style: TextStyle(
-                                                                            color:
-                                                                                MyColors.text5ColorCode,
-                                                                            fontSize: 18),
+                                                                      Padding(
+                                                                        padding:
+                                                                            const EdgeInsets.only(right: 10.0),
+                                                                        child:
+                                                                            Text(
+                                                                          article
+                                                                              .imei!,
+                                                                          style: TextStyle(
+                                                                              color: MyColors.text5ColorCode,
+                                                                              fontSize: 16),
+                                                                        ),
                                                                       ),
                                                                     ],
                                                                   ),

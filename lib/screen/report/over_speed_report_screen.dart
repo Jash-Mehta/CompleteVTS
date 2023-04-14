@@ -2041,7 +2041,7 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                                                                     style: TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
                                                                                   ),
                                                                                   Text(
-                                                                                    "${article.speedLimit}",
+                                                                                    "${article.speed}",
                                                                                     textAlign: TextAlign.left,
                                                                                     style: TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
                                                                                   ),
