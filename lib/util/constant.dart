@@ -177,14 +177,14 @@ class Constant {
   // static String getFramePacketReportFillFrameUrl =
   //     baseUrl + 'FramePacketReport/FillFramePacket?ARAI_NONARAI=arai';
   static String FramePacketReportUrl =
-      baseUrl + 'FramePacketReport/GetFramepacketReport?VendorId=';
+      baseUrl + 'FramePacketReport/GetFramepacketReport?';
   // https://vtsgpsapi.m-techinnovations.com/api/FramePacketReport/GetFramepacketReport?VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=01-sep-2022&FromTime=12:30&ToDate=30-sep-2022&ToTime=18:30&IMEINO=867322033819244&FramePacketOption=datapacket&PageNumber=1&PageSize=10
   static String getFramePacketReportSearchUrl =
       baseUrl + 'FramePacketReport/GetFramepacketReport?VendorId=';
   static String getFramePacketReportFilter =
       baseUrl + 'FramePacketReport/FilterFramepacketReport?VendorId=';
-  static String framepacketgridurl =
-      'FramePacketGridviewReport/FilterFramePacketGridViewReport';
+  // static String framepacketgridurl =
+  //     'FramePacketGridviewReport/FilterFramePacketGridViewReport';
 // ! travel Summary Report-----------------
   static String travelSummaryReportfillvendor =
       baseUrl + 'TravelSummaryReport/GetTravelSummaryReport';
@@ -289,7 +289,7 @@ static String dateandtimewisesearch =
  
   static String searchFramePacketrurl = baseUrl + 'FramePacketReport/SearchFramepacketReport?VendorId=';
 
-   static String searchFramePacketgridurl = baseUrl + '/FramePacketGridviewReport/SearchFramePacketGridViewReport?VendorId=1';
+   static String searchFramePacketgridurl = baseUrl + '/FramePacketGridviewReport/SearchFramePacketGridViewReport?VendorId=';
 
   static String searchvehiclestatusreporturl = baseUrl + 'VehicleStatusReport/SearchVehicleStatusReport?VendorId=';
 

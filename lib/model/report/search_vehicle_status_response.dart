@@ -27,11 +27,11 @@ class SearchVehicleStatusRpt {
         this.message});
 
   SearchVehicleStatusRpt.fromJson(Map<String, dynamic> json) {
-    pageNumber = json['pageNumber'];
-    pageSize = json['pageSize'];
-    firstPage = json['firstPage'];
-    lastPage = json['lastPage'];
-    totalPages = json['totalPages'];
+    pageNumber = json['pageNumber']??0;
+    pageSize = json['pageSize']??0;
+    firstPage = json['firstPage']??"";
+    lastPage = json['lastPage']??"";
+    totalPages = json['totalPages']??0;
     totalRecords = json['totalRecords'];
     nextPage = json['nextPage'];
     previousPage = json['previousPage'];
