@@ -401,9 +401,9 @@ class _FramePacketState extends State<FramePacket> {
             });
           } else if (state is FramePacketLoadedState) {
             if (state.FramePacketResponse.data != null) {
-              pageNumber++;
               print("Frame packet data loaded");
               setState(() {
+                pageNumber++;
                 _isLoading = false;
                 value = state.FramePacketResponse.totalRecords!;
               });

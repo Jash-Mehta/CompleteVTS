@@ -6,11 +6,11 @@ class FramePacketData {
   int? totalPages;
   int? totalRecords;
   String? nextPage;
-  Null? previousPage;
+  String? previousPage;
   List<DatewiseFramepacketData>? data;
   bool? succeeded;
-  Null? errors;
-  Null? message;
+  String? errors;
+  String? message;
 
   FramePacketData(
       {this.pageNumber,
@@ -234,33 +234,33 @@ class DatewiseFramepacketData {
       this.araINONARAI});
 
   DatewiseFramepacketData.fromJson(Map<String, dynamic> json) {
-    transID = json['transID'];
-    header = json['header'];
-    vendorID = json['vendorID'];
-    packetType = json['packetType'];
-    packetStatus = json['packetStatus'];
-    imei = json['imei'];
-    vehicleRegNo = json['vehicleRegNo'];
-    gpsFix = json['gpsFix'];
-    date = json['date'];
-    time = json['time'];
-    latitude = json['latitude'];
-    longitude = json['longitude'];
-    speed = json['speed'];
-    networkOperatorName = json['networkOperatorName'];
-    ignition = json['ignition'];
-    mainPowerStatus = json['mainPowerStatus'];
-    mainInputVoltage = json['mainInputVoltage'];
-    internalBatteryVoltage = json['internalBatteryVoltage'];
-    altitude = json['altitude'];
-    pdop = json['pdop'];
-    hdop = json['hdop'];
-    gsmSignalStrength = json['gsmSignalStrength'];
-    frameNumber = json['frameNumber'];
-    distancetravel = json['distancetravel'];
-    address = json['address'];
-    updatedon = json['updatedon'];
-    araINONARAI = json['araI_NONARAI'];
+    transID = json['transID']??0;
+    header = json['header']??"";
+    vendorID = json['vendorID']??"";
+    packetType = json['packetType']??"";
+    packetStatus = json['packetStatus']??"";
+    imei = json['imei']??"";
+    vehicleRegNo = json['vehicleRegNo']??"";
+    gpsFix = json['gpsFix']??"";
+    date = json['date']??"";
+    time = json['time']??"";
+    latitude = json['latitude']??"";
+    longitude = json['longitude']??"";
+    speed = json['speed']??"";
+    networkOperatorName = json['networkOperatorName']??"";
+    ignition = json['ignition']??"";
+    mainPowerStatus = json['mainPowerStatus']??"";
+    mainInputVoltage = json['mainInputVoltage']??"";
+    internalBatteryVoltage = json['internalBatteryVoltage']??"";
+    altitude = json['altitude']??"";
+    pdop = json['pdop']??"";
+    hdop = json['hdop']??"";
+    gsmSignalStrength = json['gsmSignalStrength']??"";
+    frameNumber = json['frameNumber']??"";
+    distancetravel = json['distancetravel']??"";
+    address = json['address']??"";
+    updatedon = json['updatedon']??"";
+    araINONARAI = json['araI_NONARAI']??"";
   }
 
   Map<String, dynamic> toJson() {

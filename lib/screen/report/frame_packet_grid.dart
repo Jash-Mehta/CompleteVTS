@@ -319,6 +319,8 @@ class _FramePacketGridState extends State<FramePacketGrid> {
             if (state.FramePacketGridResponse.data != null) {
               print("Frame grid  loaded");
               setState(() {
+                // framepacketgriddata!.clear();
+                pageNumber++;
                 _isLoading = false;
                 pageNumber++;
 

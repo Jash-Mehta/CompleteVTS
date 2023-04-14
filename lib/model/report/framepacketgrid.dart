@@ -6,11 +6,11 @@ class FramePacketGridModel {
   int? totalPages;
   int? totalRecords;
   String? nextPage;
-  Null? previousPage;
+  String? previousPage;
   List<DatewiseFramePacketGridViewData>? data;
   bool? succeeded;
-  Null? errors;
-  Null? message;
+  String? errors;
+  String? message;
 
   FramePacketGridModel(
       {this.pageNumber,
