@@ -3514,25 +3514,26 @@ class WebService {
       int imeno,
       int pagenumber,
       int pagesize) async {
-    // var overspeedurl = Constant.getOverSpeedReportUrl +
-    //     vendorid.toString() +
-    //     "&Branchid=" +
-    //     branchid.toString() +
-    //     "&ARAINONARAI" +
-    //     arai.toString() +
-    //     "&FromDate=" +
-    //     fromDate.toString() +
-    //     "&ToDate=" +
-    //     toDate.toString() +
-    //     "&IMEINO=" +
-    //     imeno.toString() +
-    //     "&pageNumber=" +
-    //     pagenumber.toString() +
-    //     "&pageSize=" +
-    //     pagesize.toString();
+    var overspeedurl = Constant.getOverSpeedReportUrl +
+        vendorid.toString() +
+        "&BranchId=" +
+        branchid.toString() +
+        "&ARAI_NONARAI=" +
+        arai.toString() +
+        "&FromDate=" +
+        fromDate.toString() +
+        "&ToDate=" +
+        toDate.toString() +
+        "&IMEINO=" +
+        imeno.toString() +
+        "&PageNumber=" +
+        pagenumber.toString() +
+        "&PageSize=" +
+        pagesize.toString();
 
-    var overspeedurl =
-        "https://vtsgpsapi.m-techinnovations.com/api/VehicleWiseOverSpeedReport/GetOverSpeedReport?VendorId=1&BranchId=1&ARAI_NONARAI=nonarai&FromDate=01-sep-2022&ToDate=30-sep-2022&IMEINO=862430050555255&PageNumber=1&PageSize=10";
+    print("This is overspeed url " + overspeedurl);
+    // var overspeedurl =
+    //     "https://vtsgpsapi.m-techinnovations.com/api/VehicleWiseOverSpeedReport/GetOverSpeedReport?VendorId=1&BranchId=1&ARAI_NONARAI=nonarai&FromDate=01-sep-2022&ToDate=30-sep-2022&IMEINO=862430050555255&PageNumber=1&PageSize=10";
 
     final response =
         await http.get(Uri.parse(overspeedurl), headers: <String, String>{
@@ -3965,12 +3966,10 @@ class WebService {
         'Authorization': "Bearer ${token}",
       },
     );
-   
-      var jsonBody =
-          SearchVehicleStatusRpt.fromJson(json.decode(response.body));
-      print("JSon  assign body are:-------------$jsonBody");
-      return jsonBody;
-   
+
+    var jsonBody = SearchVehicleStatusRpt.fromJson(json.decode(response.body));
+    print("JSon  assign body are:-------------$jsonBody");
+    return jsonBody;
   }
 
   /// Search api for Vehicle status group by
@@ -4076,12 +4075,10 @@ class WebService {
     );
 
     // if (response.statusCode == 200) {
-   
 
     var jsonBody =
         SearchVehicleStatusSummaryRpt.fromJson(json.decode(response.body));
 
-    
     return jsonBody;
     // }
     // else {

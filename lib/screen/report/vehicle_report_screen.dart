@@ -1,22 +1,22 @@
 import 'dart:core';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_vts/bloc/main_bloc.dart';
 import 'package:flutter_vts/bloc/main_event.dart';
 import 'package:flutter_vts/bloc/main_state.dart';
-import 'package:flutter_vts/model/alert_notification/fill_alert_notification_vehicle_response.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:open_file/open_file.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:pdf/pdf.dart';
 import 'package:flutter_vts/model/vehicle/all_vehicle_detail_response.dart';
-import 'package:flutter_vts/model/vehicle/search_vehicle_response.dart';
 import 'package:flutter_vts/util/MyColor.dart';
-import 'package:flutter_vts/util/custom_app_bar.dart';
 import 'package:flutter_vts/util/menu_drawer.dart';
 import 'package:flutter_vts/util/search_bar_field.dart';
 import 'package:loading_overlay/loading_overlay.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../model/alert/all_alert_master_response.dart';
-import 'package:flutter_vts/model/report/search_overspeed_response.dart';
-
 import '../../model/searchString.dart';
 import '../../model/vehicle_master/search_vehicle_report_data_response.dart';
 import '../../model/vehicle_master/vehicle_master_filter.dart';
@@ -48,6 +48,7 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
   late String token = "";
   late int branchid = 1, vendorid = 1;
   List<AllVehicleDetailResponse>? data = [];
+   List<VehicleInfo> pdfdatalist = [];
   List<VehicleFilterData>? filterData = [];
   // List<AllVehicleDetailResponse>? searchData = [];
   int totalVehicleRecords = 0;
@@ -625,27 +626,48 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
                                 ],
                               ),
                             ),
-                            Container(
-                              margin: const EdgeInsets.only(left: 15),
-                              padding: const EdgeInsets.only(
-                                  top: 6.0, left: 15, right: 15, bottom: 6),
-                              decoration: BoxDecoration(
-                                  color: MyColors.lightblueColorCode,
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(20))),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.file_copy_sharp,
-                                    color: MyColors.analyticActiveColorCode,
-                                  ),
-                                  Text(
-                                    "Download",
-                                    style: TextStyle(
-                                        color:
-                                            MyColors.analyticActiveColorCode),
-                                  ),
-                                ],
+                            GestureDetector(
+                              onTap: () async {
+                                pdfdatalist.addAll(allVehicleDetaildatalist!);
+                                setState(() {});
+
+                                var status = await Permission.storage.status;
+                                if (await Permission.storage
+                                    .request()
+                                    .isGranted) {
+                                  final pdfFile =
+                                      await PdfInvoiceApi.generate(pdfdatalist);
+                                  PdfApi.openFile(pdfFile);
+                                } else {
+                                  print("Request is not accepted");
+                                  await Permission.storage.request();
+                                }
+
+                                // if (status.isDenied) {
+                                // }
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.only(left: 15),
+                                padding: const EdgeInsets.only(
+                                    top: 6.0, left: 15, right: 15, bottom: 6),
+                                decoration: const BoxDecoration(
+                                    color: MyColors.lightblueColorCode,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(20))),
+                                child: Row(
+                                  children: const [
+                                    Icon(
+                                      Icons.file_copy_sharp,
+                                      color: MyColors.analyticActiveColorCode,
+                                    ),
+                                    Text(
+                                      "Download",
+                                      style: TextStyle(
+                                          color:
+                                              MyColors.analyticActiveColorCode),
+                                    ),
+                                  ],
+                                ),
                               ),
                             )
                           ],
@@ -1613,5 +1635,244 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
     // traveldata!.forEach((userDetail) {
     //   if (userDetail.vehicleregNo!.contains(text)) searchdata!.add(userDetail);
     // });
+  }
+}
+
+
+class PdfInvoiceApi {
+  static Future<File> generate(List<VehicleInfo> pdflist) async {
+    final pdf = pw.Document();
+    double fontsize = 8.0;
+    DateTime current_date = DateTime.now();
+    pdf.addPage(pw.MultiPage(
+      footer: (pw.Context context) {
+       return pw.Column(children:[ 
+        pw.Row(
+          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+          children: [
+            pw.Text(
+              "Printed by : Techno",
+              textAlign: pw.TextAlign.left,
+              style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+            ),
+            pw.Text(
+              "Page : ${context.pageNumber} of ${context.pagesCount}",
+              textDirection: pw.TextDirection.ltr,
+              textAlign: pw.TextAlign.left,
+              style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+            ),
+          ],),
+           pw.Row(
+            children: [
+              pw.Text(
+                "Printed on : " + current_date.toString(),
+                textAlign: pw.TextAlign.left,
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              )
+            ],)
+          ]);
+      },
+      pageFormat: PdfPageFormat.a5,
+      build: (context) {
+        return <pw.Widget> [
+          pw.Center(
+              child: pw.Text("VEHICLE REPORT",
+                  style: pw.TextStyle(
+                      fontSize: 20.0, fontWeight: pw.FontWeight.bold))),
+          pw.Container(
+            margin: const pw.EdgeInsets.only(top: 10.0),
+            child: pw.Table(
+              border: pw.TableBorder.all(color: PdfColors.black, width: 0.8),
+              children: [
+                pw.TableRow(children: [
+                  pw.Padding(
+                      padding: pw.EdgeInsets.only(
+                          top: 8.0, bottom: 8.0, left: 5.0, right: 5.0),
+                      child: pw.SizedBox(
+                        width: 50,
+                        child: pw.Text(
+                          "Sr No",
+                          style: pw.TextStyle(
+                              fontSize: 12.0, fontWeight: pw.FontWeight.bold),
+                        ),
+                      )),
+                  pw.Padding(
+                      padding: pw.EdgeInsets.only(
+                          top: 8.0, bottom: 8.0, right: 5.0, left: 5.0),
+                      child: pw.SizedBox(
+                        width: 50,
+                        child: pw.Text(
+                          "Vehicle RegNo",
+                          style: pw.TextStyle(
+                              fontSize: 12.0, fontWeight: pw.FontWeight.bold),
+                        ),
+                      )),
+                  pw.Padding(
+                      padding: pw.EdgeInsets.only(
+                          top: 8.0, bottom: 8.0, right: 5.0, left: 5.0),
+                      child: pw.SizedBox(
+                        width: 50,
+                        child: pw.Text(
+                          "Vehicle Name",
+                          style: pw.TextStyle(
+                              fontSize: 12.0, fontWeight: pw.FontWeight.bold),
+                        ),
+                      )),
+                  pw.Padding(
+                      padding: pw.EdgeInsets.only(
+                          top: 8.0, bottom: 8.0, right: 5.0, left: 5.0),
+                      child: pw.SizedBox(
+                        width: 50,
+                        child: pw.Text(
+                          "Fuel Type",
+                          style: pw.TextStyle(
+                              fontSize: 12.0, fontWeight: pw.FontWeight.bold),
+                        ),
+                      )),
+                  pw.Padding(
+                      padding: pw.EdgeInsets.only(
+                          top: 8.0, bottom: 8.0, right: 5.0, left: 5.0),
+                      child: pw.SizedBox(
+                        width: 50,
+                        child: pw.Text(
+                          "Speed Limit",
+                          style: pw.TextStyle(
+                              fontSize: 12.0, fontWeight: pw.FontWeight.bold),
+                        ),
+                      )),
+                       pw.Padding(
+                      padding: pw.EdgeInsets.only(
+                          top: 8.0, bottom: 8.0, right: 5.0, left: 5.0),
+                      child: pw.SizedBox(
+                        width: 50,
+                        child: pw.Text(
+                          "Vehicle Type",
+                          style: pw.TextStyle(
+                              fontSize: 12.0, fontWeight: pw.FontWeight.bold),
+                        ),
+                      )),
+                       pw.Padding(
+                      padding: pw.EdgeInsets.only(
+                          top: 8.0, bottom: 8.0, right: 5.0, left: 5.0),
+                      child: pw.SizedBox(
+                        width: 50,
+                        child: pw.Text(
+                          "Current odometer",
+                          style: pw.TextStyle(
+                              fontSize: 12.0, fontWeight: pw.FontWeight.bold),
+                        ),
+                      )),
+                ])
+              ],
+            ),
+          ),
+          // pw.Expanded(
+          //     child:
+               pw.ListView.builder(
+                  itemBuilder: (pw.Context context, int index) {
+                    var article = pdflist[index];
+                    return pw.Table(
+                        border: pw.TableBorder.all(
+                            color: PdfColors.black, width: 0.8),
+                        children: [
+                          pw.TableRow(children: [
+                            pw.Padding(
+                              padding: pw.EdgeInsets.only(
+                                  left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
+                              child: pw.SizedBox(
+                                width: 20,
+                                child: pw.Text(article.vsrNo.toString(),
+                                    style: pw.TextStyle(fontSize: fontsize)),
+                              ),
+                            ),
+                            pw.Padding(
+                              padding: pw.EdgeInsets.only(
+                                  left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
+                              child: pw.SizedBox(
+                                width: 20,
+                                child: pw.Text(article.vehicleRegNo.toString(),
+                                    style: pw.TextStyle(fontSize: fontsize)),
+                              ),
+                            ),
+                            pw.Padding(
+                              padding: pw.EdgeInsets.only(
+                                  left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
+                              child: pw.SizedBox(
+                                width: 20,
+                                child: pw.Text(article.vehicleName.toString(),
+                                    style: pw.TextStyle(fontSize: fontsize)),
+                              ),
+                            ),
+                            pw.Padding(
+                              padding: pw.EdgeInsets.only(
+                                  left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
+                              child: pw.SizedBox(
+                                width: 20,
+                                child: pw.Text(
+                                    article.fuelType.toString(),
+                                    style: pw.TextStyle(fontSize: fontsize)),
+                              ),
+                            ),
+                            pw.Padding(
+                              padding: pw.EdgeInsets.only(
+                                  left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
+                              child: pw.SizedBox(
+                                width: 20,
+                                child: pw.Text(article.speedLimit.toString(),
+                                    style: pw.TextStyle(fontSize: fontsize)),
+                              ),
+                            ),
+                            pw.Padding(
+                              padding: pw.EdgeInsets.only(
+                                  left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
+                              child: pw.SizedBox(
+                                width: 20,
+                                child: pw.Text(article.vehicleType.toString(),
+                                    style: pw.TextStyle(fontSize: fontsize)),
+                              ),
+                            ),
+                            pw.Padding(
+                              padding: pw.EdgeInsets.only(
+                                  left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
+                              child: pw.SizedBox(
+                                width: 20,
+                                child: pw.Text(article.currentOdometer.toString(),
+                                    style: pw.TextStyle(fontSize: fontsize)),
+                              ),
+                            ),
+                          ])
+                        ]);
+                  },
+                  itemCount: pdflist.length)
+                  // ),
+              
+        ];
+      },
+    )
+    );
+
+    return PdfApi.saveDocument(name: 'VehicleReport.pdf', pdf: pdf);
+  }
+}
+
+class PdfApi {
+  static Future<File> saveDocument({
+    required String name,
+    required pw.Document pdf,
+  }) async {
+    final bytes = await pdf.save();
+
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File('${dir.path}/$name');
+
+    await file.writeAsBytes(bytes);
+
+    return file;
+  }
+
+  static Future openFile(File file) async {
+    final url = file.path;
+
+    await OpenFile.open(url);
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_vts/bloc/main_bloc.dart';
 import 'package:flutter_vts/bloc/main_event.dart';
@@ -10,6 +12,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../model/alert/all_alert_master_response.dart';
 import 'package:flutter_vts/model/report/search_overspeed_response.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:open_file/open_file.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:pdf/pdf.dart';
 import 'package:intl/intl.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import '../../model/report/search_vehicle_status_group_response.dart';
@@ -68,6 +75,7 @@ class _VehicleStatusGroupState extends State<VehicleStatusGroup> {
 
   late bool isdmdc = false;
   late int totalgeofenceCreateRecords = 0, deleteposition = 0;
+    List<DatewiseTravelHoursData> pdfdatalist = [];
   List<DatewiseTravelHoursData>? vehiclestatusdata = [];
   List<DatewiseTravelHoursDatum>? searchData = [];
   List<VehicleGroupFilterData>? filterData = [];
@@ -1329,27 +1337,48 @@ class _VehicleStatusGroupState extends State<VehicleStatusGroup> {
                                 ],
                               ),
                             ),
-                            Container(
-                              margin: const EdgeInsets.only(left: 15),
-                              padding: const EdgeInsets.only(
-                                  top: 6.0, left: 15, right: 15, bottom: 6),
-                              decoration: BoxDecoration(
-                                  color: MyColors.lightblueColorCode,
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(20))),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.file_copy_sharp,
-                                    color: MyColors.analyticActiveColorCode,
-                                  ),
-                                  Text(
-                                    "Download",
-                                    style: TextStyle(
-                                        color:
-                                            MyColors.analyticActiveColorCode),
-                                  ),
-                                ],
+                             GestureDetector(
+                              onTap: () async {
+                                pdfdatalist.addAll(vehiclestatusdata!);
+                                setState(() {});
+
+                                var status = await Permission.storage.status;
+                                if (await Permission.storage
+                                    .request()
+                                    .isGranted) {
+                                  final pdfFile =
+                                      await PdfInvoiceApi.generate(pdfdatalist);
+                                  PdfApi.openFile(pdfFile);
+                                } else {
+                                  print("Request is not accepted");
+                                  await Permission.storage.request();
+                                }
+
+                                // if (status.isDenied) {
+                                // }
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.only(left: 15),
+                                padding: const EdgeInsets.only(
+                                    top: 6.0, left: 15, right: 15, bottom: 6),
+                                decoration: const BoxDecoration(
+                                    color: MyColors.lightblueColorCode,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(20))),
+                                child: Row(
+                                  children: const [
+                                    Icon(
+                                      Icons.file_copy_sharp,
+                                      color: MyColors.analyticActiveColorCode,
+                                    ),
+                                    Text(
+                                      "Download",
+                                      style: TextStyle(
+                                          color:
+                                              MyColors.analyticActiveColorCode),
+                                    ),
+                                  ],
+                                ),
                               ),
                             )
                           ],
@@ -1707,7 +1736,7 @@ class _VehicleStatusGroupState extends State<VehicleStatusGroup> {
                                                                               18),
                                                                     ),
                                                                     Text(
-                                                                      "1",
+                                                                      "-",
                                                                       textAlign:
                                                                           TextAlign
                                                                               .left,
@@ -1823,7 +1852,7 @@ class _VehicleStatusGroupState extends State<VehicleStatusGroup> {
                                                                             fontSize: 18),
                                                                       ),
                                                                       Text(
-                                                                        "1",
+                                                                        "-",
                                                                         style: TextStyle(
                                                                             color:
                                                                                 MyColors.text5ColorCode,
@@ -1851,7 +1880,7 @@ class _VehicleStatusGroupState extends State<VehicleStatusGroup> {
                                                                               18),
                                                                     ),
                                                                     Text(
-                                                                      "005",
+                                                                      "-",
                                                                       textAlign:
                                                                           TextAlign
                                                                               .left,
@@ -2135,7 +2164,7 @@ class _VehicleStatusGroupState extends State<VehicleStatusGroup> {
                                                                               18),
                                                                     ),
                                                                     Text(
-                                                                      "1",
+                                                                      "-",
                                                                       textAlign:
                                                                           TextAlign
                                                                               .left,
@@ -2251,7 +2280,7 @@ class _VehicleStatusGroupState extends State<VehicleStatusGroup> {
                                                                             fontSize: 18),
                                                                       ),
                                                                       Text(
-                                                                        "1",
+                                                                        "-",
                                                                         style: TextStyle(
                                                                             color:
                                                                                 MyColors.text5ColorCode,
@@ -2279,7 +2308,7 @@ class _VehicleStatusGroupState extends State<VehicleStatusGroup> {
                                                                               18),
                                                                     ),
                                                                     Text(
-                                                                      "005",
+                                                                      "-",
                                                                       textAlign:
                                                                           TextAlign
                                                                               .left,
@@ -2553,7 +2582,7 @@ class _VehicleStatusGroupState extends State<VehicleStatusGroup> {
                                                                               fontSize: 18),
                                                                         ),
                                                                         Text(
-                                                                          "1",
+                                                                          "-",
                                                                           textAlign:
                                                                               TextAlign.left,
                                                                           style: TextStyle(
@@ -2656,7 +2685,7 @@ class _VehicleStatusGroupState extends State<VehicleStatusGroup> {
                                                                                 TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
                                                                           ),
                                                                           Text(
-                                                                            "1",
+                                                                            "-",
                                                                             style:
                                                                                 TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
                                                                           ),
@@ -2680,7 +2709,7 @@ class _VehicleStatusGroupState extends State<VehicleStatusGroup> {
                                                                               fontSize: 18),
                                                                         ),
                                                                         Text(
-                                                                          "005",
+                                                                          "-",
                                                                           textAlign:
                                                                               TextAlign.left,
                                                                           style: TextStyle(
@@ -2801,5 +2830,260 @@ class _VehicleStatusGroupState extends State<VehicleStatusGroup> {
             searchText: searchClass.searchStr));
       }
     }
+  }
+}
+
+class PdfInvoiceApi {
+  static Future<File> generate(List<DatewiseTravelHoursData> pdflist) async {
+    final pdf = pw.Document();
+    double fontsize = 8.0;
+    
+    DateTime current_date = DateTime.now();
+    pdf.addPage(pw.MultiPage(
+      // header: (pw.Context context) {
+      //   return pw.Text("header");
+      // },
+      footer: (pw.Context context) {
+       return pw.Column(children:[ 
+        pw.Row(
+          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+          children: [
+            pw.Text(
+              "Printed by : Techno",
+              textAlign: pw.TextAlign.left,
+              style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+            ),
+            pw.Text(
+              "Page : ${context.pageNumber} of ${context.pagesCount}",
+              textDirection: pw.TextDirection.ltr,
+              textAlign: pw.TextAlign.left,
+              style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+            ),
+          ],),
+           pw.Row(
+            children: [
+              pw.Text(
+                "Printed on : " + current_date.toString(),
+                textAlign: pw.TextAlign.left,
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              )
+            ],)
+          ]);
+      },
+      pageFormat: PdfPageFormat.a5,
+      build: (pw.Context context) {
+        return <pw.Widget>[
+          pw.Center(
+              child: pw.Text("VEHICLE STATUS GROUP REPORT",
+                  style: pw.TextStyle(
+                      fontSize: 20.0, fontWeight: pw.FontWeight.bold))),
+          pw.Container(
+            margin: const pw.EdgeInsets.only(top: 10.0),
+            child: pw.Table(
+              border: pw.TableBorder.all(color: PdfColors.black, width: 0.8),
+              children: [
+                pw.TableRow(children: [
+                  pw.Padding(
+                      padding: pw.EdgeInsets.only(
+                          top: 8.0, bottom: 8.0, left: 5.0, right: 5.0),
+                      child: pw.SizedBox(
+                        width: 50,
+                        child: pw.Text(
+                          "Sr No",
+                          style: pw.TextStyle(
+                              fontSize: 12.0, fontWeight: pw.FontWeight.bold),
+                        ),
+                      )),
+                  pw.Padding(
+                      padding: pw.EdgeInsets.only(
+                          top: 8.0, bottom: 8.0, right: 5.0, left: 5.0),
+                      child: pw.SizedBox(
+                        width: 50,
+                        child: pw.Text(
+                          "IMEI NO",
+                          style: pw.TextStyle(
+                              fontSize: 12.0, fontWeight: pw.FontWeight.bold),
+                        ),
+                      )),
+                  pw.Padding(
+                      padding: pw.EdgeInsets.only(
+                          top: 8.0, bottom: 8.0, right: 5.0, left: 5.0),
+                      child: pw.SizedBox(
+                        width: 50,
+                        child: pw.Text(
+                          "Vendor RegNo",
+                          style: pw.TextStyle(
+                              fontSize: 12.0, fontWeight: pw.FontWeight.bold),
+                        ),
+                      )),
+                  pw.Padding(
+                      padding: pw.EdgeInsets.only(
+                          top: 8.0, bottom: 8.0, right: 5.0, left: 5.0),
+                      child: pw.SizedBox(
+                        width: 50,
+                        child: pw.Text(
+                          "Start Time",
+                          style: pw.TextStyle(
+                              fontSize: 12.0, fontWeight: pw.FontWeight.bold),
+                        ),
+                      )),
+                  pw.Padding(
+                      padding: pw.EdgeInsets.only(
+                          top: 8.0, bottom: 8.0, right: 5.0, left: 5.0),
+                      child: pw.SizedBox(
+                        width: 50,
+                        child: pw.Text(
+                          "End Time",
+                          style: pw.TextStyle(
+                              fontSize: 12.0, fontWeight: pw.FontWeight.bold),
+                        ),
+                      )),
+                  pw.Padding(
+                      padding: pw.EdgeInsets.only(
+                          top: 8.0, bottom: 8.0, right: 5.0, left: 5.0),
+                      child: pw.SizedBox(
+                        width: 50,
+                        child: pw.Text(
+                          "Vehicle Status",
+                          style: pw.TextStyle(
+                              fontSize: 12.0, fontWeight: pw.FontWeight.bold),
+                        ),
+                      )),
+                ])
+              ],
+            ),
+          ),
+          // pw.Expanded(
+          //     child:
+          pw.ListView.builder(
+              itemBuilder: (pw.Context context, int index) {
+                var article = pdflist[index];
+                return pw.Table(
+                    border:
+                        pw.TableBorder.all(color: PdfColors.black, width: 0.8),
+                    children: [
+                      pw.TableRow(children: [
+                        pw.Padding(
+                          padding: pw.EdgeInsets.only(
+                              left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
+                          child: pw.SizedBox(
+                            width: 50,
+                            child: pw.Text("1",
+                                style: pw.TextStyle(fontSize: fontsize)),
+                          ),
+                        ),
+                        pw.Padding(
+                          padding: pw.EdgeInsets.only(
+                              left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
+                          child: pw.SizedBox(
+                            width: 50,
+                            child: pw.Text(article.imei.toString(),
+                                style: pw.TextStyle(fontSize: fontsize)),
+                          ),
+                        ),
+                        pw.Padding(
+                          padding: pw.EdgeInsets.only(
+                              left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
+                          child: pw.SizedBox(
+                            width: 50,
+                            child: pw.Text(article.vehicleregNo.toString(),
+                                style: pw.TextStyle(fontSize: fontsize)),
+                          ),
+                        ),
+                        pw.Padding(
+                          padding: pw.EdgeInsets.only(
+                              left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
+                          child: pw.SizedBox(
+                            width: 50,
+                            child: pw.Text(article.startTime.toString(),
+                                style: pw.TextStyle(fontSize: fontsize)),
+                          ),
+                        ),
+                        pw.Padding(
+                          padding: pw.EdgeInsets.only(
+                              left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
+                          child: pw.SizedBox(
+                            width: 50,
+                            child: pw.Text(article.endTime.toString(),
+                                style: pw.TextStyle(fontSize: fontsize)),
+                          ),
+                        ),
+                        pw.Padding(
+                          padding: pw.EdgeInsets.only(
+                              left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
+                          child: pw.SizedBox(
+                            width: 50,
+                            child: pw.Text(article.vehicleStatus.toString(),
+                                style: pw.TextStyle(fontSize: fontsize)),
+                          ),
+                        ),
+                        // pw.Padding(
+                        //   padding: pw.EdgeInsets.only(
+                        //       left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
+                        //   child: pw.SizedBox(
+                        //     width: 20,
+                        //     child: pw.Text(article.address.toString(),
+                        //         style: pw.TextStyle(fontSize: fontsize)),
+                        //   ),
+                        // ),
+                      ])
+                    ]);
+              },
+              itemCount: pdflist.length),
+          // ),
+          // pw.SizedBox(height: 15),
+          // pw.Row(
+          //   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+          //   children: [
+          //     pw.Text(
+          //       "Printed by : Techno",
+          //       textAlign: pw.TextAlign.left,
+          //       style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+          //     ),
+          //     pw.Text(
+          //       "Page : 1/1",
+          //       textDirection: pw.TextDirection.ltr,
+          //       textAlign: pw.TextAlign.left,
+          //       style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+          //     ),
+          //   ],
+          // ),
+          //  pw.SizedBox(height: 5),
+          // pw.Row(
+          //   children: [
+          //     pw.Text(
+          //       "Printed on : " + current_date.toString(),
+          //       textAlign: pw.TextAlign.left,
+          //       style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+          //     )
+          //   ],
+          // )
+        ];
+      },
+    ));
+
+    return PdfApi.saveDocument(name: 'vehiclestatusgroupreport.pdf', pdf: pdf);
+  }
+}
+
+class PdfApi {
+  static Future<File> saveDocument({
+    required String name,
+    required pw.Document pdf,
+  }) async {
+    final bytes = await pdf.save();
+
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File('${dir.path}/$name');
+
+    await file.writeAsBytes(bytes);
+
+    return file;
+  }
+
+  static Future openFile(File file) async {
+    final url = file.path;
+
+    await OpenFile.open(url);
   }
 }

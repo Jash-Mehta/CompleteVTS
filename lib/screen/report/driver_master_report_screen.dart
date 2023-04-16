@@ -338,6 +338,7 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
             } else if (state is DriverMasterLoadedState) {
               print("Driver master data loaded");
               if (state.drivermasterreportresponse.data != null) {
+              
                 setState(() {
                   pageNumber++;
                   _isLoading = false;
@@ -1652,10 +1653,37 @@ class PdfInvoiceApi {
   static Future<File> generate(List<DriverMasterData> pdflist) async {
     final pdf = pw.Document();
     double fontsize = 8.0;
-    pdf.addPage(pw.Page(
+     DateTime current_date = DateTime.now();
+    pdf.addPage(pw.MultiPage(
+      footer: (pw.Context context) {
+       return pw.Column(children:[ 
+        pw.Row(
+          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+          children: [
+            pw.Text(
+              "Printed by : Techno",
+              textAlign: pw.TextAlign.left,
+              style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+            ),
+            pw.Text(
+              "Page : ${context.pageNumber} of ${context.pagesCount}",
+              textDirection: pw.TextDirection.ltr,
+              textAlign: pw.TextAlign.left,
+              style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+            ),
+          ],),
+           pw.Row(
+            children: [
+              pw.Text(
+                "Printed on : " + current_date.toString(),
+                textAlign: pw.TextAlign.left,
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              )
+            ],)
+          ]);},
       pageFormat: PdfPageFormat.a5,
       build: (context) {
-        return pw.Column(children: [
+        return <pw.Widget> [
           pw.Center(
               child: pw.Text("DRIVER MASTER REPORT",
                   style: pw.TextStyle(
@@ -1736,8 +1764,9 @@ class PdfInvoiceApi {
               ],
             ),
           ),
-          pw.Expanded(
-              child: pw.ListView.builder(
+          // pw.Expanded(
+          //     child:
+               pw.ListView.builder(
                   itemBuilder: (pw.Context context, int index) {
                     var article = pdflist[index];
                     return pw.Table(
@@ -1826,8 +1855,9 @@ class PdfInvoiceApi {
                           ])
                         ]);
                   },
-                  itemCount: pdflist.length))
-        ]);
+                  itemCount: pdflist.length)
+                  // ),
+        ];
       },
     ));
 

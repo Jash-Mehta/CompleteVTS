@@ -43,6 +43,7 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
   var osvfvehno;
   var osvfvehnolisttiletext;
   // List<OSFilterData>? osvfdata = [];
+
   List<VehicleVSrNoData>? osvfdata = [];
   bool ispopup = false;
   bool isSelected = false;
@@ -68,7 +69,7 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
   TextEditingController fromTimeInput = TextEditingController();
   TextEditingController toTimrInput = TextEditingController();
   String fromdate = "01-sep-2022";
-  String arainonari = "arai";
+  String arainonari = "nonarai";
   String arai = "nonarai";
   String todate = "30-sep-2022";
   String searchtext = "MH12";
@@ -180,12 +181,13 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
   @override
   void initState() {
     super.initState();
-    getdata();
-    setState(() {});
+    getdataOS();
+    // setState(() {});
     notificationController.addListener(() {
       if (notificationController.position.maxScrollExtent ==
           notificationController.offset) {
         setState(() {
+          getdata();
           getallbranch();
         });
       }
@@ -193,7 +195,7 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
     _mainBloc = BlocProvider.of(context);
   }
 
-  getdata() async {
+  getdataOS() async {
     sharedPreferences = await SharedPreferences.getInstance();
     if (sharedPreferences.getString("auth_token") != null) {
       token = sharedPreferences.getString("auth_token")!;
@@ -218,6 +220,94 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
         imeno: imeino,
         pagenumber: pageNumber,
         pagesize: pageSize));
+  }
+
+  getdata() async {
+    sharedPreferences = await SharedPreferences.getInstance();
+    if (sharedPreferences.getString("auth_token") != null) {
+      token = sharedPreferences.getString("auth_token")!;
+      print("token ${token}");
+    }
+    if (sharedPreferences.getInt("SrNo") != null) {
+      vendorid = sharedPreferences.getInt("SrNo")!;
+    }
+    if (sharedPreferences.getInt("vehicleRegNo") != null) {
+      vendorid = sharedPreferences.getInt("vehicleRegNo")!;
+    }
+    if (sharedPreferences.getInt("imeino") != null) {
+      branchid = sharedPreferences.getInt("imeino")!;
+    }
+    if (sharedPreferences.getString("latitude") != null) {
+      userName = sharedPreferences.getString("latitude")!;
+    }
+    if (sharedPreferences.getString("longitude") != null) {
+      vendorName = sharedPreferences.getString("longitude")!;
+    }
+    if (sharedPreferences.getString("address") != null) {
+      branchName = sharedPreferences.getString("address")!;
+    }
+    if (sharedPreferences.getString("transDate") != null) {
+      userType = sharedPreferences.getString("transDate")!;
+    }
+    if (sharedPreferences.getString("transTime") != null) {
+      userType = sharedPreferences.getString("transTime")!;
+    }
+    if (sharedPreferences.getString("speed") != null) {
+      userType = sharedPreferences.getString("speed")!;
+    }
+    if (sharedPreferences.getString("overSpeed") != null) {
+      userType = sharedPreferences.getString("overSpeed")!;
+    }
+    if (sharedPreferences.getString("updatedOn") != null) {
+      userType = sharedPreferences.getString("updatedOn")!;
+    }
+    if (sharedPreferences.getString("distancetravel") != null) {
+      userType = sharedPreferences.getString("distancetravel")!;
+    }
+    if (sharedPreferences.getString("speedLimit") != null) {
+      userType = sharedPreferences.getString("speedLimit")!;
+    }
+    if (sharedPreferences.getString("searchText") != null) {
+      userType = sharedPreferences.getString("searchText")!;
+    }
+
+    print("branchid ${branchid}   Vendor id   ${vendorid}");
+
+    //print(""+vendorid.toString()+" "+branchid.toString()+" "+userName+" "+vendorName+" "+branchName+" "+userType);
+    print("" +
+        vehicleRegNo.toString() +
+        " " +
+        imeino.toString() +
+        " " +
+        latitude.toString() +
+        " " +
+        longitude.toString() +
+        " " +
+        address.toString() +
+        " " +
+        transDate.toString() +
+        " " +
+        transTime.toString() +
+        " " +
+        speed.toString() +
+        " " +
+        overSpeed.toString() +
+        " " +
+        updatedOn.toString() +
+        " " +
+        distancetravel.toString() +
+        " " +
+        speedLimit.toString() +
+        " " +
+        searchText);
+
+    if (token != "" ||
+        vehicleRegNo != 0 ||
+        imeino != 0 ||
+        transDate != "" ||
+        overSpeed != "") {
+      // _getOverSpeedCreatedetail();
+    }
   }
 
   _vehicleMaster() {
@@ -289,8 +379,9 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
               if (state.overspeedFilter.data != null) {
                 print("overspeed filter data is Loaded state");
                 setState(() {
+                  pageNumber++;
                   _isLoading = false;
-                  overspeedfilter!.clear();
+                  // overspeedfilter!.clear();
                   overspeedfilter!.addAll(state.overspeedFilter.data!);
                 });
                 // overspeedfilter!.addAll(state.overspeedFilter.data!);
@@ -338,17 +429,16 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
               });
             } else if (state is OverSpeedLoadedState) {
               print("overspeed data is Loaded state!!");
-              setState(() {
-                if (state.OverspeedReportResponse.data != null) {
-                  setState(() {
-                    _isLoading = false;
-                    // pageNumber++;
-                    overspeedlist!.clear();
-                    value = state.OverspeedReportResponse.totalRecords!;
-                  });
-                  overspeedlist!.addAll(state.OverspeedReportResponse.data!);
-                }
-              });
+              if (state.OverspeedReportResponse.data != null) {
+                setState(() {
+                  pageNumber++;
+                  _isLoading = false;
+                  // pageNumber++;
+                  // overspeedlist!.clear();
+                  value = state.OverspeedReportResponse.totalRecords!;
+                });
+                overspeedlist!.addAll(state.OverspeedReportResponse.data!);
+              }
             } else if (state is OverSpeedErrorState) {
               print("Something went Wrong  data");
               setState(() {
@@ -2041,7 +2131,7 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                                                                     style: TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
                                                                                   ),
                                                                                   Text(
-                                                                                    "${article.speedLimit}",
+                                                                                    "${article.speed}",
                                                                                     textAlign: TextAlign.left,
                                                                                     style: TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
                                                                                   ),
@@ -2208,10 +2298,39 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
 class PdfInvoiceApi {
   static Future<File> generate(List<OverSpeeddDetail> pdflist) async {
     final pdf = pw.Document();
-    pdf.addPage(pw.Page(
+    double fontsize = 8.0;
+    DateTime current_date = DateTime.now();
+    pdf.addPage(pw.MultiPage(
+      footer: (pw.Context context) {
+       return pw.Column(children:[ 
+        pw.Row(
+          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+          children: [
+            pw.Text(
+              "Printed by : Techno",
+              textAlign: pw.TextAlign.left,
+              style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+            ),
+            pw.Text(
+              "Page : ${context.pageNumber} of ${context.pagesCount}",
+              textDirection: pw.TextDirection.ltr,
+              textAlign: pw.TextAlign.left,
+              style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+            ),
+          ],),
+           pw.Row(
+            children: [
+              pw.Text(
+                "Printed on : " + current_date.toString(),
+                textAlign: pw.TextAlign.left,
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              )
+            ],)
+          ]);
+      },
       pageFormat: PdfPageFormat.a5,
       build: (context) {
-        return pw.Column(children: [
+        return <pw.Widget> [
           pw.Center(
               child: pw.Text("OVER SPEED REPORT",
                   style: pw.TextStyle(
@@ -2219,61 +2338,113 @@ class PdfInvoiceApi {
           pw.Container(
             margin: const pw.EdgeInsets.only(top: 10.0),
             child: pw.Table(
+              border: pw.TableBorder.all(color: PdfColors.black, width: 0.8),
               children: [
                 pw.TableRow(children: [
+                   pw.Padding(
+                      padding: pw.EdgeInsets.only(
+                          top: 8.0, bottom: 8.0, left: 5.0, right: 5.0),
+                      child: pw.SizedBox(
+                        width: 50,
+                        child: pw.Text(
+                          "SrNo",
+                          style: pw.TextStyle(
+                              fontSize: 12.0, fontWeight: pw.FontWeight.bold),
+                        ),
+                      )),
+                       pw.Padding(
+                      padding: pw.EdgeInsets.only(
+                          top: 8.0, bottom: 8.0, left: 5.0, right: 5.0),
+                      child: pw.SizedBox(
+                        width: 50,
+                        child: pw.Text(
+                          "IMEI NO",
+                          style: pw.TextStyle(
+                              fontSize: 12.0, fontWeight: pw.FontWeight.bold),
+                        ),
+                      )),
                   pw.Padding(
-                    padding:
-                        pw.EdgeInsets.only(top: 8.0, bottom: 8.0, left: 2.0),
-                    child: pw.Text(
-                      "Transtime",
-                      style: pw.TextStyle(
-                        fontSize: 12.0,
-                      ),
-                    ),
-                  ),
+                      padding: pw.EdgeInsets.only(
+                          top: 8.0, bottom: 8.0, left: 5.0, right: 5.0),
+                      child: pw.SizedBox(
+                        width: 50,
+                        child: pw.Text(
+                          "Transtime",
+                          style: pw.TextStyle(
+                              fontSize: 12.0, fontWeight: pw.FontWeight.bold),
+                        ),
+                      )),
                   pw.Padding(
-                    padding: pw.EdgeInsets.only(top: 8.0, bottom: 8.0),
-                    child: pw.Text(
-                      "Speed",
-                      style: pw.TextStyle(
-                        fontSize: 12.0,
-                      ),
-                    ),
-                  ),
+                      padding: pw.EdgeInsets.only(
+                          top: 8.0, bottom: 8.0, right: 5.0, left: 5.0),
+                      child: pw.SizedBox(
+                        width: 50,
+                        child: pw.Text(
+                          "Speed",
+                          style: pw.TextStyle(
+                              fontSize: 12.0, fontWeight: pw.FontWeight.bold),
+                        ),
+                      )),
                   pw.Padding(
-                    padding: pw.EdgeInsets.only(top: 8.0, bottom: 8.0),
-                    child: pw.Text(
-                      "Overspeed",
-                      style: pw.TextStyle(
-                        fontSize: 12.0,
-                      ),
-                    ),
-                  ),
+                      padding: pw.EdgeInsets.only(
+                          top: 8.0, bottom: 8.0, right: 5.0, left: 5.0),
+                      child: pw.SizedBox(
+                        width: 50,
+                        child: pw.Text(
+                          "OverSpeed",
+                          style: pw.TextStyle(
+                              fontSize: 12.0, fontWeight: pw.FontWeight.bold),
+                        ),
+                      )),
                   pw.Padding(
-                    padding: pw.EdgeInsets.only(top: 8.0, bottom: 8.0),
-                    child: pw.Text(
-                      "DistanceTime",
-                      style: pw.TextStyle(
-                        fontSize: 12.0,
-                      ),
-                    ),
-                  ),
+                      padding: pw.EdgeInsets.only(
+                          top: 8.0, bottom: 8.0, right: 5.0, left: 5.0),
+                      child: pw.SizedBox(
+                        width: 50,
+                        child: pw.Text(
+                          "Distance Travel",
+                          style: pw.TextStyle(
+                              fontSize: 12.0, fontWeight: pw.FontWeight.bold),
+                        ),
+                      )),
                   pw.Padding(
-                    padding:
-                        pw.EdgeInsets.only(left: 5.0, top: 8.0, bottom: 8.0),
-                    child: pw.Text(
-                      "IMEINO",
-                      style: pw.TextStyle(
-                        fontSize: 12.0,
-                      ),
-                    ),
-                  ),
+                      padding: pw.EdgeInsets.only(
+                          top: 8.0, bottom: 8.0, right: 5.0, left: 5.0),
+                      child: pw.SizedBox(
+                        width: 50,
+                        child: pw.Text(
+                          "Latittude",
+                          style: pw.TextStyle(
+                              fontSize: 12.0, fontWeight: pw.FontWeight.bold),
+                        ),
+                      )),
+                       pw.Padding(
+                      padding: pw.EdgeInsets.only(
+                          top: 8.0, bottom: 8.0, left: 5.0, right: 5.0),
+                      child: pw.SizedBox(
+                        width: 50,
+                        child: pw.Text(
+                          "Longitute",
+                          style: pw.TextStyle(
+                              fontSize: 12.0, fontWeight: pw.FontWeight.bold),
+                        ),
+                      )),
+                      //  pw.Padding(
+                      // padding: pw.EdgeInsets.only(
+                      //     top: 8.0, bottom: 8.0, left: 5.0, right: 5.0),
+                      // child: pw.SizedBox(
+                      //   width: 50,
+                      //   child: pw.Text(
+                      //     "Address",
+                      //     style: pw.TextStyle(
+                      //         fontSize: 12.0, fontWeight: pw.FontWeight.bold),
+                      //   ),
+                      // )),
                 ])
               ],
             ),
           ),
-          pw.Expanded(
-              child: pw.ListView.builder(
+               pw.ListView.builder(
                   itemBuilder: (pw.Context context, int index) {
                     var article = pdflist[index];
                     return pw.Table(
@@ -2281,34 +2452,95 @@ class PdfInvoiceApi {
                             color: PdfColors.black, width: 0.8),
                         children: [
                           pw.TableRow(children: [
-                            pw.SizedBox(
-                              width: 3.0,
+                             pw.Padding(
+                              padding: pw.EdgeInsets.only(
+                                  left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
+                              child: pw.SizedBox(
+                                width: 50,
+                                child: pw.Text("1",
+                                    style: pw.TextStyle(fontSize: fontsize)),
+                              ),
                             ),
-                            pw.Text(article.transTime.toString()),
-                            pw.SizedBox(
-                              width: 3.0,
+                             pw.Padding(
+                              padding: pw.EdgeInsets.only(
+                                  left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
+                              child: pw.SizedBox(
+                                width: 50,
+                                child: pw.Text(article.imeino.toString(),
+                                    style: pw.TextStyle(fontSize: fontsize)),
+                              ),
                             ),
-                            pw.Text(article.speed.toString()),
-                            pw.SizedBox(
-                              width: 3.0,
+                            pw.Padding(
+                              padding: pw.EdgeInsets.only(
+                                  left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
+                              child: pw.SizedBox(
+                                width: 50,
+                                child: pw.Text(article.transTime.toString(),
+                                    style: pw.TextStyle(fontSize: fontsize)),
+                              ),
                             ),
-                            pw.Text(article.overSpeed.toString()),
-                            pw.SizedBox(
-                              width: 3.0,
+                            pw.Padding(
+                              padding: pw.EdgeInsets.only(
+                                  left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
+                              child: pw.SizedBox(
+                                width: 50,
+                                child: pw.Text(article.speed.toString(),
+                                    style: pw.TextStyle(fontSize: fontsize)),
+                              ),
                             ),
-                            pw.Text(article.distancetravel.toString()),
-                            pw.SizedBox(
-                              width: 3.0,
+                            pw.Padding(
+                              padding: pw.EdgeInsets.only(
+                                  left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
+                              child: pw.SizedBox(
+                                width: 50,
+                                child: pw.Text(article.overSpeed.toString(),
+                                    style: pw.TextStyle(fontSize: fontsize)),
+                              ),
                             ),
-                            pw.Text(article.imeino.toString()),
-                            pw.SizedBox(
-                              width: 3.0,
+                            pw.Padding(
+                              padding: pw.EdgeInsets.only(
+                                  left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
+                              child: pw.SizedBox(
+                                width: 50,
+                                child: pw.Text(
+                                    article.distancetravel.toString(),
+                                    style: pw.TextStyle(fontSize: fontsize)),
+                              ),
                             ),
+                            pw.Padding(
+                              padding: pw.EdgeInsets.only(
+                                  left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
+                              child: pw.SizedBox(
+                                width: 50,
+                                child: pw.Text(article.latitude.toString(),
+                                    style: pw.TextStyle(fontSize: fontsize)),
+                              ),
+                            ),
+                             pw.Padding(
+                              padding: pw.EdgeInsets.only(
+                                  left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
+                              child: pw.SizedBox(
+                                width: 50,
+                                child: pw.Text(article.longitude.toString(),
+                                    style: pw.TextStyle(fontSize: fontsize)),
+                              ),
+                            ),
+                            //  pw.Padding(
+                            //   padding: pw.EdgeInsets.only(
+                            //       left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
+                            //   child: pw.SizedBox(
+                            //     width: 50,
+                            //     child: pw.Text(article.address.toString(),
+                            //         style: pw.TextStyle(fontSize: fontsize)),
+                            //   ),
+                            // ),
                           ])
                         ]);
                   },
-                  itemCount: pdflist.length))
-        ]);
+                  itemCount: pdflist.length)
+                  // ),
+              
+        ];
       },
     ));
 
