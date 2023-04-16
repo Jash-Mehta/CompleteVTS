@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_vts/bloc/main_bloc.dart';
 import 'package:flutter_vts/bloc/main_event.dart';
@@ -12,66 +10,43 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../model/alert/all_alert_master_response.dart';
 import 'package:flutter_vts/model/report/search_overspeed_response.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:pdf/widgets.dart' as pw;
-import 'package:open_file/open_file.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:pdf/pdf.dart';
-import '../../model/driver_wise_vehicle_assign/driver_wise_drivercode.dart';
-import '../../model/driver_wise_vehicle_assign/driver_wise_vehicle_assign.dart';
-import '../../model/driver_wise_vehicle_assign/driver_wise_vehicle_filter.dart';
-import '../../model/driver_wise_vehicle_assign/search_driver_vehicle_assign.dart';
-import '../../model/report/search_driverwise_veh_rpt.dart';
-import '../../model/report/vehicle_vsrno.dart';
+
+import '../../model/report/over_speed_report_response.dart';
 
 class DriverWiseVehicleAssignScreen extends StatefulWidget {
   const DriverWiseVehicleAssignScreen({Key? key}) : super(key: key);
 
   @override
-  _DriverWiseVehicleAssignScreenState createState() =>
-      _DriverWiseVehicleAssignScreenState();
+  _DriverWiseVehicleAssignScreenState createState() => _DriverWiseVehicleAssignScreenState();
 }
 
-class _DriverWiseVehicleAssignScreenState
-    extends State<DriverWiseVehicleAssignScreen> {
+class _DriverWiseVehicleAssignScreenState extends State<DriverWiseVehicleAssignScreen> {
   final controller = ScrollController();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   ScrollController vehicleRecordController = new ScrollController();
-  ScrollController notificationController = new ScrollController();
   TextEditingController searchController = new TextEditingController();
   late bool isSearch = false;
-  late bool isValue = false;
+
   late bool _isLoading = false;
-  bool isfilter = false;
   late MainBloc _mainBloc;
   int pageNumber = 1;
   int pageSize = 10;
-  int value = 0;
   late String srNo = "";
   late String vehicleRegNo = "";
   late String imeino = "", branchName = "", userType = "";
   late SharedPreferences sharedPreferences;
   late String token = "";
-  late int branchid = 1, vendorid = 1;
-  // List<OverSpeeddDetail>? data = [];
-  // List<OverSpeeddDetail>? searchData = [];
+  late int branchid = 0, vendorid = 0;
+  List<OverSpeeddDetail>? data = [];
 
-  int totalVehicleRecords = 0;
-  List<DriverWiseVehicle> pdfdatalist = [];
-  List<DriverWiseVehicle>? driverwisevehicledata = [];
-  List<Searchdetaildriverwise>? searchdatalist = [];
-  List<DriverFilterData>? filterdata = [];
-  List<DriverWiseDriverCodeData>? driverwisedrivercode = [];
-  bool isdwdc = false;
-  var dwdcvehicleno;
-  var dwdcvsrnolisttiletext;
   // late bool isSearch = false;
   late int totalgeofenceCreateRecords = 0, deleteposition = 0;
   List<Datum>? allVehicleDetaildatalist = [];
+  // List<Data>? searchData=[];
+
   bool isDataAvailable = false;
   List<String> items = List.generate(15, (index) => 'Item ${index + 1}');
-  bool applyclicked = false;
+
   late String userName = "";
   late String vendorName = "",
       latitude = "",
@@ -85,122 +60,22 @@ class _DriverWiseVehicleAssignScreenState
       distancetravel = "",
       speedLimit = "",
       searchText = "";
-  var vendoritems = [
-    'M-Tech',
-    'M-Phasis',
-    'Info',
-    'M&M',
-  ];
-  String dropdownvalue1 = 'M-Tech';
 
-  var branchitems = [
-    'Hinjewadi',
-    'Hadpsar',
-    'Moshi',
-    'Kharadi',
-  ];
-
-  String dropdownvalue2 = 'Hinjewadi';
-  var deviceitems = [
-    'All',
-    'DC00001',
-    'DC00002',
-    'DC00003',
-    'DC00004',
-    'DC00005',
-    'DC00006',
-    'DC00007',
-    'DC00008',
-  ];
-  String dropdownvalue3 = 'All';
-  bool isvalue = false;
-
-  @override
-  void initState() {
-    super.initState();
-    getdataDV();
-    notificationController.addListener(() {
-      if (notificationController.position.maxScrollExtent ==
-          notificationController.offset) {
-        setState(() {
-          getData();
-          getallbranch();
-        });
-      }
-    });
-    _mainBloc = BlocProvider.of(context);
-  }
-
-  getdataDV() async {
-    sharedPreferences = await SharedPreferences.getInstance();
-    if (sharedPreferences.getString("auth_token") != null) {
-      token = sharedPreferences.getString("auth_token")!;
-    }
-    if (token != "" || vendorid != 0 || branchid != 0) {
-      print(token);
-      getallbranch();
-      // getTravelSummaryFilter();
-      setState(() {});
-    } else {
-      print("null");
-    }
-  }
-
-  getallbranch() {
-    _mainBloc.add(DriverWiseVehicleAssignEvent(
-      token: token,
-      vendorid: vendorid,
-      branchid: branchid,
-      pagenumber: pageNumber,
-      pagesize: pageSize,
-    ));
-  }
+  // late SharedPreferences sharedPreferences;
+  // late String token="";
+  // late int branchid=0,vendorid=0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: MenuDrawer() /*.getMenuDrawer(context)*/,
-      appBar: AppBar(
-        title: !isfilter
-            ? Text("Driver Wise Vehicle Assign Master")
-            : Text("Filter"),
-        actions: [
-          GestureDetector(
-            onTap: () {
-              setState(() {
-                isfilter = true;
-                isfilter
-                    ? _mainBloc.add(DriverWiseDriverCodeEvent(
-                        token: token, vendorId: 1, branchId: 1))
-                    : Text("Driver code not loaded");
-              });
-            },
-            child: !isfilter
-                ? Container(
-                    margin: EdgeInsets.only(right: 10),
-                    child: Image.asset(
-                      "assets/filter.png",
-                      height: 40,
-                      width: 40,
-                    ),
-                  )
-                : Container(
-                    margin: EdgeInsets.only(right: 10),
-                    child: IconButton(
-                        onPressed: () {
-                          setState(() {
-                            isfilter = false;
-                          });
-                        },
-                        icon: Icon(Icons.close))),
-          )
-        ],
-      ),
+      appBar: CustomAppBar()
+          .getCustomAppBar("DRIVER WISE VEHICLE ASSIGN", _scaffoldKey, 2, context),
       body: _vehicleMaster(),
     );
   }
 
-  getData() async {
+  getdata() async {
     sharedPreferences = await SharedPreferences.getInstance();
     if (sharedPreferences.getString("auth_token") != null) {
       token = sharedPreferences.getString("auth_token")!;
@@ -212,7 +87,9 @@ class _DriverWiseVehicleAssignScreenState
     if (sharedPreferences.getInt("vehicleRegNo") != null) {
       vendorid = sharedPreferences.getInt("vehicleRegNo")!;
     }
-
+    if (sharedPreferences.getInt("imeino") != null) {
+      branchid = sharedPreferences.getInt("imeino")!;
+    }
     if (sharedPreferences.getString("latitude") != null) {
       userName = sharedPreferences.getString("latitude")!;
     }
@@ -250,6 +127,32 @@ class _DriverWiseVehicleAssignScreenState
     print("branchid ${branchid}   Vendor id   ${vendorid}");
 
     //print(""+vendorid.toString()+" "+branchid.toString()+" "+userName+" "+vendorName+" "+branchName+" "+userType);
+    print("" +
+        vehicleRegNo.toString() +
+        " " +
+        imeino.toString() +
+        " " +
+        latitude.toString() +
+        " " +
+        longitude.toString() +
+        " " +
+        address.toString() +
+        " " +
+        transDate.toString() +
+        " " +
+        transTime.toString() +
+        " " +
+        speed.toString() +
+        " " +
+        overSpeed.toString() +
+        " " +
+        updatedOn.toString() +
+        " " +
+        distancetravel.toString() +
+        " " +
+        speedLimit.toString() +
+        " " +
+        searchText);
 
     if (token != "" ||
         vehicleRegNo != 0 ||
@@ -258,30 +161,6 @@ class _DriverWiseVehicleAssignScreenState
         overSpeed != "") {
       // _getOverSpeedCreatedetail();
     }
-  }
-
-  onSearchTextChanged(String text) async {
-    if (text.isEmpty) {
-      setState(() {
-        isSearch = false;
-      });
-      return;
-    } else {
-      setState(() {
-        isSearch = true;
-      });
-      _mainBloc.add(SearchDriverwiseVehAssignDetailsEvent(
-        token: token,
-        vendorid: vendorid,
-        branchid: 1,
-        pageSize: pageSize,
-        pageNumber: 1,
-        searchText: searchController.text,
-      ));
-    }
-    // traveldata!.forEach((userDetail) {
-    //   if (userDetail.vehicleregNo!.contains(text)) searchdata!.add(userDetail);
-    // });
   }
 
   _vehicleMaster() {
@@ -295,1626 +174,941 @@ class _DriverWiseVehicleAssignScreenState
       ),
       child: BlocListener<MainBloc, MainState>(
         listener: (context, state) {
-          // Driver wise driver code
-          if (state is DriverWiseDriverCodeLoadingState) {
-            const Center(child: CircularProgressIndicator());
-          } else if (state is DriverWiseDriverCodeLoadedState) {
-            if (state.dmfdriverCoderesponse.data != null) {
-              print("Driver wise vehicle driver code data loaded");
-              driverwisedrivercode!.clear();
-              driverwisedrivercode!.addAll(state.dmfdriverCoderesponse.data!);
-            }
-          } else if (state is DriverWiseDriverCodeErorrState) {
-            print("Driver wise vehicle assign driver code went wrong");
-          }
           if (state is DriverWiseVehicleAssignLoadingState) {
             setState(() {
               _isLoading = true;
             });
           } else if (state is DriverWiseVehicleAssignLoadedState) {
-            if (state.DriverWiseVehicleAssignResponse.data != null) {
+            setState(() {
+              _isLoading = false;
               pageNumber++;
-              print("Driver wise vehicle data loaded");
-              setState(() {
-                _isLoading = false;
-                value = state.DriverWiseVehicleAssignResponse.totalRecords;
-              });
-              driverwisevehicledata!
-                  .addAll(state.DriverWiseVehicleAssignResponse.data);
-            }
+              var totalOverSpeedCreateRecords =
+                  state.DriverWiseVehicleAssignResponse.totalRecords!;
+
+              // data!.addAll(state.getOverspeedREportResponse.data!);
+            });
           } else if (state is DriverWiseVehicleAssignErrorState) {
-            print("Driver wise vehicle assign went wrong");
+            setState(() {
+              _isLoading = false;
+            });
           }
-          if (state is DriverWiseVehicleFilterLoadingState) {
-            print("Driver wise vehicle filter");
-          } else if (state is DriverWiseVehicleFilterLoadedState) {
-            if (state.DriverWiseVehicleFilterResponse.data != null) {
-              print("Driver wise vehicle filter data loaded");
-              filterdata!.clear();
-              filterdata!.addAll(state.DriverWiseVehicleFilterResponse.data!);
-            }
-          } else if (state is DriverWiseVehicleFilterErrorState) {
-            print("Driver wise vehicle filter went wrong");
-          }
-          //! Search DriverWise Vehicle----------------------------------------------------
-          if (state is SearchDriverVehAssignReportLoadingState) {
+          if (state is SearchOverSpeedCreateLoadingState) {
             setState(() {
               _isLoading = true;
             });
-          } else if (state is SearchDriverVehAssignReportLoadedState) {
+          } else if (state is SearchOverSpeedCreateLoadedState) {
             setState(() {
+         
               _isLoading = false;
-              searchdatalist!.clear();
             });
-            searchdatalist!.addAll(state.searchvehassignResponse.data!);
-          } else if (state is SearchDriverVehAssignReportErrorState) {
+            // if(state.search_overspeed_response.data!=null){
+            //   searchData!.addAll(state.search_overspeed_response.data!);
+            // }
+          } else if (state is SearchOverSpeedCreateErrorState) {
             setState(() {
               _isLoading = false;
             });
           }
         },
-        child: isfilter
-            ? SingleChildScrollView(
-                controller: notificationController,
-                child: Padding(
-                  padding: const EdgeInsets.all(0),
-                  //left: 8, top: 16.0, right: 8.0),
-                  child: Container(
-                    margin: const EdgeInsets.all(0.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(
-                              left: 8.0, right: 8.0, bottom: 8.0, top: 16.0),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    TextButton(
-                                      child: const Text(
-                                        "Filter",
-                                        style: TextStyle(
-                                            fontSize: 18,
-                                            color: MyColors.blackColorCode),
-                                      ),
-                                      onPressed: () {},
-                                    ),
-                                    TextButton(
-                                      child: const Text(
-                                        "Clear",
-                                        style: TextStyle(
-                                            decoration:
-                                                TextDecoration.underline,
-                                            fontSize: 18),
-                                      ),
-                                      onPressed: () {
-                                        dwdcvsrnolisttiletext = "-select-";
-                                        setState(() {});
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(
-                                width: 10,
-                              ),
-                              GestureDetector(
-                                onTap: () {
-                                  // applyFilter();
-                                },
-                                child: Container(
-                                    height: 36,
-                                    width: 80,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(50.0),
-                                      color: /*isapplybtnvisible ?*/ Colors
-                                          .blue, /*: MyColors.blueColorCode.withOpacity(0.5)*/
-                                    ),
-                                    child: TextButton(
-                                        child: const Text("Apply",
-                                            style:
-                                                TextStyle(color: Colors.white)),
-                                        onPressed: () {
-                                          _mainBloc.add(
-                                              DriverVehicleFilterEvent(
-                                                  token: token,
-                                                  vendorId: vendorid,
-                                                  branchid: branchid,
-                                                  vsrno: dwdcvehicleno
-                                                              .toString() ==
-                                                          null
-                                                      ? "ALL"
-                                                      : dwdcvehicleno
-                                                          .toString(),
-                                                  pagenumber: 1,
-                                                  pagesize: pageSize));
-                                          setState(() {
-                                            isfilter = false;
-                                            applyclicked = true;
-                                          });
-                                        })),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          height: 30,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(15.0),
-                          child: Column(
-                            children: [
-                              Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(bottom: 8),
-                                    child: Row(
-                                      children: const [
-                                        Text(
-                                          "Vendor Name",
-                                          style: TextStyle(
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.w500),
-                                        ),
-                                        Padding(
-                                          padding: EdgeInsets.only(left: 3.0),
-                                          child: Text("*",
-                                              style: TextStyle(
-                                                  fontSize: 18,
-                                                  color:
-                                                      MyColors.redColorCode)),
-                                        )
-                                      ],
-                                    ),
-                                  )),
-                              Container(
-                                height: 50,
-                                decoration: BoxDecoration(
-                                    color: MyColors.boxBackgroundColorCode,
-                                    border: Border.all(
-                                        color: MyColors.textBoxBorderColorCode,
-                                        width: 2)),
-                                child: IgnorePointer(
-                                  ignoring: true,
-                                  child: DropdownButtonFormField(
-                                    isExpanded: true,
-                                    focusColor: Colors.white70,
-                                    value: dropdownvalue1,
-                                    menuMaxHeight: 300,
-                                    onChanged: (value) {
-                                      // setState(() {
-                                      //   dropdownvalue1 = value!.toString();
-                                      //   isvalue = true;
-                                      // });
-                                      // _mainBloc.add(FilterDeviceMasterReportEvent(
-                                      //     token: token,
-                                      //     vendorid: vendorid,
-                                      //     branchid: branchid,
-                                      //     pageNumber: pageNumber,
-                                      //     pageSize: pagesize,
-                                      //     deviceNumber: deviceNo));
-                                    },
-                                    items: vendoritems.map((String items) {
-                                      return DropdownMenuItem(
-                                        enabled: false,
-                                        value: items,
-                                        child: Container(
-                                            padding: EdgeInsets.only(left: 10),
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width -
-                                                58,
-                                            child: Text(items,
-                                                style:
-                                                    TextStyle(fontSize: 18))),
-                                      );
-                                    }).toList(),
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                  padding:
-                                      EdgeInsets.only(bottom: 20, top: 10)),
-                              Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(bottom: 8),
-                                    child: Row(
-                                      children: const [
-                                        Text(
-                                          "Branch Name",
-                                          style: TextStyle(
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.w500),
-                                        ),
-                                        Padding(
-                                          padding: EdgeInsets.only(left: 3.0),
-                                          child: Text("*",
-                                              style: TextStyle(
-                                                  fontSize: 18,
-                                                  color:
-                                                      MyColors.redColorCode)),
-                                        )
-                                      ],
-                                    ),
-                                  )),
-                              Container(
-                                  height: 50,
-                                  decoration: BoxDecoration(
-                                      color: MyColors.boxBackgroundColorCode,
-                                      border: Border.all(
-                                          color:
-                                              MyColors.textBoxBorderColorCode,
-                                          width: 2)),
-                                  child: IgnorePointer(
-                                    ignoring: true,
-                                    child: DropdownButtonFormField(
-                                      isExpanded: true,
-                                      value: dropdownvalue2,
-                                      menuMaxHeight: 300,
-                                      onChanged: (value) {
-                                        // setState(() {
-                                        //   dropdownvalue2 = value!.toString();
-                                        //   isvalue = true;
-                                        // });
-                                        // _mainBloc.add(FilterDeviceMasterReportEvent(
-                                        //     token: token,
-                                        //     vendorid: vendorid,
-                                        //     branchid: branchid,
-                                        //     pageNumber: pageNumber,
-                                        //     pageSize: pagesize,
-                                        //     deviceNumber: deviceNo));
-                                      },
-                                      items: branchitems.map((String items) {
-                                        return DropdownMenuItem(
-                                          enabled: false,
-                                          value: items,
-                                          child: Container(
-                                              padding:
-                                                  EdgeInsets.only(left: 10),
-                                              width: MediaQuery.of(context)
-                                                      .size
-                                                      .width -
-                                                  58,
-                                              child: Text(items,
-                                                  style:
-                                                      TextStyle(fontSize: 18))),
-                                        );
-                                      }).toList(),
-                                    ),
-                                  )),
-                              Padding(
-                                  padding:
-                                      EdgeInsets.only(bottom: 20, top: 10)),
-                              Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(bottom: 8),
-                                    child: Row(
-                                      children: const [
-                                        Text(
-                                          "Vehicle Number",
-                                          style: TextStyle(
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.w500),
-                                        ),
-                                        Padding(
-                                          padding: EdgeInsets.only(left: 3.0),
-                                          child: Text("*",
-                                              style: TextStyle(
-                                                  fontSize: 18,
-                                                  color:
-                                                      MyColors.redColorCode)),
-                                        )
-                                      ],
-                                    ),
-                                  )),
-                              Container(
-                                  height: 50,
-                                  decoration: BoxDecoration(
-                                      color: MyColors.whiteColorCode,
-                                      border: Border.all(
-                                          color:
-                                              MyColors.textBoxBorderColorCode,
-                                          width: 2)),
-                                  child: ListTile(
-                                    leading: Text(
-                                      dwdcvsrnolisttiletext == null
-                                          ? "-select-"
-                                          : dwdcvsrnolisttiletext,
-                                      style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w400),
-                                    ),
-                                    trailing: isdwdc
-                                        ? IconButton(
-                                            icon: Icon(
-                                              Icons.keyboard_arrow_up,
-                                            ),
-                                            onPressed: () {
-                                              isdwdc = false;
-                                              setState(() {});
-                                            },
-                                          )
-                                        : IconButton(
-                                            icon: Icon(
-                                              Icons.keyboard_arrow_down,
-                                            ),
-                                            onPressed: () {
-                                              isdwdc = true;
-                                              setState(() {});
-                                            },
-                                          ),
-                                  )),
-                              isdwdc
-                                  ? Container(
-                                      decoration: BoxDecoration(
-                                        boxShadow: [
-                                          BoxShadow(
-                                              blurRadius: 5.0, spreadRadius: 1),
-                                        ],
-                                        color: Colors.white,
-                                        //  boxShadow:
-                                      ),
-                                      height: 200,
-                                      width: double.infinity,
-                                      child: ListView.builder(
-                                        shrinkWrap: true,
-                                        controller: vehicleRecordController,
-                                        itemCount: driverwisedrivercode!.length,
-                                        itemBuilder:
-                                            (BuildContext context, int index) {
-                                          var article =
-                                              driverwisedrivercode![index];
-                                          return Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: GestureDetector(
-                                              child: Text(
-                                                article.vehicleRegNo!
-                                                    .toString(),
-                                                style: TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight:
-                                                        FontWeight.w400),
-                                              ),
-                                              onTap: () {
-                                                print(article.vehicleRegNo);
-                                                isdwdc = false;
-                                                setState(() {
-                                                  dwdcvehicleno = article.vsrNo;
-                                                  dwdcvsrnolisttiletext =
-                                                      article.vehicleRegNo;
-                                                });
-                                              },
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    )
-                                  : SizedBox()
-                            ],
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-              )
-            : SingleChildScrollView(
-                controller: notificationController,
-                child: Column(
-                  children: [
-                    Container(
+        child: SingleChildScrollView(
+          controller: controller,
+          child: Column(
+            children: [
+              Container(
+                  decoration: BoxDecoration(color: Colors.white, boxShadow: [
+                    BoxShadow(
+                        blurRadius: 2, color: MyColors.shadowGreyColorCode)
+                  ]),
+                  height: 60,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.only(
+                            top: 6.0, left: 15, right: 15, bottom: 6),
                         decoration: BoxDecoration(
-                            color: Colors.white,
-                            boxShadow: [
-                              BoxShadow(
-                                  blurRadius: 2,
-                                  color: MyColors.shadowGreyColorCode)
-                            ]),
-                        height: 60,
+                            color: MyColors.greyDividerColorCode,
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(20))),
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Container(
-                              padding: const EdgeInsets.only(
-                                  top: 6.0, left: 15, right: 15, bottom: 6),
-                              decoration: BoxDecoration(
-                                  color: MyColors.greyDividerColorCode,
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(20))),
-                              child: Row(
-                                children: [
-                                  Icon(Icons.file_copy_outlined),
-                                  Text("Export"),
-                                ],
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: () async {
-                                pdfdatalist.addAll(driverwisevehicledata!);
-                                setState(() {});
-
-                                var status = await Permission.storage.status;
-                                if (await Permission.storage
-                                    .request()
-                                    .isGranted) {
-                                  final pdfFile =
-                                      await PdfInvoiceApi.generate(pdfdatalist);
-                                  PdfApi.openFile(pdfFile);
-                                } else {
-                                  print("Request is not accepted");
-                                  await Permission.storage.request();
-                                }
-
-                                // if (status.isDenied) {
-                                // }
-                              },
-                              child: Container(
-                                margin: const EdgeInsets.only(left: 15),
-                                padding: const EdgeInsets.only(
-                                    top: 6.0, left: 15, right: 15, bottom: 6),
-                                decoration: const BoxDecoration(
-                                    color: MyColors.lightblueColorCode,
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(20))),
-                                child: Row(
-                                  children: const [
-                                    Icon(
-                                      Icons.file_copy_sharp,
-                                      color: MyColors.analyticActiveColorCode,
-                                    ),
-                                    Text(
-                                      "Download",
-                                      style: TextStyle(
-                                          color:
-                                              MyColors.analyticActiveColorCode),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            )
+                            Icon(Icons.file_copy_outlined),
+                            Text("Export"),
                           ],
-                        )),
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          top: 20.0, left: 15, right: 15, bottom: 20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          TextField(
-                            controller: searchController,
-                            onChanged: onSearchTextChanged,
-                            enabled: true, // to trigger disabledBorder
-                            decoration: InputDecoration(
-                              filled: true,
-                              fillColor: MyColors.whiteColorCode,
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(4)),
-                                borderSide: BorderSide(
-                                    width: 1, color: MyColors.buttonColorCode),
-                              ),
-                              disabledBorder: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(4)),
-                                borderSide:
-                                    BorderSide(width: 1, color: Colors.orange),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(4)),
-                                borderSide: BorderSide(
-                                    width: 1, color: MyColors.textColorCode),
-                              ),
-                              border: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(4)),
-                                  borderSide: BorderSide(
-                                    width: 1,
-                                  )),
-                              errorBorder: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(4)),
-                                  borderSide: BorderSide(
-                                      width: 1,
-                                      color: MyColors.textBoxBorderColorCode)),
-                              focusedErrorBorder: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(4)),
-                                  borderSide: BorderSide(
-                                      width: 2,
-                                      color: MyColors.buttonColorCode)),
-                              hintText: "Search By...",
-                              prefixIcon: Icon(
-                                Icons.search,
-                                size: 24,
-                                color: MyColors.text3greyColorCode,
-                              ),
-                              hintStyle: TextStyle(
-                                  fontSize: 18,
-                                  color: MyColors.searchTextColorCode),
-                              errorText: "",
+                        ),
+                      ),
+                      Container(
+                        margin: const EdgeInsets.only(left: 15),
+                        padding: const EdgeInsets.only(
+                            top: 6.0, left: 15, right: 15, bottom: 6),
+                        decoration: BoxDecoration(
+                            color: MyColors.lightblueColorCode,
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(20))),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.file_copy_sharp,
+                              color: MyColors.analyticActiveColorCode,
                             ),
-                          ),
-                          applyclicked
-                              ? BlocBuilder<MainBloc, MainState>(
-                                  builder: (context, state) {
-                                  return Text(
-                                    filterdata!.length.toString() +
-                                        " Records found",
-                                    style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold),
-                                  );
-                                })
-                              : isSearch
-                                  ? BlocBuilder<MainBloc, MainState>(
-                                      builder: (context, state) {
-                                      return Text(
-                                        searchdatalist!.length.toString() +
-                                            " Records found",
-                                        style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold),
-                                      );
-                                    })
-                                  : BlocBuilder<MainBloc, MainState>(
-                                      builder: (context, state) {
-                                      return Text(
-                                        driverwisevehicledata!.length
-                                                .toString() +
-                                            " Records found",
-                                        style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold),
-                                      );
-                                    }),
-                          applyclicked
-                              ? Padding(
-                                  padding: const EdgeInsets.only(top: 20.0),
-                                  child: BlocBuilder<MainBloc, MainState>(
-                                      builder: (context, state) {
-                                    return ListView.builder(
-                                        shrinkWrap: true,
-                                        controller: vehicleRecordController,
-                                        itemCount: filterdata!.length,
-                                        itemBuilder: (context, index) {
-                                          var article = filterdata![index];
-                                          return Card(
-                                            margin: EdgeInsets.only(bottom: 15),
-                                            shape: RoundedRectangleBorder(
-                                              side: BorderSide(
-                                                  width: 1,
-                                                  color: MyColors
-                                                      .textBoxBorderColorCode),
-                                              borderRadius:
-                                                  BorderRadius.circular(10.0),
-                                            ),
-                                            child: Container(
-                                              padding: EdgeInsets.only(
-                                                  top: 15,
-                                                  left: 14,
-                                                  right: 14,
-                                                  bottom: 15),
-                                              width: MediaQuery.of(context)
-                                                  .size
-                                                  .width,
-                                              decoration: BoxDecoration(
-                                                borderRadius: BorderRadius.all(
-                                                    Radius.circular(10)),
-                                              ),
-                                              child: SingleChildScrollView(
-                                                // controller: overSpeedScrollController,
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          top: 20.0,
-                                                          left: 15,
-                                                          right: 15,
-                                                          bottom: 20),
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                    .only(
-                                                                top: 15.0,
-                                                                bottom: 15),
-                                                        child: Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .spaceAround,
-                                                          children: [
-                                                            Expanded(
-                                                              child: Column(
-                                                                mainAxisAlignment:
-                                                                    MainAxisAlignment
-                                                                        .start,
-                                                                crossAxisAlignment:
-                                                                    CrossAxisAlignment
-                                                                        .start,
-                                                                children: [
-                                                                  Text(
-                                                                    "Sr.No",
-                                                                    style: TextStyle(
-                                                                        color: MyColors
-                                                                            .textprofiledetailColorCode,
-                                                                        fontSize:
-                                                                            18),
-                                                                  ),
-                                                                  Text(
-                                                                    "1",
-                                                                    style: TextStyle(
-                                                                        color: MyColors
-                                                                            .text5ColorCode,
-                                                                        fontSize:
-                                                                            18),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ),
-                                                            Expanded(
-                                                                child: Column(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .start,
-                                                              crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .start,
-                                                              children: [
-                                                                Text(
-                                                                  "Vehicle RegNo",
-                                                                  style: TextStyle(
-                                                                      color: MyColors
-                                                                          .textprofiledetailColorCode,
-                                                                      fontSize:
-                                                                          18),
-                                                                ),
-                                                                Text(
-                                                                  article
-                                                                      .vehicleRegNo
-                                                                      .toString(),
-                                                                  textAlign:
-                                                                      TextAlign
-                                                                          .left,
-                                                                  style: TextStyle(
-                                                                      color: MyColors
-                                                                          .text5ColorCode,
-                                                                      fontSize:
-                                                                          18),
-                                                                ),
-                                                              ],
-                                                            ))
-                                                          ],
-                                                        ),
-                                                      ),
-                                                      Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                    .only(
-                                                                top: 15.0,
-                                                                bottom: 15),
-                                                        child: Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .spaceAround,
-                                                          children: [
-                                                            Expanded(
-                                                              child: Column(
-                                                                mainAxisAlignment:
-                                                                    MainAxisAlignment
-                                                                        .start,
-                                                                crossAxisAlignment:
-                                                                    CrossAxisAlignment
-                                                                        .start,
-                                                                children: [
-                                                                  Text(
-                                                                    "Driver Name",
-                                                                    style: TextStyle(
-                                                                        color: MyColors
-                                                                            .textprofiledetailColorCode,
-                                                                        fontSize:
-                                                                            18),
-                                                                  ),
-                                                                  Text(
-                                                                    article
-                                                                        .driverName
-                                                                        .toString(),
-                                                                    style: TextStyle(
-                                                                        color: MyColors
-                                                                            .text5ColorCode,
-                                                                        fontSize:
-                                                                            18),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ),
-                                                            Expanded(
-                                                                child: Column(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .start,
-                                                              crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .start,
-                                                              children: [
-                                                                Text(
-                                                                  "Driver Phone No",
-                                                                  style: TextStyle(
-                                                                      color: MyColors
-                                                                          .textprofiledetailColorCode,
-                                                                      fontSize:
-                                                                          18),
-                                                                ),
-                                                                Text(
-                                                                  article
-                                                                      .mobileNo
-                                                                      .toString(),
-                                                                  textAlign:
-                                                                      TextAlign
-                                                                          .left,
-                                                                  style: TextStyle(
-                                                                      color: MyColors
-                                                                          .text5ColorCode,
-                                                                      fontSize:
-                                                                          18),
-                                                                ),
-                                                              ],
-                                                            ))
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          );
-                                        });
-                                  }))
-                              : !isSearch
-                                  ? Padding(
-                                      padding: const EdgeInsets.only(top: 20.0),
-                                      child: BlocBuilder<MainBloc, MainState>(
-                                          builder: (context, state) {
-                                        return ListView.builder(
-                                            shrinkWrap: true,
-                                            controller: vehicleRecordController,
-                                            itemCount:
-                                                driverwisevehicledata!.length,
-                                            itemBuilder: (context, index) {
-                                              var article =
-                                                  driverwisevehicledata![index];
-                                              return Card(
-                                                margin:
-                                                    EdgeInsets.only(bottom: 15),
-                                                shape: RoundedRectangleBorder(
-                                                  side: BorderSide(
-                                                      width: 1,
-                                                      color: MyColors
-                                                          .textBoxBorderColorCode),
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          10.0),
-                                                ),
-                                                child: Container(
-                                                  padding: EdgeInsets.only(
-                                                      top: 15,
-                                                      left: 14,
-                                                      right: 14,
-                                                      bottom: 15),
-                                                  width: MediaQuery.of(context)
-                                                      .size
-                                                      .width,
-                                                  decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.all(
-                                                            Radius.circular(
-                                                                10)),
-                                                  ),
-                                                  child: SingleChildScrollView(
-                                                    // controller: overSpeedScrollController,
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              top: 20.0,
-                                                              left: 15,
-                                                              right: 15,
-                                                              bottom: 20),
+                            Text(
+                              "Download",
+                              style: TextStyle(
+                                  color: MyColors.analyticActiveColorCode),
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
+                  )),
+              Padding(
+                padding: const EdgeInsets.only(
+                    top: 20.0, left: 15, right: 15, bottom: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextField(
+                      controller: searchController,
+                      enabled: true, // to trigger disabledBorder
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: MyColors.whiteColorCode,
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(4)),
+                          borderSide: BorderSide(
+                              width: 1, color: MyColors.buttonColorCode),
+                        ),
+                        disabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(4)),
+                          borderSide:
+                              BorderSide(width: 1, color: Colors.orange),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(4)),
+                          borderSide: BorderSide(
+                              width: 1, color: MyColors.textColorCode),
+                        ),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(4)),
+                            borderSide: BorderSide(
+                              width: 1,
+                            )),
+                        errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(4)),
+                            borderSide: BorderSide(
+                                width: 1,
+                                color: MyColors.textBoxBorderColorCode)),
+                        focusedErrorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(4)),
+                            borderSide: BorderSide(
+                                width: 2, color: MyColors.buttonColorCode)),
+                        hintText: "Search By...",
+                        prefixIcon: Icon(
+                          Icons.search,
+                          size: 24,
+                          color: MyColors.text3greyColorCode,
+                        ),
+                        hintStyle: TextStyle(
+                            fontSize: 18, color: MyColors.searchTextColorCode),
+                        errorText: "",
+                      ),
+                      // controller: _passwordController,
+                      onChanged: (value) {
+                       
+                      },
+                    ),
+                    Text(
+                      "10 RECORDS",
+                     
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                   
+                   
+                    !isSearch
+                        ?
+                        // allVehicleDetaildatalist!.length==0 ?
+                        // Container() :
+                        Padding(
+                            padding: const EdgeInsets.only(top: 20.0),
+                            child: ListView.builder(
+                                shrinkWrap: true,
+                                controller: vehicleRecordController,
+                                itemCount: 5,
+                                itemBuilder: (context, index) {
+
+                                  return Card(
+                                    margin: EdgeInsets.only(bottom: 15),
+                                    shape: RoundedRectangleBorder(
+                                      side: BorderSide(
+                                          width: 1,
+                                          color:
+                                              MyColors.textBoxBorderColorCode),
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    ),
+                                    child: Container(
+                                      padding: EdgeInsets.only(
+                                          top: 15,
+                                          left: 14,
+                                          right: 14,
+                                          bottom: 15),
+                                      width: MediaQuery.of(context).size.width,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(10)),
+                                      ),
+                                      child: SingleChildScrollView(
+                                        // controller: overSpeedScrollController,
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(
+                                              top: 20.0,
+                                              left: 15,
+                                              right: 15,
+                                              bottom: 20),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    top: 15.0, bottom: 15),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceAround,
+                                                  children: [
+                                                    Expanded(
                                                       child: Column(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .start,
                                                         crossAxisAlignment:
                                                             CrossAxisAlignment
                                                                 .start,
                                                         children: [
-                                                          Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                        .only(
-                                                                    top: 15.0,
-                                                                    bottom: 15),
-                                                            child: Row(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .spaceAround,
-                                                              children: [
-                                                                Expanded(
-                                                                  child: Column(
-                                                                    mainAxisAlignment:
-                                                                        MainAxisAlignment
-                                                                            .start,
-                                                                    crossAxisAlignment:
-                                                                        CrossAxisAlignment
-                                                                            .start,
-                                                                    children: [
-                                                                      Text(
-                                                                        "Sr.No",
-                                                                        style: TextStyle(
-                                                                            color:
-                                                                                MyColors.textprofiledetailColorCode,
-                                                                            fontSize: 18),
-                                                                      ),
-                                                                      Text(
-                                                                        "1",
-                                                                        style: TextStyle(
-                                                                            color:
-                                                                                MyColors.text5ColorCode,
-                                                                            fontSize: 18),
-                                                                      ),
-                                                                    ],
-                                                                  ),
-                                                                ),
-                                                                Expanded(
-                                                                    child:
-                                                                        Column(
-                                                                  mainAxisAlignment:
-                                                                      MainAxisAlignment
-                                                                          .start,
-                                                                  crossAxisAlignment:
-                                                                      CrossAxisAlignment
-                                                                          .start,
-                                                                  children: [
-                                                                    Text(
-                                                                      "Vehicle RegNo",
-                                                                      style: TextStyle(
-                                                                          color: MyColors
-                                                                              .textprofiledetailColorCode,
-                                                                          fontSize:
-                                                                              18),
-                                                                    ),
-                                                                    Text(
-                                                                      article
-                                                                          .vehicleRegNo
-                                                                          .toString(),
-                                                                      textAlign:
-                                                                          TextAlign
-                                                                              .left,
-                                                                      style: TextStyle(
-                                                                          color: MyColors
-                                                                              .text5ColorCode,
-                                                                          fontSize:
-                                                                              18),
-                                                                    ),
-                                                                  ],
-                                                                ))
-                                                              ],
-                                                            ),
+                                                          Text(
+                                                            "Sr.No",
+                                                            style: TextStyle(
+                                                                color: MyColors
+                                                                    .textprofiledetailColorCode,
+                                                                fontSize: 18),
                                                           ),
-                                                          Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                        .only(
-                                                                    top: 15.0,
-                                                                    bottom: 15),
-                                                            child: Row(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .spaceAround,
-                                                              children: [
-                                                                Expanded(
-                                                                  child: Column(
-                                                                    mainAxisAlignment:
-                                                                        MainAxisAlignment
-                                                                            .start,
-                                                                    crossAxisAlignment:
-                                                                        CrossAxisAlignment
-                                                                            .start,
-                                                                    children: [
-                                                                      Text(
-                                                                        "Driver Name",
-                                                                        style: TextStyle(
-                                                                            color:
-                                                                                MyColors.textprofiledetailColorCode,
-                                                                            fontSize: 18),
-                                                                      ),
-                                                                      Text(
-                                                                        article
-                                                                            .driverName
-                                                                            .toString(),
-                                                                        style: TextStyle(
-                                                                            color:
-                                                                                MyColors.text5ColorCode,
-                                                                            fontSize: 18),
-                                                                      ),
-                                                                    ],
-                                                                  ),
-                                                                ),
-                                                                Expanded(
-                                                                    child:
-                                                                        Column(
-                                                                  mainAxisAlignment:
-                                                                      MainAxisAlignment
-                                                                          .start,
-                                                                  crossAxisAlignment:
-                                                                      CrossAxisAlignment
-                                                                          .start,
-                                                                  children: [
-                                                                    Text(
-                                                                      "Driver Phone No",
-                                                                      style: TextStyle(
-                                                                          color: MyColors
-                                                                              .textprofiledetailColorCode,
-                                                                          fontSize:
-                                                                              18),
-                                                                    ),
-                                                                    Text(
-                                                                      article
-                                                                          .mobileNo
-                                                                          .toString(),
-                                                                      textAlign:
-                                                                          TextAlign
-                                                                              .left,
-                                                                      style: TextStyle(
-                                                                          color: MyColors
-                                                                              .text5ColorCode,
-                                                                          fontSize:
-                                                                              18),
-                                                                    ),
-                                                                  ],
-                                                                ))
-                                                              ],
-                                                            ),
+                                                          Text(
+                                                            "1",
+                                                            style: TextStyle(
+                                                                color: MyColors
+                                                                    .text5ColorCode,
+                                                                fontSize: 18),
                                                           ),
                                                         ],
                                                       ),
                                                     ),
-                                                  ),
-                                                ),
-                                              );
-                                            });
-                                      }))
-                                  : searchdatalist!.length == 0
-                                      ? Center(
-                                          child: Text("No data found"),
-                                        )
-                                      : Padding(
-                                          padding:
-                                              const EdgeInsets.only(top: 20.0),
-                                          child:
-                                              BlocBuilder<MainBloc, MainState>(
-                                                  builder: (context, state) {
-                                            return ListView.builder(
-                                                shrinkWrap: true,
-                                                controller:
-                                                    vehicleRecordController,
-                                                itemCount:
-                                                    searchdatalist!.length,
-                                                itemBuilder: (context, index) {
-                                                  var article =
-                                                      searchdatalist![index];
-                                                  return Card(
-                                                    margin: EdgeInsets.only(
-                                                        bottom: 15),
-                                                    shape:
-                                                        RoundedRectangleBorder(
-                                                      side: BorderSide(
-                                                          width: 1,
-                                                          color: MyColors
-                                                              .textBoxBorderColorCode),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              10.0),
-                                                    ),
-                                                    child: Container(
-                                                      padding: EdgeInsets.only(
-                                                          top: 15,
-                                                          left: 14,
-                                                          right: 14,
-                                                          bottom: 15),
-                                                      width:
-                                                          MediaQuery.of(context)
-                                                              .size
-                                                              .width,
-                                                      decoration: BoxDecoration(
-                                                        borderRadius:
-                                                            BorderRadius.all(
-                                                                Radius.circular(
-                                                                    10)),
-                                                      ),
-                                                      child:
-                                                          SingleChildScrollView(
-                                                        // controller: overSpeedScrollController,
-                                                        child: Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                      .only(
-                                                                  top: 20.0,
-                                                                  left: 15,
-                                                                  right: 15,
-                                                                  bottom: 20),
-                                                          child: Column(
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .start,
-                                                            children: [
-                                                              Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                            .only(
-                                                                        top:
-                                                                            15.0,
-                                                                        bottom:
-                                                                            15),
-                                                                child: Row(
-                                                                  mainAxisAlignment:
-                                                                      MainAxisAlignment
-                                                                          .spaceAround,
-                                                                  children: [
-                                                                    Expanded(
-                                                                      child:
-                                                                          Column(
-                                                                        mainAxisAlignment:
-                                                                            MainAxisAlignment.start,
-                                                                        crossAxisAlignment:
-                                                                            CrossAxisAlignment.start,
-                                                                        children: [
-                                                                          Text(
-                                                                            "Sr.No",
-                                                                            style:
-                                                                                TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
-                                                                          ),
-                                                                          Text(
-                                                                            "1",
-                                                                            style:
-                                                                                TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
-                                                                          ),
-                                                                        ],
-                                                                      ),
-                                                                    ),
-                                                                    Expanded(
-                                                                        child:
-                                                                            Column(
-                                                                      mainAxisAlignment:
-                                                                          MainAxisAlignment
-                                                                              .start,
-                                                                      crossAxisAlignment:
-                                                                          CrossAxisAlignment
-                                                                              .start,
-                                                                      children: [
-                                                                        Text(
-                                                                          "Vehicle RegNo",
-                                                                          style: TextStyle(
-                                                                              color: MyColors.textprofiledetailColorCode,
-                                                                              fontSize: 18),
-                                                                        ),
-                                                                        Text(
-                                                                          article
-                                                                              .vehicleRegNo
-                                                                              .toString(),
-                                                                          textAlign:
-                                                                              TextAlign.left,
-                                                                          style: TextStyle(
-                                                                              color: MyColors.text5ColorCode,
-                                                                              fontSize: 18),
-                                                                        ),
-                                                                      ],
-                                                                    ))
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                              Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                            .only(
-                                                                        top:
-                                                                            15.0,
-                                                                        bottom:
-                                                                            15),
-                                                                child: Row(
-                                                                  mainAxisAlignment:
-                                                                      MainAxisAlignment
-                                                                          .spaceAround,
-                                                                  children: [
-                                                                    Expanded(
-                                                                      child:
-                                                                          Column(
-                                                                        mainAxisAlignment:
-                                                                            MainAxisAlignment.start,
-                                                                        crossAxisAlignment:
-                                                                            CrossAxisAlignment.start,
-                                                                        children: [
-                                                                          Text(
-                                                                            "Driver Name",
-                                                                            style:
-                                                                                TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
-                                                                          ),
-                                                                          Text(
-                                                                            article.driverName.toString(),
-                                                                            style:
-                                                                                TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
-                                                                          ),
-                                                                        ],
-                                                                      ),
-                                                                    ),
-                                                                    Expanded(
-                                                                        child:
-                                                                            Column(
-                                                                      mainAxisAlignment:
-                                                                          MainAxisAlignment
-                                                                              .start,
-                                                                      crossAxisAlignment:
-                                                                          CrossAxisAlignment
-                                                                              .start,
-                                                                      children: [
-                                                                        Text(
-                                                                          "Driver Phone No",
-                                                                          style: TextStyle(
-                                                                              color: MyColors.textprofiledetailColorCode,
-                                                                              fontSize: 18),
-                                                                        ),
-                                                                        Text(
-                                                                          article
-                                                                              .mobileNo
-                                                                              .toString(),
-                                                                          textAlign:
-                                                                              TextAlign.left,
-                                                                          style: TextStyle(
-                                                                              color: MyColors.text5ColorCode,
-                                                                              fontSize: 18),
-                                                                        ),
-                                                                      ],
-                                                                    ))
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
+                                                    Expanded(
+                                                        child: Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .start,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Text(
+                                                          "Vehicle RegNo",
+                                                          style: TextStyle(
+                                                              color: MyColors
+                                                                  .textprofiledetailColorCode,
+                                                              fontSize: 18),
                                                         ),
+                                                        Text(
+                                                          "MH12AB0001",
+                                                          textAlign:
+                                                              TextAlign.left,
+                                                          style: TextStyle(
+                                                              color: MyColors
+                                                                  .text5ColorCode,
+                                                              fontSize: 18),
+                                                        ),
+                                                      ],
+                                                    ))
+                                                  ],
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    top: 15.0, bottom: 15),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceAround,
+                                                  children: [
+                                                    Expanded(
+                                                      child: Column(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .start,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Text(
+                                                            "Driver Name",
+                                                            style: TextStyle(
+                                                                color: MyColors
+                                                                    .textprofiledetailColorCode,
+                                                                fontSize: 18),
+                                                          ),
+                                                          Text(
+                                                            "Mohan",
+                                                            style: TextStyle(
+                                                                color: MyColors
+                                                                    .text5ColorCode,
+                                                                fontSize: 18),
+                                                          ),
+                                                        ],
                                                       ),
                                                     ),
-                                                  );
-                                                });
-                                          }))
-                          // ListView.builder(
-                          //     controller: vehicleRecordController,
-                          //     shrinkWrap: true,
-                          //     physics: ScrollPhysics(),
-                          //     itemCount: 5,
-                          //     itemBuilder: (context, index) {
-                          //       return Card(
-                          //         margin: EdgeInsets.only(bottom: 15),
-                          //         shape: RoundedRectangleBorder(
-                          //           side: BorderSide(
-                          //               width: 1,
-                          //               color: MyColors.textBoxBorderColorCode),
-                          //           borderRadius: BorderRadius.circular(10.0),
-                          //         ),
-                          //         child: Container(
-                          //           padding: EdgeInsets.only(
-                          //               top: 15, left: 14, right: 14, bottom: 15),
-                          //           width: MediaQuery.of(context).size.width,
-                          //           decoration: BoxDecoration(
-                          //             borderRadius:
-                          //                 BorderRadius.all(Radius.circular(10)),
-                          //           ),
-                          //           child: Column(
-                          //             mainAxisAlignment: MainAxisAlignment.start,
-                          //             crossAxisAlignment:
-                          //                 CrossAxisAlignment.start,
-                          //             children: [
-                          //               Row(
-                          //                 mainAxisAlignment:
-                          //                     MainAxisAlignment.spaceBetween,
-                          //                 children: [
-                          //                   Container(
-                          //                     child: Icon(
-                          //                       Icons.circle,
-                          //                       size: 10,
-                          //                       color:
-                          //                           // searchData![index].acStatus=='Active' ? MyColors.greenColorCode:
-                          //                           MyColors.redColorCode,
-                          //                     ),
-                          //                   ),
-                          //                   Expanded(
-                          //                       child: Padding(
-                          //                     padding: const EdgeInsets.only(
-                          //                         left: 8.0),
-                          //                     child: Text(
-                          //                       // searchData![index].acStatus=='Active' ? "Active" :
-                          //                       "Inactive",
-                          //                       style: TextStyle(
-                          //                           color:
-                          //                               // searchData![index].acStatus=='Active' ? MyColors.greenColorCode:
-                          //                               MyColors.redColorCode,
-                          //                           fontSize: 20),
-                          //                     ),
-                          //                   )),
-                          //                 ],
-                          //               ),
-                          //               Padding(
-                          //                 padding: const EdgeInsets.only(
-                          //                     top: 15.0, bottom: 15),
-                          //                 child: Row(
-                          //                   mainAxisAlignment:
-                          //                       MainAxisAlignment.spaceAround,
-                          //                   children: [
-                          //                     Expanded(
-                          //                       child: Column(
-                          //                         mainAxisAlignment:
-                          //                             MainAxisAlignment.start,
-                          //                         crossAxisAlignment:
-                          //                             CrossAxisAlignment.start,
-                          //                         children: [
-                          //                           Text(
-                          //                             "Vehicle ID",
-                          //                             style: TextStyle(
-                          //                                 color: MyColors
-                          //                                     .textprofiledetailColorCode,
-                          //                                 fontSize: 18),
-                          //                           ),
-                          //                           Text(
-                          //                             // searchData![index].vsrNo!=null ? searchData![index].vsrNo!.toString() :
-                          //                             "",
-                          //                             style: TextStyle(
-                          //                                 color: MyColors
-                          //                                     .text5ColorCode,
-                          //                                 fontSize: 18),
-                          //                           ),
-                          //                         ],
-                          //                       ),
-                          //                     ),
-                          //                     Expanded(
-                          //                         child: Column(
-                          //                       mainAxisAlignment:
-                          //                           MainAxisAlignment.start,
-                          //                       crossAxisAlignment:
-                          //                           CrossAxisAlignment.start,
-                          //                       children: [
-                          //                         Text(
-                          //                           "Vehicle Number",
-                          //                           style: TextStyle(
-                          //                               color: MyColors
-                          //                                   .textprofiledetailColorCode,
-                          //                               fontSize: 18),
-                          //                         ),
-                          //                         Text(
-                          //                           // searchData![index].vehicleRegNo!=null ? searchData![index].vehicleRegNo! :
-                          //                           "",
-                          //                           textAlign: TextAlign.left,
-                          //                           style: TextStyle(
-                          //                               color: MyColors
-                          //                                   .text5ColorCode,
-                          //                               fontSize: 18),
-                          //                         ),
-                          //                       ],
-                          //                     ))
-                          //                   ],
-                          //                 ),
-                          //               ),
-                          //               Row(
-                          //                 mainAxisAlignment:
-                          //                     MainAxisAlignment.spaceAround,
-                          //                 children: [
-                          //                   Expanded(
-                          //                     child: Column(
-                          //                       mainAxisAlignment:
-                          //                           MainAxisAlignment.start,
-                          //                       crossAxisAlignment:
-                          //                           CrossAxisAlignment.start,
-                          //                       children: [
-                          //                         Text(
-                          //                           "Vehicle Name",
-                          //                           style: TextStyle(
-                          //                               color: MyColors
-                          //                                   .textprofiledetailColorCode,
-                          //                               fontSize: 18),
-                          //                         ),
-                          //                         Text(
-                          //                           // searchData![index].vehicleName!=null ? searchData![index].vehicleName! :
-                          //                           "",
-                          //                           style: TextStyle(
-                          //                               color: MyColors
-                          //                                   .text5ColorCode,
-                          //                               fontSize: 18),
-                          //                         ),
-                          //                       ],
-                          //                     ),
-                          //                   ),
-                          //                   Expanded(
-                          //                       child: Column(
-                          //                     mainAxisAlignment:
-                          //                         MainAxisAlignment.start,
-                          //                     crossAxisAlignment:
-                          //                         CrossAxisAlignment.start,
-                          //                     children: [
-                          //                       Text(
-                          //                         "Fuel Type",
-                          //                         style: TextStyle(
-                          //                             color: MyColors
-                          //                                 .textprofiledetailColorCode,
-                          //                             fontSize: 18),
-                          //                       ),
-                          //                       Text(
-                          //                         // searchData![index].fuelType!=null ? searchData![index].fuelType! :
-                          //                         "",
-                          //                         textAlign: TextAlign.left,
-                          //                         style: TextStyle(
-                          //                             color:
-                          //                                 MyColors.text5ColorCode,
-                          //                             fontSize: 18),
-                          //                       ),
-                          //                     ],
-                          //                   ))
-                          //                 ],
-                          //               ),
-                          //               Padding(
-                          //                 padding:
-                          //                     const EdgeInsets.only(top: 15.0),
-                          //                 child: Row(
-                          //                   mainAxisAlignment:
-                          //                       MainAxisAlignment.spaceAround,
-                          //                   children: [
-                          //                     Expanded(
-                          //                       child: Column(
-                          //                         mainAxisAlignment:
-                          //                             MainAxisAlignment.start,
-                          //                         crossAxisAlignment:
-                          //                             CrossAxisAlignment.start,
-                          //                         children: [
-                          //                           Text(
-                          //                             "Vehicle Type",
-                          //                             style: TextStyle(
-                          //                                 color: MyColors
-                          //                                     .textprofiledetailColorCode,
-                          //                                 fontSize: 18),
-                          //                           ),
-                          //                           Text(
-                          //                             // searchData![index].vehicleType!=null ? searchData![index].vehicleType! :
-                          //                             "",
-                          //                             style: TextStyle(
-                          //                                 color: MyColors
-                          //                                     .text5ColorCode,
-                          //                                 fontSize: 18),
-                          //                           ),
-                          //                         ],
-                          //                       ),
-                          //                     ),
-                          //                     Expanded(
-                          //                         child: Column(
-                          //                       mainAxisAlignment:
-                          //                           MainAxisAlignment.start,
-                          //                       crossAxisAlignment:
-                          //                           CrossAxisAlignment.start,
-                          //                       children: [
-                          //                         Text(
-                          //                           "Speed Limit",
-                          //                           style: TextStyle(
-                          //                               color: MyColors
-                          //                                   .textprofiledetailColorCode,
-                          //                               fontSize: 18),
-                          //                         ),
-                          //                         Text(
-                          //                           // searchData![index].speedLimit!=null ? searchData![index].speedLimit!.toString() :
-                          //                           "",
-                          //                           textAlign: TextAlign.left,
-                          //                           style: TextStyle(
-                          //                               color: MyColors
-                          //                                   .text5ColorCode,
-                          //                               fontSize: 18),
-                          //                         ),
-                          //                       ],
-                          //                     ))
-                          //                   ],
-                          //                 ),
-                          //               ),
-                          //             ],
-                          //           ),
-                          //         ),
-                          //       );
-                          //     }),
-                        ],
-                      ),
-                    ),
+                                                    Expanded(
+                                                        child: Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .start,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Text(
+                                                          "Driver Phone No",
+                                                          style: TextStyle(
+                                                              color: MyColors
+                                                                  .textprofiledetailColorCode,
+                                                              fontSize: 18),
+                                                        ),
+                                                        Text(
+                                                          "8308803602",
+                                                          textAlign:
+                                                              TextAlign.left,
+                                                          style: TextStyle(
+                                                              color: MyColors
+                                                                  .text5ColorCode,
+                                                              fontSize: 18),
+                                                        ),
+                                                      ],
+                                                    ))
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                            //                       children: [
+                                            //                         TextField(
+                                            //                           controller: searchController,
+                                            //                           enabled: true, // to trigger disabledBorder
+                                            //                           decoration: InputDecoration(
+                                            //                             filled: true,
+                                            //                             fillColor: MyColors.whiteColorCode,
+                                            //                             focusedBorder: OutlineInputBorder(
+                                            //                               borderRadius: BorderRadius.all(Radius.circular(4)),
+                                            //                               borderSide:
+                                            //                               BorderSide(width: 1, color: MyColors.buttonColorCode),
+                                            //                             ),
+                                            //                             disabledBorder: OutlineInputBorder(
+                                            //                               borderRadius: BorderRadius.all(Radius.circular(4)),
+                                            //                               borderSide: BorderSide(width: 1, color: Colors.orange),
+                                            //                             ),
+                                            //                             enabledBorder: OutlineInputBorder(
+                                            //                               borderRadius: BorderRadius.all(Radius.circular(4)),
+                                            //                               borderSide:
+                                            //                               BorderSide(width: 1, color: MyColors.textColorCode),
+                                            //                             ),
+                                            //                             border: OutlineInputBorder(
+                                            //                                 borderRadius: BorderRadius.all(Radius.circular(4)),
+                                            //                                 borderSide: BorderSide(
+                                            //                                   width: 1,
+                                            //                                 )),
+                                            //                             errorBorder: OutlineInputBorder(
+                                            //                                 borderRadius: BorderRadius.all(Radius.circular(4)),
+                                            //                                 borderSide: BorderSide(width: 1, color: Colors.black)),
+                                            //                             focusedErrorBorder: OutlineInputBorder(
+                                            //                                 borderRadius: BorderRadius.all(Radius.circular(4)),
+                                            //                                 borderSide:
+                                            //                                 BorderSide(width: 2, color: MyColors.buttonColorCode)),
+                                            //                             hintText: "Search Record",
+                                            //                             prefixIcon: Icon(
+                                            //                               Icons.search,
+                                            //                               size: 24,
+                                            //                               color: Colors.black,
+                                            //                             ),
+                                            //                             hintStyle: TextStyle(
+                                            //                                 fontSize: 18, color: MyColors.searchTextColorCode),
+                                            //                             errorText: "",
+                                            //                           ),
+                                            //                           obscureText: false,
+                                            //                           onChanged: (value){
+                                            //                             if(searchController.text.isEmpty){
+                                            //                               setState(() {
+                                            //                                 isSearch=false;
+                                            //                               });
+                                            //                             }else{
+                                            //                               setState(() {
+                                            //                                 isSearch=true;
+                                            //                               });
+                                            //                               _mainBloc.add(SearchGeofenceCreateEvents(vendorId: vendorid,branchId :branchid,searchText: searchController.text,token: token));
+                                            //                             }
+                                            //                           },
+                                            //                         ),
+                                            //                         Text(!isSearch ? data!.length!=0 ?  "Showing 1 to ${data!.length} Out of ${totalgeofenceCreateRecords}" : "0 RECORDS" : searchData!.length!=0 ?  "Showing 1 to ${searchData!.length} Out of ${totalgeofenceCreateRecords}" :"0 RECORDS",style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),),
+                                            //
+                                            //                         /* Text(
+                                            //   "10 RECORDS",
+                                            //   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                            // ),*/
+                                            //                         !isSearch ? data!.length==0 ? Container() :Padding(
+                                            //                           padding: const EdgeInsets.only(top: 20.0),
+                                            //                           child: ListView.builder(
+                                            //                               // controller: overSpeedRecordController,
+                                            //                               shrinkWrap: true,
+                                            //                               itemCount: data!.length,
+                                            //                               itemBuilder: (context, index) {
+                                            //                                 return Card(
+                                            //                                   margin: EdgeInsets.only(bottom: 15),
+                                            //                                   shape: RoundedRectangleBorder(
+                                            //                                     side: BorderSide(
+                                            //                                         width: 1, color: MyColors.textBoxBorderColorCode),
+                                            //                                     borderRadius: BorderRadius.circular(10.0),
+                                            //                                   ),
+                                            //                                   child: Container(
+                                            //                                     padding: EdgeInsets.only(
+                                            //                                         top: 15, left: 14, right: 14, bottom: 15),
+                                            //                                     width: MediaQuery.of(context).size.width,
+                                            //                                     decoration: BoxDecoration(
+                                            //                                       borderRadius: BorderRadius.all(Radius.circular(10)),
+                                            //                                     ),
+                                            //                                     child: Column(
+                                            //                                       mainAxisAlignment: MainAxisAlignment.start,
+                                            //                                       crossAxisAlignment: CrossAxisAlignment.start,
+                                            //                                       children: [
+                                            //                                         Padding(
+                                            //                                           padding:
+                                            //                                           const EdgeInsets.only(top: 15.0, bottom: 15),
+                                            //                                           child: Row(
+                                            //                                             mainAxisAlignment:
+                                            //                                             MainAxisAlignment.spaceAround,
+                                            //                                             children: [
+                                            //                                               Expanded(
+                                            //                                                 child: Column(
+                                            //                                                   mainAxisAlignment:
+                                            //                                                   MainAxisAlignment.start,
+                                            //                                                   crossAxisAlignment:
+                                            //                                                   CrossAxisAlignment.start,
+                                            //                                                   children: [
+                                            //                                                     Text(
+                                            //                                                       "vehicleRegNo",
+                                            //                                                       style: TextStyle(
+                                            //                                                           color: MyColors
+                                            //                                                               .textprofiledetailColorCode,
+                                            //                                                           fontSize: 18),
+                                            //                                                     ),
+                                            //                                                     Padding(
+                                            //                                                       padding:
+                                            //                                                       const EdgeInsets.only(top: 4.0),
+                                            //                                                       child: Text(
+                                            //                                                         // "23",
+                                            //                                                         data![index].vehicleRegNo.toString(),
+                                            //                                                         style: TextStyle(
+                                            //                                                             color: MyColors.text5ColorCode,
+                                            //                                                             fontSize: 18),
+                                            //                                                       ),
+                                            //                                                     ),
+                                            //                                                   ],
+                                            //                                                 ),
+                                            //                                               ),
+                                            //                                               Expanded(
+                                            //                                                   child: Column(
+                                            //                                                     mainAxisAlignment: MainAxisAlignment.start,
+                                            //                                                     crossAxisAlignment:
+                                            //                                                     CrossAxisAlignment.start,
+                                            //                                                     children: [
+                                            //                                                       Text(
+                                            //                                                         "imeino",
+                                            //                                                         style: TextStyle(
+                                            //                                                             color: MyColors
+                                            //                                                                 .textprofiledetailColorCode,
+                                            //                                                             fontSize: 18),
+                                            //                                                       ),
+                                            //                                                       Padding(
+                                            //                                                         padding:
+                                            //                                                         const EdgeInsets.only(top: 4.0),
+                                            //                                                         child: Text(
+                                            //                                                           data![index].imeino.toString(),
+                                            //                                                           textAlign: TextAlign.left,
+                                            //                                                           style: TextStyle(
+                                            //                                                               color: MyColors.text5ColorCode,
+                                            //                                                               fontSize: 18),
+                                            //                                                         ),
+                                            //                                                       ),
+                                            //                                                     ],
+                                            //                                                   ))
+                                            //                                             ],
+                                            //                                           ),
+                                            //                                         ),
+                                            //                                         Row(
+                                            //                                           mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                            //                                           children: [
+                                            //                                             Expanded(
+                                            //                                               child: Column(
+                                            //                                                 mainAxisAlignment: MainAxisAlignment.start,
+                                            //                                                 crossAxisAlignment:
+                                            //                                                 CrossAxisAlignment.start,
+                                            //                                                 children: [
+                                            //                                                   Text(
+                                            //                                                     "Trans Time",
+                                            //                                                     style: TextStyle(
+                                            //                                                         color: MyColors
+                                            //                                                             .textprofiledetailColorCode,
+                                            //                                                         fontSize: 18),
+                                            //                                                   ),
+                                            //                                                   Padding(
+                                            //                                                     padding:
+                                            //                                                     const EdgeInsets.only(top: 4.0),
+                                            //                                                     child: Text(
+                                            //                                                       data![index].transTime.toString(),
+                                            //                                                       style: TextStyle(
+                                            //                                                           color: MyColors.text5ColorCode,
+                                            //                                                           fontSize: 18),
+                                            //                                                     ),
+                                            //                                                   ),
+                                            //                                                 ],
+                                            //                                               ),
+                                            //                                             ),
+                                            //                                             Expanded(
+                                            //                                                 child: Column(
+                                            //                                                   mainAxisAlignment: MainAxisAlignment.start,
+                                            //                                                   crossAxisAlignment: CrossAxisAlignment.start,
+                                            //                                                   children: [
+                                            //                                                     Text(
+                                            //                                                       "Speed",
+                                            //                                                       style: TextStyle(
+                                            //                                                           color: MyColors
+                                            //                                                               .textprofiledetailColorCode,
+                                            //                                                           fontSize: 18),
+                                            //                                                     ),
+                                            //                                                     Padding(
+                                            //                                                       padding: const EdgeInsets.only(top: 4.0),
+                                            //                                                       child: Text(
+                                            //                                                         data![index].speed.toString(),
+                                            //                                                         textAlign: TextAlign.left,
+                                            //                                                         style: TextStyle(
+                                            //                                                             color: MyColors.text5ColorCode,
+                                            //                                                             fontSize: 18),
+                                            //                                                       ),
+                                            //                                                     ),
+                                            //                                                   ],
+                                            //                                                 ))
+                                            //                                           ],
+                                            //                                         ),
+                                            //                                         Padding(
+                                            //                                           padding:
+                                            //                                           const EdgeInsets.only(top: 15.0, bottom: 15),
+                                            //                                           child: Row(
+                                            //                                             mainAxisAlignment:
+                                            //                                             MainAxisAlignment.spaceAround,
+                                            //                                             children: [
+                                            //                                               Expanded(
+                                            //                                                 child: Column(
+                                            //                                                   mainAxisAlignment:
+                                            //                                                   MainAxisAlignment.start,
+                                            //                                                   crossAxisAlignment:
+                                            //                                                   CrossAxisAlignment.start,
+                                            //                                                   children: [
+                                            //                                                     Text(
+                                            //                                                       "Over Speed kmph",
+                                            //                                                       style: TextStyle(
+                                            //                                                           color: MyColors
+                                            //                                                               .textprofiledetailColorCode,
+                                            //                                                           fontSize: 18),
+                                            //                                                     ),
+                                            //                                                     Padding(
+                                            //                                                       padding:
+                                            //                                                       const EdgeInsets.only(top: 4.0),
+                                            //                                                       child: Text(
+                                            //                                                         data![index].overSpeed.toString(),
+                                            //                                                         style: TextStyle(
+                                            //                                                             color: MyColors.text5ColorCode,
+                                            //                                                             fontSize: 18),
+                                            //                                                       ),
+                                            //                                                     ),
+                                            //                                                   ],
+                                            //                                                 ),
+                                            //                                               ),
+                                            //                                               Expanded(
+                                            //                                                   child: Column(
+                                            //                                                     mainAxisAlignment: MainAxisAlignment.start,
+                                            //                                                     crossAxisAlignment:
+                                            //                                                     CrossAxisAlignment.start,
+                                            //                                                     children: [
+                                            //                                                       Text(
+                                            //                                                         "Distance travel",
+                                            //                                                         style: TextStyle(
+                                            //                                                             color: MyColors
+                                            //                                                                 .textprofiledetailColorCode,
+                                            //                                                             fontSize: 18),
+                                            //                                                       ),
+                                            //                                                       Padding(
+                                            //                                                         padding:
+                                            //                                                         const EdgeInsets.only(top: 4.0),
+                                            //                                                         child: Text(
+                                            //                                                           // "Yes",
+                                            //                                                           data![index].distancetravel.toString(),
+                                            //                                                           textAlign: TextAlign.left,
+                                            //                                                           style: TextStyle(
+                                            //                                                               color: MyColors.text5ColorCode,
+                                            //                                                               fontSize: 18),
+                                            //                                                         ),
+                                            //                                                       ),
+                                            //                                                     ],
+                                            //                                                   ))
+                                            //                                             ],
+                                            //                                           ),
+                                            //                                         ),
+                                            //                                         Column(
+                                            //                                           mainAxisAlignment: MainAxisAlignment.start,
+                                            //                                           crossAxisAlignment: CrossAxisAlignment.start,
+                                            //                                           children: [
+                                            //                                             Text(
+                                            //                                               "Latitude",
+                                            //                                               style: TextStyle(
+                                            //                                                   color:
+                                            //                                                   MyColors.textprofiledetailColorCode,
+                                            //                                                   fontSize: 18),
+                                            //                                             ),
+                                            //                                             Padding(
+                                            //                                               padding: const EdgeInsets.only(top: 4.0),
+                                            //                                               child: Text(
+                                            //                                                 data![index].latitude.toString(),
+                                            //                                                 textAlign: TextAlign.left,
+                                            //                                                 style: TextStyle(
+                                            //                                                     color: MyColors.text5ColorCode,
+                                            //                                                     fontSize: 18),
+                                            //                                               ),
+                                            //                                             ),
+                                            //             ]),
+                                            //                                 ],
+                                            //                                 ),
+                                            //                                 ),
+                                            //                                 );
+                                            //                               }),
+                                            //                         ):
+                                            //                       ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }))
+                        : /* searchData!.length==0
+                        ? Container() :*/
+                        ListView.builder(
+                            controller: vehicleRecordController,
+                            shrinkWrap: true,
+                            physics: ScrollPhysics(),
+                            itemCount: 5,
+                            itemBuilder: (context, index) {
+                              return Card(
+                                margin: EdgeInsets.only(bottom: 15),
+                                shape: RoundedRectangleBorder(
+                                  side: BorderSide(
+                                      width: 1,
+                                      color: MyColors.textBoxBorderColorCode),
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                                child: Container(
+                                  padding: EdgeInsets.only(
+                                      top: 15, left: 14, right: 14, bottom: 15),
+                                  width: MediaQuery.of(context).size.width,
+                                  decoration: BoxDecoration(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(10)),
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Container(
+                                            child: Icon(
+                                              Icons.circle,
+                                              size: 10,
+                                              color:
+                                                  // searchData![index].acStatus=='Active' ? MyColors.greenColorCode:
+                                                  MyColors.redColorCode,
+                                            ),
+                                          ),
+                                          Expanded(
+                                              child: Padding(
+                                            padding: const EdgeInsets.only(
+                                                left: 8.0),
+                                            child: Text(
+                                              // searchData![index].acStatus=='Active' ? "Active" :
+                                              "Inactive",
+                                              style: TextStyle(
+                                                  color:
+                                                      // searchData![index].acStatus=='Active' ? MyColors.greenColorCode:
+                                                      MyColors.redColorCode,
+                                                  fontSize: 20),
+                                            ),
+                                          )),
+                                          // GestureDetector(
+                                          //   onTap: () async{
+                                          //
+                                          //       Navigator.push(context,
+                                          //           MaterialPageRoute(builder: (_) =>
+                                          //               BlocProvider(
+                                          //                   create: (context) {
+                                          //                     return MainBloc(webService: WebService());
+                                          //                   },
+                                          //                   child: AddVehicleMasterScreen(flag: 2,datum: allVehicleDetaildatalist![index],)
+                                          //               )
+                                          //           ));
+                                          //
+                                          //
+                                          //     setState(() {
+                                          //       pageNumber=1;
+                                          //     });
+                                          //     await Navigator.of(context)
+                                          //         .push(
+                                          //       new MaterialPageRoute(
+                                          //           builder: (_) =>
+                                          //               BlocProvider(
+                                          //                   create: (context) {
+                                          //                     return MainBloc(webService: WebService());
+                                          //                   },
+                                          //                   child: AddVehicleMasterScreen(flag: 2,searchText:true,datum: allVehicleDetaildatalist![0],searchData: searchData![index],)
+                                          //               )
+                                          //       ),
+                                          //     )
+                                          //         .then((val) {
+                                          //       if(val!=null){
+                                          //         if(val){
+                                          //           setState(() {
+                                          //             isSearch=false;
+                                          //             allVehicleDetaildatalist!.clear();
+                                          //             searchData!.clear();
+                                          //             searchController.text="";
+                                          //             _getvehicledetail();
+                                          //
+                                          //           });
+                                          //
+                                          //         }
+                                          //       }
+                                          //
+                                          //       return false;
+                                          //     }
+                                          //       // val ? _getalldevice() : false
+                                          //     );
+                                          //
+                                          //   },
+                                          //   child: Container(
+                                          //     padding: EdgeInsets.only(left: 20,right: 20,top: 6,bottom: 6),
+                                          //     decoration: BoxDecoration(
+                                          //         color:MyColors.notificationblueColorCode,
+                                          //         borderRadius: BorderRadius.all(Radius.circular(20))
+                                          //     ),
+                                          //     child: Text("EDIT",style: TextStyle(decoration: TextDecoration.underline,color: MyColors.appDefaultColorCode,fontSize: 18),),
+                                          //   ),
+                                          // ),
+                                        ],
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                            top: 15.0, bottom: 15),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceAround,
+                                          children: [
+                                            Expanded(
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    "Vehicle ID",
+                                                    style: TextStyle(
+                                                        color: MyColors
+                                                            .textprofiledetailColorCode,
+                                                        fontSize: 18),
+                                                  ),
+                                                  Text(
+                                                    // searchData![index].vsrNo!=null ? searchData![index].vsrNo!.toString() :
+                                                    "",
+                                                    style: TextStyle(
+                                                        color: MyColors
+                                                            .text5ColorCode,
+                                                        fontSize: 18),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            Expanded(
+                                                child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  "Vehicle Number",
+                                                  style: TextStyle(
+                                                      color: MyColors
+                                                          .textprofiledetailColorCode,
+                                                      fontSize: 18),
+                                                ),
+                                                Text(
+                                                  // searchData![index].vehicleRegNo!=null ? searchData![index].vehicleRegNo! :
+                                                  "",
+                                                  textAlign: TextAlign.left,
+                                                  style: TextStyle(
+                                                      color: MyColors
+                                                          .text5ColorCode,
+                                                      fontSize: 18),
+                                                ),
+                                              ],
+                                            ))
+                                          ],
+                                        ),
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceAround,
+                                        children: [
+                                          Expanded(
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  "Vehicle Name",
+                                                  style: TextStyle(
+                                                      color: MyColors
+                                                          .textprofiledetailColorCode,
+                                                      fontSize: 18),
+                                                ),
+                                                Text(
+                                                  // searchData![index].vehicleName!=null ? searchData![index].vehicleName! :
+                                                  "",
+                                                  style: TextStyle(
+                                                      color: MyColors
+                                                          .text5ColorCode,
+                                                      fontSize: 18),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Expanded(
+                                              child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                "Fuel Type",
+                                                style: TextStyle(
+                                                    color: MyColors
+                                                        .textprofiledetailColorCode,
+                                                    fontSize: 18),
+                                              ),
+                                              Text(
+                                                // searchData![index].fuelType!=null ? searchData![index].fuelType! :
+                                                "",
+                                                textAlign: TextAlign.left,
+                                                style: TextStyle(
+                                                    color:
+                                                        MyColors.text5ColorCode,
+                                                    fontSize: 18),
+                                              ),
+                                            ],
+                                          ))
+                                        ],
+                                      ),
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(top: 15.0),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceAround,
+                                          children: [
+                                            Expanded(
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    "Vehicle Type",
+                                                    style: TextStyle(
+                                                        color: MyColors
+                                                            .textprofiledetailColorCode,
+                                                        fontSize: 18),
+                                                  ),
+                                                  Text(
+                                                    // searchData![index].vehicleType!=null ? searchData![index].vehicleType! :
+                                                    "",
+                                                    style: TextStyle(
+                                                        color: MyColors
+                                                            .text5ColorCode,
+                                                        fontSize: 18),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            Expanded(
+                                                child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  "Speed Limit",
+                                                  style: TextStyle(
+                                                      color: MyColors
+                                                          .textprofiledetailColorCode,
+                                                      fontSize: 18),
+                                                ),
+                                                Text(
+                                                  // searchData![index].speedLimit!=null ? searchData![index].speedLimit!.toString() :
+                                                  "",
+                                                  textAlign: TextAlign.left,
+                                                  style: TextStyle(
+                                                      color: MyColors
+                                                          .text5ColorCode,
+                                                      fontSize: 18),
+                                                ),
+                                              ],
+                                            ))
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            }),
                   ],
                 ),
               ),
+            ],
+          ),
+        ),
       ),
     );
-  }
-}
-class PdfInvoiceApi {
-  static Future<File> generate(List<DriverWiseVehicle> pdflist) async {
-    final pdf = pw.Document();
-    double fontsize = 8.0;
-    
-    DateTime current_date = DateTime.now();
-    pdf.addPage(pw.MultiPage(
-      // header: (pw.Context context) {
-      //   return pw.Text("header");
-      // },
-      footer: (pw.Context context) {
-       return pw.Column(children:[ 
-        pw.Row(
-          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-          children: [
-            pw.Text(
-              "Printed by : Techno",
-              textAlign: pw.TextAlign.left,
-              style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-            ),
-            pw.Text(
-              "Page : ${context.pageNumber} of ${context.pagesCount}",
-              textDirection: pw.TextDirection.ltr,
-              textAlign: pw.TextAlign.left,
-              style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-            ),
-          ],),
-           pw.Row(
-            children: [
-              pw.Text(
-                "Printed on : " + current_date.toString(),
-                textAlign: pw.TextAlign.left,
-                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-              )
-            ],)
-          ]);
-      },
-      pageFormat: PdfPageFormat.a5,
-      build: (pw.Context context) {
-        return <pw.Widget>[
-          pw.Center(
-              child: pw.Text("DRIVER WISE VEHICLE REPORT",
-                  style: pw.TextStyle(
-                      fontSize: 20.0, fontWeight: pw.FontWeight.bold))),
-          pw.Container(
-            margin: const pw.EdgeInsets.only(top: 10.0),
-            child: pw.Table(
-              border: pw.TableBorder.all(color: PdfColors.black, width: 0.8),
-              children: [
-                pw.TableRow(children: [
-                  pw.Padding(
-                      padding: pw.EdgeInsets.only(
-                          top: 8.0, bottom: 8.0, left: 5.0, right: 5.0),
-                      child: pw.SizedBox(
-                        width: 50,
-                        child: pw.Text(
-                          "Sr No",
-                          style: pw.TextStyle(
-                              fontSize: 12.0, fontWeight: pw.FontWeight.bold),
-                        ),
-                      )),
-                  pw.Padding(
-                      padding: pw.EdgeInsets.only(
-                          top: 8.0, bottom: 8.0, right: 5.0, left: 5.0),
-                      child: pw.SizedBox(
-                        width: 50,
-                        child: pw.Text(
-                          "Vehicle RegNo",
-                          style: pw.TextStyle(
-                              fontSize: 12.0, fontWeight: pw.FontWeight.bold),
-                        ),
-                      )),
-                  pw.Padding(
-                      padding: pw.EdgeInsets.only(
-                          top: 8.0, bottom: 8.0, right: 5.0, left: 5.0),
-                      child: pw.SizedBox(
-                        width: 50,
-                        child: pw.Text(
-                          "Driver Name",
-                          style: pw.TextStyle(
-                              fontSize: 12.0, fontWeight: pw.FontWeight.bold),
-                        ),
-                      )),
-                  pw.Padding(
-                      padding: pw.EdgeInsets.only(
-                          top: 8.0, bottom: 8.0, right: 5.0, left: 5.0),
-                      child: pw.SizedBox(
-                        width: 50,
-                        child: pw.Text(
-                          "Driver Phone No",
-                          style: pw.TextStyle(
-                              fontSize: 12.0, fontWeight: pw.FontWeight.bold),
-                        ),
-                      )),
-                 
-                ])
-              ],
-            ),
-          ),
-          // pw.Expanded(
-          //     child:
-          pw.ListView.builder(
-              itemBuilder: (pw.Context context, int index) {
-                var article = pdflist[index];
-                return pw.Table(
-                    border:
-                        pw.TableBorder.all(color: PdfColors.black, width: 0.8),
-                    children: [
-                      pw.TableRow(children: [
-                        pw.Padding(
-                          padding: pw.EdgeInsets.only(
-                              left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
-                          child: pw.SizedBox(
-                            width: 20,
-                            child: pw.Text("1",
-                                style: pw.TextStyle(fontSize: fontsize)),
-                          ),
-                        ),
-                        pw.Padding(
-                          padding: pw.EdgeInsets.only(
-                              left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
-                          child: pw.SizedBox(
-                            width: 20,
-                            child: pw.Text(article.vehicleRegNo.toString(),
-                                style: pw.TextStyle(fontSize: fontsize)),
-                          ),
-                        ),
-                        pw.Padding(
-                          padding: pw.EdgeInsets.only(
-                              left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
-                          child: pw.SizedBox(
-                            width: 20,
-                            child: pw.Text(article.driverName.toString(),
-                                style: pw.TextStyle(fontSize: fontsize)),
-                          ),
-                        ),
-                        pw.Padding(
-                          padding: pw.EdgeInsets.only(
-                              left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
-                          child: pw.SizedBox(
-                            width: 20,
-                            child: pw.Text(article.mobileNo.toString(),
-                                style: pw.TextStyle(fontSize: fontsize)),
-                          ),
-                        ),
-                      ])
-                    ]);
-              },
-              itemCount: pdflist.length),
-        ];
-      },
-    ));
-
-    return PdfApi.saveDocument(name: 'DriverWiseVehicleReport.pdf', pdf: pdf);
-  }
-}
-
-class PdfApi {
-  static Future<File> saveDocument({
-    required String name,
-    required pw.Document pdf,
-  }) async {
-    final bytes = await pdf.save();
-
-    final dir = await getApplicationDocumentsDirectory();
-    final file = File('${dir.path}/$name');
-
-    await file.writeAsBytes(bytes);
-
-    return file;
-  }
-
-  static Future openFile(File file) async {
-    final url = file.path;
-
-    await OpenFile.open(url);
   }
 }

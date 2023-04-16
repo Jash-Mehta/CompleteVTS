@@ -6,13 +6,13 @@ import 'package:flutter_vts/model/travel_summary/travel_summary_search.dart';
 import 'package:flutter_vts/util/MyColor.dart';
 import 'package:flutter_vts/util/custom_app_bar.dart';
 import 'package:flutter_vts/util/menu_drawer.dart';
+import 'package:loading_overlay/loading_overlay.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../bloc/main_bloc.dart';
 import '../../model/travel_summary/travel_summary_filter.dart';
-import 'package:loading_overlay/loading_overlay.dart';
 
 class TravelSummaryScreen extends StatefulWidget {
   @override
@@ -25,15 +25,15 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   bool isSelected = false;
   bool isvalue = false;
-  bool isData = false;
   late bool _isLoading = false;
-  final controller = ScrollController();
+  bool isincrement = false;
+
   late String token = "";
   late MainBloc _mainBloc;
   late SharedPreferences sharedPreferences;
   TextEditingController searhcontroller = new TextEditingController();
-  late int value = 0;
-  late int searchvalue = 0;
+  int value = 0;
+  int filtervalue = 0;
   var fromDateController,
       toDateController,
       fromTimeController,
@@ -42,11 +42,10 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
   int vendorid = 1;
   int branchid = 1;
   int pagenumber = 1;
+  int filterpagenumber = 1;
   int pagesize = 10;
   TextEditingController fromdateInput = TextEditingController();
   TextEditingController todateInput = TextEditingController();
-  TextEditingController fromTimeInput = TextEditingController();
-  TextEditingController toTimrInput = TextEditingController();
   String fromdate = "01-sep-2022";
   String arainonari = "arai";
   String todate = "30-sep-2022";
@@ -74,7 +73,6 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
         setState(() {
           print("Scroll ${pagenumber}");
           getallbranch();
-          isSelected ? getsearch() : null ;
         });
       }
     });
@@ -109,21 +107,6 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
         vendorid: vendorid));
   }
 
-  getsearch() {
-    _mainBloc.add(TravelSummarySearchEvent(
-        token: token,
-        vendorid: vendorid,
-        branchid: branchid,
-        arainonarai: arainonari,
-        searchtext: searhcontroller.text,
-        fromdata: fromDateController ?? fromdate,
-        fromtime: fromTimeController ?? fromtime,
-        todate: toDateController ?? todate,
-        totime: toTimeController ?? searchtotime,
-        pagesize: pagesize,
-        pagenumber: pagenumber));
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -151,43 +134,54 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
               _isLoading = true;
             });
           } else if (state is TravelSummaryFilterLoadedState) {
+            setState(() {});
             if (state.travelSummaryFilterResponse.datewise != null) {
               print("Filter data is printed!!");
               setState(() {
-                isData = false;
-                // pagenumber++;
-                filterdata!.clear();
-                filterdata!.addAll(state.travelSummaryFilterResponse.datewise!);
+                _isLoading = false;
+                filterpagenumber++;
+                filtervalue = state.travelSummaryFilterResponse.totalRecords!;
               });
+              filterdata!.addAll(state.travelSummaryFilterResponse.datewise!);
             } else {
               print("Something went worong in Filter data");
             }
           } else if (state is TravelSummaryFilterErrorState) {
+            setState(() {
+              _isLoading = false;
+            });
             print("Something went Wrong Filter data");
           }
           //! SearchEvent TravelSummarydata fetching Start from here----------------
           if (state is TravelSummarySearchLoadingState) {
             setState(() {
+              // if (searchdata!.length >= 1) {
+              //   _isLoading = false;
+              //   setState(() {});
+              //   searchdata!.clear();
+              // }
               _isLoading = true;
             });
           } else if (state is TravelSummarySearchLoadedState) {
+            setState(() {
+              _isLoading = false;
+              searchdata!.clear();
+            });
+
             if (state.travelSummaryResponse.datewise != null) {
               print("Search data is printed!!");
-              setState(() {
-                _isLoading = false;
-                pagenumber++;
-                searchvalue = state.travelSummaryResponse.totalRecords!;
-              });
               searchdata!.addAll(state.travelSummaryResponse.datewise!);
             } else {
               print("Something is going wrong in Search data");
             }
           } else if (state is TravelSummaryErrorState) {
-            print("Something went Wrong search data");
             setState(() {
               _isLoading = false;
             });
+
+            print("Something went Wrong search data");
           }
+
           //! All TravelSummarydata fetching Start from here----------------
           if (state is TravelSummaryReportLoadingState) {
             setState(() {
@@ -208,10 +202,10 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
               }
             });
           } else if (state is TravelSummaryErrorState) {
-            print("Something went Wrong");
             setState(() {
               _isLoading = false;
             });
+            print("Something went Wrong");
           }
         },
         child: SingleChildScrollView(
@@ -324,218 +318,200 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
                     ),
                     isSelected
                         ? searchdata!.isEmpty
-                            ? Center(
-                                child: Text("No data Found"),
-                              )
+                            ? Center(child: Text("No data found"))
                             : _isLoading
-                                ? Center(
-                                    child: Text("Please wait for data"),
-                                  )
+                                ? Text("Please wait for data")
                                 : SizedBox(
                                     height: MediaQuery.of(context).size.height *
                                         0.7,
                                     width: 350.0,
-                                    child: BlocBuilder<MainBloc, MainState>(
-                                        builder: (context, state) {
-                                      return ListView.builder(
-                                        controller: vendorRecordController,
-                                        itemCount: searchdata!.length,
-                                        shrinkWrap: true,
-                                        physics: const ScrollPhysics(),
-                                        itemBuilder:
-                                            (BuildContext context, int index) {
-                                          var article = searchdata![index];
-                                          return Card(
-                                            shape: RoundedRectangleBorder(
-                                              side: const BorderSide(
-                                                  width: 1,
-                                                  color: MyColors
-                                                      .textBoxBorderColorCode),
-                                              borderRadius:
-                                                  BorderRadius.circular(10.0),
+                                    child: ListView.builder(
+                                      controller: vendorRecordController,
+                                      itemCount: searchdata!.length,
+                                      shrinkWrap: true,
+                                      physics: const ScrollPhysics(),
+                                      itemBuilder:
+                                          (BuildContext context, int index) {
+                                        var article = searchdata![index];
+                                        return Card(
+                                          shape: RoundedRectangleBorder(
+                                            side: const BorderSide(
+                                                width: 1,
+                                                color: MyColors
+                                                    .textBoxBorderColorCode),
+                                            borderRadius:
+                                                BorderRadius.circular(10.0),
+                                          ),
+                                          child: Container(
+                                            padding: const EdgeInsets.only(
+                                                top: 10,
+                                                left: 14,
+                                                right: 14,
+                                                bottom: 10),
+                                            width: MediaQuery.of(context)
+                                                .size
+                                                .width,
+                                            decoration: const BoxDecoration(
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(10)),
                                             ),
-                                            child: Container(
-                                              padding: const EdgeInsets.only(
-                                                  top: 10,
-                                                  left: 14,
-                                                  right: 14,
-                                                  bottom: 10),
-                                              width: MediaQuery.of(context)
-                                                  .size
-                                                  .width,
-                                              decoration: const BoxDecoration(
-                                                borderRadius: BorderRadius.all(
-                                                    Radius.circular(10)),
-                                              ),
-                                              child: Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.start,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                    children: [
-                                                      Container(
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  children: [
+                                                    Container(
+                                                      padding:
+                                                          EdgeInsets.all(10),
+                                                      decoration: BoxDecoration(
+                                                        color: MyColors
+                                                            .whiteColorCode,
+                                                        border: Border.all(
+                                                            color: MyColors
+                                                                .boxBackgroundColorCode),
+                                                        borderRadius:
+                                                            const BorderRadius
+                                                                    .all(
+                                                                Radius.circular(
+                                                                    10)),
+                                                      ),
+                                                      child: Image.asset(
+                                                        "assets/driving_pin.png",
+                                                        width: 40,
+                                                        height: 40,
+                                                      ),
+                                                    ),
+                                                    Expanded(
+                                                      child: Padding(
                                                         padding:
-                                                            EdgeInsets.all(10),
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          color: MyColors
-                                                              .whiteColorCode,
-                                                          border: Border.all(
-                                                              color: MyColors
-                                                                  .boxBackgroundColorCode),
-                                                          borderRadius:
-                                                              const BorderRadius
-                                                                      .all(
-                                                                  Radius
-                                                                      .circular(
-                                                                          10)),
-                                                        ),
-                                                        child: Image.asset(
-                                                          "assets/driving_pin.png",
-                                                          width: 40,
-                                                          height: 40,
-                                                        ),
-                                                      ),
-                                                      Expanded(
-                                                        child: Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                      .only(
-                                                                  left: 10.0),
-                                                          child: Column(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .start,
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .start,
-                                                            children: [
-                                                              Text(
-                                                                article
-                                                                    .vehicleregNo
-                                                                    .toString(),
-                                                                style: const TextStyle(
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                    fontSize:
-                                                                        20),
-                                                              ),
-                                                              Text(
-                                                                article.imei
-                                                                    .toString(),
-                                                                style: const TextStyle(
-                                                                    fontSize:
-                                                                        16,
-                                                                    color: MyColors
-                                                                        .analyticGreenColorCode),
-                                                              ),
-                                                              Row(
-                                                                children: [
-                                                                  const Icon(
-                                                                    Icons
-                                                                        .circle,
-                                                                    color: MyColors
-                                                                        .analyticGreenColorCode,
-                                                                    size: 7,
+                                                            const EdgeInsets
+                                                                    .only(
+                                                                left: 10.0),
+                                                        child: Column(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .start,
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            Text(
+                                                              article
+                                                                  .vehicleregNo
+                                                                  .toString(),
+                                                              style: const TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  fontSize: 20),
+                                                            ),
+                                                            Text(
+                                                              article.imei
+                                                                  .toString(),
+                                                              style: const TextStyle(
+                                                                  fontSize: 16,
+                                                                  color: MyColors
+                                                                      .analyticGreenColorCode),
+                                                            ),
+                                                            Row(
+                                                              children: [
+                                                                const Icon(
+                                                                  Icons.circle,
+                                                                  color: MyColors
+                                                                      .analyticGreenColorCode,
+                                                                  size: 7,
+                                                                ),
+                                                                Padding(
+                                                                  padding: const EdgeInsets
+                                                                          .only(
+                                                                      left: 4.0,
+                                                                      top: 6,
+                                                                      bottom:
+                                                                          6),
+                                                                  child: Text(
+                                                                    article
+                                                                        .vehicleStatus
+                                                                        .toString(),
+                                                                    style: const TextStyle(
+                                                                        color: MyColors
+                                                                            .analyticGreenColorCode,
+                                                                        fontSize:
+                                                                            16),
                                                                   ),
-                                                                  Padding(
-                                                                    padding: const EdgeInsets
-                                                                            .only(
-                                                                        left:
-                                                                            4.0,
-                                                                        top: 6,
-                                                                        bottom:
-                                                                            6),
-                                                                    child: Text(
+                                                                ),
+                                                              ],
+                                                            ),
+                                                            Row(
+                                                              children: [
+                                                                Container(
+                                                                  padding: const EdgeInsets
+                                                                          .only(
+                                                                      left: 8.0,
+                                                                      right: 8,
+                                                                      top: 8,
+                                                                      bottom:
+                                                                          8),
+                                                                  decoration:
+                                                                      const BoxDecoration(
+                                                                    color: MyColors
+                                                                        .textBoxColorCode,
+                                                                    borderRadius:
+                                                                        BorderRadius.all(
+                                                                            Radius.circular(8)),
+                                                                  ),
+                                                                  child: Text(
                                                                       article
-                                                                          .vehicleStatus
-                                                                          .toString(),
-                                                                      style: const TextStyle(
-                                                                          color: MyColors
-                                                                              .analyticGreenColorCode,
-                                                                          fontSize:
-                                                                              16),
-                                                                    ),
+                                                                          .tDate
+                                                                          .toString()),
+                                                                ),
+                                                                const SizedBox(
+                                                                  width: 2.0,
+                                                                ),
+                                                                Container(
+                                                                  padding: const EdgeInsets
+                                                                          .only(
+                                                                      left: 8.0,
+                                                                      right: 8,
+                                                                      top: 8,
+                                                                      bottom:
+                                                                          8),
+                                                                  decoration:
+                                                                      const BoxDecoration(
+                                                                    color: MyColors
+                                                                        .textBoxColorCode,
+                                                                    borderRadius:
+                                                                        BorderRadius.all(
+                                                                            Radius.circular(8)),
                                                                   ),
-                                                                ],
-                                                              ),
-                                                              Row(
-                                                                children: [
-                                                                  Container(
-                                                                    padding: const EdgeInsets
-                                                                            .only(
-                                                                        left:
-                                                                            8.0,
-                                                                        right:
-                                                                            8,
-                                                                        top: 8,
-                                                                        bottom:
-                                                                            8),
-                                                                    decoration:
-                                                                        const BoxDecoration(
-                                                                      color: MyColors
-                                                                          .textBoxColorCode,
-                                                                      borderRadius:
-                                                                          BorderRadius.all(
-                                                                              Radius.circular(8)),
-                                                                    ),
-                                                                    child: Text(
-                                                                        article
-                                                                            .tDate
-                                                                            .toString()),
-                                                                  ),
-                                                                  const SizedBox(
-                                                                    width: 2.0,
-                                                                  ),
-                                                                  Container(
-                                                                    padding: const EdgeInsets
-                                                                            .only(
-                                                                        left:
-                                                                            8.0,
-                                                                        right:
-                                                                            8,
-                                                                        top: 8,
-                                                                        bottom:
-                                                                            8),
-                                                                    decoration:
-                                                                        const BoxDecoration(
-                                                                      color: MyColors
-                                                                          .textBoxColorCode,
-                                                                      borderRadius:
-                                                                          BorderRadius.all(
-                                                                              Radius.circular(8)),
-                                                                    ),
-                                                                    child: Text(article
-                                                                        .vehicleStatusTime
-                                                                        .toString()),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ],
-                                                          ),
+                                                                  child: Text(article
+                                                                      .vehicleStatusTime
+                                                                      .toString()),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ],
                                                         ),
                                                       ),
-                                                    ],
-                                                  ),
-                                                ],
-                                              ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
                                             ),
-                                          );
-                                        },
-                                      );
-                                    }),
+                                          ),
+                                        );
+                                      },
+                                    ),
                                   )
-                        : traveldata!.length == 0 || isData
-                            ? Container()
+                        : traveldata!.length == 0
+                            ? Center(child: CircularProgressIndicator())
                             : BlocBuilder<MainBloc, MainState>(
                                 builder: (context, state) {
                                   return ListView.builder(
@@ -545,6 +521,8 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
                                         ? filterdata!.length
                                         : traveldata!.length,
                                     itemBuilder: (context, index) {
+                                      // var article = traveldata![index];
+                                      // var filterarticle = filterdata![index];
                                       return Card(
                                         shape: RoundedRectangleBorder(
                                           side: const BorderSide(
@@ -828,9 +806,6 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
                         Expanded(
                           flex: 3,
                           child: TextField(
-                            // onChanged: (value) {
-                            //   fromDateController = value;
-                            // },
                             onTap: () async {
                               DateTime? pickedDate = await showDatePicker(
                                   context: context,
@@ -852,14 +827,11 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
                                 print("FormatDate is Set-----------");
                                 print(formattedDate);
                                 fromDateController = formattedDate;
-                                setState(() {
-                                  fromdateInput.text = fromDateController;
-                                });
+                                setState(() {});
                               } else {}
                             },
                             controller: fromdateInput,
                             enabled: true,
-                            readOnly: true,
                             decoration: const InputDecoration(
                               filled: true,
                               fillColor: MyColors.whiteColorCode,
@@ -921,9 +893,6 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
                           child: Padding(
                             padding: const EdgeInsets.only(left: 4.0),
                             child: TextField(
-                              // onChanged: (value) {
-                              //   fromTimeController = value;
-                              // },
                               onTap: () async {
                                 final DateFormat formatter = DateFormat(
                                     'H:mm',
@@ -944,12 +913,9 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
                                       DateTime(
                                           0, 1, 1, picked.hour, picked.minute));
                                   fromTimeController = fromTime;
-                                  setState(() {
-                                    fromTimeInput.text = fromTimeController;
-                                  });
+                                  setState(() {});
                                 }
                               },
-                              readOnly: true,
                               enabled: true, // to trigger disabledBorder
                               decoration: const InputDecoration(
                                 filled: true,
@@ -1003,7 +969,6 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
                                     color: MyColors.searchTextColorCode),
                                 errorText: "",
                               ),
-                              controller: fromTimeInput,
                               // controller: _passwordController,
                               // onChanged: _authenticationFormBloc.onPasswordChanged,
                               obscureText: false,
@@ -1026,9 +991,6 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
                         Expanded(
                           flex: 3,
                           child: TextField(
-                            // onChanged: (value) {
-                            //   toDateController = value;
-                            // },
                             onTap: () async {
                               DateTime? pickedDate = await showDatePicker(
                                   context: context,
@@ -1045,13 +1007,10 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
                                     3, 6, toDate.substring(3, 6).toLowerCase());
                                 print("toDate is Set-----------");
                                 toDateController = toDate;
-                                setState(() {
-                                  todateInput.text = toDateController;
-                                });
+                                setState(() {});
                               } else {}
                             },
                             enabled: true,
-                            readOnly: true,
                             controller:
                                 todateInput, // to trigger disabledBorder
                             decoration: const InputDecoration(
@@ -1134,12 +1093,9 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
                                       DateTime(
                                           0, 1, 1, picked.hour, picked.minute));
                                   toTimeController = toTime;
-                                  setState(() {
-                                    toTimrInput.text = toTimeController;
-                                  });
+                                  setState(() {});
                                 }
                               },
-                              readOnly: true,
                               enabled: true, // to trigger disabledBorder
                               decoration: const InputDecoration(
                                 filled: true,
@@ -1193,7 +1149,8 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
                                     color: MyColors.searchTextColorCode),
                                 errorText: "",
                               ),
-                              controller: toTimrInput,
+                              // controller: _passwordController,
+                              // onChanged: _authenticationFormBloc.onPasswordChanged,
                               obscureText: false,
                             ),
                           ),
@@ -1204,43 +1161,29 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
                       children: [
                         Expanded(
                           flex: 1,
-                          child: GestureDetector(
-                            onTap: () {
-                              toTimrInput.text = "";
-                              todateInput.text = "";
-                              fromTimeInput.text = "";
-                              fromdateInput.text = "";
-                              setState(() {});
-                            },
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                Icon(
-                                  Icons.phonelink_erase_rounded,
-                                  color: MyColors.text4ColorCode,
-                                ),
-                                Text("Clear",
-                                    style: TextStyle(
-                                        color: MyColors.text4ColorCode,
-                                        decoration: TextDecoration.underline,
-                                        fontSize: 20)),
-                              ],
-                            ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              Icon(
+                                Icons.phonelink_erase_rounded,
+                                color: MyColors.text4ColorCode,
+                              ),
+                              Text("Clear",
+                                  style: TextStyle(
+                                      color: MyColors.text4ColorCode,
+                                      decoration: TextDecoration.underline,
+                                      fontSize: 20)),
+                            ],
                           ),
                         ),
                         Expanded(
                           flex: 1,
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              InkWell(
-                                onTap: () {
-                                  Navigator.pop(context);
-                                },
-                                child: Icon(
-                                  Icons.close,
-                                  color: MyColors.text4ColorCode,
-                                ),
+                            children: const [
+                              Icon(
+                                Icons.close,
+                                color: MyColors.text4ColorCode,
                               ),
                               Text("Close",
                                   style: TextStyle(
@@ -1273,10 +1216,9 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
                                   totime: toTimeController,
                                   vehiclelist: vehiclelist,
                                   pagesize: pagesize,
-                                  pagenumber: pagenumber));
+                                  pagenumber: filterpagenumber));
                               setState(() {
                                 isvalue = true;
-                                isData = true;
                               });
                               Navigator.of(context).pop();
                             },

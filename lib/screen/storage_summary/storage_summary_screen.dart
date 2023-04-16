@@ -22,7 +22,7 @@ class StorageSummaryScreen extends StatefulWidget {
 
 class _StorageSummaryScreenState extends State<StorageSummaryScreen> {
   ScrollController notificationController = new ScrollController();
-   TextEditingController searhcontroller = new TextEditingController();
+  TextEditingController searhcontroller = new TextEditingController();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   var fromDateController,
       toDateController,
@@ -31,7 +31,7 @@ class _StorageSummaryScreenState extends State<StorageSummaryScreen> {
       vehiclenumber;
   late SharedPreferences sharedPreferences;
   final controller = ScrollController();
-   
+
   late String token = "";
   late MainBloc _mainBloc;
   bool isSelected = false;
@@ -114,7 +114,6 @@ class _StorageSummaryScreenState extends State<StorageSummaryScreen> {
   _vehicleStatus() {
     return BlocListener<MainBloc, MainState>(
       listener: (context, state) {
-        
         //! FilterEvent TravelSummarydata fetching Start from here----------------
         if (state is TravelSummaryFilterLoadingState) {
           const Center(
@@ -218,9 +217,9 @@ class _StorageSummaryScreenState extends State<StorageSummaryScreen> {
               padding: const EdgeInsets.only(
                   top: 10.0, left: 15, right: 15, bottom: 10),
               child: Column(children: [
-                 TextField(
-                         controller: searhcontroller,
-                    onChanged: onSearchTextChanged,
+                TextField(
+                  controller: searhcontroller,
+                  onChanged: onSearchTextChanged,
                   enabled: true, // to trigger disabledBorder
                   decoration: const InputDecoration(
                     filled: true,
@@ -268,7 +267,9 @@ class _StorageSummaryScreenState extends State<StorageSummaryScreen> {
                 ),
                 isSelected
                     ? searchdata!.isEmpty
-                        ? Container()
+                        ? const Center(
+                            child: CircularProgressIndicator(),
+                          )
                         : SizedBox(
                             height: MediaQuery.of(context).size.height * 0.7,
                             width: 350.0,
@@ -437,7 +438,6 @@ class _StorageSummaryScreenState extends State<StorageSummaryScreen> {
                                                                       style: const TextStyle(
                                                                           fontWeight:
                                                                               FontWeight.bold)),
-                                                                              
                                                                 ],
                                                               ),
                                                             ),
@@ -456,7 +456,6 @@ class _StorageSummaryScreenState extends State<StorageSummaryScreen> {
                                                                       style: const TextStyle(
                                                                           fontWeight:
                                                                               FontWeight.bold)),
-                                                                              
                                                                 ],
                                                               ),
                                                             ),
@@ -469,7 +468,6 @@ class _StorageSummaryScreenState extends State<StorageSummaryScreen> {
                                               ),
                                             ],
                                           ),
-                                          
                                           const Padding(
                                             padding: EdgeInsets.only(top: 8.0),
                                             child: Divider(
@@ -550,7 +548,9 @@ class _StorageSummaryScreenState extends State<StorageSummaryScreen> {
                                   );
                                 }))
                     : traveldata!.length == 0
-                        ? Container()
+                        ? const Center(
+                            child: CircularProgressIndicator(),
+                          )
                         : BlocBuilder<MainBloc, MainState>(
                             builder: (context, state) {
                               return ListView.builder(
@@ -891,11 +891,10 @@ class _StorageSummaryScreenState extends State<StorageSummaryScreen> {
           ],
         ),
       ),
-      
     );
-    
   }
-    onSearchTextChanged(String text) async {
+
+  onSearchTextChanged(String text) async {
     if (text.isEmpty) {
       setState(() {
         isSelected = false;

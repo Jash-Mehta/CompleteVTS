@@ -7,7 +7,8 @@ class GetOverspeedReportResponse {
   int? totalRecords;
   String? nextPage;
   String? previousPage;
-  List<OverSpeeddDetail>? data;
+  List<Data>? data;
+  List<OverSpeeddDetail>? overspeeddetail;
   bool? succeeded;
   String? errors;
   String? message;
@@ -20,6 +21,7 @@ class GetOverspeedReportResponse {
       this.totalPages,
       this.totalRecords,
       this.nextPage,
+      this.overspeeddetail,
       this.previousPage,
       this.data,
       this.succeeded,
@@ -36,12 +38,21 @@ class GetOverspeedReportResponse {
     nextPage = json['nextPage'];
     previousPage = json['previousPage'];
     if (json['data'] != null) {
-      data = <OverSpeeddDetail>[];
+      data = <Data>[];
       json['data'].forEach((v) {
-        var overspeeddata = v['overSpeeddDetail'] as List<dynamic>;
-        overspeeddata.forEach((element) {
-          data!.add(new OverSpeeddDetail.fromJson(element));
-        });
+        print(json['data']);
+        data!.add(Data.fromJson(v));
+      });
+    }
+    if (json['data'] != null) {
+      overspeeddetail = <OverSpeeddDetail>[];
+      json['data'].forEach((v) {
+        var overspeedreportdetail = v['overSpeeddDetail'] as List<dynamic>;
+
+        for (var element in overspeedreportdetail) {
+          print("Here is your element data-----------------");
+          overspeeddetail!.add(OverSpeeddDetail.fromJson(element));
+        }
       });
     }
     succeeded = json['succeeded'];
@@ -75,7 +86,6 @@ class Data {
   List<GroupByDateTotal>? groupByDateTotal;
   List<GroupByVehicleRegNoTotal>? groupByVehicleRegNoTotal;
   double? totalOverSpeedTravel;
-  List<OverSpeeddDetail>? overSpeeddDetail;
 
   Data(
       {this.fromDate,
@@ -83,7 +93,7 @@ class Data {
       this.groupByDateTotal,
       this.groupByVehicleRegNoTotal,
       this.totalOverSpeedTravel,
-      this.overSpeeddDetail});
+      });
 
   Data.fromJson(Map<String, dynamic> json) {
     fromDate = json['fromDate'];
@@ -101,12 +111,7 @@ class Data {
       });
     }
     totalOverSpeedTravel = json['totalOverSpeedTravel'];
-    if (json['overSpeeddDetail'] != null) {
-      overSpeeddDetail = <OverSpeeddDetail>[];
-      json['overSpeeddDetail'].forEach((v) {
-        overSpeeddDetail!.add(new OverSpeeddDetail.fromJson(v));
-      });
-    }
+    
   }
 
   Map<String, dynamic> toJson() {
@@ -122,10 +127,7 @@ class Data {
           this.groupByVehicleRegNoTotal!.map((v) => v.toJson()).toList();
     }
     data['totalOverSpeedTravel'] = this.totalOverSpeedTravel;
-    if (this.overSpeeddDetail != null) {
-      data['overSpeeddDetail'] =
-          this.overSpeeddDetail!.map((v) => v.toJson()).toList();
-    }
+   
     return data;
   }
 }

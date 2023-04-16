@@ -1,4 +1,10 @@
-class FramePacketData {
+import 'dart:convert';
+
+frame_packet_response frame_packet_responseFromJson(String str) => frame_packet_response.fromJson(json.decode(str));
+
+String frame_packet_responseToJson(frame_packet_response data) => json.encode(data.toJson());
+
+class frame_packet_response {
   int? pageNumber;
   int? pageSize;
   String? firstPage;
@@ -6,27 +12,27 @@ class FramePacketData {
   int? totalPages;
   int? totalRecords;
   String? nextPage;
-  String? previousPage;
-  List<DatewiseFramepacketData>? data;
+  Null? previousPage;
+  List<Data>? data;
   bool? succeeded;
-  String? errors;
-  String? message;
+  Null? errors;
+  Null? message;
 
-  FramePacketData(
+  frame_packet_response(
       {this.pageNumber,
-      this.pageSize,
-      this.firstPage,
-      this.lastPage,
-      this.totalPages,
-      this.totalRecords,
-      this.nextPage,
-      this.previousPage,
-      this.data,
-      this.succeeded,
-      this.errors,
-      this.message});
+        this.pageSize,
+        this.firstPage,
+        this.lastPage,
+        this.totalPages,
+        this.totalRecords,
+        this.nextPage,
+        this.previousPage,
+        this.data,
+        this.succeeded,
+        this.errors,
+        this.message});
 
-  FramePacketData.fromJson(Map<String, dynamic> json) {
+  frame_packet_response.fromJson(Map<String, dynamic> json) {
     pageNumber = json['pageNumber'];
     pageSize = json['pageSize'];
     firstPage = json['firstPage'];
@@ -36,12 +42,9 @@ class FramePacketData {
     nextPage = json['nextPage'];
     previousPage = json['previousPage'];
     if (json['data'] != null) {
-      data = <DatewiseFramepacketData>[];
+      data = <Data>[];
       json['data'].forEach((v) {
-        var framepacketdata = v['datewiseFramepacketData'] as List<dynamic>;
-        framepacketdata.forEach((element) {
-          data!.add(DatewiseFramepacketData.fromJson(element));
-        });
+        data!.add(new Data.fromJson(v));
       });
     }
     succeeded = json['succeeded'];
@@ -79,11 +82,11 @@ class Data {
 
   Data(
       {this.fromDate,
-      this.toDate,
-      this.groupByDateTotal,
-      this.groupByVehicleRegNoTotal,
-      this.totalDistanceTravel,
-      this.datewiseFramepacketData});
+        this.toDate,
+        this.groupByDateTotal,
+        this.groupByVehicleRegNoTotal,
+        this.totalDistanceTravel,
+        this.datewiseFramepacketData});
 
   Data.fromJson(Map<String, dynamic> json) {
     fromDate = json['fromDate'];
@@ -206,61 +209,61 @@ class DatewiseFramepacketData {
 
   DatewiseFramepacketData(
       {this.transID,
-      this.header,
-      this.vendorID,
-      this.packetType,
-      this.packetStatus,
-      this.imei,
-      this.vehicleRegNo,
-      this.gpsFix,
-      this.date,
-      this.time,
-      this.latitude,
-      this.longitude,
-      this.speed,
-      this.networkOperatorName,
-      this.ignition,
-      this.mainPowerStatus,
-      this.mainInputVoltage,
-      this.internalBatteryVoltage,
-      this.altitude,
-      this.pdop,
-      this.hdop,
-      this.gsmSignalStrength,
-      this.frameNumber,
-      this.distancetravel,
-      this.address,
-      this.updatedon,
-      this.araINONARAI});
+        this.header,
+        this.vendorID,
+        this.packetType,
+        this.packetStatus,
+        this.imei,
+        this.vehicleRegNo,
+        this.gpsFix,
+        this.date,
+        this.time,
+        this.latitude,
+        this.longitude,
+        this.speed,
+        this.networkOperatorName,
+        this.ignition,
+        this.mainPowerStatus,
+        this.mainInputVoltage,
+        this.internalBatteryVoltage,
+        this.altitude,
+        this.pdop,
+        this.hdop,
+        this.gsmSignalStrength,
+        this.frameNumber,
+        this.distancetravel,
+        this.address,
+        this.updatedon,
+        this.araINONARAI});
 
   DatewiseFramepacketData.fromJson(Map<String, dynamic> json) {
-    transID = json['transID']??0;
-    header = json['header']??"";
-    vendorID = json['vendorID']??"";
-    packetType = json['packetType']??"";
-    packetStatus = json['packetStatus']??"";
-    imei = json['imei']??"";
-    vehicleRegNo = json['vehicleRegNo']??"";
-    gpsFix = json['gpsFix']??"";
-    date = json['date']??"";
-    time = json['time']??"";
-    latitude = json['latitude']??"";
-    longitude = json['longitude']??"";
-    speed = json['speed']??"";
-    networkOperatorName = json['networkOperatorName']??"";
-    ignition = json['ignition']??"";
-    mainPowerStatus = json['mainPowerStatus']??"";
-    mainInputVoltage = json['mainInputVoltage']??"";
-    internalBatteryVoltage = json['internalBatteryVoltage']??"";
-    altitude = json['altitude']??"";
-    pdop = json['pdop']??"";
-    hdop = json['hdop']??"";
-    gsmSignalStrength = json['gsmSignalStrength']??"";
-    frameNumber = json['frameNumber']??"";
-    distancetravel = json['distancetravel']??"";
-    address = json['address']??"";
-    updatedon = json['updatedon']??"";
-    araINONARAI = json['araI_NONARAI']??"";
+    transID = json['transID'];
+    header = json['header'];
+    vendorID = json['vendorID'];
+    packetType = json['packetType'];
+    packetStatus = json['packetStatus'];
+    imei = json['imei'];
+    vehicleRegNo = json['vehicleRegNo'];
+    gpsFix = json['gpsFix'];
+    date = json['date'];
+    time = json['time'];
+    latitude = json['latitude'];
+    longitude = json['longitude'];
+    speed = json['speed'];
+    networkOperatorName = json['networkOperatorName'];
+    ignition = json['ignition'];
+    mainPowerStatus = json['mainPowerStatus'];
+    mainInputVoltage = json['mainInputVoltage'];
+    internalBatteryVoltage = json['internalBatteryVoltage'];
+    altitude = json['altitude'];
+    pdop = json['pdop'];
+    hdop = json['hdop'];
+    gsmSignalStrength = json['gsmSignalStrength'];
+    frameNumber = json['frameNumber'];
+    distancetravel = json['distancetravel'];
+    address = json['address'];
+    updatedon = json['updatedon'];
+    araINONARAI = json['araI_NONARAI'];
   }
 
   Map<String, dynamic> toJson() {
@@ -295,3 +298,5 @@ class DatewiseFramepacketData {
     return data;
   }
 }
+
+

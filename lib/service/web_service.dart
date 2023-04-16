@@ -20,7 +20,6 @@ import 'package:flutter_vts/model/branch/branch_name_response.dart';
 import 'package:flutter_vts/model/branch/edit_branch_response.dart';
 import 'package:flutter_vts/model/branch/search_branch_response.dart';
 import 'package:flutter_vts/model/dashbord/dashboard_response.dart';
-import 'package:flutter_vts/model/date_wise_travel_history/date_wise_drivercode.dart';
 import 'package:flutter_vts/model/device/add_device_request.dart';
 import 'package:flutter_vts/model/device/add_device_response.dart';
 import 'package:flutter_vts/model/device/device_master_response.dart';
@@ -39,10 +38,6 @@ import 'package:flutter_vts/model/live/start_location_response.dart';
 import 'package:flutter_vts/model/live/vehicle_status_with_count_response.dart';
 import 'package:flutter_vts/model/login/check_forget_password_user_response.dart';
 import 'package:flutter_vts/model/login/forget_password_request.dart';
-import 'package:flutter_vts/model/report/date_and_timewise_travel.dart';
-import 'package:flutter_vts/model/report/frame_filter.dart';
-import 'package:flutter_vts/model/report/vehicle_status_group.dart';
-import 'package:flutter_vts/model/report/vehicle_summary_filter.dart';
 import 'package:flutter_vts/model/serial_number/serial_number_response.dart';
 import 'package:flutter_vts/model/subscription/add_subscription_request.dart';
 import 'package:flutter_vts/model/subscription/edit_subscription_resquest.dart';
@@ -66,70 +61,33 @@ import 'package:flutter_vts/model/vendor/edit_vendor_response.dart';
 import 'package:flutter_vts/model/vendor/request/add_new_vendor_request.dart';
 import 'package:flutter_vts/model/vendor/request/edit_vendor_request.dart';
 import 'package:flutter_vts/model/vendor/search_vendor_response.dart';
+import 'package:flutter_vts/screen/distance_summary/distance_summary_screen.dart';
 import 'package:flutter_vts/screen/live_tracking_screen.dart';
 import 'package:flutter_vts/screen/master/vendor_master/vendor_name_response.dart';
 import 'package:flutter_vts/screen/profile/profile_detail/profile_detail_screen.dart';
-import 'package:flutter_vts/screen/report/driver_wise_vehicle_assign.dart';
 import 'package:flutter_vts/screen/travel_summary/travel_summary_screen.dart';
 import 'package:flutter_vts/util/constant.dart';
 import 'package:http/http.dart' as http;
-import '../model/Driver_Master/driver_master.dart';
-import '../model/Driver_Master/driver_master_drivercode.dart';
-import '../model/Driver_Master/search_driver_master_report_response.dart';
-import '../model/date_wise_travel_history/date_wise_travel_filter.dart';
-import '../model/date_wise_travel_history/date_wise_travel_history.dart';
-import '../model/date_wise_travel_history/search_datewise_travel_history_response.dart';
-import '../model/device_master/get_device_master_report.dart';
-import '../model/device_master/search_device_master_report.dart';
+import '../model/distanceSummary/distance_summary_search.dart';
 import '../model/distanceSummary/distancesummary_entity.dart';
-import '../model/driver_wise_vehicle_assign/driver_wise_drivercode.dart';
-import '../model/driver_wise_vehicle_assign/driver_wise_vehicle_assign.dart';
-import '../model/driver_wise_vehicle_assign/driver_wise_vehicle_filter.dart';
-import '../model/driver_wise_vehicle_assign/search_driver_vehicle_assign.dart';
-import '../model/report/date_and_timewise_filter.dart';
-import '../model/report/date_and_timewise_search.dart';
+import '../model/getgeofence.dart/getroute_name_list.dart';
+import '../model/getgeofence.dart/routes_detail_routename.dart';
+import '../model/point_of_interest/create_point_of_interest.dart';
+import '../model/point_of_interest/dropdown_point_of_interest.dart';
+import '../model/point_of_interest/poi_post.dart';
+import '../model/point_of_interest/poi_type.dart';
+import '../model/point_of_interest/search_point_of_interest.dart';
 import '../model/report/device_master_filter.dart';
-import '../model/report/device_master_filter_drivercode.dart';
-import '../model/report/device_master_report.dart';
-import '../model/Driver_Master/driver_master_filter.dart';
-import '../model/report/frame_grid_filter.dart';
-import '../model/report/frame_packet_drivercode.dart';
 import '../model/report/frame_packet_report_response.dart';
-import '../model/report/frame_packetgrid_drivercode.dart';
-import '../model/report/frame_packetoption_grid.dart';
-import '../model/report/framepacketgrid.dart';
 import '../model/report/over_speed_report_response.dart';
-import '../model/report/overspeed_filter.dart';
-import '../model/report/overspeed_vehicle_filter.dart';
-import '../model/report/search_driverwise_veh_rpt.dart';
+
 import '../model/report/search_frame_packet_report_response.dart';
-import '../model/report/search_frame_pckt_grid_response.dart';
-import '../model/report/search_frame_pckt_report.dart';
 import '../model/report/search_overspeed_response.dart';
-import '../model/report/search_vehicle_status_group_response.dart';
-import '../model/report/search_vehicle_status_response.dart';
-import '../model/report/search_vehicle_status_summary.dart';
-import '../model/report/vehicle_group_filter.dart';
 import '../model/report/vehicle_status_filter_report.dart';
 import '../model/report/vehicle_status_report.dart';
-import '../model/report/vehicle_status_report_drivercode.dart';
-import '../model/report/vehicle_status_summary.dart';
-import '../model/report/vehicle_vsrno.dart';
-import '../model/report/vehicle_wise_search.dart';
-import '../model/report/vehicle_wise_timewise_filter.dart';
-import '../model/report/vehicle_wise_timewise_search.dart';
-import '../model/report/vehicle_wise_timewise_travel.dart';
-import '../model/report/vehicle_wise_travel.dart';
-import '../model/report/vehicle_wise_travel_filter.dart';
-import '../model/searchString.dart';
 import '../model/travel_summary/travel_summary.dart';
-import '../model/vehicle_master/search_vehicle_report_data_response.dart';
-import '../model/vehicle_master/vehicle_master_filter.dart';
-import '../model/vehicle_master/vehicle_report_detail.dart';
-import '../screen/report/frame_packet_grid.dart';
 
 class WebService {
-  SearchStringClass searchStrClass = SearchStringClass(searchStr: '');
   Future<LoginResponse> userLogin(String username, String password) async {
     print(Constant.loginUrl);
     final response = await http.post(
@@ -217,21 +175,21 @@ class WebService {
       int PageNumber,
       int PageSize,
       String token) async {
-    // print(Constant.dashboardUrl +
-    //     "" +
-    //     vendorId.toString() +
-    //     "&BranchId=" +
-    //     branchid.toString() +
-    //     "&OptionClicked=" +
-    //     optionClicked +
-    //     "&ARAI_NONARAI=" +
-    //     aRAI_NONARAI +
-    //     "&UserName=" +
-    //     username +
-    //     "&PageNumber=" +
-    //     PageNumber.toString() +
-    //     "&PageSize=" +
-    //     PageSize.toString());
+    print(Constant.dashboardUrl +
+        "" +
+        vendorId.toString() +
+        "&BranchId=" +
+        branchid.toString() +
+        "&OptionClicked=" +
+        optionClicked +
+        "&ARAI_NONARAI=" +
+        aRAI_NONARAI +
+        "&UserName=" +
+        username +
+        "&PageNumber=" +
+        PageNumber.toString() +
+        "&PageSize=" +
+        PageSize.toString());
 
     final response = await http.get(
       Uri.parse(Constant.dashboardUrl +
@@ -254,7 +212,7 @@ class WebService {
         'Authorization': 'Bearer $token',
       },
     );
-    // print(response.body);
+    print(response.body);
     return DashbordResponse.fromJson(jsonDecode(response.body));
   }
 
@@ -1557,7 +1515,7 @@ class WebService {
       String vehicleRegNo,
       int pageNUmber,
       int pageSize) async {
-    var vehiclestatusurl = Constant.getVehicleHistoryDetail +
+    print(Constant.getVehicleHistoryDetail +
         "" +
         vendorId.toString() +
         "&BranchId=" +
@@ -1577,12 +1535,30 @@ class WebService {
         "&PageNumber=" +
         pageNUmber.toString() +
         "&PageSize=" +
-        pageSize.toString();
-
-    print("This is vehicle status url " + vehiclestatusurl);
+        pageSize.toString());
 
     final response = await http.get(
-      Uri.parse(vehiclestatusurl),
+      Uri.parse(Constant.getVehicleHistoryDetail +
+          "" +
+          vendorId.toString() +
+          "&BranchId=" +
+          branchId.toString() +
+          "&Arai_Nonarai=" +
+          araiNoarai +
+          "&FromDate=" +
+          fromDate +
+          "&FromTime=" +
+          formTime +
+          "&ToDate=" +
+          toDate.toString() +
+          "&ToTime=" +
+          toTime +
+          "&VehicleRegNo=" +
+          vehicleRegNo +
+          "&PageNumber=" +
+          pageNUmber.toString() +
+          "&PageSize=" +
+          pageSize.toString()),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': 'Bearer $token',
@@ -1856,7 +1832,7 @@ class WebService {
           "&BranchId=" +
           branchId.toString() +
           "&ARAI_NONARAI=" +
-          araiNonarai.toString()),
+          "arai"),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': 'Bearer $token',
@@ -1868,47 +1844,34 @@ class WebService {
 
   Future<LiveTrackingResponse> getlivetracking(String token, int vendorId,
       int branchId, String trackingStatus, String araiNonarai) async {
-    print(Constant.getLiveTrackingUrl +
-        "" +
+    var getlivetracking = Constant.getLiveTrackingUrl +
         vendorId.toString() +
         "&BranchId=" +
         branchId.toString() +
         "&TrackingStatus=" +
         trackingStatus.toString() +
         "&ARAI_NONARAI=" +
-        araiNonarai.toString());
-
+        araiNonarai.toString();
+    print("Webservice Url is here-------------->" + getlivetracking.toString());
     final response = await http.get(
-      Uri.parse(Constant.getLiveTrackingUrl +
-          "" +
-          vendorId.toString() +
-          "&BranchId=" +
-          branchId.toString() +
-          "&TrackingStatus=" +
-          trackingStatus.toString() +
-          "&ARAI_NONARAI=" +
-          araiNonarai.toString()),
+      Uri.parse(getlivetracking),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': 'Bearer $token',
       },
     );
-    print(response.body);
-    return LiveTrackingResponse.fromJson(jsonDecode(response.body));
+   
+      
+      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
+
+      var livetrackingresponse = LiveTrackingResponse.fromJson(jsonbody);
+      print("Json decoded body_ MAP-------" + response.body.toString());
+      return livetrackingresponse;
+  
   }
 
   Future<List<LiveTrackingByIdResponse>> getlivetrackingById(String token,
       int vendorId, int branchId, String araiNonarai, int transId) async {
-    print(Constant.getLiveTrackingByIdUrl +
-        "" +
-        vendorId.toString() +
-        "&BranchId=" +
-        branchId.toString() +
-        "&ARAI_NONARAI=" +
-        araiNonarai.toString() +
-        "&TransID=" +
-        transId.toString());
-
     final response = await http.get(
       Uri.parse(Constant.getLiveTrackingByIdUrl +
           "" +
@@ -1924,6 +1887,7 @@ class WebService {
         'Authorization': 'Bearer $token',
       },
     );
+    print("Your Google map data is printed");
     print(response.body);
     return liveTrackingByIdResponseFromJson(response.body);
   }
@@ -2266,39 +2230,78 @@ class WebService {
     return SearchGeofenceCreateResponse.fromJson(jsonDecode(response.body));
   }
 
-  // Future<AddGeofenceResponse> addGeofence(
-  //    String token,
-  // int vendorid,
-  // int branchid,
-  // String geofencename,
-  // String category,
-  // String description,
-  // int tolerance,
-  // String showgeofence,
-  // String latitude,
-  // String longitude,
-  // String overlaytype,
-  // String rectanglebond,
-  // String rectanglearea,
-  // String rectanglehectares,
-  // String rectanglekilometer,
-  // String rectanglemiles,
-  // String address,
-  // String vehicleid,) async {
-  //   print(Constant.addGeofenceUrl);
-
-  //   final response = await http.post(
-  //     Uri.parse(Constant.addGeofenceUrl),
-  //     headers: <String, String>{
-  //       'Content-Type': 'application/json; charset=UTF-8',
-  //       'Authorization': 'Bearer $token',
-  //     },
-  //     body: jsonEncode(addGeofenceRequest),
-  //   );
-
-  //   print(response.body);
-  //   return AddGeofenceResponse.fromJson(jsonDecode(response.body));
-  // }
+//! AddGeofence is created-------------------------------------------------
+  Future<AddGeofenceResponse> addGeofence(
+    String token,
+    int vendorid,
+    int branchid,
+    String geofencename,
+    String category,
+    String description,
+    int tolerance,
+    String showgeofence,
+    String latitude,
+    String longitude,
+    String overlaytype,
+    String rectanglebond,
+    String rectanglearea,
+    String rectanglehectares,
+    String rectanglekilometer,
+    String rectanglemiles,
+    String address,
+    int vehicleid,
+  ) async {
+    final body = {
+      "vendorSrNo": 1,
+      "branchSrNo": 1,
+      "geofenceName": geofencename,
+      "category": category,
+      "description": description,
+      "tolerance": tolerance,
+      "showGeofence": showgeofence,
+      "locationLatitude": latitude,
+      "locationLongitude": longitude,
+      "overlayType": "Rectangle",
+      "circleBounds": "",
+      "circleRadius": "",
+      "circleArea": "",
+      "circlehectares": "",
+      "circleKilometer": "",
+      "circleMiles": "",
+      "circleCenterLat": "",
+      "circleCenterLng": "",
+      "rectangleBounds": "12.56",
+      "rectangleArea": "12.56",
+      "rectanglehectares": "3.6",
+      "rectangleKilometer": "4",
+      "rectangleMiles": "2.3",
+      "polygonPath": "",
+      "polygonArea": "",
+      "polygonhectares": "",
+      "polygonKilometer": "",
+      "polygonMiles": "",
+      "address": address.toString(),
+      "vehicleList": [
+        {"vehicleId": vehicleid},
+      ]
+    };
+    final response = await http.post(
+      Uri.parse(Constant.addGeofenceUrl),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': "Bearer $token",
+      },
+      body: jsonEncode(body),
+    );
+    print("your token of geoFence------------" + token);
+    if (response.statusCode == 201) {
+      print("Your data was addedd sucessfully");
+      return AddGeofenceResponse.fromJson(jsonDecode(response.body));
+    } else {
+      print(response.body);
+      throw Exception("Failed to loaded Geofence");
+    }
+  }
 
   Future<EditDeviceResponse> createAssignMenuRights(
       AssignMenuRightsRequest assignMenuRightsRequest, String token) async {
@@ -2364,9 +2367,8 @@ class WebService {
         pagenumber.toString() +
         "&PageSize=" +
         pagesize.toString();
-
-    print("This is travel data url " + travelurl);
-
+    //var travelurl =
+    //  "https://vtsgpsapi.m-techinnovations.com/api/TravelSummaryReport/GetTravelSummaryReport?VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=01-sep-2022&FromTime=06:30&ToDate=30-sep-2022&ToTime=18:00&IMEINO=867322033819244&PageNumber=1&PageSize=10";
     final response =
         await http.get(Uri.parse(travelurl), headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
@@ -2418,24 +2420,15 @@ class WebService {
         pagenumber.toString() +
         "&PageSize=" +
         pagesize.toString();
-    // var travelsearchurl =
-    //     "https://vtsgpsapi.m-techinnovations.com/api/TravelSummaryReport/SearchTravelSummaryReport?VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=01-sep-2022&FromTime=10:30&ToDate=30-sep-2022&ToTime=15:30&SearchText=MH12&PageNumber=1&PageSize=10";
+    //var travelsearchurl =
+    //  "https://vtsgpsapi.m-techinnovations.com/api/TravelSummaryReport/SearchTravelSummaryReport?VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=01-sep-2022&FromTime=10:30&ToDate=30-sep-2022&ToTime=15:30&SearchText=MH12&PageNumber=1&PageSize=10";
     final response =
         await http.get(Uri.parse(travelsearchurl), headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
       'Authorization': 'Bearer $token',
     });
-    if (response.statusCode == 200) {
-      print("Successfully getting your data 2");
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
 
-      var travelsummaryjson = TravelSummarySearch.fromJson(jsonbody);
-      print("Json decoded body2_" + travelsummaryjson.toString());
-      return travelsummaryjson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
+    return TravelSummarySearch.fromJson(jsonDecode(response.body));
   }
 
   //! TravelSummary Filter web service-----------------
@@ -2452,12 +2445,9 @@ class WebService {
     String totime,
     String todate,
   ) async {
-    var travelfilterurl = Constant.travelSummaryFilter +
-        "?VendorId=" +
-        vendorid.toString() +
-        "&BranchId=" +
-        branchid.toString() +
-        "&ARAI_NONARAI=arai&FromDate=" +
+    print(Constant.travelSummaryFilter +
+        "?VendorID=1&BranchId=1&ARAI_NONARAI=arai&" +
+        "FromDate=" +
         fromdate.toString() +
         "&FromTime=" +
         fromtime.toString() +
@@ -2465,24 +2455,31 @@ class WebService {
         todate.toString() +
         "&ToTime=" +
         totime.toString() +
-        "&VehicleList=" +
-        vehiclelist.toString() +
-        "&PageNumber=" +
+        "&VehicleList=86,76&PageNumber=" +
         pagenumber.toString() +
-        "&PageSize=" +
-        pagesize.toString();
-
-    print("This is travel filter" + travelfilterurl);
-
+        "&PageSize=10");
+    var travelfilterurl = Constant.travelSummaryFilter +
+        "?VendorID=1&BranchId=1&ARAI_NONARAI=arai&" +
+        "FromDate=" +
+        fromdate.toString() +
+        "&FromTime=" +
+        fromtime.toString() +
+        "&ToDate=" +
+        todate.toString() +
+        "&ToTime=" +
+        totime.toString() +
+        "&VehicleList=86,76&PageNumber=" +
+        pagenumber.toString() +
+        "&PageSize=10";
     // var travelfilterurl =
-    //     "https://vtsgpsapi.m-techinnovations.com/api/TravelSummaryReport/FilterTravelSummaryReport?VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=02-sep-2022&FromTime=13:30&ToDate=30-sep-2022&ToTime=19:30&VehicleList=86,76&PageNumber=1&PageSize=10";
+    //   "https://vtsgpsapi.m-techinnovations.com/api/TravelSummaryReport/FilterTravelSummaryReport?VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=02-sep-2022&FromTime=13:30&ToDate=30-sep-2022&ToTime=19:30&VehicleList=86,76&PageNumber=1&PageSize=10";
     final response =
         await http.get(Uri.parse(travelfilterurl), headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
       'Authorization': 'Bearer $token',
     });
     if (response.statusCode == 200) {
-      print("Successfully getting your data 3");
+      print("Successfully getting your data 3" + response.body);
       var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
 
       var travelsummaryjson = TravelSummaryFilter.fromJson(jsonbody);
@@ -2549,6 +2546,7 @@ class WebService {
     }
   }
 
+  //! Filter(Weeks,Months,today..........) Distance Summary Screen---------------------------
   Future<DistanceSummaryFilter> distancesummaryfilter(
     String token,
     int vendorid,
@@ -2593,31 +2591,41 @@ class WebService {
     }
   }
 
-  // Driver wise vehicle assign
-  Future<DriverWiseVehicleAssign> driverwisevehicleassign(
+  //! Search Distance Summary Screen---------------------------
+  Future<DistanceSummarySearch> distancesummarysearch(
     String token,
     int vendorid,
     int branchid,
     int pagenumber,
     int pagesize,
+    String arinonarai,
+    String fromdate,
+    String fromtime,
+    String searchtext,
+    String totime,
+    String todate,
   ) async {
-    var driverwisevehicleassignurl = Constant.driverwisevehicleassign +
-        "?VendorId=" +
-        vendorid.toString() +
-        "&BranchId=" +
-        branchid.toString() +
-        "&PageNumber=" +
-        pagenumber.toString() +
-        "&PageSize=" +
-        pagesize.toString();
-
-    print("This is driver wise url " + driverwisevehicleassignurl);
-    /*
-    var driverwisevehicleassign ="https://vtsgpsapi.m-techinnovations.com/api/DriverWiseVehicalAssignReports/GetDriverVehicleAssign?VendorId=1&BranchId=1&PageNumber=1&PageSize=10";
-
-     */
-    final response = await http
-        .get(Uri.parse(driverwisevehicleassignurl), headers: <String, String>{
+    //  var distanceurl = Constant.DistanceSummaryReport +
+    //       "?VendorId=" +
+    //       vendorid.toString() +
+    //       "&BranchId=" +
+    //       branchid.toString() +
+    //       "&ARAI_NONARAI=arai&FromDate=" +
+    //       fromdate.toString() +
+    //       "&FromTime=" +
+    //       fromtime.toString() +
+    //       "&ToDate=" +
+    //       todate.toString() +
+    //       "&ToTime=" +
+    //       totime.toString() +
+    //       "&IMEINO=867322033819244&PageNumber=" +
+    //       pagenumber.toString() +
+    //       "&PageSize=" +
+    //       pagesize.toString();
+    var distanceurl =
+        "https://vtsgpsapi.m-techinnovations.com/api/DistanceTravelSummary/SearchDistanceTravelSummaryReport?VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=01-sep-2022&FromTime=12:30&ToDate=30-sep-2022&ToTime=15:30&SearchText=MH12&PageNumber=1&PageSize=10";
+    final response =
+        await http.get(Uri.parse(distanceurl), headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
       'Authorization': 'Bearer $token',
     });
@@ -2625,251 +2633,263 @@ class WebService {
       print("Successfully getting your data");
       var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
 
-      var driverwisevehiclejson = DriverWiseVehicleAssign.fromJson(jsonbody);
-      print("Json decoded body_" + driverwisevehiclejson.toString());
-      return driverwisevehiclejson;
+      var distancesummaryjson = DistanceSummarySearch.fromJson(jsonbody);
+      print("Json decoded body_" + distancesummaryjson.toString());
+      return distancesummaryjson;
     } else {
       print(response.body);
       throw Exception('Failed to load data');
     }
   }
+  // !-------------  API for Create Point of variable  ----------//
 
-  // Driver wise vehicle filter
-  Future<DriverWiseVehicleFilter> driverwisevehiclefilter(
+  Future<CreatePointOfInterest> createPointOfInterestGetApi(String token,
+      int vendorId, int branchId, int pageNumber, int pageSize) async {
+    // print("Api uri is-------" +
+    // "${Constant.getPointOfInterstCreateUrl}VendorId=${vendorId}&BranchId=${branchId}&PageNumber=${pageNumber}&PageSize=${pageSize}" );
+
+    var uriString = Constant.getPointOfInterstCreateUrl +
+        "?VendorId=" +
+        vendorId.toString() +
+        "&BranchId=" +
+        branchId.toString() +
+        "&PageNumber=" +
+        pageNumber.toString() +
+        "&PageSize=" +
+        pageSize.toString();
+
+    //  var uriString =
+    //    'https://vtsgpsapi.m-techinnovations.com/api/PointOfInterestCreate/GetPointofInterestDetails?VendorId=1&BranchId=1&PageNumber=1&PageSize=10';
+
+    // var uriString ='${Constant.getPointOfInterstCreateUrl}?VendorId=${vendorId}&BranchId=${branchId}&PageNumber=${pageNumber}&PageSize=${pageSize}';
+
+    print("New Uri of Point of interset is------------*********${uriString}");
+
+    final response = await http.get(
+      // Uri.parse(Constant.getPointOfInterstCreateUrl +
+      //         "?VendorId=" +
+      //         vendorId.toString() +
+      //         "&BranchId=" +
+      //         branchId.toString() +
+      //         "&IMEINO=867322033819244&PageNumber=" +
+      //         pageNumber.toString() +
+      //         "&PageSize=" +
+      //         pageSize.toString()),
+
+      // Uri.parse('${Constant.getPointOfInterstCreateUrl}VendorId=${vendorId}&BranchId=${branchId}&PageNumber=${pageNumber}&PageSize=${pageSize}'),
+
+      // Uri.parse('https://vtsgpsapi.m-techinnovations.com/api/PointOfInterestCreate/GetPointofInterestDetails?VendorId=1&BranchId=1PageNumber=1&PageSize=10'),
+
+      Uri.parse(uriString),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    if (response.statusCode == 200) {
+      print(response.body);
+      var createResponce =
+          CreatePointOfInterest.fromJson(jsonDecode(response.body));
+
+      return createResponce;
+    } else {
+      print("Data loading failed....");
+      return throw Exception();
+    }
+  }
+  //!--------------End API---------------------------
+
+//!------------- API for Search Point of Interest -----------------//
+  Future<SearchPointOfInterest> fetchSearchPointInterestDetails(
     String token,
     int vendorid,
     int branchid,
-    String vsrno,
-    int pagenumber,
-    int pagesize,
+    String searchtext,
   ) async {
-    var driverwisevehiclefilternurl = Constant.driverwisevehiclefilter +
-        "?VendorId=" +
-        vendorid.toString() +
-        "&BranchId=" +
-        branchid.toString() +
-        "&VSrNo=" +
-        vsrno.toString() +
-        "&PageNumber=" +
-        pagenumber.toString() +
-        "&PageSize=" +
-        pagesize.toString();
+    print("Enter in main  web service api block");
+    var searchurl =
+        '${Constant.searchStrPointOfInterstCreateUrl}/${vendorid}/${branchid}/${searchtext}';
+    // Constant.searchStrPointOfInterstCreateUrl +
+    //  "?VendorId=" +
+    //  vendorid.toString() +
+    //  "&BranchId=" +
+    //  branchid.toString() +
+    //  "&IMEINO=867322033819244&searchString=" +
+    //  searchtext.toString();
 
-    print("This is driver wise url " + driverwisevehiclefilternurl);
-    /*
-    var driverwisevehicleassign ="https://vtsgpsapi.m-techinnovations.com/api/DriverWiseVehicalAssignReports/GetDriverVehicleAssign?VendorId=1&BranchId=1&PageNumber=1&PageSize=10";
+    // var searchurl =
+    //     "https://vtsgpsapi.m-techinnovations.com/api/PointOfInterestCreate/1/1/air";
+    https: //vtsgpsapi.m-techinnovations.com/api/PointOfInterestCreate?VendorId=1&BranchId=1&IMEINO=867322033819244&searchString=c
+    print("Uri is-----------${searchurl}");
 
-     */
+    final response =
+        await http.get(Uri.parse(searchurl), headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    });
+
+    print("Successfully getting your data");
+    var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
+    var searchtextresponce = SearchPointOfInterest.fromJson(jsonbody);
+    print("Json decoded body_" + searchtextresponce.toString());
+    return searchtextresponce;
+  }
+
+  //! Dropdown point of Interest---------------------------------
+  Future<DropdownPointofInterest> dropdownpointofinterest(String token) async {
     final response = await http
-        .get(Uri.parse(driverwisevehiclefilternurl), headers: <String, String>{
+        .get(Uri.parse(Constant.getPOITypeUrl), headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
       'Authorization': 'Bearer $token',
     });
     if (response.statusCode == 200) {
       print("Successfully getting your data");
       var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
-
-      var driverwisevehiclejson = DriverWiseVehicleFilter.fromJson(jsonbody);
-      print("Json decoded body_" + driverwisevehiclejson.toString());
-      return driverwisevehiclejson;
+      var searchtextresponce = DropdownPointofInterest.fromJson(jsonbody);
+      print("Json decoded body_" + searchtextresponce.toString());
+      return searchtextresponce;
     } else {
       print(response.body);
       throw Exception('Failed to load data');
     }
   }
 
-  // Date wise travel history filter
-  Future<DateWiseTravelFilterModel> datewisetravelfilter(
+//! Overspeed Data Fetching-----------------------------------
+  Future<GetOverspeedReportResponse> getOverSpeedReport(
     String token,
-    int vendorId,
+    int vendorid,
     int branchid,
-    String arai,
-    String fromdate,
-    String todate,
-    String vehiclelist,
-    int pagenumber,
-    int pagesize,
-  ) async {
-    // https://vtsgpsapi.m-techinnovations.com/api/DateWiseTravelHistoryReport/ApplyFilterDatewiseTravelHistory?VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=01-sep-2022&ToDate=30-sep-2022&VehicleList=86,76&PageNumber=1&PageSize=10
-    var datewisetravelfilterurl = Constant.datewisetravelfilter +
-        "?VendorId=" +
-        vendorId.toString() +
-        "&BranchId=" +
-        branchid.toString() +
-        "&ARAI_NONARAI=" +
-        arai.toString() +
-        "&FromDate=" +
-        fromdate.toString() +
-        "&ToDate=" +
-        todate.toString() +
-        "&VehicleList=" +
-        vehiclelist.toString() +
-        "&PageNumber=" +
-        pagenumber.toString() +
-        "&PageSize=" +
-        pagesize.toString();
-
-    // var datewisetravelfilterurl =
-    //     'https://vtsgpsapi.m-techinnovations.com/api/DateWiseTravelHistoryReport/ApplyFilterDatewiseTravelHistory?VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=01-sep-2022&ToDate=30-sep-2022&VehicleList=86,76&PageNumber=1&PageSize=10';
-
-    print("This is date wise travel filter url " + datewisetravelfilterurl);
-    /*
-    var driverwisevehicleassign ="https://vtsgpsapi.m-techinnovations.com/api/DriverWiseVehicalAssignReports/GetDriverVehicleAssign?VendorId=1&BranchId=1&PageNumber=1&PageSize=10";
-
-     */
-    final response = await http
-        .get(Uri.parse(datewisetravelfilterurl), headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    });
-    if (response.statusCode == 200) {
-      print("Successfully getting your data");
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
-
-      var driverwisevehiclejson = DateWiseTravelFilterModel.fromJson(jsonbody);
-      print("Json decoded body_" + datewisetravelfilterurl.toString());
-      return driverwisevehiclejson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
-  }
-
-  // Frame packet grid filter
-  Future<FrameGridFilterMode> framepacketgridfilter(
-    String token,
-    int vendorId,
-    int branchid,
-    String arai,
-    String fromdate,
+    String arainonarai,
+    String fromdata,
     String fromtime,
     String todate,
-    String totime,
-    String vehiclelist,
-    String framepacketoption,
-    int pagenumber,
     int pagesize,
+    int pagenumber,
   ) async {
-    // https://vtsgpsapi.m-techinnovations.com/api/DateWiseTravelHistoryReport/ApplyFilterDatewiseTravelHistory?VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=01-sep-2022&ToDate=30-sep-2022&VehicleList=86,76&PageNumber=1&PageSize=10
-    var framegridreportfilterurl = Constant.framegridfilterurl +
-        "?VendorId=" +
-        vendorId.toString() +
-        "&BranchId=" +
-        branchid.toString() +
-        "&ARAI_NONARAI=" +
-        arai.toString() +
-        "&FromDate=" +
-        fromdate.toString() +
-        "&FromTime=" +
-        fromtime.toString() +
-        "&ToDate=" +
-        todate.toString() +
-        "&ToTime=" +
-        totime.toString() +
-        "&VehicleList=" +
-        vehiclelist.toString() +
-        "&FramePacketOption=" +
-        framepacketoption.toString() +
-        "&PageNumber=" +
-        pagenumber.toString() +
-        "&PageSize=" +
-        pagesize.toString();
-
-    // var datewisetravelfilterurl =
-    //     'https://vtsgpsapi.m-techinnovations.com/api/DateWiseTravelHistoryReport/ApplyFilterDatewiseTravelHistory?VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=01-sep-2022&ToDate=30-sep-2022&VehicleList=86,76&PageNumber=1&PageSize=10';
-
-    print("This is frame packet grid filter url " + framegridreportfilterurl);
-    /*
-    var driverwisevehicleassign ="https://vtsgpsapi.m-techinnovations.com/api/DriverWiseVehicalAssignReports/GetDriverVehicleAssign?VendorId=1&BranchId=1&PageNumber=1&PageSize=10";
-
-     */
-    final response = await http
-        .get(Uri.parse(framegridreportfilterurl), headers: <String, String>{
+    var getreporturi =
+        "https://vtsgpsapi.m-techinnovations.com/api/VehicleWiseOverSpeedReport/GetOverSpeedReport?VendorId=1&BranchId=1&ARAI_NONARAI=nonarai&FromDate=01-sep-2022&ToDate=30-sep-2022&IMEINO=862430050555255&PageNumber=1&PageSize=10";
+    final response =
+        await http.get(Uri.parse(getreporturi), headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
       'Authorization': 'Bearer $token',
     });
     if (response.statusCode == 200) {
       print("Successfully getting your data");
       var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
-
-      var driverwisevehiclejson = FrameGridFilterMode.fromJson(jsonbody);
-      print("Json decoded body_" + framegridreportfilterurl.toString());
-      print("this is packet frame grid filter data" +
-          driverwisevehiclejson.toString());
-      return driverwisevehiclejson;
+      var searchtextresponce = GetOverspeedReportResponse.fromJson(jsonbody);
+      print("Json decoded body_" + searchtextresponce.toString());
+      return searchtextresponce;
     } else {
       print(response.body);
       throw Exception('Failed to load data');
     }
   }
 
-  // Frame packet filter
-  Future<FramePacketFilterModel> frampacketfilter(
+  //! Overspeed Search Data Fetching-----------------------------------
+  Future<search_overspeed_response> searchOverSpeedCreateDetails(
+    String token,
+    int vendorid,
+    int branchid,
+    String arainonarai,
+    String fromdata,
+    String fromtime,
+    String todate,
+    int pagesize,
+    int pagenumber,
+    String searchText,
+  ) async {
+    var overspeedsearch =
+        "https://vtsgpsapi.m-techinnovations.com/api/VehicleWiseOverSpeedReport/SearchOverSpeedReport?VendorId=1&BranchId=1&ARAI_NONARAI=nonarai&FromDate=01-sep-2022&ToDate=30-sep-2022&SearchText=MH12AB0015&PageNumber=1&PageSize=10";
+    final response =
+        await http.get(Uri.parse(overspeedsearch), headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    });
+    if (response.statusCode == 200) {
+      print("Successfully getting your data");
+      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
+      var searchtextresponce = search_overspeed_response.fromJson(jsonbody);
+      print("Json decoded body_" + searchtextresponce.toString());
+      return searchtextresponce;
+    } else {
+      print(response.body);
+      throw Exception('Failed to load data');
+    }
+  }
+
+//! Device Master Filter---------------------------------
+  Future<DeviceMasterFilterModel> devicemasterwebfilter(
+    String token,
+    String vendorid,
+    String branchid,
+    String deviceno,
+    int pagenumber,
+    int pagesize,
+  ) async {
+    var overspeedsearch =
+        "https://vtsgpsapi.m-techinnovations.com/api/DeviceMasterReports/FilterApplyDeviceReport?VendorId=1&BranchId=1&DeviceNo=DC00001&PageNumber=1&PageSize=10";
+    final response =
+        await http.get(Uri.parse(overspeedsearch), headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    });
+    if (response.statusCode == 200) {
+      print("Successfully getting your data");
+      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
+      var searchtextresponce = DeviceMasterFilterModel.fromJson(jsonbody);
+      print("Json decoded body_" + searchtextresponce.toString());
+      return searchtextresponce;
+    } else {
+      print(response.body);
+      throw Exception('Failed to load data');
+    }
+  }
+
+  //!---------------------------------------
+  Future<VehicleStatusReportModel> vehicleStatusReport(
     String token,
     int vendorId,
     int branchid,
-    String arai,
+    String araino,
     String fromdate,
-    String fromtime,
-    String todate,
-    String totime,
-    String vehiclelist,
-    String framepacketoption,
+    String fromTime,
+    String toDate,
+    String toTime,
+    int imeno,
     int pagenumber,
     int pagesize,
   ) async {
-    // https://vtsgpsapi.m-techinnovations.com/api/DateWiseTravelHistoryReport/ApplyFilterDatewiseTravelHistory?VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=01-sep-2022&ToDate=30-sep-2022&VehicleList=86,76&PageNumber=1&PageSize=10
-    var framepacketfilterurl = Constant.framefilterurl +
-        "?VendorId=" +
-        vendorId.toString() +
-        "&BranchId=" +
-        branchid.toString() +
-        "&ARAI_NONARAI=" +
-        arai.toString() +
-        "&FromDate=" +
-        fromdate.toString() +
-        "&FromTime=" +
-        fromtime.toString() +
-        "&ToDate=" +
-        todate.toString() +
-        "&ToTime=" +
-        totime.toString() +
-        "&VehicleList=" +
-        vehiclelist.toString() +
-        "&FramePacketOption=" +
-        framepacketoption.toString() +
-        "&PageNumber=" +
-        pagenumber.toString() +
-        "&PageSize=" +
-        pagesize.toString();
+    // print(
+    //     "${searchStrClass.searchStr}-----Enter in SEARCH dm future api ----$searchText");
+    // String vehiclestatusurl = Constant.vehiclestatusgroupurl +
+    //     vendorId.toString() +
+    //     "&BranchId=1" +
+    //     branchId.toString() +
+    //     "&SearchText=" +
+    //     searchText +
+    //     "&PageNumber=1" +
+    //     // pageNumber.toString() +
+    //     "&PageSize=10";
+    // // pageSize.toString();
 
-    // var datewisetravelfilterurl =
-    //     'https://vtsgpsapi.m-techinnovations.com/api/FramePacketReport/FilterFramepacketReport?VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=01-sep-2022&FromTime=09:30&ToDate=30-sep-2022&ToTime=20:30&VehicleList=86,76&FramePacketOption=loginpacket&PageNumber=1&PageSize=10';
+    String vehiclestatusreporturl =
+        'https://vtsgpsapi.m-techinnovations.com/api/VehicleStatusGroupByReport/GetVehicleStatusGroupByReport?VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=01-sep-2022&FromTime=08:30&ToDate=30-sep-2022&ToTime=18:30&IMEINO=867322033819244&PageNumber=1&PageSize=10';
 
-    print("This is Frame packet filter url " + framepacketfilterurl);
-    /*
-    var driverwisevehicleassign ="https://vtsgpsapi.m-techinnovations.com/api/DriverWiseVehicalAssignReports/GetDriverVehicleAssign?VendorId=1&BranchId=1&PageNumber=1&PageSize=10";
+    final response = await http.get(
+      Uri.parse(vehiclestatusreporturl),
+      headers: <String, String>{
+        // 'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': "Bearer ${token}",
+      },
+    );
 
-     */
-    final response = await http
-        .get(Uri.parse(framepacketfilterurl), headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    });
-    if (response.statusCode == 200) {
-      print("Successfully getting your data");
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
-
-      var driverwisevehiclejson = FramePacketFilterModel.fromJson(jsonbody);
-      print("Json decoded body_" + framepacketfilterurl.toString());
-      return driverwisevehiclejson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
+    var jsonBody =
+        VehicleStatusReportModel.fromJson(json.decode(response.body));
+    print("JSon  dm body are:-------------$jsonBody");
+    return jsonBody;
   }
 
-  // vehicle status report filter
+  //!--------------------------------
   Future<VehicleStatusReportFilter> vehiclestatusreportfilter(
     String token,
     int vendorId,
@@ -2897,14 +2917,12 @@ class WebService {
         toDate.toString() +
         "&ToTime=" +
         toTime.toString() +
-        "&VehicleList=" +
-        vehiclelist.toString() +
-        "&PageNumber=" +
+        "&VehicleList=86,76&PageNumber=" +
         pagenumber.toString() +
         "&PageSize=" +
         pagesize.toString();
-
-    print("This is Vehicle status filter url " + travelurl);
+    // var overspeedsearch =
+    //     "https://vtsgpsapi.m-techinnovations.com/api/VehicleStatusReport/FilterVehicleStatusReport?VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=01-sep-2022&FromTime=10:30&ToDate=20-sep-2022&ToTime=18:30&VehicleList=86,76&PageNumber=1&PageSize=10";
     final response =
         await http.get(Uri.parse(travelurl), headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
@@ -2922,2451 +2940,242 @@ class WebService {
     }
   }
 
-  Future<DriverWiseVehicleAssignSearch> driverwisevehicleassignsearch(
-    String token,
-    int vendorid,
-    int branchid,
-    String searchtext,
-    int pagenumber,
-    int pagesize,
-  ) async {
-    var drivervehicleassigsearchnurl = Constant.driverwisevehicleassignsearch +
-        "?VendorId=" +
-        vendorid.toString() +
-        "&BranchId=" +
-        branchid.toString() +
-        "&SearchText=" +
-        searchtext.toString() +
-        "&PageNumber=" +
-        pagenumber.toString() +
-        "&PageSize=" +
-        pagesize.toString();
-
-    // print("This is driver wise url "+drivervehicleassigsearchnurl);
-    /*
-    var driverwisevehicleassignsearch ="https://vtsgpsapi.m-techinnovations.com/api/DriverWiseVehicalAssignReports/SearchDriverVehicleAssign?VendorId=1&BranchId=1&SearchText=sandhya&PageNumber=1&PageSize=10";
-
-     */
-    final response = await http
-        .get(Uri.parse(drivervehicleassigsearchnurl), headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    });
-    if (response.statusCode == 200) {
-      print("Successfully getting your data");
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
-
-      var driverwisevehiclesearchjson =
-          DriverWiseVehicleAssignSearch.fromJson(jsonbody);
-      print("Json decoded body_" + driverwisevehiclesearchjson.toString());
-      return driverwisevehiclesearchjson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
-  }
-
-  Future<DateWiseTravelHistory> datewisetravelhistory(
-    String token,
-    int vendorid,
-    int branchid,
-    String arainonarai,
-    String fromdate,
-    String todate,
-    String imeino,
-    int pageSize,
-    int pageNumber,
-  ) async {
-    var datewisetravelhistoryurl = Constant.datewisetravelhistory +
-        "?VendorId=" +
-        vendorid.toString() +
-        "&BranchId=" +
-        branchid.toString() +
-        "&ARAI_NONARAI=arai&FromDate=" +
-        fromdate.toString() +
-        "&ToDate=" +
-        todate.toString() +
-        "&IMEINO=867322033819244" +
-        "&PageNumber=" +
-        pageNumber.toString() +
-        "&PageSize=" +
-        pageSize.toString();
-
-    print("This is date wise travel history url " + datewisetravelhistoryurl);
-
-    print("This is date wise travel history url " + datewisetravelhistoryurl);
-
-    final response = await http
-        .get(Uri.parse(datewisetravelhistoryurl), headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    });
-    if (response.statusCode == 200) {
-      print("Successfully getting your data");
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
-
-      var datewisetravelhistoryjson = DateWiseTravelHistory.fromJson(jsonbody);
-      print("Json decoded body_" + datewisetravelhistoryjson.toString());
-      return datewisetravelhistoryjson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
-  }
-
-  // Vehicle wise travel history
-
-  Future<VehicleWiseTravelModel> vehiclewisetravelhistory(
-    String token,
-    int vendorid,
-    int branchid,
-    String arainonarai,
-    String fromdate,
-    String fromtime,
-    String todate,
-    String totime,
-    int imeino,
-    int pageNumber,
-    int pageSize,
-  ) async {
-    var vehiclewisetravelhistory = Constant.vehiclewisetravelhistory +
-        "?VendorId=" +
-        vendorid.toString() +
-        "&BranchId=" +
-        branchid.toString() +
-        "&ARAI_NONARAI=arai&FromDate=" +
-        fromdate.toString() +
-        "&FromTime=" +
-        fromtime.toString() +
-        "&ToDate=" +
-        todate.toString() +
-        "&ToTime=" +
-        totime.toString() +
-        "&IMEINO=" +
-        imeino.toString() +
-        "&PageNumber=" +
-        pageNumber.toString() +
-        "&PageSize=" +
-        pageSize.toString();
-
-    print(
-        "This is Vehicle wise travel history url " + vehiclewisetravelhistory);
-
-    final response = await http
-        .get(Uri.parse(vehiclewisetravelhistory), headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    });
-    if (response.statusCode == 200) {
-      print("Successfully getting your data");
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
-
-      var datewisetravelhistoryjson = VehicleWiseTravelModel.fromJson(jsonbody);
-      print("Json decoded body_" + datewisetravelhistoryjson.toString());
-      return datewisetravelhistoryjson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
-  }
-
-  // Vehicle wise Time wise travel history
-
-  Future<VehicleWiseTimeWiseTravelModel> vehiclewisetimewisetravelhistory(
-    String token,
-    int vendorid,
-    int branchid,
-    String arainonarai,
-    String fromdate,
-    String fromtime,
-    String todate,
-    String totime,
-    int imeino,
-    int pageNumber,
-    int pageSize,
-  ) async {
-    var vehiclewisetimewisetravelhistory =
-        Constant.vehicletimewisetravelhistory +
-            "?VendorId=" +
-            vendorid.toString() +
-            "&BranchId=" +
-            branchid.toString() +
-            "&ARAI_NONARAI=arai&FromDate=" +
-            fromdate.toString() +
-            "&FromTime=" +
-            fromtime.toString() +
-            "&ToDate=" +
-            todate.toString() +
-            "&ToTime=" +
-            totime.toString() +
-            "&IMEINO=" +
-            imeino.toString() +
-            "&PageNumber=" +
-            pageNumber.toString() +
-            "&PageSize=" +
-            pageSize.toString();
-
-    print("This is vehicle wise Time wise travel history url " +
-        vehiclewisetimewisetravelhistory);
-
-    final response = await http.get(Uri.parse(vehiclewisetimewisetravelhistory),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer $token',
-        });
-    if (response.statusCode == 200) {
-      print("Successfully getting your data");
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
-
-      var vehiclewisetravelhistoryjson =
-          VehicleWiseTimeWiseTravelModel.fromJson(jsonbody);
-      return vehiclewisetravelhistoryjson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
-  }
-
-  // Vehicle wise FIlter
-  Future<VehicleWiseFilterModel> vehiclewisefilter(
-    String token,
-    int vendorid,
-    int branchid,
-    String arainonarai,
-    String fromdate,
-    String fromtime,
-    String todate,
-    String totime,
-    String vehiclelist,
-    int pageNumber,
-    int pageSize,
-  ) async {
-    var vehiclewisefilter = Constant.vehiclewisefilter +
-        "?VendorId=" +
-        vendorid.toString() +
-        "&BranchId=" +
-        branchid.toString() +
-        "&ARAI_NONARAI=arai&FromDate=" +
-        fromdate.toString() +
-        "&FromTime=" +
-        fromtime.toString() +
-        "&ToDate=" +
-        todate.toString() +
-        "&ToTime=" +
-        totime.toString() +
-        "&Vehiclelist=" +
-        vehiclelist.toString() +
-        "&PageNumber=" +
-        pageNumber.toString() +
-        "&PageSize=" +
-        pageSize.toString();
-
-    print("This is vehicle wise Time wise travel filter url " +
-        vehiclewisefilter);
-
-    final response =
-        await http.get(Uri.parse(vehiclewisefilter), headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    });
-    if (response.statusCode == 200) {
-      print("Successfully getting your data");
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
-
-      var vehiclewisetravelhistoryjson =
-          VehicleWiseFilterModel.fromJson(jsonbody);
-      return vehiclewisetravelhistoryjson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
-  }
-
-  // Vehicle wise Time wise FIlter
-  Future<VehicleWiseTimeWiseFilterModel> vehiclewisetimewisefilter(
-    String token,
-    int vendorid,
-    int branchid,
-    String arainonarai,
-    String fromdate,
-    String fromtime,
-    String todate,
-    String totime,
-    String vehiclelist,
-    int pageNumber,
-    int pageSize,
-  ) async {
-    var vehiclewisetimewisefilter = Constant.vehicletimewisefilter +
-        "?VendorId=" +
-        vendorid.toString() +
-        "&BranchId=" +
-        branchid.toString() +
-        "&ARAI_NONARAI=arai&FromDate=" +
-        fromdate.toString() +
-        "&FromTime=" +
-        fromtime.toString() +
-        "&ToDate=" +
-        todate.toString() +
-        "&ToTime=" +
-        totime.toString() +
-        "&Vehiclelist=" +
-        vehiclelist.toString() +
-        "&PageNumber=" +
-        pageNumber.toString() +
-        "&PageSize=" +
-        pageSize.toString();
-
-    print("This is vehicle wise Time wise travel filter url " +
-        vehiclewisetimewisefilter);
-
-    final response = await http
-        .get(Uri.parse(vehiclewisetimewisefilter), headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    });
-    if (response.statusCode == 200) {
-      print("Successfully getting your data");
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
-
-      var vehiclewisetravelhistoryjson =
-          VehicleWiseTimeWiseFilterModel.fromJson(jsonbody);
-      return vehiclewisetravelhistoryjson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
-  }
-
-  // Vehicle wise  search
-  Future<VehicleWiseSearchModel> vehiclewisesearch(
-    String token,
-    int vendorid,
-    int branchid,
-    String arainonarai,
-    String fromdate,
-    String todate,
-    String searchtxt,
-    int pageNumber,
-    int pageSize,
-  ) async {
-    var vehiclewisetimewisefilter = Constant.vehiclewisesearch +
-        "?VendorId=" +
-        vendorid.toString() +
-        "&BranchId=" +
-        branchid.toString() +
-        "&ARAI_NONARAI=arai&FromDate=" +
-        fromdate.toString() +
-        "&ToDate=" +
-        todate.toString() +
-        "&SearchText=" +
-        searchtxt.toString() +
-        "&PageNumber=" +
-        pageNumber.toString() +
-        "&PageSize=" +
-        pageSize.toString();
-
-    print(
-        "This is vehicle wise travel search url " + vehiclewisetimewisefilter);
-
-    final response = await http
-        .get(Uri.parse(vehiclewisetimewisefilter), headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    });
-    // if (response.statusCode == 200) {
-    print("Successfully getting your data");
-    var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
-
-    var vehiclewisetravelhistoryjson =
-        VehicleWiseSearchModel.fromJson(jsonbody);
-    return vehiclewisetravelhistoryjson;
-    // } else {
-    //   print(response.body);
-    //   throw Exception('Failed to load data');
-    // }
-  }
-
-  // Vehicle wise Time wise search
-  Future<VehicleWiseTimeWiseSearchModel> vehiclewisetimewisesearch(
-    String token,
-    int vendorid,
-    int branchid,
-    String arainonarai,
-    String fromdate,
-    String fromtime,
-    String todate,
-    String totime,
-    String searchtxt,
-    int pageNumber,
-    int pageSize,
-  ) async {
-    var vehiclewisetimewisefilter = Constant.vehicletimewisesearch +
-        "?VendorId=" +
-        vendorid.toString() +
-        "&BranchId=" +
-        branchid.toString() +
-        "&ARAI_NONARAI=arai&FromDate=" +
-        fromdate.toString() +
-        "&FromTime=" +
-        fromtime.toString() +
-        "&ToDate=" +
-        todate.toString() +
-        "&ToTime=" +
-        totime.toString() +
-        "&SearchText=" +
-        searchtxt.toString() +
-        "&PageNumber=" +
-        pageNumber.toString() +
-        "&PageSize=" +
-        pageSize.toString();
-
-    print("This is vehicle wise Time wise travel search url " +
-        vehiclewisetimewisefilter);
-
-    final response = await http
-        .get(Uri.parse(vehiclewisetimewisefilter), headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    });
-    // if (response.statusCode == 200) {
-    print("Successfully getting your data");
-    var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
-
-    var vehiclewisetravelhistoryjson =
-        VehicleWiseTimeWiseSearchModel.fromJson(jsonbody);
-    return vehiclewisetravelhistoryjson;
-    // } else {
-    //   print(response.body);
-    //   throw Exception('Failed to load data');
-    // }
-  }
-
-  // Date and time wise travel
-  Future<DateAndTimeWiseTravel> dateandtimewisetravelhistory(
-    String token,
-    int vendorid,
-    int branchid,
-    String arainonarai,
-    String fromdate,
-    String fromtime,
-    String todate,
-    String totime,
-    int imeino,
-    int pageNumber,
-    int pageSize,
-  ) async {
-    var dateandtimewisetravelhistory = Constant.dateandtimewisedistance +
-        "?VendorId=" +
-        vendorid.toString() +
-        "&BranchId=" +
-        branchid.toString() +
-        "&ARAI_NONARAI=arai&FromDate=" +
-        fromdate.toString() +
-        "&FromTime=" +
-        fromtime.toString() +
-        "&ToDate=" +
-        todate.toString() +
-        "&ToTime=" +
-        totime.toString() +
-        "&IMEINO=" +
-        imeino.toString() +
-        "&PageNumber=" +
-        pageNumber.toString() +
-        "&PageSize=" +
-        pageSize.toString();
-
-    print("This is date and Time wise travel history url " +
-        dateandtimewisetravelhistory);
-
-    final response = await http
-        .get(Uri.parse(dateandtimewisetravelhistory), headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    });
-    if (response.statusCode == 200) {
-      print("Successfully getting your data");
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
-
-      var vehiclewisetravelhistoryjson =
-          DateAndTimeWiseTravel.fromJson(jsonbody);
-      return vehiclewisetravelhistoryjson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
-  }
-
-  // Date and time wise filter
-  Future<DateAndTimeWiseFilter> dateandtimewisefilter(
-    String token,
-    int vendorid,
-    int branchid,
-    String arainonarai,
-    String fromdate,
-    String fromtime,
-    String todate,
-    String totime,
-    String vehiclelist,
-    int pageNumber,
-    int pageSize,
-  ) async {
-    var dateandtimewisefilter = Constant.dateandtimewisefilter +
-        "?VendorId=" +
-        vendorid.toString() +
-        "&BranchId=" +
-        branchid.toString() +
-        "&ARAI_NONARAI=arai&FromDate=" +
-        fromdate.toString() +
-        "&FromTime=" +
-        fromtime.toString() +
-        "&ToDate=" +
-        todate.toString() +
-        "&ToTime=" +
-        totime.toString() +
-        "&Vehiclelist=" +
-        vehiclelist.toString() +
-        "&PageNumber=" +
-        pageNumber.toString() +
-        "&PageSize=" +
-        pageSize.toString();
-
-    print("This is date and Time wise filter url " + dateandtimewisefilter);
-
-    final response = await http
-        .get(Uri.parse(dateandtimewisefilter), headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    });
-    if (response.statusCode == 200) {
-      print("Successfully getting your data");
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
-
-      var vehiclewisetravelhistoryjson =
-          DateAndTimeWiseFilter.fromJson(jsonbody);
-      return vehiclewisetravelhistoryjson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
-  }
-
-  // Date and time wise search
-  Future<DateAndTimeWiseSearchModel> dateandtimewisesearch(
-    String token,
-    int vendorid,
-    int branchid,
-    String arainonarai,
-    String fromdate,
-    String fromtime,
-    String todate,
-    String totime,
-    String searchtxt,
-    int pageNumber,
-    int pageSize,
-  ) async {
-    var dateandtimewisesearch = Constant.dateandtimewisesearch +
-        "?VendorId=" +
-        vendorid.toString() +
-        "&BranchId=" +
-        branchid.toString() +
-        "&ARAI_NONARAI=arai&FromDate=" +
-        fromdate.toString() +
-        "&FromTime=" +
-        fromtime.toString() +
-        "&ToDate=" +
-        todate.toString() +
-        "&ToTime=" +
-        totime.toString() +
-        "&SearchText=" +
-        searchtxt.toString() +
-        "&PageNumber=" +
-        pageNumber.toString() +
-        "&PageSize=" +
-        pageSize.toString();
-
-    print("This is date and Time wise filter url " + dateandtimewisesearch);
-
-    final response = await http
-        .get(Uri.parse(dateandtimewisesearch), headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    });
-    // if (response.statusCode == 200) {
-    print("Successfully getting your data");
-    var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
-
-    var vehiclewisetravelhistoryjson =
-        DateAndTimeWiseSearchModel.fromJson(jsonbody);
-    return vehiclewisetravelhistoryjson;
-    // } else {
-    //   print(response.body);
-    //   throw Exception('Failed to load data');
-    // }
-  }
-
-  Future<GetOverspeedReportResponse> overspeedreport(
-      String token,
-      int vendorid,
-      int branchid,
-      String arai,
-      String fromDate,
-      String toDate,
-      int imeno,
-      int pagenumber,
-      int pagesize) async {
-    var overspeedurl = Constant.getOverSpeedReportUrl +
-        vendorid.toString() +
-        "&BranchId=" +
-        branchid.toString() +
-        "&ARAI_NONARAI=" +
-        arai.toString() +
-        "&FromDate=" +
-        fromDate.toString() +
-        "&ToDate=" +
-        toDate.toString() +
-        "&IMEINO=" +
-        imeno.toString() +
-        "&PageNumber=" +
-        pagenumber.toString() +
-        "&PageSize=" +
-        pagesize.toString();
-
-    print("This is overspeed url " + overspeedurl);
-    // var overspeedurl =
-    //     "https://vtsgpsapi.m-techinnovations.com/api/VehicleWiseOverSpeedReport/GetOverSpeedReport?VendorId=1&BranchId=1&ARAI_NONARAI=nonarai&FromDate=01-sep-2022&ToDate=30-sep-2022&IMEINO=862430050555255&PageNumber=1&PageSize=10";
-
-    final response =
-        await http.get(Uri.parse(overspeedurl), headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    });
-    if (response.statusCode == 200) {
-      print("Successfully getting your data");
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
-
-      var overspeedurljson = GetOverspeedReportResponse.fromJson(jsonbody);
-      print("Json decoded body_" + overspeedurl.toString());
-      return overspeedurljson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
-  }
-
-  Future<OverSpeedFilter> overspeedfilter(
-      String token,
-      int vendorid,
-      int branchid,
-      String arai,
-      String fromDate,
-      String toDate,
-      String vehiclelist,
-      int pagenumber,
-      int pagesize) async {
-    var overspeedurl = Constant.filterOverSpeedUrl +
-        vendorid.toString() +
-        "&BranchId=" +
-        branchid.toString() +
-        "&ARAI_NONARAI=" +
-        arai.toString() +
-        "&FromDate=" +
-        fromDate.toString() +
-        "&ToDate=" +
-        toDate.toString() +
-        "&VehicleList=" +
-        vehiclelist.toString() +
-        "&PageNumber=" +
-        pagenumber.toString() +
-        "&PageSize=" +
-        pagesize.toString();
-
-    print("Over speed filter url " + overspeedurl);
-
-    // var overspeedurl =
-    //     "https://vtsgpsapi.m-techinnovations.com/api/VehicleWiseOverSpeedReport/FilterOverSpeed?VendorId=1&BranchId=1&ARAI_NONARAI=nonarai&FromDate=01-sep-2022&ToDate=30-sep-2022&VehicleList=8,46&PageNumber=1&PageSize=10";
-
-    final response =
-        await http.get(Uri.parse(overspeedurl), headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    });
-    if (response.statusCode == 200) {
-      print("Successfully getting your data");
-      print("This is overspeed filter -------- " + response.body);
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
-
-      var overspeedurljson = OverSpeedFilter.fromJson(jsonbody);
-      print("Json decoded body_" + overspeedurl.toString());
-      return overspeedurljson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
-  }
-
-  // ----------------------------------
-  Future<DateWiseTravelHistory> datewisesearch(
-    String token,
-    int vendorid,
-    int branchid,
-    String arainonarai,
-    String fromdate,
-    String todate,
-    String imeino,
-    int pageSize,
-    int pageNumber,
-  ) async {
-    var datewisesearchurl = Constant.datewisesearch +
-        "?VendorId=" +
-        vendorid.toString() +
-        "&BranchId=" +
-        branchid.toString() +
-        "&ARAI_NONARAI=arai&FromDate=" +
-        fromdate.toString() +
-        "&ToDate=" +
-        todate.toString() +
-        "&IMEINO=867322033819244" +
-        "&PageNumber=" +
-        pageNumber.toString() +
-        "&PageSize=" +
-        pageSize.toString();
-
-    print("This is date wise travel history url " + datewisesearchurl);
-
-    print("This is date wise travel history url " + datewisesearchurl);
-
-    final response =
-        await http.get(Uri.parse(datewisesearchurl), headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    });
-    if (response.statusCode == 200) {
-      print("Successfully getting your data");
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
-
-      var datewisesearchjson = DateWiseTravelHistory.fromJson(jsonbody);
-      print("Json decoded body_" + datewisesearchurl.toString());
-      return datewisesearchjson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
-  }
-
-  //Start Search Element in Vehicle Report- API----
-  // Future<SearchDatewiseTravelHistryRpt> searchTxtDateWiseTravelHistoryRpt(
-  //     String token,
-  //     int vendorId,
-  //     String fromDate,
-  //     String toDate,
-  //     String searchText,
-  //     int branchId,
-  //     int pageNumber,
-  //     int pageSize) async {
-  //   String searchdmdataurl = Constant.searchDatewiseTravelrurl +
-  //       vendorId.toString() +
-  //       "&BranchId=1" +
-  //       // branchId.toString() +
-  //       "&ARAI_NONARAI=arai" +
-  //       "&FromDate=01-sep-2022" +
-  //       "&ToDate=30-sep-2022" +
-  //       "&SearchText=" +
-  //       searchText +
-  //       "&PageNumber=1" +
-  //       // pageNumber.toString() +
-  //       "&PageSize=10";
-  //   // pageSize.toString();
-  //   // String searchdmdataurl ='https://vtsgpsapi.m-techinnovations.com/api/DeviceMasterReports/SearchDeviceMasterReport?
-  //   // VendorId=1&BranchId=1&SearchText=AIS&PageNumber=1&PageSize=8';
-  //   https: //vtsgpsapi.m-techinnovations.com/api/DateWiseTravelHistoryReport/SearchDatewiseTravelHistory?
-  //   // VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=01-sep-2022&ToDate=30-sep-2022&SearchText=MH12&PageNumber=1&PageSize=10
-  //   final response = await http.get(
-  //     Uri.parse(searchdmdataurl),
-  //     headers: <String, String>{
-  //       // 'Content-Type': 'application/json; charset=UTF-8',
-  //       'Authorization': "Bearer ${token}",
-  //     },
-  //   );
-
-  //   var jsonBody =
-  //       SearchDatewiseTravelHistryRpt.fromJson(json.decode(response.body));
-  //   print("JSon  assign body are:-------------$jsonBody");
-  //   return jsonBody;
-  // }
-//End
-
-// Pritis code ----------------------------------------------------------------
-  Future<SearchVehOverSpeedRpt> searchoverspeedRpt(
-      String token,
-      int vendorId,
-      int branchId,
-      String arainonarai,
-      String fromDate,
-      String toDate,
-      String searchText,
-      int pageNumber,
-      int pageSize) async {
-    String searchurl = Constant.searchOverSpeedReportUrl +
-        vendorId.toString() +
-        "&BranchId=" +
-        branchId.toString() +
-        "&ARAI_NONARAI=nonarai" +
-        "&FromDate=$fromDate" +
-        "&ToDate=$toDate" +
-        "&SearchText=" +
-        searchText +
-        "&PageNumber=" +
-        pageNumber.toString() +
-        "&PageSize=" +
-        pageSize.toString();
-    // String searchurl ='https://vtsgpsapi.m-techinnovations.com/api/VehicleWiseOverSpeedReport/SearchOverSpeedReport?VendorId=1&BranchId=1&ARAI_NONARAI=nonarai&FromDate=01-sep-2022&ToDate=30-sep-2022&SearchText=MH&PageNumber=1&PageSize=10';
-
-    print("URi of search overspeed is ----------$searchurl");
-    final response = await http.get(
-      Uri.parse(searchurl),
-      headers: <String, String>{
-        // 'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': "Bearer ${token}",
-      },
-    );
-    // if (response.statusCode == 200) {
-    //   print("Response body is:-------->>${response.statusCode}");
-    //   print("Response body is:-------->>${response.body}");
-    var jsonBody = SearchVehOverSpeedRpt.fromJson(json.decode(response.body));
-    print("JSon  overspeed search body are:-------------$jsonBody");
-    return jsonBody;
-    // } else {
-    //   throw Exception(e);
-    // }
-  }
-
-//
-  ///Start Search Element in driver veh Assign Report- API----
-  Future<SearchDriverwiseVehRpt> searchStrDriverwiseVehicleAssignRpt(
-      String token,
-      int vendorId,
-      String searchText,
-      int branchId,
-      int pageNumber,
-      int pageSize) async {
-    String searchdmdataurl = Constant.searchDriverwiseAssignReportUrl +
-        "&BranchId=$branchId" +
-        // branchId.toString() +
-        "&SearchText=" +
-        searchText +
-        "&PageNumber=$pageNumber" +
-        // pageNumber.toString() +
-        "&PageSize=$pageSize";
-
-    print("URL of driver wise veh------${searchdmdataurl}");
-    final response = await http.get(
-      Uri.parse(searchdmdataurl),
-      headers: <String, String>{
-        // 'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': "Bearer ${token}",
-      },
-    );
-
-    var jsonBody = SearchDriverwiseVehRpt.fromJson(json.decode(response.body));
-    print("JSon  assign body are:-------------$jsonBody");
-    return jsonBody;
-  }
-
-  /// Search api fpr date wise travel history
-  Future<SearchDatewiseTravelHistryRpt> searchTxtDateWiseTravelHistoryRpt(
-      String token,
-      int vendorId,
-      int branchId,
-      String arai,
-      String fromDate,
-      String toDate,
-      String searchText,
-      int pageNumber,
-      int pageSize) async {
-    String searchdmdataurl = Constant.searchDatewiseTravelrurl +
-        vendorId.toString() +
-        "&BranchId=$branchId" +
-        // branchId.toString() +
-        "&ARAI_NONARAI=$arai" +
-        "&FromDate=$fromDate" +
-        "&ToDate=$toDate" +
-        "&SearchText=" +
-        searchText +
-        "&PageNumber=$pageNumber" +
-        // pageNumber.toString() +
-        "&PageSize=$pageSize";
-    // pageSize.toString();
-    // String searchdmdataurl ='https://vtsgpsapi.m-techinnovations.com/api/DeviceMasterReports/SearchDeviceMasterReport?
-    // VendorId=1&BranchId=1&SearchText=AIS&PageNumber=1&PageSize=8';
-    // https: //vtsgpsapi.m-techinnovations.com/api/DateWiseTravelHistoryReport/SearchDatewiseTravelHistory?
-    // VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=01-sep-2022&ToDate=30-sep-2022&SearchText=MH12&PageNumber=1&PageSize=10
-    print("URL datewise travel histry----$searchdmdataurl");
-    final response = await http.get(
-      Uri.parse(searchdmdataurl),
-      headers: <String, String>{
-        // 'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': "Bearer ${token}",
-      },
-    );
-
-    var jsonBody =
-        SearchDatewiseTravelHistryRpt.fromJson(json.decode(response.body));
-    print("JSon  assign body are:-------------$jsonBody");
-    return jsonBody;
-  }
-
-  /// Search api for frame packet
-//  Future<SearchFramePcktRpt> searchTextFramePckt(
-//     String token,
-//     int vendorId,
-//     int branchid,
-//     String araino,
-//     String fromdate,
-//     String fromTime,
-//     String toDate,
-//     String toTime,
-//     String searchText,
-//     String frampacketoption,
-//     int pagenumber,
-//     int pagesize,
-//   ) async {
-//     // print(
-//     //     "${searchStrClass.searchStr}-----Enter in SEARCH assign future api ----$searchText");
-//     String searchdmdataurl = Constant.searchFramePacketrurl +
-//         vendorId.toString() +
-//         "&BranchId=" +
-//         branchid.toString() +
-//         "&ARAI_NONARAI=$araino" +
-//         "&FromDate=$fromdate" +
-//         "&FromTime=$fromTime" +
-//         "&ToDate=$toDate" +
-//         "&ToTime=$toTime" +
-//         "&SearchText=$searchText" +
-//         "&FramePacketOption=$frampacketoption" +
-//         "&PageNumber=" +
-//         pagenumber.toString() +
-//         "&PageSize=" +
-//         pagesize.toString();
-//     // String searchdmdataurl =
-//     //     "  https://vtsgpsapi.m-techinnovations.com/api/FramePacketReport/SearchFramePacketReport?VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=01-sep-2022&FromTime=07:00&ToDate=30-sep-2022&ToTime=18:00&SearchText=MH12&FramePacketOption=loginpacket&PageNumber=1&PageSize=10";
-//     https: //vtsgpsapi.m-techinnovations.com/api/FramePacketReport/
-//     // SearchFramepacketReport?VendorId=1&BranchId=1&ARAI_NONARAI=arai
-//     // &FromDate=01-sep-2022&FromTime=07:00&ToDate=30-sep-2022&ToTime=18:00
-//     // &SearchText=MH12&FramePacketOption=loginpacket&PageNumber=1&PageSize=10
-
-//     print("Search frame url is:----$searchdmdataurl");
-//     final response = await http.get(
-//       Uri.parse(searchdmdataurl),
-//       headers: <String, String>{
-//         'Content-Type': 'application/json; charset=UTF-8',
-//         'Authorization': "Bearer ${token}",
-//       },
-//     );
-//     // if (response.statusCode == 200) {
-//       print("Response body is:-------->>${response.statusCode}");
-//       print("Response body is:-------->>${response.body}");
-//       var jsonBody = SearchFramePcktRpt.fromJson(json.decode(response.body));
-//       print("JSon  assign body are:-------------${jsonBody.data!}");
-//       return jsonBody;
-//     // } else {
-//     //   throw Exception(e);
-//     // }
-//   }
-
-  /// Search api for frame packet grid
-//  Future<SearchFramepacketgrid> searchTextFramePcktgrid(
-//     String token,
-//     int vendorId,
-//     int branchid,
-//     String araino,
-//     String fromdate,
-//     String fromTime,
-//     String toDate,
-//     String toTime,
-//     String searchText,
-//     String frampacketoption,
-//     int pagenumber,
-//     int pagesize,
-//   ) async {
-//      String searchdmdataurl = Constant.searchFramePacketgridurl +
-//         "$vendorId" +
-//         "&BranchId=$branchid" +
-//         "&ARAI_NONARAI=$araino" +
-//         "&FromDate=$fromdate" +
-//         "&FromTime=$fromTime" +
-//         "&ToDate=$toDate" +
-//         "&ToTime=$toTime" +
-//         "&SearchText=$searchText" +
-//         "&FramePacketOption=$frampacketoption" +
-//         "&PageNumber=$pagenumber" +
-//         "&PageSize=$pagesize";
-//      print("Search frame url is:----$searchdmdataurl");
-//     final response = await http.get(
-//       Uri.parse(searchdmdataurl),
-//       headers: <String, String>{
-//         'Content-Type': 'application/json; charset=UTF-8',
-//         'Authorization': "Bearer ${token}",
-//       },
-//     );
-//     // if (response.statusCode == 200) {
-//       print("Response body is:-------->>${response.statusCode}");
-//       print("Response body is:-------->>${response.body}");
-//       var jsonBody = SearchFramepacketgrid.fromJson(json.decode(response.body));
-//       print("JSon  assign body are:-------------$jsonBody");
-//       return jsonBody;
-//     // } else {
-//     //   print("Exception found from frame pkt grid search..");
-//     //   throw Exception("e");
-//     // }
-//   }
-
-//Future method for search vehicle status report------------
-  Future<SearchVehicleStatusRpt> searchvehstatusrpt(
+  //! RouteDefine----------------
+  Future<RouteNameList> routedefinelist(
     String token,
     int vendorId,
     int branchid,
-    String arai,
-    String fromdate,
-    String fromTime,
-    String toDate,
-    String toTime,
-    String searchText,
-    int pagenumber,
-    int pagesize,
   ) async {
-    // print(
-    //     "${searchStrClass.searchStr}-----Enter in SEARCH assign future api ----$searchText");
-    String searchdmdataurl = Constant.searchvehiclestatusreporturl +
+    var routenamelist =
+        "https://vtsgpsapi.m-techinnovations.com/api/RouteDefine/FillRoute?VendorId=1&BranchId=1";
+    final response =
+        await http.get(Uri.parse(routenamelist), headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    });
+
+    if (response.statusCode == 200) {
+      print("Successfully getting your data route data");
+      var jsonbody = jsonDecode(response.body) as List<dynamic>;
+      var searchtextresponce = RouteNameList.fromJson(jsonbody);
+
+      return searchtextresponce;
+    } else {
+      print(response.body);
+      throw Exception('Failed to load data');
+    }
+  }
+
+  //!-------------------------
+  Future<RoutesDetailByRouteName> routesdetailbyname(
+    String token,
+    int vendorId,
+    int branchid,
+    String routename,
+  ) async {
+    print(Constant.routesdetailbyname +
+        "/" +
         vendorId.toString() +
-        "&BranchId=" +
+        "/" +
         branchid.toString() +
-        "&ARAI_NONARAI=" +
-        arai.toString() +
-        "&FromDate=" +
-        fromdate.toString() +
-        "&FromTime=" +
-        fromTime.toString() +
-        "&ToDate=" +
-        toDate.toString() +
-        "&ToTime=" +
-        toTime.toString() +
-        "&SearchText=" +
-        searchText +
-        "&PageNumber=" +
-        pagenumber.toString() +
-        "&PageSize=" +
-        pagesize.toString();
-    // String searchdmdataurl =
-    //     "https://vtsgpsapi.m-techinnovations.com/api/VehicleStatusGroupByReport/SearchVehicleStatusGroupByReport?VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=01-sep-2022&FromTime=12%3A30&ToDate=30-sep-2022&ToTime=18%3A30&SearchText=MH12&PageNumber=1&PageSize=10 ";
-    print("Search frame url is:----$searchdmdataurl");
-    final response = await http.get(
-      Uri.parse(searchdmdataurl),
+        "/" +
+        routename.toString());
+    var routenamelist = Constant.routesdetailbyname +
+        "/" +
+        vendorId.toString() +
+        "/" +
+        branchid.toString() +
+        "/" +
+        routename.toString();
+
+    // var routenamelist =
+    //     "https://vtsgpsapi.m-techinnovations.com/api/RouteDefine/GetRoutesDetailsByRouteName/1/1/h";
+    final response =
+        await http.get(Uri.parse(routenamelist), headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    });
+
+    if (response.statusCode == 200) {
+      print("Successfully getting your data route detail data");
+      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
+      var searchtextresponce = RoutesDetailByRouteName.fromJson(jsonbody);
+
+      return searchtextresponce;
+    } else {
+      print(response.body);
+      throw Exception('Failed to load data');
+    }
+  }
+
+  //! POI type code--------------------------
+  Future<POITypeCode> poitypecode(
+    String token,
+  ) async {
+    var routenamelist =
+        "https://vtsgpsapi.m-techinnovations.com/api/PointOfInterestCreate/GETPOITypeDetails";
+    final response =
+        await http.get(Uri.parse(routenamelist), headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    });
+
+    if (response.statusCode == 200) {
+      print("Successfully getting your data POI detail data");
+      var jsonbody = jsonDecode(response.body) as List<dynamic>;
+      var searchtextresponce = POITypeCode.fromJson(jsonbody);
+
+      return searchtextresponce;
+    } else {
+      print(response.body);
+      throw Exception('Failed to load data');
+    }
+  }
+
+//! POI Post data added------------------
+  Future<POIPost> poiaddeddata(
+    String token,
+    int vendorid,
+    int branchid,
+    String poiname,
+    int poitypeID,
+    String description,
+    int tolerance,
+    String locationlatitude,
+    String locationlongitude,
+    String showpoi,
+    String address,
+    int vehicleid,
+  ) async {
+    final body = {
+      "vendorSrNo": 1,
+      "branchSrNo": 1,
+      "poiname": poiname.toString(),
+      "poiTypeID": poitypeID,
+      "description": description.toString(),
+      "tolerance": tolerance,
+      "locationLatitude": locationlatitude.toString(),
+      "locationLongitude": locationlongitude.toString(),
+      "showPoi": showpoi.toString(),
+      "address": address.toString(),
+      "vehicleList": [
+        {"vehicleId": vehicleid}
+      ]
+    };
+    final response = await http.post(
+      Uri.parse(
+          "https://vtsgpsapi.m-techinnovations.com/api/PointOfInterestCreate"),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': "Bearer ${token}",
+        'Authorization': "Bearer $token",
       },
+      body: jsonEncode(body),
     );
-
-    var jsonBody = SearchVehicleStatusRpt.fromJson(json.decode(response.body));
-    print("JSon  assign body are:-------------$jsonBody");
-    return jsonBody;
-  }
-
-  /// Search api for Vehicle status group by
-  // Future<SearchVehicleStatusGroupRpt> searchvehstatusgrouprpt(
-  //   String token,
-  //   int vendorId,
-  //   int branchid,
-  //   String arai,
-  //   String fromdate,
-  //   String fromTime,
-  //   String toDate,
-  //   String toTime,
-  //   String searchText,
-  //   int pagenumber,
-  //   int pagesize,
-  // ) async {
-  // print(
-  //     "${searchStrClass.searchStr}-----Enter in SEARCH assign future api ----$searchText");
-  //   String searchdmdataurl = Constant.searchvehiclestatusgroupurl +
-  //       vendorId.toString() +
-  //       "&BranchId=" +
-  //       branchid.toString() +
-  //       "&ARAI_NONARAI=" +
-  //       arai.toString() +
-  //       "&FromDate=" +
-  //       fromdate.toString() +
-  //       "&FromTime=" +
-  //       fromTime.toString() +
-  //       "&ToDate=" +
-  //       toDate.toString() +
-  //       "&ToTime=" +
-  //       toTime.toString() +
-  //       "&SearchText=" +
-  //       searchText +
-  //       "&PageNumber=" +
-  //       pagenumber.toString() +
-  //       "&PageSize=" +
-  //       pagesize.toString();
-  //   // String searchdmdataurl =
-  //   //     "https://vtsgpsapi.m-techinnovations.com/api/VehicleStatusGroupByReport/SearchVehicleStatusGroupByReport?VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=01-sep-2022&FromTime=12%3A30&ToDate=30-sep-2022&ToTime=18%3A30&SearchText=MH12&PageNumber=1&PageSize=10 ";
-  //   print("Search frame url is:----$searchdmdataurl");
-  //   final response = await http.get(
-  //     Uri.parse(searchdmdataurl),
-  //     headers: <String, String>{
-  //       'Content-Type': 'application/json; charset=UTF-8',
-  //       'Authorization': "Bearer ${token}",
-  //     },
-  //   );
-  //   // if (response.statusCode == 200) {
-  //     print("Response body is:-------->>${response.statusCode}");
-  //     print("Response body is:-------->>${response.body}");
-  //     var jsonBody =
-  //         SearchVehicleStatusGroupRpt.fromJson(json.decode(response.body));
-  //     print("JSon  assign body are:-------------$jsonBody");
-  //     return jsonBody;
-  //   // } else {
-  //   //   throw Exception(e);
-  //   // }
-  // }
-
-// search Vehicle status summary
-  Future<SearchVehicleStatusSummaryRpt> searchvehicleStatusSummary(
-    String token,
-    int vendorId,
-    int branchid,
-    String arai,
-    String fromdate,
-    String fromTime,
-    String toDate,
-    String toTime,
-    String searchText,
-    int pagenumber,
-    int pagesize,
-  ) async {
-    String vehiclestatussummaryurl = Constant.searchvehiclestatussummaryurl +
-        vendorId.toString() +
-        "&BranchId=" +
-        branchid.toString() +
-        "&ARAI_NONARAI=" +
-        arai.toString() +
-        "&FromDate=" +
-        fromdate.toString() +
-        "&FromTime=" +
-        fromTime.toString() +
-        "&ToDate=" +
-        toDate.toString() +
-        "&ToTime=" +
-        toTime.toString() +
-        "&SearchText=" +
-        ((searchText == null) ? "" : searchText) +
-        "&PageNumber=" +
-        pagenumber.toString() +
-        "&PageSize=" +
-        pagesize.toString();
-
-    print("search url of veh status summary----$vehiclestatussummaryurl");
-    final response = await http.get(
-      Uri.parse(vehiclestatussummaryurl),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': "Bearer ${token}",
-      },
-    );
-
-    // if (response.statusCode == 200) {
-
-    var jsonBody =
-        SearchVehicleStatusSummaryRpt.fromJson(json.decode(response.body));
-
-    return jsonBody;
-    // }
-    // else {
-    //   throw Exception(e);
-    // }
-  }
-// ----------------------------------------------------------------
-
-// search device master
-  Future<SearchDeviceMasterReport> findStringInDMReport(
-      String token,
-      int vendorId,
-      String searchText,
-      int branchId,
-      int pageNumber,
-      int pageSize) async {
-    print(
-        "${searchStrClass.searchStr}-----Enter in SEARCH dm future api ----$searchText");
-    String searchdmdataurl = Constant.searchDeviceMasterReportUrl +
-        vendorId.toString() +
-        "&BranchId=1" +
-        // branchId.toString() +
-        "&SearchText=" +
-        searchText +
-        "&PageNumber=1" +
-        // pageNumber.toString() +
-        "&PageSize=8";
-    // pageSize.toString();
-
-    // String searchdmdataurl ='https://vtsgpsapi.m-techinnovations.com/api/DeviceMasterReports/SearchDeviceMasterReport?
-    // VendorId=1&BranchId=1&SearchText=AIS&PageNumber=1&PageSize=8';
-    print("URi is DM Report---------$searchdmdataurl");
-    final response = await http.get(
-      Uri.parse(searchdmdataurl),
-      headers: <String, String>{
-        // 'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': "Bearer ${token}",
-      },
-    );
-
-    var jsonBody =
-        SearchDeviceMasterReport.fromJson(json.decode(response.body));
-    print("JSon  dm body are:-------------$jsonBody");
-    return jsonBody;
-  }
-
-  // device master filter
-  Future<DeviceMasterFilterModel> devicemasterwebfilter(
-    String token,
-    String vendorid,
-    String branchid,
-    String deviceno,
-    int pageSize,
-    int pageNumber,
-  ) async {
-    var devicemasterurl = Constant.devicemasterfilterurl +
-        "?VendorId=" +
-        vendorid.toString() +
-        "&BranchId=" +
-        branchid.toString() +
-        "&DeviceNo=" +
-        deviceno.toString() +
-        "&PageNumber=" +
-        pageNumber.toString() +
-        "&PageSize=" +
-        pageSize.toString();
-
-    // var devicemasterurl =
-    //     "https://vtsgpsapi.m-techinnovations.com/api/DeviceMasterReports/FilterApplyDeviceReport?VendorId=1&BranchId=1&DeviceNo=DC00001&PageNumber=1&PageSize=10";
-
-    print("This is device master filter url " + devicemasterurl);
-
-    final response =
-        await http.get(Uri.parse(devicemasterurl), headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    });
-    if (response.statusCode == 200) {
-      print("Successfully getting your data");
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
-
-      var ddevicemasterjson = DeviceMasterFilterModel.fromJson(jsonbody);
-      print("Json decoded body_" + devicemasterurl.toString());
-      return ddevicemasterjson;
+    print("your token of geoFence------------" + token);
+    if (response.statusCode == 201) {
+      print("Your POI data was addedd sucessfully");
+      return POIPost.fromJson(jsonDecode(response.body));
     } else {
       print(response.body);
-      throw Exception('Failed to load data');
+      throw Exception("Failed to loaded poidata");
     }
   }
 
-  // Vehicle Status Driver code
-  Future<VehicleStatusReportDriverCodeModel> vsrdcdrivercode(
+  //!  Delete poi data--------------------------
+  Future<EditDeviceResponse> poideletewebservice(
     String token,
     int vendorid,
     int branchid,
+    int srno,
   ) async {
-    var dmfdrivercodeurl =
-        "https://vtsgpsapi.m-techinnovations.com/api/VehicleStatusReport/FillVehicleListIMEINo/1/1";
-
-    print("This is vehicle status report filter driver code url " +
-        dmfdrivercodeurl);
-
-    final response =
-        await http.get(Uri.parse(dmfdrivercodeurl), headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    });
-    if (response.statusCode == 200) {
-      print("Successfully getting your driver code data");
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
-
-      var ddevicemasterjson =
-          VehicleStatusReportDriverCodeModel.fromJson(jsonbody);
-      print("Json decoded body_" + dmfdrivercodeurl.toString());
-      return ddevicemasterjson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
-  }
-
-  // Vehicle VSrNo
-  Future<VehicleVSrNoModel> vehiclevsrno(
-    String token,
-    int vendorid,
-    int branchid,
-  ) async {
-    var dmfdrivercodeurl =
-        "https://vtsgpsapi.m-techinnovations.com/api/Vehicles/FillVehicleVSrNo/1/1";
-
-    print("This is vehicle vsrno url " + dmfdrivercodeurl);
-
-    final response =
-        await http.get(Uri.parse(dmfdrivercodeurl), headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    });
-    if (response.statusCode == 200) {
-      print("Successfully getting your driver code data");
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
-
-      var ddevicemasterjson = VehicleVSrNoModel.fromJson(jsonbody);
-      print("Json decoded body_" + dmfdrivercodeurl.toString());
-      return ddevicemasterjson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
-  }
-
-  // Frame packet option
-  Future<FramePacketOptionGridModel> framepacketoptiongrid(
-    String token,
-    String arai,
-  ) async {
-    var dmfdrivercodeurl =
-        "https://vtsgpsapi.m-techinnovations.com/api/FramePacketGridviewReport/FillFramePacket?ARAI_NONARAI=arai";
-
-    print("This is vehicle vsrno url " + dmfdrivercodeurl);
-
-    final response =
-        await http.get(Uri.parse(dmfdrivercodeurl), headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    });
-    if (response.statusCode == 200) {
-      print("Successfully getting your driver code data");
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
-
-      var ddevicemasterjson = FramePacketOptionGridModel.fromJson(jsonbody);
-      print("Json decoded body_" + dmfdrivercodeurl.toString());
-      return ddevicemasterjson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
-  }
-
-  // Driver Master Driver code
-  Future<DriverMasterDriverCodeModel> drivermasterdrivercode(
-    String token,
-    int vendorid,
-    int branchid,
-  ) async {
-    var dmfdrivercodeurl =
-        "https://vtsgpsapi.m-techinnovations.com/api/DriverMasterReports/FillDriver/1/1";
-
-    print("This is vehicle status report filter driver code url " +
-        dmfdrivercodeurl);
-
-    final response =
-        await http.get(Uri.parse(dmfdrivercodeurl), headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    });
-    if (response.statusCode == 200) {
-      print("Successfully getting your driver code data");
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
-
-      var ddevicemasterjson = DriverMasterDriverCodeModel.fromJson(jsonbody);
-      print("Json decoded body_" + dmfdrivercodeurl.toString());
-      return ddevicemasterjson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
-  }
-
-  // device master filter driver code (dmfdrivercode)
-  Future<DeviceDriverCode> dmfdrivercode(
-    String token,
-    int vendorid,
-    int branchid,
-  ) async {
-    var dmfdrivercodeurl =
-        "https://vtsgpsapi.m-techinnovations.com/api/DeviceMasterReports/FillDevice/1/1";
-
-    print("This is device master filter driver code url " + dmfdrivercodeurl);
-
-    final response =
-        await http.get(Uri.parse(dmfdrivercodeurl), headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    });
-    if (response.statusCode == 200) {
-      print("Successfully getting your driver code data");
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
-
-      var ddevicemasterjson = DeviceDriverCode.fromJson(jsonbody);
-      print("Json decoded body_" + dmfdrivercodeurl.toString());
-      return ddevicemasterjson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
-  }
-
-  // Date wise Driver code
-  Future<DateWiseDriverCodeModel> datewisedrivercode(
-    String token,
-    int vendorid,
-    int branchid,
-  ) async {
-    var dmfdrivercodeurl =
-        "https://vtsgpsapi.m-techinnovations.com/api/DateWiseTravelHistoryReport/FillVehicleList_IMEINo/1/1";
-
-    print("This is date wise vehicle assign filter driver code url " +
-        dmfdrivercodeurl);
-
-    final response =
-        await http.get(Uri.parse(dmfdrivercodeurl), headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    });
-    if (response.statusCode == 200) {
-      print("Successfully getting your driver code data");
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
-
-      var ddevicemasterjson = DateWiseDriverCodeModel.fromJson(jsonbody);
-      print("Json decoded body_" + dmfdrivercodeurl.toString());
-      return ddevicemasterjson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
-  }
-
-  // Driver wise Driver code
-  Future<DriverWiseDriverCodeModel> driverwisedrivercode(
-    String token,
-    int vendorid,
-    int branchid,
-  ) async {
-    var dmfdrivercodeurl =
-        "https://vtsgpsapi.m-techinnovations.com/api/DriverWiseVehicalAssignReports/FillVehicleVSrNo/1/1";
-
-    print("This is driver wise vehicle assign filter driver code url " +
-        dmfdrivercodeurl);
-
-    final response =
-        await http.get(Uri.parse(dmfdrivercodeurl), headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    });
-    if (response.statusCode == 200) {
-      print("Successfully getting your driver code data");
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
-
-      var ddevicemasterjson = DriverWiseDriverCodeModel.fromJson(jsonbody);
-      print("Json decoded body_" + dmfdrivercodeurl.toString());
-      return ddevicemasterjson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
-  }
-
-  // Frame packet driver code
-  Future<FramePacketRptDriverCodeModel> framepacketdrivercode(
-    String token,
-    int vendorid,
-    int branchid,
-  ) async {
-    var dmfdrivercodeurl =
-        "https://vtsgpsapi.m-techinnovations.com/api/FramePacketReport/FillVehicleListIMEINo/1/1";
-
-    print("This is frame packet filter driver code url " + dmfdrivercodeurl);
-
-    final response =
-        await http.get(Uri.parse(dmfdrivercodeurl), headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    });
-    if (response.statusCode == 200) {
-      print("Successfully getting your driver code data");
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
-
-      var ddevicemasterjson = FramePacketRptDriverCodeModel.fromJson(jsonbody);
-      print("Json decoded body_" + dmfdrivercodeurl.toString());
-      return ddevicemasterjson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
-  }
-
-  // Frame packet grid driver code
-  Future<FramePacketGridRptDriverCodeModel> framepacketgriddrivercode(
-    String token,
-    int vendorid,
-    int branchid,
-  ) async {
-    var dmfdrivercodeurl =
-        "https://vtsgpsapi.m-techinnovations.com/api/FramePacketGridviewReport/FillVehicleListIMEINo/1/1";
-
-    print(
-        "This is frame packet grid filter driver code url " + dmfdrivercodeurl);
-
-    final response =
-        await http.get(Uri.parse(dmfdrivercodeurl), headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    });
-    if (response.statusCode == 200) {
-      print("Successfully getting your driver code data");
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
-
-      var ddevicemasterjson =
-          FramePacketGridRptDriverCodeModel.fromJson(jsonbody);
-      print("Json decoded body_" + dmfdrivercodeurl.toString());
-      return ddevicemasterjson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
-  }
-
-  // Overspeed vehicle filter
-  Future<OverSpeedVehicleFilter> overspeedvehiclefilter(
-    String token,
-    int vendorId,
-    int branchId,
-  ) async {
-    var overspeedvehiclefilterurl =
-        "https://vtsgpsapi.m-techinnovations.com/api/VehicleWiseOverSpeedReport/FillVehicleList_IMEINo/1/1";
-
-    print("This is overspeed vehicle filter  url " + overspeedvehiclefilterurl);
-
-    final response = await http
-        .get(Uri.parse(overspeedvehiclefilterurl), headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    });
-    if (response.statusCode == 200) {
-      print("Successfully getting your driver code data");
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
-
-      var ddevicemasterjson = OverSpeedVehicleFilter.fromJson(jsonbody);
-      print("Json decoded body_" + overspeedvehiclefilterurl.toString());
-      return ddevicemasterjson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data ovrespeed');
-    }
-  }
-
-  // Vehicle Report Filter
-  Future<VehicleReportFilter> vehiclereportfilter(
-    String token,
-    int vendorId,
-    int branchid,
-    int vsrno,
-    int pagenumber,
-    int pagesize,
-  ) async {
-    // var vehiclereporturl = Constant.filterVehicleReporturl +
-    //     vendorId.toString() +
-    //     "&BranchId=" +
-    //     branchid.toString() +
-    //     "&VSrNo=" +
-    //     vsrno.toString() +
-    //     "&PageNumber=" +
-    //     pagenumber.toString() +
-    //     "&PageSize=" +
-    //     pagesize.toString();
-
-    var vehiclereporturl =
-        "https://vtsgpsapi.m-techinnovations.com/api/VehicleMasterReports/ApplyFilterVehicleMaster?VendorId=1&BranchId=1&VSrNo=8&PageNumber=1&PageSize=10";
-
-    print("This is vehicle report filter url " + vehiclereporturl);
-
-    final response =
-        await http.get(Uri.parse(vehiclereporturl), headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    });
-    if (response.statusCode == 200) {
-      print("Successfully getting your data" + response.body);
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
-
-      var ddevicemasterjson = VehicleReportFilter.fromJson(jsonbody);
-      print("Json decoded body_" + vehiclereporturl.toString());
-      return ddevicemasterjson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
-  }
-
-  // Vehicle Summary Report Filter
-  Future<VehicleSummaryFilterModel> vehiclersummaryfilter(
-    String token,
-    int vendorId,
-    int branchid,
-    String araino,
-    String fromdate,
-    String fromTime,
-    String toDate,
-    String toTime,
-    String vehiclelist,
-    int pagenumber,
-    int pagesize,
-  ) async {
-    var vehiclereporturl = Constant.vehiclesummaryfilter +
-        vendorId.toString() +
-        "&BranchId=" +
-        branchid.toString() +
-        "&ARAI_NONARAI=" +
-        araino.toString() +
-        "&FromDate=" +
-        fromdate.toString() +
-        "&FromTime=" +
-        fromTime.toString() +
-        "&ToDate=" +
-        toDate.toString() +
-        "&ToTime=" +
-        toTime.toString() +
-        "&VehicleList=" +
-        vehiclelist.toString() +
-        "&PageNumber=" +
-        pagenumber.toString() +
-        "&PageSize=" +
-        pagesize.toString();
-
-    // var vehiclereporturl =
-    //     "https://vtsgpsapi.m-techinnovations.com/api/VehicleStatusSummaryReport/FilterVehicleStatusSummaryReport?VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=01-sep-2022&FromTime=08:30&ToDate=30-sep-2022&ToTime=19:30&VehicleList=86,76&PageNumber=1&PageSize=10";
-
-    print(
-        "This is vehicle status summary report filter url " + vehiclereporturl);
-
-    final response =
-        await http.get(Uri.parse(vehiclereporturl), headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    });
-    if (response.statusCode == 200) {
-      print("Successfully getting your data" + response.body);
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
-
-      var ddevicemasterjson = VehicleSummaryFilterModel.fromJson(jsonbody);
-      print("Json decoded body_" + vehiclereporturl.toString());
-      return ddevicemasterjson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
-  }
-
-  // Vehicle group Report Filter
-  Future<VehicleGroupFilterModel> vehiclergroupfilter(
-    String token,
-    int vendorId,
-    int branchid,
-    String araino,
-    String fromdate,
-    String fromTime,
-    String toDate,
-    String toTime,
-    String vehiclelist,
-    int pagenumber,
-    int pagesize,
-  ) async {
-    var vehiclereporturl = Constant.vehiclegroupfilter +
-        vendorId.toString() +
-        "&BranchId=" +
-        branchid.toString() +
-        "&ARAI_NONARAI=" +
-        araino.toString() +
-        "&FromDate=" +
-        fromdate.toString() +
-        "&FromTime=" +
-        fromTime.toString() +
-        "&ToDate=" +
-        toDate.toString() +
-        "&ToTime=" +
-        toTime.toString() +
-        "&VehicleList=" +
-        vehiclelist.toString() +
-        "&PageNumber=" +
-        pagenumber.toString() +
-        "&PageSize=" +
-        pagesize.toString();
-
-    // var vehiclereporturl =
-    //     "https://vtsgpsapi.m-techinnovations.com/api/VehicleStatusGroupByReport/FilterVehicleStatusGroupByReport?VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=01-sep-2022&FromTime=08:30&ToDate=30-sep-2022&ToTime=19:30&VehicleList=86,76&PageNumber=1&PageSize=10";
-
-    print("This is vehicle status group report filter url " + vehiclereporturl);
-
-    final response =
-        await http.get(Uri.parse(vehiclereporturl), headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    });
-    if (response.statusCode == 200) {
-      print("Successfully getting your data" + response.body);
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
-
-      var ddevicemasterjson = VehicleGroupFilterModel.fromJson(jsonbody);
-      print("Json decoded body_" + vehiclereporturl.toString());
-      return ddevicemasterjson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
-  }
-
-  Future<SearchFramePcktRpt> searchTextFramePckt(
-    String token,
-    int vendorId,
-    int branchid,
-    String araino,
-    String fromdate,
-    String fromTime,
-    String toDate,
-    String toTime,
-    String searchText,
-    String frampacketoption,
-    int pagenumber,
-    int pagesize,
-  ) async {
-    // print(
-    //     "${searchStrClass.searchStr}-----Enter in SEARCH assign future api ----$searchText");
-    String searchdmdataurl = Constant.searchFramePacketrurl +
-        vendorId.toString() +
-        "&BranchId=" +
-        branchid.toString() +
-        "&ARAI_NONARAI=$araino" +
-        "&FromDate=$fromdate" +
-        "&FromTime=$fromTime" +
-        "&ToDate=$toDate" +
-        "&ToTime=$toTime" +
-        "&SearchText=$searchText" +
-        "&FramePacketOption=$frampacketoption" +
-        "&PageNumber=" +
-        pagenumber.toString() +
-        "&PageSize=" +
-        pagesize.toString();
-    // pageSize.toString();
-    // String searchdmdataurl =
-    //     "https://vtsgpsapi.m-techinnovations.com/api/FramePacketReport/SearchFramepacketReport?VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=01-sep-2022&FromTime=12%3A30&ToDate=30-sep-2022&ToTime=18%3A30&SearchText=MH12&FramePacketOption=loginpacket&PageNumber=1&PageSize=10";
-    // https: //vtsgpsapi.m-techinnovations.com/api/FramePacketReport/SearchFramepacketReport?VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=01-sep-2022&FromTime=07:00&ToDate=30-sep-2022&ToTime=18:00&SearchText=MH12&FramePacketOption=loginpacket&PageNumber=1&PageSize=10
-
-    print("Search frame url is:----$searchdmdataurl");
-    final response = await http.get(
-      Uri.parse(searchdmdataurl),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': "Bearer ${token}",
-      },
-    );
-
-    var jsonBody = SearchFramePcktRpt.fromJson(json.decode(response.body));
-
-    return jsonBody;
-  }
-
-//! SearchFramePacket GridAPI------------------------------
-  Future<SearchFramepacketgrid> searchTextFramePcktgrid(
-    String token,
-    int vendorId,
-    int branchid,
-    String araino,
-    String fromdate,
-    String fromTime,
-    String toDate,
-    String toTime,
-    String searchText,
-    String frampacketoption,
-    int pagenumber,
-    int pagesize,
-  ) async {
-    String searchdmdataurl = Constant.searchFramePacketgridurl +
-        "$vendorId" +
-        "&BranchId=$branchid" +
-        "&ARAI_NONARAI=$araino" +
-        "&FromDate=$fromdate" +
-        "&FromTime=$fromTime" +
-        "&ToDate=$toDate" +
-        "&ToTime=$toTime" +
-        "&SearchText=$searchText" +
-        "&FramePacketOption=$frampacketoption" +
-        "&PageNumber=$pagenumber" +
-        "&PageSize=$pagesize";
-    print("Search Grid URl-------------------" + searchdmdataurl);
-    final response = await http.get(
-      Uri.parse(searchdmdataurl),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': "Bearer ${token}",
-      },
-    );
-    var jsonBody = SearchFramepacketgrid.fromJson(json.decode(response.body));
-    return jsonBody;
-  }
-
-  Future<SearchVehicleStatusGroupRpt> searchvehstatusgrouprpt(
-    String token,
-    int vendorId,
-    int branchid,
-    String arai,
-    String fromdate,
-    String fromTime,
-    String toDate,
-    String toTime,
-    String searchText,
-    int pagenumber,
-    int pagesize,
-  ) async {
-    // print(
-    //     "${searchStrClass.searchStr}-----Enter in SEARCH assign future api ----$searchText");
-    String searchdmdataurl = Constant.searchvehiclestatusgroupurl +
-        vendorId.toString() +
-        "&BranchId=" +
-        branchid.toString() +
-        "&ARAI_NONARAI=" +
-        arai.toString() +
-        "&FromDate=" +
-        fromdate.toString() +
-        "&FromTime=" +
-        fromTime.toString() +
-        "&ToDate=" +
-        toDate.toString() +
-        "&ToTime=" +
-        toTime.toString() +
-        "&SearchText=" +
-        searchText +
-        "&PageNumber=" +
-        pagenumber.toString() +
-        "&PageSize=" +
-        pagesize.toString();
-    // String searchdmdataurl =
-    //     "https://vtsgpsapi.m-techinnovations.com/api/VehicleStatusGroupByReport/SearchVehicleStatusGroupByReport?VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=01-sep-2022&FromTime=12%3A30&ToDate=30-sep-2022&ToTime=18%3A30&SearchText=MH12&PageNumber=1&PageSize=10 ";
-    print("Search frame url is:----$searchdmdataurl");
-    final response = await http.get(
-      Uri.parse(searchdmdataurl),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': "Bearer ${token}",
-      },
-    );
-    if (response.statusCode == 200) {
-      print("Response body is:-------->>${response.statusCode}");
-      print("Response body is:-------->>${response.body}");
-      var jsonBody =
-          SearchVehicleStatusGroupRpt.fromJson(json.decode(response.body));
-      print("JSon  assign body are:-------------$jsonBody");
-      return jsonBody;
-    } else {
-      throw Exception('Failed to load data');
-    }
-  }
-
-  // Driver master report filter
-  Future<DriverMasterFilter> drivermasterfilter(
-    String token,
-    int vendorId,
-    int branchid,
-    String drivercode,
-    int pagenumber,
-    int pagesize,
-  ) async {
-    var drivermasterurl = Constant.drivermasterfilterurl +
-        "?VendorId=" +
-        vendorId.toString() +
-        "&BranchId=" +
-        branchid.toString() +
-        "&DriverCode=" +
-        drivercode.toString() +
-        "&PageNumber=" +
-        pagenumber.toString() +
-        "&PageSize=" +
-        pagesize.toString();
-
-    // var drivermasterurl =
-    //     "https://vtsgpsapi.m-techinnovations.com/api/DriverMasterReports/FilterApplyDriverReport?VendorId=1&BranchId=1&DriverCode=DC0214&PageNumber=1&PageSize=10";
-
-    print("This is drivermaster filter url " + drivermasterurl);
-
-    final response =
-        await http.get(Uri.parse(drivermasterurl), headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    });
-    if (response.statusCode == 200) {
-      print("Successfully getting your data");
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
-
-      var ddevicemasterjson = DriverMasterFilter.fromJson(jsonbody);
-      print("Json decoded body_" + drivermasterurl.toString());
-      return ddevicemasterjson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
-  }
-
-//
-  //Start Search Element in Vehicle Report- API----
-  Future<SearchDriverMasterRpt> searchtextdriverRpt(String token, int vendorId,
-      String searchText, int branchId, int pageNumber, int pageSize) async {
-    String searchdmdataurl = Constant.searchdrivermasterurl +
-        vendorId.toString() +
-        "&BranchId=1" +
-        // branchId.toString() +
-        "&SearchText=" +
-        searchText +
-        "&PageNumber=1" +
-        // pageNumber.toString() +
-        "&PageSize=10";
-    // pageSize.toString();
-    // String searchdmdataurl ='https://vtsgpsapi.m-techinnovations.com/api/DeviceMasterReports/SearchDeviceMasterReport?
-    // VendorId=1&BranchId=1&SearchText=AIS&PageNumber=1&PageSize=8';
-    //vtsgpsapi.m-techinnovations.com/api/DriverWiseVehicalAssignReports/
-    // SearchDriverVehicleAssign?VendorId=1&BranchId=1&SearchText=as&PageNumber=1&PageSize=10
-
-    final response = await http.get(
-      Uri.parse(searchdmdataurl),
-      headers: <String, String>{
-        // 'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': "Bearer ${token}",
-      },
-    );
-
-    var jsonBody = SearchDriverMasterRpt.fromJson(json.decode(response.body));
-    print("JSon  assign body are:-------------$jsonBody");
-    return jsonBody;
-  }
-  //End..
-
-  //Frame packet
-
-  Future<FramePacketData> getframepacketreport(
-    String token,
-    int vendorId,
-    int branchid,
-    String araino,
-    String fromdate,
-    String fromTime,
-    String toDate,
-    String toTime,
-    int imeno,
-    String frampacketoption,
-    int pagenumber,
-    int pagesize,
-  ) async {
-    var framepacketurl = Constant.FramePacketReportUrl +
-        vendorId.toString() +
-        "&BranchId=" +
-        branchid.toString() +
-        "&ARAI_NONARAI=" +
-        araino.toString() +
-        "&FromDate=" +
-        fromdate.toString() +
-        "&FromTime=" +
-        fromTime.toString() +
-        "&ToDate=" +
-        toDate.toString() +
-        "&ToTime=" +
-        toTime.toString() +
-        "&IMEINO=" +
-        imeno.toString() +
-        "&FramePacketOption=" +
-        frampacketoption.toString() +
-        "&PageNumber=" +
-        pagenumber.toString() +
-        "&PageSize=" +
-        pagesize.toString();
-
-    // var framepacketurl =
-    //     "https://vtsgpsapi.m-techinnovations.com/api/FramePacketReport/GetFramepacketReport?VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=01-sep-2022&FromTime=12:30&ToDate=30-sep-2022&ToTime=18:30&IMEINO=867322033819244&FramePacketOption=datapacket&PageNumber=1&PageSize=10";
-
-    print("this is frame paket url " + framepacketurl);
-
-    final response =
-        await http.get(Uri.parse(framepacketurl), headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    });
-    if (response.statusCode == 200) {
-      print("Successfully getting your data");
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
-
-      var framepacketurljson = FramePacketData.fromJson(jsonbody);
-      print("Json decoded body_" + framepacketurl.toString());
-      return framepacketurljson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
-  }
-
-// Frame packet grid ------------------------
-  Future<FramePacketGridModel> framepacketgrid(
-    String token,
-    int vendorId,
-    int branchid,
-    String araino,
-    String fromdate,
-    String fromTime,
-    String toDate,
-    String toTime,
-    String vehicleList,
-    String frampacketoption,
-    int pagenumber,
-    int pagesize,
-  ) async {
-    var framepacketgridurl = Constant.FramePacketGridUrl +
-        vendorId.toString() +
-        "&BranchId=" +
-        branchid.toString() +
-        "&ARAI_NONARAI=" +
-        araino.toString() +
-        "&FromDate=" +
-        fromdate.toString() +
-        "&FromTime=" +
-        fromTime.toString() +
-        "&ToDate=" +
-        toDate.toString() +
-        "&ToTime=" +
-        toTime.toString() +
-        "&VehicleList=" +
-        vehicleList.toString() +
-        "&FramePacketOption=" +
-        frampacketoption.toString() +
-        "&PageNumber=" +
-        pagenumber.toString() +
-        "&PageSize=" +
-        pagesize.toString();
-
-    // var framepacketgridurl =
-    //     "https://vtsgpsapi.m-techinnovations.com/api/FramePacketGridviewReport/FilterFramePacketGridViewReport?VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=01-sep-2022&FromTime=10:20&ToDate=30-sep-2022&ToTime=19:30&VehicleList=86,76&FramePacketOption=healthpacket&PageNumber=1&PageSize=10";
-
-    print("this is frame paket grid url " + framepacketgridurl);
-
-    final response =
-        await http.get(Uri.parse(framepacketgridurl), headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    });
-    if (response.statusCode == 200) {
-      print("Successfully getting your data");
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
-
-      var framepacketgridurl = FramePacketGridModel.fromJson(jsonbody);
-      print("Json decoded body_" + framepacketgridurl.toString());
-      return framepacketgridurl;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
-  }
-
-// Driver Master Report API ------
-
-  Future<DriverMasterReport> drivermaster(
-    String token,
-    int vendorid,
-    int branchid,
-    int pageSize,
-    int pageNumber,
-  ) async {
-    var drivermasterreportyurl = Constant.drivermasterurl +
-        "?VendorId=" +
-        vendorid.toString() +
-        "&BranchId=" +
-        branchid.toString() +
-        "&PageNumber=" +
-        pageNumber.toString() +
-        "&PageSize=" +
-        pageSize.toString();
-
-    print("This is driver master report url " + drivermasterreportyurl);
-
-    // var drivermasterreportyurl =
-    //     "https://vtsgpsapi.m-techinnovations.com/api/DriverMasterReports/DriverMasterReport?VendorId=1&BranchId=1&PageNumber=1&PageSize=10";
-
-    print("This is date wise travel history url " + drivermasterreportyurl);
-
-    final response = await http
-        .get(Uri.parse(drivermasterreportyurl), headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    });
-    if (response.statusCode == 200) {
-      print("Successfully getting your data");
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
-
-      var drivermasterreportyurl = DriverMasterReport.fromJson(jsonbody);
-      print("Json decoded body_" + drivermasterreportyurl.toString());
-      return drivermasterreportyurl;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
-  }
-
-//Start Get Vehicle Report API----
-  Future<VehicleReportDetails> getvehicledetailReport(String token,
-      int vendorId, int branchId, int pageNumber, int pageSize) async {
-    print("Enter in api----");
-    String allvehicledetailurl = Constant.getVehcleReportUrl +
-        vendorId.toString() +
-        "&Branchid=" +
-        branchId.toString() +
-        "&pageNumber=" +
-        pageNumber.toString() +
-        "&pageSize=" +
-        pageSize.toString();
-
-    // String allvehicledetailurl =
-    //     'https://vtsgpsapi.m-techinnovations.com/api/VehicleMasterReports/GetVehicleReport?VendorId=1&BranchId=1&PageNumber=1&PageSize=5';
-    print("uri is------------" + allvehicledetailurl);
-    final response = await http.get(
-      Uri.parse(allvehicledetailurl),
-      headers: <String, String>{
-        // 'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': "Bearer ${token}",
-      },
-    );
-
-    print(response.body);
-    var jsonBody = VehicleReportDetails.fromJson(json.decode(response.body));
-
-    return jsonBody;
-  }
-
-//End of API
-
-//
-//Start Search Element in Vehicle Report- API----
-  Future<SearchingVehicleDetailsReportData> findStringInvehicledetailReport(
-      String token,
-      int vendorId,
-      String searchText,
-      int branchId,
-      int pageNumber,
-      int pageSize) async {
-    print("Enter in future api----");
-    String searchvehicledetailurl = Constant.searchVehicleReporturl +
-        // vendorId.toString() +
-        "1&Branchid=1" +
-        // branchId.toString() +
-        "&SearchText=" +
-        searchText +
-        "&pageNumber=1" +
-        // pageNumber.toString() +
-        "&pageSize=10";
-    // pageSize.toString();
-
-    // String searchvehicledetailurl = 'https://vtsgpsapi.m-techinnovations.com/api/VehicleMasterReports/SearchVehicleReport?VendorId=1&BranchId=1&SearchText=MH12&PageNumber=1&PageSize=10';
-    print("uri is------------" + searchvehicledetailurl);
-    final response = await http.get(
-      Uri.parse(searchvehicledetailurl),
-      headers: <String, String>{
-        // 'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': "Bearer ${token}",
-      },
-    );
-
-    print(response.body);
-    var jsonBody =
-        SearchingVehicleDetailsReportData.fromJson(json.decode(response.body));
-    print("JSon body are:-------------$jsonBody");
-    return jsonBody;
-  }
-
-//End API
-
-  ///Start fetch Element in Device master Report- API----
-  Future<DeviceMasterModel> devicemasterreport(String token, int vendorId,
-      int branchId, int pageNumber, int pageSize) async {
-    print("Enter in future api----");
-    String devicemasterurl = Constant.devicemasterreporturl +
-        vendorId.toString() +
-        "&BranchId=" +
-        branchId.toString() +
-        "&pageNumber=" +
-        pageNumber.toString() +
-        "&pageSize=" +
-        pageSize.toString();
-
-    // String urlString =
-    //     'https://vtsgpsapi.m-techinnovations.com/api/DeviceMasterReports/DeviceMasterReport?VendorId=1&BranchId=1&PageNumber=1&PageSize=4';
-    print("device master report url is------------" + devicemasterurl);
-    final response = await http.get(
-      Uri.parse(devicemasterurl),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': "Bearer ${token}",
-      },
-    );
-
-    print(response.body);
-    var jsonBody = DeviceMasterModel.fromJson(json.decode(response.body));
-    print("JSon body are:-------------$jsonBody");
-    return jsonBody;
-  }
-
-//End API
-
-//End API
-
-  Future<VehicleStatusGroupModel> vehicleStatusGroup(
-    String token,
-    int vendorId,
-    int branchid,
-    String araino,
-    String fromdate,
-    String fromTime,
-    String toDate,
-    String toTime,
-    int imeno,
-    int pagenumber,
-    int pagesize,
-  ) async {
-    String vehiclestatusurl = Constant.vehiclestatusgroupurl +
-        vendorId.toString() +
-        "&BranchId=" +
-        branchid.toString() +
-        "&ARAI_NONARAI=" +
-        araino.toString() +
-        "&FromDate=" +
-        fromdate.toString() +
-        "&FromTime=" +
-        fromTime.toString() +
-        "&ToDate=" +
-        toDate.toString() +
-        "&ToTime=" +
-        toTime.toString() +
-        "&IMEINO=" +
-        imeno.toString() +
-        "&PageNumber=" +
-        pagenumber.toString() +
-        "&PageSize=" +
-        pagesize.toString();
-
-    print("This is vehicle status report url " + vehiclestatusurl);
-    // String vehiclestatusurl =
-    //     'https://vtsgpsapi.m-techinnovations.com/api/VehicleStatusGroupByReport/GetVehicleStatusGroupByReport?VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=01-sep-2022&FromTime=08:30&ToDate=30-sep-2022&ToTime=18:30&IMEINO=867322033819244&PageNumber=1&PageSize=10';
-
-    final response = await http.get(
-      Uri.parse(vehiclestatusurl),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': "Bearer ${token}",
-      },
-    );
-
-    var jsonBody = VehicleStatusGroupModel.fromJson(json.decode(response.body));
-    print("JSon  dm body are:-------------$jsonBody");
-    return jsonBody;
-  }
-
-  //Vehicle Status Report
-
-  Future<VehicleStatusReportModel> vehicleStatusReport(
-    String token,
-    int vendorId,
-    int branchid,
-    String araino,
-    String fromdate,
-    String fromTime,
-    String toDate,
-    String toTime,
-    int imeno,
-    int pagenumber,
-    int pagesize,
-  ) async {
-    String vehiclestatusreporturl = Constant.vehiclestatusreporturl +
-        vendorId.toString() +
-        "&BranchId=" +
-        branchid.toString() +
-        "&ARAI_NONARAI=" +
-        araino.toString() +
-        "&FromDate=" +
-        fromdate.toString() +
-        "&FromTime" +
-        fromTime.toString() +
-        "&ToDate=" +
-        toDate.toString() +
-        "&ToTime=" +
-        toTime.toString() +
-        "&IMEINO=" +
-        imeno.toString() +
-        "&PageNumber=" +
-        pagenumber.toString() +
-        "&PageSize=" +
-        pagesize.toString();
-
-    print("This is vehicle status report url " + vehiclestatusreporturl);
-
-    // String vehiclestatusreporturl =
-    //     'https://vtsgpsapi.m-techinnovations.com/api/VehicleStatusGroupByReport/GetVehicleStatusGroupByReport?VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=01-sep-2022&FromTime=08:30&ToDate=30-sep-2022&ToTime=18:30&IMEINO=867322033819244&PageNumber=1&PageSize=10';
-
-    final response = await http
-        .get(Uri.parse(vehiclestatusreporturl), headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    });
-    if (response.statusCode == 200) {
-      print("Successfully getting your data");
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
-
-      var travelsummaryjson = VehicleStatusReportModel.fromJson(jsonbody);
-      print("Json decoded body_" + travelsummaryjson.toString());
-      return travelsummaryjson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
-  }
-
-//  Vehicle status summary
-  Future<VehicleStatusSummaryModel> vehicleStatusSummary(
-    String token,
-    int vendorId,
-    int branchid,
-    String araino,
-    String fromdate,
-    String fromTime,
-    String toDate,
-    String toTime,
-    int imeno,
-    int pagenumber,
-    int pagesize,
-  ) async {
-    String vehiclestatussummaryurl = Constant.vehiclestatussummaryurl +
-        vendorId.toString() +
-        "&BranchId=" +
-        branchid.toString() +
-        "&ARAI_NONARAI=" +
-        araino.toString() +
-        "&FromDate=" +
-        fromdate.toString() +
-        "&FromTime" +
-        fromTime.toString() +
-        "&ToDate=" +
-        toDate.toString() +
-        "&ToTime=" +
-        toTime.toString() +
-        "&IMEINO=" +
-        imeno.toString() +
-        "&PageNumber=" +
-        pagenumber.toString() +
-        "&PageSize=" +
-        pagesize.toString();
-
-    // String vehiclestatussummaryurl =
-    //     'https://vtsgpsapi.m-techinnovations.com/api/VehicleStatusSummaryReport/GetVehicleStatusSummaryReport?VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=01-sep-2022&FromTime=12:30&ToDate=30-sep-2022&ToTime=19:30&IMEINO=867322033819244&PageNumber=1&PageSize=10';
-
-    print("This is vehicle status summary url " + vehiclestatussummaryurl);
-    final response = await http
-        .get(Uri.parse(vehiclestatussummaryurl), headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    });
-    if (response.statusCode == 200) {
-      print("Successfully getting your data");
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
-
-      var travelsummaryjson = VehicleStatusSummaryModel.fromJson(jsonbody);
-      print("Json decoded body_" + travelsummaryjson.toString());
-      return travelsummaryjson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
-  }
-
-  Future<SearchVehOverSpeedRpt> searchOverSpeedCreateDetails(
-      String token,
-      String vehicleRegNo,
-      int imeino,
-      int latitude,
-      int longitude,
-      String address,
-      int transDate,
-      int transTime,
-      int speed,
-      int overSpeed,
-      int updatedOn,
-      int distancetravel,
-      int speedLimit,
-      String searchText) async {
-    print(Constant.searchOverSpeedReportUrl +
-        "" +
-        vehicleRegNo.toString() +
-        "/" +
-        imeino.toString() +
-        "/" +
-        latitude.toString() +
-        "/" +
-        longitude.toString() +
-        "/" +
-        address.toString() +
-        "/" +
-        transDate.toString() +
-        "/" +
-        transTime.toString() +
-        "/" +
-        speed.toString() +
-        "/" +
-        overSpeed.toString() +
-        "/" +
-        updatedOn.toString() +
-        "/" +
-        distancetravel.toString() +
-        "/" +
-        speedLimit.toString() +
-        "/" +
-        searchText);
-
-    //required this.vehicleRegNo,required this.imeino,required this.latitude,required this.longitude,required this.address,required this.transDate,
-    //     required this.transTime,required this.speed,required this.overSpeed,required this.updatedOn,required this.distancetravel,required this.speedLimit,required this.searchText
-    final response = await http.get(
-      Uri.parse(Constant.searchOverSpeedReportUrl +
-          "" +
-          vehicleRegNo.toString() +
-          "/" +
-          imeino.toString() +
-          "/" +
-          latitude.toString() +
-          "/" +
-          longitude.toString() +
-          "/" +
-          address.toString() +
-          "/" +
-          transDate.toString() +
-          "/" +
-          transTime.toString() +
-          "/" +
-          speed.toString() +
-          "/" +
-          overSpeed.toString() +
-          "/" +
-          updatedOn.toString() +
-          "/" +
-          distancetravel.toString() +
-          "/" +
-          speedLimit.toString() +
-          "/" +
-          searchText),
+    var deleteresponse =
+        "https://vtsgpsapi.m-techinnovations.com/api/PointOfInterestCreate/${vendorid}/${branchid}/${srno}";
+    final response = await http.delete(
+      Uri.parse(deleteresponse),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': 'Bearer $token',
       },
     );
     print(response.body);
-    return SearchVehOverSpeedRpt.fromJson(jsonDecode(response.body));
+    return EditDeviceResponse.fromJson(jsonDecode(response.body));
   }
+}
+
+Future<frame_packet_response> getframepacketreport(
+    int vendorId,
+    int branchid,
+    String optionClicked,
+    String aRAI_NONARAI,
+    String username,
+    int PageNumber,
+    int PageSize,
+    String token) async {
+  print(Constant.getFramePacketReportVendorUrl +
+      "" +
+      vendorId.toString() +
+      "&BranchId=" +
+      branchid.toString() +
+      "&OptionClicked=" +
+      optionClicked +
+      "&ARAI_NONARAI=" +
+      aRAI_NONARAI +
+      "&UserName=" +
+      username +
+      "&PageNumber=" +
+      PageNumber.toString() +
+      "&PageSize=" +
+      PageSize.toString());
+
+  final response = await http.get(
+    Uri.parse(Constant.getFramePacketReportVendorUrl +
+        "" +
+        vendorId.toString() +
+        "&BranchId=" +
+        branchid.toString() +
+        "&OptionClicked=" +
+        optionClicked +
+        "&ARAI_NONARAI=" +
+        aRAI_NONARAI +
+        "&UserName=" +
+        username +
+        "&PageNumber=" +
+        PageNumber.toString() +
+        "&PageSize=" +
+        PageSize.toString()),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    },
+  );
+  print(response.body);
+  return frame_packet_response.fromJson(jsonDecode(response.body));
+}
+
+Future<search_frame_packet_report_response> searchFramePacketDetails(
+    String token, int vendorId, int branchId, String searchText) async {
+  print(Constant.getFramePacketReportSearchUrl +
+      "" +
+      vendorId.toString() +
+      "/" +
+      branchId.toString() +
+      "/" +
+      searchText);
+
+  final response = await http.get(
+    Uri.parse(Constant.getFramePacketReportSearchUrl +
+        "" +
+        vendorId.toString() +
+        "/" +
+        branchId.toString() +
+        "/" +
+        searchText),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    },
+  );
+  print(response.body);
+  return search_frame_packet_report_response
+      .fromJson(jsonDecode(response.body));
 }

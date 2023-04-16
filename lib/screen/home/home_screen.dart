@@ -72,7 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
     mainBloc = BlocProvider.of(context);
     // getdashbord();
     timer = Timer.periodic(Duration(seconds: 60), (Timer t) => getdashbord());
-    // print(dashbordResponse);
+    print(dashbordResponse);
     getData();
   }
 
@@ -80,14 +80,14 @@ class _HomeScreenState extends State<HomeScreen> {
   void deactivate() {
     // TODO: implement deactivate
     super.deactivate();
-    // print("cancel");
+    print("cancel");
     timer.cancel();
   }
 
   @override
   void dispose() {
     // timer.cancel();
-    // print("cancel");
+    print("cancel");
     timer.cancel();
     super.dispose();
   }
@@ -533,9 +533,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 legendItemBuilder: (String name, dynamic series, dynamic point, int index){
                                   return GestureDetector(
                                     onTap: (){
-                                      // print("click");
+                                      print("click");
                                         if(countList![index].tCount==0){
-                                          // print(countList![index].status);
+                                          print(countList![index].status);
                                           Fluttertoast.showToast(
                                             toastLength: Toast.LENGTH_SHORT,
                                             timeInSecForIosWeb: 1,
@@ -625,8 +625,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   legendIconType: LegendIconType.rectangle,
                                   dataSource: countList,
                                   onPointTap: (value){
-                                    // print("Chart click :
-                                    //  ${value}");
+                                    print("Chart click :  ${value}");
                                   },
                                   radius: "80%",
                                   innerRadius: '70%',

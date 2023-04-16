@@ -6,8 +6,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_vts/model/report/frame_packet_report_response.dart';
 import 'package:flutter_vts/service/web_service.dart';
 
-import '../model/report/framepacketgrid.dart';
-
 class MainBloc extends Bloc<MainEvent, MainState> {
   WebService webService;
 
@@ -295,6 +293,17 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           print(e.toString());
           yield AllDriverErrorState(msg: e.toString());
         }
+      } else if (event is SearchDriverEvents) {
+        try {
+          yield SearchDriverLoadingState();
+          var searchDriverResponse = await webService.searchdriver(
+              event.vendorId, event.branchId, event.searchText, event.token);
+          yield SearchDriverLoadedState(
+              searchDriverResponse: searchDriverResponse);
+        } catch (e) {
+          print(e.toString());
+          yield SearchDriverErrorState(msg: e.toString());
+        }
       } else if (event is AddDriverEvents) {
         try {
           yield AddDriverLoadingState();
@@ -384,110 +393,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           print(e.toString());
           yield EditBranchErrorState(msg: e.toString());
         }
-      } else if (event is SearchDriverMasterReportEvent) {
-        try {
-          yield SearchDriverMasterReportLoadingState();
-          var driverMasterReportresponse = await webService.searchtextdriverRpt(
-              event.token,
-              event.vendorid,
-              event.searchText,
-              event.branchid,
-              event.pagesize,
-              event.pagenumber);
-          yield SearchDriverMasterReportLoadedState(
-              searchResponse: driverMasterReportresponse);
-        } catch (e) {
-          print(e.toString());
-          yield SearchDriverMasterReportErrorState(msg: e.toString());
-        }
-      } else if (event is SearchDatewiseTravelReportEvent) {
-        try {
-          yield SearchDatewiseTravelReportLoadingState();
-          var driverMasterReportresponse =
-              await webService.searchTxtDateWiseTravelHistoryRpt(
-                  event.token,
-                  event.vendorid,
-                  event.branchid,
-                  event.arai,
-                  event.fromDate,
-                  event.todate,
-                  event.searchText,
-                  event.pagenumber,
-                  event.pagesize);
-          yield SearchDatewiseTravelReportLoadedState(
-              searchResponse: driverMasterReportresponse);
-        } catch (e) {
-          print(e.toString());
-          yield SearchDatewiseTravelReportErrorState(msg: e.toString());
-        }
-      }
-      // -----------------------------------------------------
-      else if (event is SearchOverSpeedCreateEvents) {
-        try {
-          yield SearchOverSpeedCreateLoadingState();
-          var search_overspeed_response = await webService.searchoverspeedRpt(
-              event.token,
-              event.vendorId,
-              event.barnchId,
-              event.arainonarai,
-              event.fromDate,
-              event.toDate,
-              event.searchText,
-              event.pageNumber,
-              event.pageSize);
-          yield SearchOverSpeedCreateLoadedState(
-              searchOverSpeedCreateResponse: search_overspeed_response);
-        } catch (e) {
-          // print(e.toString());
-          yield SearchOverSpeedCreateErrorState(msg: e.toString());
-        }
-      }
-
-      // ----------------------------------------------------
-
-      // else if (event is SearchDriverMasterReportEvent) {
-      //   try {
-      //     yield SearchDriverMasterReportLoadingState();
-      //     var driverMasterReportresponse = await webService.searchtextdriverRpt(
-      //       event.token,
-      //       event.vendorid,
-      //      event.searchText,
-      //       event.branchid,
-      //       event.pagesize,
-      //       event.pagenumber
-      //     );
-      //     yield SearchDriverMasterReportLoadedState(
-      //         searchResponse: driverMasterReportresponse  );
-
-      //   } catch (e) {
-      //     print(e.toString());
-      //     yield SearchDriverMasterReportErrorState(msg: e.toString());
-      //   }
-      // }
-      //End
-      //  else if (event is SearchDatewiseTravelReportEvent) {
-      //   try {
-      //     yield SearchDatewiseTravelReportLoadingState();
-      //     var driverMasterReportresponse = await webService.searchTxtDateWise(
-      //         event.token,
-      //         event.vendorid,
-      //         event.fromDate,
-      //         event.todate,
-      //         event.searchText,
-      //         event.branchid,
-      //         event.pagesize,
-      //         event.pagenumber
-      //     );
-      //     yield SearchDatewiseTravelReportLoadedState(
-      //         searchResponse: driverMasterReportresponse  );
-
-      //   } catch (e) {
-      //     print(e.toString());
-      //     yield SearchDatewiseTravelReportErrorState(msg: e.toString());
-      //   }
-      // }
-
-      else if (event is SearchBranchEvents) {
+      } else if (event is SearchBranchEvents) {
         try {
           yield SearchBranchLoadingState();
           var searchDeviceResponse = await webService.searchBranch(
@@ -1070,37 +976,35 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           print(e.toString());
           yield DeleteGeofenceCreateErrorState(msg: e.toString());
         }
-      }
-      // else if (event is AddGeofenceEvents) {
-      //   try {
-      //     yield AddGeofenceLoadingState();
-      //     var addGeofenceResponse = await webService.addGeofence(
-      //         event.token,
-      //         event.vendorid,
-      //         event.branchid,
-      //         event.geofencename,
-      //         event.category,
-      //         event.description,
-      //         event.tolerance,
-      //         event.showgeofence,
-      //         event.latitude,
-      //         event.longitude,
-      //         event.overlaytype,
-      //         event.rectanglebond,
-      //         event.rectanglearea,
-      //         event.rectanglehectares,
-      //         event.rectanglekilometer,
-      //         event.rectanglemiles,
-      //         event.address,
-      //         event.vehicleid);
-      //     yield AddGeofenceLoadedState(
-      //         addGeofenceResponse: addGeofenceResponse);
-      //   } catch (e) {
-      //     print(e.toString());
-      //     yield AddGeofenceErrorState(msg: e.toString());
-      //   }
-      // }
-      else if (event is CreateAssignMenuRightsEvents) {
+      } else if (event is AddGeofenceEvents) {
+        try {
+          yield AddGeofenceLoadingState();
+          var addGeofenceResponse = await webService.addGeofence(
+              event.token,
+              event.vendorid,
+              event.branchid,
+              event.geofencename,
+              event.category,
+              event.description,
+              event.tolerance,
+              event.showgeofence,
+              event.latitude,
+              event.longitude,
+              event.overlaytype,
+              event.rectanglebond,
+              event.rectanglearea,
+              event.rectanglehectares,
+              event.rectanglekilometer,
+              event.rectanglemiles,
+              event.address,
+              event.vehicleid);
+          yield AddGeofenceLoadedState(
+              addGeofenceResponse: addGeofenceResponse);
+        } catch (e) {
+          print(e.toString());
+          yield AddGeofenceErrorState(msg: e.toString());
+        }
+      } else if (event is CreateAssignMenuRightsEvents) {
         try {
           yield CreateAssignMenuRightsLoadingState();
           var editDeviceResponse = await webService.createAssignMenuRights(
@@ -1122,38 +1026,44 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           print(e.toString());
           yield RemoveAssignMenuRightsErrorState(msg: e.toString());
         }
-      } else if (event is OverSpeedEvents) {
+      }
+      //! Overspeed Report---------------------------------------
+      else if (event is getOverSpeedEvents) {
         try {
-          yield OverSpeedLoadingState();
-          var getOverspeedREportResponse = await webService.overspeedreport(
+          yield GetOverSpeedCreateDetailLoadingState();
+          var getOverspeedREportResponse = await webService.getOverSpeedReport(
               event.token,
               event.vendorid,
               event.branchid,
-              event.arai,
-              event.fromDate,
-              event.toDate,
-              event.imeno,
-              event.pagenumber,
-              event.pagesize);
-          yield OverSpeedLoadedState(
-              OverspeedReportResponse: getOverspeedREportResponse);
+              event.arainonarai,
+              event.fromdata,
+              event.fromtime,
+              event.todate,
+              event.pagesize,
+              event.pagenumber);
+          yield GetOverSpeedCreateDetailLoadedState(
+              getOverspeedREportResponse: getOverspeedREportResponse);
         } catch (e) {
           print(e.toString());
-          yield OverSpeedErrorState(msg: e.toString());
+          yield GetOverSpeedCreateDetailErrorState(msg: e.toString());
         }
-      } else if (event is SearchOverSpeedCreateEvents) {
+      }
+      //! Search OverSpeed Report--------------------------------
+      else if (event is SearchOverSpeedCreateEvents) {
         try {
           yield SearchOverSpeedCreateLoadingState();
-          var search_overspeed_response = await webService.searchoverspeedRpt(
-              event.token,
-              event.vendorId,
-              event.barnchId,
-              event.arainonarai,
-              event.fromDate,
-              event.toDate,
-              event.searchText,
-              event.pageNumber,
-              event.pageSize);
+          var search_overspeed_response =
+              await webService.searchOverSpeedCreateDetails(
+                  event.token,
+                  event.vendorid,
+                  event.branchid,
+                  event.arainonarai,
+                  event.fromdata,
+                  event.fromtime,
+                  event.todate,
+                  event.pagesize,
+                  event.pagenumber,
+                  event.searchText);
           yield SearchOverSpeedCreateLoadedState(
               searchOverSpeedCreateResponse: search_overspeed_response);
         } catch (e) {
@@ -1161,34 +1071,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           //   yield SearchOverSpeedCreateErrorState(msg: e.toString());
           // }
         }
-
-        //------------
-      } // search frame packet grid report ----------
-      else if (event is SearchFramePacktGridEvent) {
-        try {
-          yield SearchFramePacketGridLoadingState();
-          var frame_packet_grid_response =
-              await webService.searchTextFramePcktgrid(
-            event.token,
-            event.vendorId,
-            event.branchId,
-            event.araiNonarai,
-            event.fromDate,
-            event.formTime,
-            event.toDate,
-            event.toTime,
-            event.searchText,
-            event.framepacketoption,
-            event.pageNumber,
-            event.pageSize,
-          );
-          yield SearchFramePacketGridLoadedState(
-              searchFramePacketgrid: frame_packet_grid_response);
-          print("Serch pkt res------$frame_packet_grid_response");
-        } catch (e) {
-          print(e.toString());
-          yield SearchFramePacketGridErrorState(msg: e.toString());
-        }
+//! Travel Summary All Data Event-------------------------
       } else if (event is TravelSummaryReportEvent) {
         try {
           yield TravelSummaryReportLoadingState();
@@ -1292,276 +1175,95 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         } catch (e) {
           print(e.toString());
         }
-      } else if (event is DriverWiseVehicleAssignEvent) {
+      }
+      //! DistanceSummary Search Bloc----------
+      else if (event is DistanceSummarySearchEvent) {
         try {
-          yield DriverWiseVehicleAssignLoadingState();
-          var driverwisevehicleassignresponse =
-              await webService.driverwisevehicleassign(
-            event.token,
-            event.vendorid,
-            event.branchid,
-            event.pagenumber,
-            event.pagesize,
-          );
-          yield DriverWiseVehicleAssignLoadedState(
-              DriverWiseVehicleAssignResponse: driverwisevehicleassignresponse);
+          yield DistanceSummaryFilterLoadingState();
+          var distancesummarysearchresponse =
+              await webService.distancesummarysearch(
+                  event.token,
+                  event.vendorid,
+                  event.branchid,
+                  event.pagenumber,
+                  event.pagesize,
+                  event.arainonarai,
+                  event.fromdata,
+                  event.fromtime,
+                  event.searchtext,
+                  event.totime,
+                  event.todate);
+          yield DistanceSummarySearchLoadedState(
+              distanceSummarySearch: distancesummarysearchresponse);
         } catch (e) {
           print(e.toString());
         }
-      } else if (event is DriverVehicleFilterEvent) {
+      } //! Get Point Of Interest Bloc
+      else if (event is GetPointOfInterestEvent) {
         try {
-          yield DriverWiseVehicleFilterLoadingState();
-          var driverwisevehicleassignresponse =
-              await webService.driverwisevehiclefilter(
-            event.token,
-            event.vendorId,
-            event.branchid,
-            event.vsrno,
-            event.pagenumber,
-            event.pagesize,
-          );
-          yield DriverWiseVehicleFilterLoadedState(
-              DriverWiseVehicleFilterResponse: driverwisevehicleassignresponse);
+          yield PointOfInterestCreateLoadingState();
+          var pointOfInterestCreateDetailsResponse =
+              await webService.createPointOfInterestGetApi(
+                  event.token,
+                  event.vendorid,
+                  event.branchid,
+                  event.pagenumber,
+                  event.pagesize);
+          yield PointOfInterestCreateLoadedState(
+              createPointOfInterest: pointOfInterestCreateDetailsResponse);
         } catch (e) {
           print(e.toString());
+          yield PointOfInterestCreateErrorState(msg: e.toString());
         }
       }
-      //! Main bloc for search element of driver wise Assign  Master report
-      else if (event is SearchDriverwiseVehAssignDetailsEvent) {
-        print("Enter in main bloc event.......${event.searchText}");
-        try {
-          yield SearchDriverVehAssignReportLoadingState();
-          var findstrDetailResp =
-              await webService.searchStrDriverwiseVehicleAssignRpt(
-            event.token,
-            event.branchid,
-            event.searchText,
-            event.pageNumber,
-            event.vendorid,
-            event.pageSize,
-          );
-          print("Api response in event is--------${findstrDetailResp}");
-          yield SearchDriverVehAssignReportLoadedState(
-              searchvehassignResponse: findstrDetailResp);
-        } catch (e) {
-          print(e.toString());
-          yield SearchDriverVehAssignReportErrorState(msg: e.toString());
-        }
-      }
-      //End.
-      else if (event is DateWiseTravelHistoryEvent) {
-        try {
-          yield DateWiseTravelHistoryLoadingState();
-          var datewisetravelhistoryresponse =
-              await webService.datewisetravelhistory(
-            event.token,
-            event.vendorid,
-            event.branchid,
-            event.arainonarai,
-            event.fromdate,
-            event.todate,
-            event.imeino,
-            event.pageSize,
-            event.pageNumber,
-          );
-          yield DateWiseTravelHistoryLoadedState(
-              datedisetravelhistoryresponse: datewisetravelhistoryresponse);
-        } catch (e) {
-          print(e.toString());
-        }
-      } else if (event is DriverMasterEvent) {
-        try {
-          yield DriverMasterLoadingState();
-          var DriverMasterReportresponse = await webService.drivermaster(
-            event.token,
-            event.vendorid,
-            event.branchid,
-            event.pageSize,
-            event.pageNumber,
-          );
-          yield DriverMasterLoadedState(
-              drivermasterreportresponse: DriverMasterReportresponse);
-        } catch (e) {
-          print(e.toString());
-        }
-      }
-      //Main bloc for get vehicle reports event-----
-      else if (event is GetVehReportDetailsEvent) {
-        try {
-          yield GetVehicleReportLoadingState();
-          var vehDetailResp = await webService.getvehicledetailReport(
-              event.token,
-              event.vendorid,
-              event.branchid,
-              event.pageSize,
-              event.pageNumber);
-          print("Api response in event is--------${vehDetailResp}");
-          yield GetVehicleReportLoadedState(
-              vehicleReportResponse: vehDetailResp);
-        } catch (e) {
-          print(e.toString());
-          yield GetVehicleReportErrorState(msg: e.toString());
-        }
-      }
-      //End
+      // //End of bloc
 
-      //Main bloc for searching element in vehicle Details report
-      else if (event is SearchVehReportDetailsEvent) {
-        print("Enter in main bloc event.......");
+      //! Search Point Of Interest Bloc
+      else if (event is SearchPointOfInterestEvent) {
         try {
-          yield SearchVehicleReportLoadingState();
-          var vehDetailResp = await webService.findStringInvehicledetailReport(
+          yield SearchPointOfInterestLoadingState();
+          var searchPointOfInterestDetailsResponse =
+              await webService.fetchSearchPointInterestDetails(
             event.token,
             event.vendorid,
-            event.searchText,
             event.branchid,
-            event.pageNumber,
-            event.pageSize,
+            event.searchStr,
           );
-          print("Api response in event is--------${vehDetailResp}");
-          yield SearchVehicleReportLoadedState(
-              searchVehicleReportResponse: vehDetailResp);
+          yield SearchPointOfInterestLoadedState(
+              searchPointOfInterest: searchPointOfInterestDetailsResponse);
         } catch (e) {
           print(e.toString());
-          yield SearchVehicleReportErrorState(msg: e.toString());
+          yield PointOfInterestCreateErrorState(msg: e.toString());
         }
-      }
-      //End.
-      //
-
-      //Main bloc for fetch element of Device Master report
-      else if (event is DeviceMasterReportEvent) {
-        print("Enter in main bloc event.......");
+        //! Dropdown Point Of Interest Bloc----------------
+      } else if (event is DropdownPointOfInterestEvent) {
+        try {
+          yield PointofInterestDropdownLoadingState();
+          var dropdownpointofinterest =
+              await webService.dropdownpointofinterest(event.token);
+          yield PointofInterestDropdownLoadedState(
+              dropdownPointOfInterest: dropdownpointofinterest);
+        } catch (e) {
+          print(e.toString());
+          yield PointofInterestDropdownErrorState(msg: e.toString());
+        }
+      } else if (event is DeviceMasterFilter) {
         try {
           yield DeviceMasterFilterLoadingState();
-          var deviceMaster = await webService.devicemasterreport(event.token,
-              event.branchid, event.vendorid, event.pagenumber, event.pagesize);
-          print("Api response in event is--------${deviceMaster}");
-          yield DeviceMasterReportLoadedState(deviceData: deviceMaster);
-        } catch (e) {
-          print(e.toString());
-          yield DeviceMasterReportErorrState(msg: e.toString());
-        }
-      }
-      // overspeed filter
-      else if (event is OverSpeedFilterEvents) {
-        print("Enter in main bloc event.......");
-        try {
-          yield OverSpeedFilterLoadingState();
-          var overspeed = await webService.overspeedfilter(
+          var devicemasterfilterbloc = await webService.devicemasterwebfilter(
               event.token,
-              event.branchid,
               event.vendorid,
-              event.arai,
-              event.fromDate,
-              event.toDate,
-              event.vehiclelist,
+              event.branchid,
+              event.deviceno,
               event.pagenumber,
               event.pagesize);
-          print("Api response in event is--------${overspeed}");
-          yield OverSpeedFilterLoadedState(overspeedFilter: overspeed);
+          yield DeviceMasterFilterLoadedState(
+              deviceMasterFilter: devicemasterfilterbloc);
         } catch (e) {
-          print(e.toString());
-          yield OverSpeedFilterErorrState(msg: e.toString());
+          yield DeviceMasterFilterErorrState(msg: e.toString());
         }
-      }
-      //End.
-      else if (event is FramePacketEvents) {
-        try {
-          yield FramePacketLoadingState();
-          var frame_packet_response = await webService.getframepacketreport(
-            event.token,
-            event.vendorId,
-            event.branchId,
-            event.araiNonarai,
-            event.fromDate,
-            event.formTime,
-            event.toDate,
-            event.toTime,
-            event.imeno,
-            event.framepacketoption,
-            event.pageNumber,
-            event.pageSize,
-          );
-          yield FramePacketLoadedState(
-              FramePacketResponse: frame_packet_response);
-        } catch (e) {
-          print(e.toString());
-        }
-      }
-
-      // frame packet grid ----------
-      else if (event is FramePacketGridEvents) {
-        try {
-          yield FramePacketGridLoadingState();
-          var framepacketgridresponse = await webService.framepacketgrid(
-            event.token,
-            event.vendorId,
-            event.branchId,
-            event.araiNonarai,
-            event.fromDate,
-            event.formTime,
-            event.toDate,
-            event.toTime,
-            event.vehicleList,
-            event.framepacketoption,
-            event.pageNumber,
-            event.pageSize,
-          );
-          yield FramePacketGridLoadedState(
-              FramePacketGridResponse: framepacketgridresponse);
-        } catch (e) {
-          print(e.toString());
-        }
-      }
-      //vehicle Status group
-      else if (event is VehicleStatusGroupEvent) {
-        try {
-          yield VehicleStatusGroupLoadingState();
-          var vehiclestatusgroupresponse = await webService.vehicleStatusGroup(
-            event.token,
-            event.vendorId,
-            event.branchid,
-            event.araino,
-            event.fromdate,
-            event.fromTime,
-            event.toDate,
-            event.toTime,
-            event.imeno,
-            event.pagenumber,
-            event.pagesize,
-          );
-          yield VehicleStatusGroupLoadedState(
-              VehicleStatusGroupResponse: vehiclestatusgroupresponse);
-        } catch (e) {
-          print(e.toString());
-        }
-      } else if (event is SearchDeviceMasterReportDetailsEvent) {
-        print(
-            "Enter in main bloc event of serach vehicle rept.......${event.searchText}");
-        try {
-          yield SearchDeviceMasterReportLoadingState();
-          var finddmDetailResp = await webService.findStringInDMReport(
-            event.token,
-            event.branchid,
-            event.searchText,
-            event.pageNumber,
-            event.vendorid,
-            event.pageSize,
-          );
-          print("Api response in event is--------${finddmDetailResp}");
-          yield SearchDeviceMasterReportLoadedState(
-              searchdmReportResponse: finddmDetailResp);
-        } catch (e) {
-          print(e.toString());
-
-          yield SearchDeviceMasterReportErrorState(msg: e.toString());
-          print("error msg--------${e.toString()}");
-        }
-      }
-
-      // Vehicle Status Report
-      else if (event is vehicleStatusReportEvent) {
+        //!--------------
+      } else if (event is vehicleStatusReportEvent) {
         try {
           yield VehicleStatusReportLoadingState();
           var vehiclestatusreportresponse =
@@ -1584,151 +1286,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           print(e.toString());
         }
       }
-
-      // Vehicle Status Summary
-      else if (event is vehicleStatusSummaryEvent) {
-        try {
-          yield VehicleStatusSummaryLoadingState();
-          var vehiclestatussummaryresponse =
-              await webService.vehicleStatusSummary(
-            event.token,
-            event.vendorId,
-            event.branchid,
-            event.araino,
-            event.fromdate,
-            event.fromTime,
-            event.toDate,
-            event.toTime,
-            event.imeno,
-            event.pagenumber,
-            event.pagesize,
-          );
-          yield VehicleStatusSummaryLoadedState(
-              VehicleStatusSummaryResponse: vehiclestatussummaryresponse);
-        } catch (e) {
-          print(e.toString());
-        }
-      }
-      //Main bloc for search element of Device Master report
-      else if (event is SearchDeviceMasterReportDetailsEvent) {
-        print("Enter in main bloc event.......");
-        try {
-          yield SearchDeviceMasterReportLoadingState();
-          var finddmDetailResp = await webService.findStringInDMReport(
-            event.token,
-            event.branchid,
-            event.searchText,
-            event.pageNumber,
-            event.vendorid,
-            event.pageSize,
-          );
-          print("Api response in event is--------${finddmDetailResp}");
-          yield SearchDeviceMasterReportLoadedState(
-              searchdmReportResponse: finddmDetailResp);
-        } catch (e) {
-          print(e.toString());
-          yield SearchDeviceMasterReportErrorState(msg: e.toString());
-        }
-      }
-      //End.
-      else if (event is DeviceMasterFilter) {
-        try {
-          yield DeviceMasterFilterLoadingState();
-          var devicemasterfilterbloc = await webService.devicemasterwebfilter(
-            event.token,
-            event.vendorid,
-            event.branchid,
-            event.deviceno,
-            event.pagesize,
-            event.pagenumber,
-          );
-          yield DeviceMasterFilterLoadedState(
-              deviceMasterFilter: devicemasterfilterbloc);
-        } catch (e) {
-          yield DeviceMasterFilterErorrState(msg: e.toString());
-        }
-      }
-      // vehicle report filter
-      else if (event is VehicleReportFilterEvent) {
-        try {
-          yield VehicleReportFilterLoadingState();
-          var vehiclereportfilterbloc = await webService.vehiclereportfilter(
-              event.token,
-              event.vendorId,
-              event.branchid,
-              event.vsrno,
-              event.pagenumber,
-              event.pagesize);
-          yield VehicleReportFilterLoadedState(
-              vehicleReportFilter: vehiclereportfilterbloc);
-        } catch (e) {
-          yield VehicleReportFilterErorrState(msg: e.toString());
-        }
-      }
-      // Vehicle Status Group Filter
-      else if (event is vehicleGroupFilterEvent) {
-        try {
-          yield VehicleGroupFilterLoadingState();
-          var vehiclereportfilterbloc = await webService.vehiclergroupfilter(
-              event.token,
-              event.vendorId,
-              event.branchid,
-              event.araino,
-              event.fromdate,
-              event.fromTime,
-              event.toDate,
-              event.toTime,
-              event.vehiclelist,
-              event.pagenumber,
-              event.pagesize);
-          yield VehicleGroupFilterLoadedState(
-              vehiclegroupFilterresponse: vehiclereportfilterbloc);
-        } catch (e) {
-          yield VehicleGroupFilterErorrState(msg: e.toString());
-        }
-      }
-
-      // Vehicle Status Summary Filter
-      else if (event is vehicleSummaryFilterEvent) {
-        try {
-          yield VehicleSummaryFilterLoadingState();
-          var vehiclereportfilterbloc = await webService.vehiclersummaryfilter(
-              event.token,
-              event.vendorId,
-              event.branchid,
-              event.araino,
-              event.fromdate,
-              event.fromTime,
-              event.toDate,
-              event.toTime,
-              event.vehiclelist,
-              event.pagenumber,
-              event.pagesize);
-          yield VehicleSummaryFilterLoadedState(
-              vehiclesummaryFilterresponse: vehiclereportfilterbloc);
-        } catch (e) {
-          yield VehicleSummaryFilterErorrState(msg: e.toString());
-        }
-      }
-
-      // Driver master filter
-      else if (event is DriverMasterFilterEvent) {
-        try {
-          yield DriverMasterFilterLoadingState();
-          var drivermasterfilterbloc = await webService.drivermasterfilter(
-              event.token,
-              event.vendorId,
-              event.branchid,
-              event.drivercode,
-              event.pagenumber,
-              event.pagesize);
-          yield DriverMasterFilterLoadedState(
-              driverMasterFilter: drivermasterfilterbloc);
-        } catch (e) {
-          yield DriverMasterFilterErorrState(msg: e.toString());
-        }
-      }
-      // ------------------------------------
+      //!-------------------
       else if (event is Vehiclestatusreportfilter) {
         try {
           yield VehicleStatusFilterLoadingState();
@@ -1751,588 +1309,84 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         } catch (e) {
           print(e.toString());
         }
-      }
-
-      // Vehicle wise travel history
-      else if (event is VehicleWiseTravelEvents) {
+      } else if (event is GettingRouteGGR) {
         try {
-          yield VehicleWiseTravelLoadingState();
-          var vehiclestatusreportfilterbloc =
-              await webService.vehiclewisetravelhistory(
-                  event.token,
-                  event.vendorId,
-                  event.branchid,
-                  event.araino,
-                  event.fromdate,
-                  event.fromTime,
-                  event.toDate,
-                  event.toTime,
-                  event.imeno,
-                  event.pagenumber,
-                  event.pagesize);
-          yield VehicleWiseTravelLoadedState(
-              vehiclewisetravelResponse: vehiclestatusreportfilterbloc);
+          yield RouteNameListLoadingState();
+          var routenamelist = await webService.routedefinelist(
+              event.token, event.vendorid, event.branchid);
+          yield RouteNameListLoadedState(routenamelist: routenamelist);
         } catch (e) {
           print(e.toString());
         }
       }
-
-      // Vehicle wise time wise travel history
-      else if (event is VehicleWiseTimeWiseTravelEvents) {
+      //! Routes Detail By RoutesName---------------------------
+      else if (event is RoutesDetailByRoutesNameEvents) {
         try {
-          yield VehicleWiseTimeWiseTravelLoadingState();
-          var vehiclestatusreportfilterbloc =
-              await webService.vehiclewisetimewisetravelhistory(
-                  event.token,
-                  event.vendorId,
-                  event.branchid,
-                  event.araino,
-                  event.fromdate,
-                  event.fromTime,
-                  event.toDate,
-                  event.toTime,
-                  event.imeno,
-                  event.pagenumber,
-                  event.pagesize);
-          yield VehicleWiseTimeWiseTravelLoadedState(
-              vehiclewisewimewisetravelResponse: vehiclestatusreportfilterbloc);
+          yield GetRoutesDetailLoadingState();
+          var routenamedetail = await webService.routesdetailbyname(
+              event.token, event.vendorid, event.branchid, event.routename);
+          yield GetRoutesDetailLoadedState(routenamelist: routenamedetail);
         } catch (e) {
           print(e.toString());
         }
       }
-
-      // Vehicle  wise filter
-      else if (event is VehicleWiseFilterEvents) {
+      //! POI type code------------
+      else if (event is Poitype) {
         try {
-          yield VehicleWiseFilterLoadingState();
-          var vehiclestatusreportfilterbloc =
-              await webService.vehiclewisefilter(
-                  event.token,
-                  event.vendorId,
-                  event.branchid,
-                  event.araino,
-                  event.fromdate,
-                  event.fromTime,
-                  event.toDate,
-                  event.toTime,
-                  event.vehiclelist,
-                  event.pagenumber,
-                  event.pagesize);
-          yield VehicleWiseFilterLoadedState(
-              vehiclewisefilterResponse: vehiclestatusreportfilterbloc);
+          yield POITypeLoadingState();
+          var poitypecode = await webService.poitypecode(event.token);
+          yield POITypeLoadedState(poitypelist: poitypecode);
         } catch (e) {
           print(e.toString());
         }
       }
-
-      // Vehicle wise time wise filter
-      else if (event is VehicleWiseTimeWiseFilterEvents) {
+      //! POI post data mainbloc----------------
+      else if (event is PoiPostdata) {
         try {
-          yield VehicleWiseTimeWiseFilterLoadingState();
-          var vehiclestatusreportfilterbloc =
-              await webService.vehiclewisetimewisefilter(
-                  event.token,
-                  event.vendorId,
-                  event.branchid,
-                  event.araino,
-                  event.fromdate,
-                  event.fromTime,
-                  event.toDate,
-                  event.toTime,
-                  event.vehiclelist,
-                  event.pagenumber,
-                  event.pagesize);
-          yield VehicleWiseTimeWiseFilterLoadedState(
-              vehiclewisetimewisefilterResponse: vehiclestatusreportfilterbloc);
-        } catch (e) {
-          print(e.toString());
-        }
-      }
-
-      // Vehicle wise search
-      else if (event is VehicleWiseSearchEvents) {
-        try {
-          yield VehicleWiseSearchLoadingState();
-          var vehiclestatusreportfilterbloc =
-              await webService.vehiclewisesearch(
-                  event.token,
-                  event.vendorId,
-                  event.branchid,
-                  event.araino,
-                  event.fromdate,
-                  event.toDate,
-                  event.searchtxt,
-                  event.pagenumber,
-                  event.pagesize);
-          yield VehicleWiseSearchLoadedState(
-              vehiclewisesearchResponse: vehiclestatusreportfilterbloc);
-        } catch (e) {
-          print(e.toString());
-        }
-      }
-
-      // Vehicle wise time wise search
-      else if (event is VehicleWiseTimeWiseSearchEvents) {
-        try {
-          yield VehicleWiseTimeWiseSearchLoadingState();
-          var vehiclestatusreportfilterbloc =
-              await webService.vehiclewisetimewisesearch(
-                  event.token,
-                  event.vendorId,
-                  event.branchid,
-                  event.araino,
-                  event.fromdate,
-                  event.fromTime,
-                  event.toDate,
-                  event.toTime,
-                  event.searchtxt,
-                  event.pagenumber,
-                  event.pagesize);
-          yield VehicleWiseTimeWiseSearchLoadedState(
-              vehiclewisetimewisesearchResponse: vehiclestatusreportfilterbloc);
-        } catch (e) {
-          print(e.toString());
-        }
-      }
-
-      // date and time wise distance travel
-      else if (event is DateAndTimeWiseTravelEvents) {
-        try {
-          yield DateAndTimeWiseTravelLoadingState();
-          var vehiclestatusreportfilterbloc =
-              await webService.dateandtimewisetravelhistory(
-                  event.token,
-                  event.vendorId,
-                  event.branchid,
-                  event.araino,
-                  event.fromdate,
-                  event.fromTime,
-                  event.toDate,
-                  event.toTime,
-                  event.imeno,
-                  event.pagenumber,
-                  event.pagesize);
-          yield DateAndTimeWiseTravelLoadedState(
-              dateandtimewisetravelResponse: vehiclestatusreportfilterbloc);
-        } catch (e) {
-          print(e.toString());
-        }
-      }
-
-      // date and time wise filter travel
-      else if (event is DateAndTimeWiseFilterEvents) {
-        try {
-          yield DateAndTimeWiseFilterLoadingState();
-          var vehiclestatusreportfilterbloc =
-              await webService.dateandtimewisefilter(
-                  event.token,
-                  event.vendorId,
-                  event.branchid,
-                  event.araino,
-                  event.fromdate,
-                  event.fromTime,
-                  event.toDate,
-                  event.toTime,
-                  event.vehiclelist,
-                  event.pagenumber,
-                  event.pagesize);
-          yield DateAndTimeWiseFilterLoadedState(
-              dateandtimewisefilterResponse: vehiclestatusreportfilterbloc);
-        } catch (e) {
-          print(e.toString());
-        }
-      }
-
-      // date and time wise filter travel
-      else if (event is DateAndTimeWiseSearchEvents) {
-        try {
-          yield DateAndTimeWiseSearchLoadingState();
-          var vehiclestatusreportfilterbloc =
-              await webService.dateandtimewisesearch(
-                  event.token,
-                  event.vendorId,
-                  event.branchid,
-                  event.araino,
-                  event.fromdate,
-                  event.fromTime,
-                  event.toDate,
-                  event.toTime,
-                  event.searchtxt,
-                  event.pagenumber,
-                  event.pagesize);
-          yield DateAndTimeWiseSearchLoadedState(
-              dateandtimewisesearchResponse: vehiclestatusreportfilterbloc);
-        } catch (e) {
-          print(e.toString());
-        }
-      }
-
-      // Frame packet filter
-      else if (event is FrameFilterEvent) {
-        try {
-          yield FrameFilterLoadingState();
-          var vehiclestatusreportfilterbloc = await webService.frampacketfilter(
+          yield POIPostLoadingState();
+          var addpoidata = await webService.poiaddeddata(
               event.token,
-              event.vendorId,
+              event.vendorid,
               event.branchid,
-              event.arai,
-              event.fromdate,
-              event.fromtime,
-              event.todate,
-              event.totime,
-              event.vehiclelist,
-              event.framepacketoption,
-              event.pagenumber,
-              event.pagesize);
-          yield FrameFilterLoadedState(
-              frameFilterresponse: vehiclestatusreportfilterbloc);
+              event.poiname,
+              event.poitypeID,
+              event.description,
+              event.tolerance,
+              event.locationlatitude,
+              event.locationlongitude,
+              event.showpoi,
+              event.address,
+              event.vehicleid);
+          yield POIPostLoadedState(poipost: addpoidata);
         } catch (e) {
-          print(e.toString());
+          yield POIPostErrorState(msg: e.toString());
         }
       }
-
-      // Frame packet grid filter
-
-      else if (event is FrameGridFilterEvent) {
+      //! POI delete data----------------
+      else if (event is POIDeletedata) {
         try {
-          yield VehicleStatusFilterLoadingState();
-          var vehiclestatusreportfilterbloc =
-              await webService.framepacketgridfilter(
-                  event.token,
-                  event.vendorId,
-                  event.branchid,
-                  event.arai,
-                  event.fromdate,
-                  event.fromtime,
-                  event.todate,
-                  event.totime,
-                  event.vehiclelist,
-                  event.framepacketoption,
-                  event.pagenumber,
-                  event.pagesize);
-          yield FrameGridFilterLoadedState(
-              framegridFilterresponse: vehiclestatusreportfilterbloc);
+          yield POIDeleteLoadingState();
+          var editDeviceResponse = await webService.poideletewebservice(
+              event.token, event.vendorid, event.branchid, event.srno);
+          yield POIDeleteLoadedState(
+              editDeviceResponse: editDeviceResponse);
         } catch (e) {
           print(e.toString());
-        }
-      }
-
-      // device master driver code filter
-      else if (event is DeviceMasterDrivercode) {
-        try {
-          yield DMFDriverCodeLoadingState();
-          var vehiclestatusreportfilterbloc = await webService.dmfdrivercode(
-            event.token,
-            event.vendorId,
-            event.branchId,
-          );
-          yield DMFDriverCodeLoadedState(
-              dmfdriverCoderesponse: vehiclestatusreportfilterbloc);
-        } catch (e) {
-          print(e.toString());
-        }
-      }
-
-      //Vehicle vsrno
-      else if (event is VehicleVSrNoEvent) {
-        try {
-          yield VehicleVSrNoLoadingState();
-          var vehiclestatusreportfilterbloc = await webService.vehiclevsrno(
-            event.token,
-            event.vendorId,
-            event.branchId,
-          );
-          yield VehicleVSrNoLoadedState(
-              vehiclevsrnoresponse: vehiclestatusreportfilterbloc);
-        } catch (e) {
-          print(e.toString());
-        }
-      }
-
-      //Frame Packet Option Grid
-      else if (event is FramePacketOptionGridEvent) {
-        try {
-          yield FramePacketOptiongridLoadingState();
-          var vehiclestatusreportfilterbloc =
-              await webService.framepacketoptiongrid(
-            event.token,
-            event.arai,
-          );
-          yield FramePacketOptiongridLoadedState(
-              vehiclevsrnoresponse: vehiclestatusreportfilterbloc);
-        } catch (e) {
-          print(e.toString());
-        }
-      }
-
-      // Vehicle Status report driver code
-      else if (event is VehicleStsRptDriverCodeEvent) {
-        try {
-          yield VehicleStsRptDriverCodeLoadingState();
-          var vehiclestatusreportfilterbloc = await webService.vsrdcdrivercode(
-            event.token,
-            event.vendorId,
-            event.branchId,
-          );
-          yield VehicleStsRptDriverCodeLoadedState(
-              dmfdriverCoderesponse: vehiclestatusreportfilterbloc);
-        } catch (e) {
-          print(e.toString());
-        }
-      }
-
-      // date wise travel history driver code filter
-      else if (event is DateWiseDriverCodeEvent) {
-        try {
-          yield DateWiseDriverCodeLoadingState();
-          var vehiclestatusreportfilterbloc =
-              await webService.datewisedrivercode(
-            event.token,
-            event.vendorId,
-            event.branchId,
-          );
-          yield DateWiseDriverCodeLoadedState(
-              dmfdriverCoderesponse: vehiclestatusreportfilterbloc);
-        } catch (e) {
-          print(e.toString());
-        }
-      }
-
-      // Driver wise vehicle assign driver code
-      else if (event is DriverWiseDriverCodeEvent) {
-        try {
-          yield DriverWiseDriverCodeLoadingState();
-          var vehiclestatusreportfilterbloc =
-              await webService.driverwisedrivercode(
-            event.token,
-            event.vendorId,
-            event.branchId,
-          );
-          yield DriverWiseDriverCodeLoadedState(
-              dmfdriverCoderesponse: vehiclestatusreportfilterbloc);
-        } catch (e) {
-          print(e.toString());
-        }
-      }
-
-      // Frame packet driver code
-      else if (event is FramepacketDriverCodeEvent) {
-        try {
-          yield FramePacketDriverCodeLoadingState();
-          var vehiclestatusreportfilterbloc =
-              await webService.framepacketdrivercode(
-            event.token,
-            event.vendorId,
-            event.branchId,
-          );
-          yield FramePacketDriverCodeLoadedState(
-              dmfdriverCoderesponse: vehiclestatusreportfilterbloc);
-        } catch (e) {
-          print(e.toString());
-        }
-      }
-
-      // Frame packet grid driver code
-      else if (event is FramepacketGridDriverCodeEvent) {
-        try {
-          yield FramePacketGridDriverCodeLoadingState();
-          var vehiclestatusreportfilterbloc =
-              await webService.framepacketgriddrivercode(
-            event.token,
-            event.vendorId,
-            event.branchId,
-          );
-          yield FramePacketGridDriverCodeLoadedState(
-              dmfdriverCoderesponse: vehiclestatusreportfilterbloc);
-        } catch (e) {
-          print(e.toString());
-        }
-      }
-
-      // Over speed vehicle filter
-      else if (event is OverSpeedVehicleFilterEvent) {
-        try {
-          yield OverSpeedVehicleFilterLoadingState();
-          var vehiclestatusreportfilterbloc =
-              await webService.overspeedvehiclefilter(
-            event.token,
-            event.vendorId,
-            event.branchId,
-          );
-          yield OverSpeedVehicleFilterLoadedState(
-              overspeedvehiclefilterresponse: vehiclestatusreportfilterbloc);
-        } catch (e) {
-          print(e.toString());
-        }
-      }
-      // search frame packet report ----------
-      else if (event is SearchFramePacktReportEvent) {
-        try {
-          yield SearchFramePacketLoadingState();
-          var frame_packet_response = await webService.searchTextFramePckt(
-            event.token,
-            event.vendorId,
-            event.branchId,
-            event.araiNonarai,
-            event.fromDate,
-            event.formTime,
-            event.toDate,
-            event.toTime,
-            event.searchText,
-            event.framepacketoption,
-            event.pageNumber,
-            event.pageSize,
-          );
-          yield SearchFramePacketLoadedState(
-              searchFramePacket: frame_packet_response);
-          print("Serch pkt res------$frame_packet_response");
-        } catch (e) {
-          print(e.toString());
-          yield SearchFramePacketErrorState(msg: e.toString());
-        }
-      }
-
-      // search frame packet grid report ----------
-      else if (event is SearchFramePacktGridEvent) {
-        try {
-          yield SearchFramePacketGridLoadingState();
-          var frame_packet_grid_response =
-              await webService.searchTextFramePcktgrid(
-            event.token,
-            event.vendorId,
-            event.branchId,
-            event.araiNonarai,
-            event.fromDate,
-            event.formTime,
-            event.toDate,
-            event.toTime,
-            event.searchText,
-            event.framepacketoption,
-            event.pageNumber,
-            event.pageSize,
-          );
-          yield SearchFramePacketGridLoadedState(
-              searchFramePacketgrid: frame_packet_grid_response);
-          print("Serch pkt res------$frame_packet_grid_response");
-        } catch (e) {
-          print(e.toString());
-          yield SearchFramePacketGridErrorState(msg: e.toString());
-        }
-      } else if (event is SearchVehicleStatusGroupEvent) {
-        try {
-          yield SearchVehicleStatusGroupLoadingState();
-          var response = await webService.searchvehstatusgrouprpt(
-              event.token,
-              event.vendorId,
-              event.branchid,
-              event.araino,
-              event.fromdate,
-              event.fromTime,
-              event.toDate,
-              event.toTime,
-              event.searchText,
-              event.pagenumber,
-              event.pagesize);
-          yield SearchVehicleStatusGroupLoadedState(
-              searchVehicleStatusGroupResponse: response);
-          print("Serch pkt res------$response");
-        } catch (e) {
-          print(e.toString());
-          yield SearchVehicleStatusGroupErrorState(msg: e.toString());
-        }
-      }
-      
-      //! ---------------- // Search Vehicle Status Report --------------
-      else if (event is SearchVehicleStatusEvent) {
-        try {
-          yield SearchVehicleStatusReportLoadingState();
-          var vehiclestatusreportresponse =
-          await webService.searchvehstatusrpt(
-            event.token,
-            event.vendorId,
-            event.branchid,
-            event.araino,
-            event.fromdate,
-            event.fromTime,
-            event.toDate,
-            event.toTime,
-            event.searchText,
-            event.pagenumber,
-            event.pagesize,
-          );
-          yield SearchVehicleStatusReportLoadedState(
-              searchvehicleStatusGroupResponse: vehiclestatusreportresponse);
-        } catch (e) {
-          print(e.toString());
-        }
-        yield SearchVehicleStatusReportErrorState(msg: "Enetr in Error state...");
-
-      }
-      //! Search Vehicle Status Summary----------------
-      //  ------------------- // Search Vehicle Status Summary--------------
-
-      else if (event is SearchvehicleStatusSummaryEvent) {
-        try {
-          yield SearchVehicleStatusGroupLoadingState();
-          var vehiclestatussummaryresponse =
-          await webService.searchvehicleStatusSummary(
-            event.token,
-            event.vendorId,
-            event.branchid,
-            event.araino,
-            event.fromdate,
-            event.fromTime,
-            event.toDate,
-            event.toTime,
-            event.searchText,
-            event.pagenumber,
-            event.pagesize,
-          );
-          yield SearchVehicleStatusSummaryLoadedState(
-              searchVehicleStatusGroupResponse:  vehiclestatussummaryresponse);
-        } catch (e) {
-          print(e.toString());
-        }
-      }
-
-      // Driver master driver code---------
-      else if (event is DriverMasterDriverCodeEvent) {
-        try {
-          yield DriverMasterDriverCodeLoadingState();
-          var vehiclestatusreportfilterbloc =
-              await webService.drivermasterdrivercode(
-            event.token,
-            event.vendorId,
-            event.branchId,
-          );
-          yield DriverMasterDriverCodeLoadedState(
-              dmfdriverCoderesponse: vehiclestatusreportfilterbloc);
-        } catch (e) {
-          print(e.toString());
-        }
-      }
-
-      // ---------------------------------
-      //  Date wise travel filter
-      else if (event is DateWiseTravelFilterEvent) {
-        try {
-          yield DateWiseTravelFilterLoadingState();
-          var devicemasterfilterbloc = await webService.datewisetravelfilter(
-              event.token,
-              event.vendorId,
-              event.branchid,
-              event.arai,
-              event.fromdate,
-              event.todate,
-              event.vehiclelist,
-              event.pagenumber,
-              event.pagesize);
-          yield DateWiseTravelFilterLoadedState(
-              dateWiseTravelFilterResponse: devicemasterfilterbloc);
-        } catch (e) {
-          yield DeviceMasterFilterErorrState(msg: e.toString());
+          yield POIDeleteErrorState(msg: e.toString());
         }
       }
     }
   }
+  // else if (event is FramePacketReportEvents) {
+  // try {
+  // yield FramePacketReportLoadingState();
+  // var frame_packet_response = await webService.getframepacketreport(
+  // event.vendorId, event.branchId, event.pageNumber, event.pageSize,);
+  // yield FramePacketReportLoadedState(
+  // frame_packet_response: frame_packet_response);
+  // } catch (e) {
+  // print(e.toString());
+  // yield FramePacketReportErrorState(msg: e.toString());
+  // }
+  // }
 }

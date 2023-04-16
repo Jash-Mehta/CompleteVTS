@@ -18,7 +18,7 @@ class _SplashScreenState extends State<SplashScreen> {
     // TODO: implement initState
     super.initState();
     gotonextpage();
-  }
+  } 
 
   gotonextpage() {
     Timer(Duration(seconds: 3), () {

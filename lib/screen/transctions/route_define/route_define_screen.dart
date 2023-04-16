@@ -175,7 +175,7 @@ class _RouteDefineScreenState extends State<RouteDefineScreen> {
                       padding: const EdgeInsets.all(15.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
+                        children: const [
                           Icon(
                             Icons.add,
                             color: MyColors.appDefaultColorCode,
@@ -193,7 +193,7 @@ class _RouteDefineScreenState extends State<RouteDefineScreen> {
                     ),
                   ),
                   /* !isaddwaypoint ? Container() : */ Column(
-                    children: [
+                    children: const [
                       Divider(
                         color: MyColors.text3greyColorCode,
                         height: 1,
@@ -201,7 +201,7 @@ class _RouteDefineScreenState extends State<RouteDefineScreen> {
                       Align(
                           alignment: Alignment.centerLeft,
                           child: Padding(
-                            padding: const EdgeInsets.only(
+                            padding:  EdgeInsets.only(
                                 top: 10, left: 8.0, bottom: 10),
                             child: Text(
                               "Way Point",
@@ -210,7 +210,7 @@ class _RouteDefineScreenState extends State<RouteDefineScreen> {
                             ),
                           )),
                       Padding(
-                        padding: const EdgeInsets.only(left: 8.0, right: 8),
+                        padding:  EdgeInsets.only(left: 8.0, right: 8),
                         child: TextField(
                           enabled: true, // to trigger disabledBorder
                           decoration: InputDecoration(
@@ -273,13 +273,13 @@ class _RouteDefineScreenState extends State<RouteDefineScreen> {
                 child: Padding(
                   padding: const EdgeInsets.only(top: 10, bottom: 8),
                   child: Row(
-                    children: [
+                    children: const [
                       Text(
                         "Destination Location",
                         style: TextStyle(fontSize: 18),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(left: 3.0),
+                        padding:  EdgeInsets.only(left: 3.0),
                         child: Text("*",
                             style: TextStyle(
                                 fontSize: 18, color: MyColors.redColorCode)),
@@ -287,7 +287,7 @@ class _RouteDefineScreenState extends State<RouteDefineScreen> {
                     ],
                   ),
                 )),
-            TextField(
+            const TextField(
               enabled: true, // to trigger disabledBorder
               decoration: InputDecoration(
                 filled: true,

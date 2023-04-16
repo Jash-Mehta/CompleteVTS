@@ -1024,7 +1024,7 @@ class AddGeofenceEvents extends MainEvent {
   String rectanglekilometer;
   String rectanglemiles;
   String address;
-  String vehicleid;
+  int vehicleid;
 
   AddGeofenceEvents({
     required this.token,
@@ -1064,6 +1064,54 @@ class RemoveAssignMenuRightsEvents extends MainEvent {
       {required this.token, required this.assignMenuRightsRequest});
 }
 
+//! Overspeed Events------------
+class getOverSpeedEvents extends MainEvent {
+  String token;
+  int vendorid;
+  int branchid;
+  String arainonarai;
+  String fromdata;
+  String fromtime;
+  String todate;
+  int pagesize;
+  int pagenumber;
+  getOverSpeedEvents({
+    required this.token,
+    required this.vendorid,
+    required this.branchid,
+    required this.arainonarai,
+    required this.fromdata,
+    required this.fromtime,
+    required this.todate,
+    required this.pagesize,
+    required this.pagenumber,
+  });
+}
+
+class SearchOverSpeedCreateEvents extends MainEvent {
+  String token;
+  int vendorid;
+  int branchid;
+  String arainonarai;
+  String fromdata;
+  String fromtime;
+  String todate;
+  int pagesize;
+  int pagenumber;
+  String searchText;
+  SearchOverSpeedCreateEvents({
+    required this.token,
+    required this.vendorid,
+    required this.branchid,
+    required this.arainonarai,
+    required this.fromdata,
+    required this.fromtime,
+    required this.todate,
+    required this.pagesize,
+    required this.pagenumber,
+    required this.searchText,
+  });
+}
 
 // class getDriverMasterReportEvents extends MainEvent {
 //   int srNo;
@@ -1083,60 +1131,17 @@ class RemoveAssignMenuRightsEvents extends MainEvent {
 //   getDriverMasterReportEvents({required this.srNo, required this.vendorSrNo, required this.vendorName, required this.branchSrNo, required this.branchName, required this.driverCode, required this.licenceNo, required this.city, required this.mobileNo, required this.doj, required this.driverAddress, required this.acUser, required this.acStatus});
 // }
 
-class FramePacketEvents extends MainEvent {
+class FramePacketReportEvents extends MainEvent {
   String token;
   int vendorId;
   int branchId;
-  String araiNonarai;
-  String fromDate;
-  String formTime;
-  String toDate;
-  String toTime;
-  int imeno;
-  String framepacketoption;
   int pageNumber;
   int pageSize;
 
-  FramePacketEvents(
+  FramePacketReportEvents(
       {required this.token,
       required this.vendorId,
       required this.branchId,
-      required this.araiNonarai,
-      required this.fromDate,
-      required this.formTime,
-      required this.toDate,
-      required this.toTime,
-      required this.imeno,
-      required this.framepacketoption,
-      required this.pageNumber,
-      required this.pageSize});
-}
-
-class FramePacketGridEvents extends MainEvent {
-  String token;
-  int vendorId;
-  int branchId;
-  String araiNonarai;
-  String fromDate;
-  String formTime;
-  String toDate;
-  String toTime;
-  String vehicleList;
-  String framepacketoption;
-  int pageNumber;
-  int pageSize;
-
-  FramePacketGridEvents(
-      {required this.token,
-      required this.vendorId,
-      required this.branchId,
-      required this.araiNonarai,
-      required this.fromDate,
-      required this.formTime,
-      required this.toDate,
-      required this.toTime,
-      required this.vehicleList,
-      required this.framepacketoption,
       required this.pageNumber,
       required this.pageSize});
 }
@@ -1184,6 +1189,7 @@ class TravelSummaryReportEvent extends MainEvent {
   });
 }
 
+//! TravelSummary Search Event-------------------------
 class TravelSummarySearchEvent extends MainEvent {
   String token;
   int vendorid;
@@ -1211,6 +1217,7 @@ class TravelSummarySearchEvent extends MainEvent {
   });
 }
 
+//! TravelSummary Filter Event-------------------------
 class TravelSummaryFilterEvent extends MainEvent {
   String token;
   int vendorid;
@@ -1238,6 +1245,7 @@ class TravelSummaryFilterEvent extends MainEvent {
   });
 }
 
+//! DistanceSummary Event-------------------------
 class DistanceSummaryEvent extends MainEvent {
   String token;
   int vendorid;
@@ -1266,6 +1274,7 @@ class DistanceSummaryEvent extends MainEvent {
   });
 }
 
+//! DistanceSummary Filter Event-------------------------
 class DistanceSummaryFilterEvent extends MainEvent {
   String token;
   int vendorid;
@@ -1287,150 +1296,75 @@ class DistanceSummaryFilterEvent extends MainEvent {
   });
 }
 
-class DriverWiseVehicleAssignEvent extends MainEvent {
+//! DistanceSummary Search Event-------------------------
+class DistanceSummarySearchEvent extends MainEvent {
   String token;
   int vendorid;
   int branchid;
+  String arainonarai;
+  String fromdata;
+  String fromtime;
+  String todate;
+  String totime;
+  String searchtext;
   int pagesize;
   int pagenumber;
-  DriverWiseVehicleAssignEvent({
+  DistanceSummarySearchEvent({
     required this.token,
     required this.vendorid,
     required this.branchid,
+    required this.arainonarai,
+    required this.fromdata,
+    required this.fromtime,
+    required this.todate,
+    required this.totime,
+    required this.searchtext,
     required this.pagesize,
     required this.pagenumber,
   });
 }
 
-class SearchDriverwiseVehAssignDetailsEvent extends MainEvent {
+//! PointOfInterest Get  Event-------------------------
+class GetPointOfInterestEvent extends MainEvent {
   String token;
   int vendorid;
   int branchid;
-  int pageSize;
-  int pageNumber;
-  String searchText;
+  int pagesize;
+  int pagenumber;
 
-  SearchDriverwiseVehAssignDetailsEvent(
-      {required this.token,
-        required this.vendorid,
-        required this.branchid,
-        required this.pageSize,
-        required this.pageNumber,
-        required this.searchText});
-}
-
-//! Event for get vehicle reports-----
-
-class GetVehReportDetailsEvent extends MainEvent {
-  String token;
-  int vendorid;
-  int branchid;
-  int pageSize;
-  int pageNumber;
-
-  GetVehReportDetailsEvent(
+  GetPointOfInterestEvent(
       {required this.token,
       required this.vendorid,
       required this.branchid,
-      required this.pageSize,
-      required this.pageNumber});
+      required this.pagesize,
+      required this.pagenumber});
 }
+//End of PointOfInterest get Event
 
-// Event for serach text for Vahicle Details..
-class SearchVehReportDetailsEvent extends MainEvent {
+//! PointOfInterest Search  Event-------------------------
+class SearchPointOfInterestEvent extends MainEvent {
   String token;
   int vendorid;
   int branchid;
-  String searchText;
-  int pageNumber;
-  int pageSize;
+  String searchStr;
 
-  SearchVehReportDetailsEvent(
-      {required this.token,
-      required this.vendorid,
-      required this.branchid,
-      required this.pageNumber,
-      required this.pageSize,
-      required this.searchText});
-}
-
-//
-//Event for get device master report-----
-
-class GetDeviceMasterReportDetailsEvent extends MainEvent {
-  String token;
-  int vendorid;
-  int branchid;
-  int pageSize;
-  int pageNumber;
-
-  GetDeviceMasterReportDetailsEvent(
-      {required this.token,
-      required this.vendorid,
-      required this.branchid,
-      required this.pageSize,
-      required this.pageNumber});
-}
-
-//Event for searrch data in  device master report-----
-
-class SearchDeviceMasterReportDetailsEvent extends MainEvent {
-  String token;
-  int vendorid;
-  int branchid;
-  int pageSize;
-  int pageNumber;
-  String searchText;
-
-  SearchDeviceMasterReportDetailsEvent(
-      {required this.token,
-      required this.vendorid,
-      required this.branchid,
-      required this.pageSize,
-      required this.pageNumber,
-      required this.searchText});
-}
-
-class DateWiseTravelHistoryEvent extends MainEvent {
-  String token;
-  int vendorid;
-  int branchid;
-  String arainonarai;
-  String fromdate;
-  String todate;
-  String imeino;
-  int pageSize;
-  int pageNumber;
-
-  DateWiseTravelHistoryEvent({
+  SearchPointOfInterestEvent({
     required this.token,
     required this.vendorid,
     required this.branchid,
-    required this.arainonarai,
-    required this.fromdate,
-    required this.todate,
-    required this.imeino,
-    required this.pageSize,
-    required this.pageNumber,
+    required this.searchStr,
   });
 }
+//!End of PointOfInterest search Event
 
-class DriverMasterEvent extends MainEvent {
+class DropdownPointOfInterestEvent extends MainEvent {
   String token;
-  int vendorid;
-  int branchid;
-  int pageSize;
-  int pageNumber;
-
-  DriverMasterEvent({
+  DropdownPointOfInterestEvent({
     required this.token,
-    required this.vendorid,
-    required this.branchid,
-    required this.pageSize,
-    required this.pageNumber,
   });
 }
 
+//! DeviceMasterFilter-----------------------------
 class DeviceMasterFilter extends MainEvent {
   String token;
   String vendorid;
@@ -1448,121 +1382,7 @@ class DeviceMasterFilter extends MainEvent {
   });
 }
 
-class DeviceMasterReportEvent extends MainEvent {
-  String token;
-  int vendorid;
-  int branchid;
-  int pagenumber;
-  int pagesize;
-  DeviceMasterReportEvent({
-    required this.token,
-    required this.vendorid,
-    required this.branchid,
-    required this.pagenumber,
-    required this.pagesize,
-  });
-}
-
-class OverSpeedEvents extends MainEvent {
-  String token;
-  int vendorid;
-  int branchid;
-  String arai;
-  String fromDate;
-  String toDate;
-  int imeno;
-  int pagenumber;
-  int pagesize;
-  OverSpeedEvents({
-    required this.token,
-    required this.vendorid,
-    required this.branchid,
-    required this.arai,
-    required this.fromDate,
-    required this.toDate,
-    required this.imeno,
-    required this.pagenumber,
-    required this.pagesize,
-  });
-}
-
-class OverSpeedFilterEvents extends MainEvent {
-  String token;
-  int vendorid;
-  int branchid;
-  String arai;
-  String fromDate;
-  String toDate;
-  String vehiclelist;
-  int pagenumber;
-  int pagesize;
-  OverSpeedFilterEvents({
-    required this.token,
-    required this.vendorid,
-    required this.branchid,
-    required this.arai,
-    required this.fromDate,
-    required this.toDate,
-    required this.vehiclelist,
-    required this.pagenumber,
-    required this.pagesize,
-  });
-}
-
-class VehicleStatusGroupEvent extends MainEvent {
-  String token;
-  int vendorId;
-  int branchid;
-  String araino;
-  String fromdate;
-  String fromTime;
-  String toDate;
-  String toTime;
-  int imeno;
-  int pagenumber;
-  int pagesize;
-  VehicleStatusGroupEvent({
-    required this.token,
-    required this.vendorId,
-    required this.branchid,
-    required this.araino,
-    required this.fromdate,
-    required this.fromTime,
-    required this.toDate,
-    required this.toTime,
-    required this.imeno,
-    required this.pagenumber,
-    required this.pagesize,
-  });
-}
-
-class vehicleStatusSummaryEvent extends MainEvent {
-  String token;
-  int vendorId;
-  int branchid;
-  String araino;
-  String fromdate;
-  String fromTime;
-  String toDate;
-  String toTime;
-  int imeno;
-  int pagenumber;
-  int pagesize;
-  vehicleStatusSummaryEvent({
-    required this.token,
-    required this.vendorId,
-    required this.branchid,
-    required this.araino,
-    required this.fromdate,
-    required this.fromTime,
-    required this.toDate,
-    required this.toTime,
-    required this.imeno,
-    required this.pagenumber,
-    required this.pagesize,
-  });
-}
-
+//!------------------
 class vehicleStatusReportEvent extends MainEvent {
   String token;
   int vendorId;
@@ -1590,134 +1410,7 @@ class vehicleStatusReportEvent extends MainEvent {
   });
 }
 
-class vehicleGroupFilterEvent extends MainEvent {
-  String token;
-  int vendorId;
-  int branchid;
-  String araino;
-  String fromdate;
-  String fromTime;
-  String toDate;
-  String toTime;
-  String vehiclelist;
-  int pagenumber;
-  int pagesize;
-  vehicleGroupFilterEvent({
-    required this.token,
-    required this.vendorId,
-    required this.branchid,
-    required this.araino,
-    required this.fromdate,
-    required this.fromTime,
-    required this.toDate,
-    required this.toTime,
-    required this.vehiclelist,
-    required this.pagenumber,
-    required this.pagesize,
-  });
-}
-
-class vehicleSummaryFilterEvent extends MainEvent {
-  String token;
-  int vendorId;
-  int branchid;
-  String araino;
-  String fromdate;
-  String fromTime;
-  String toDate;
-  String toTime;
-  String vehiclelist;
-  int pagenumber;
-  int pagesize;
-  vehicleSummaryFilterEvent({
-    required this.token,
-    required this.vendorId,
-    required this.branchid,
-    required this.araino,
-    required this.fromdate,
-    required this.fromTime,
-    required this.toDate,
-    required this.toTime,
-    required this.vehiclelist,
-    required this.pagenumber,
-    required this.pagesize,
-  });
-}
-
-class VehicleReportFilterEvent extends MainEvent {
-  String token;
-  int vendorId;
-  int branchid;
-  int vsrno;
-  int pagenumber;
-  int pagesize;
-  VehicleReportFilterEvent({
-    required this.token,
-    required this.vendorId,
-    required this.branchid,
-    required this.vsrno,
-    required this.pagenumber,
-    required this.pagesize,
-  });
-}
-
-class DriverMasterFilterEvent extends MainEvent {
-  String token;
-  int vendorId;
-  int branchid;
-  String drivercode;
-  int pagenumber;
-  int pagesize;
-  DriverMasterFilterEvent({
-    required this.token,
-    required this.vendorId,
-    required this.branchid,
-    required this.drivercode,
-    required this.pagenumber,
-    required this.pagesize,
-  });
-}
-
-class DriverVehicleFilterEvent extends MainEvent {
-  String token;
-  int vendorId;
-  int branchid;
-  String vsrno;
-  int pagenumber;
-  int pagesize;
-  DriverVehicleFilterEvent({
-    required this.token,
-    required this.vendorId,
-    required this.branchid,
-    required this.vsrno,
-    required this.pagenumber,
-    required this.pagesize,
-  });
-}
-
-class DateWiseTravelFilterEvent extends MainEvent {
-  String token;
-  int vendorId;
-  int branchid;
-  String arai;
-  String fromdate;
-  String todate;
-  String vehiclelist;
-  int pagenumber;
-  int pagesize;
-  DateWiseTravelFilterEvent({
-    required this.token,
-    required this.vendorId,
-    required this.branchid,
-    required this.arai,
-    required this.fromdate,
-    required this.todate,
-    required this.vehiclelist,
-    required this.pagenumber,
-    required this.pagesize,
-  });
-}
-
+//!------------Vehicle status report filter----------------------
 class Vehiclestatusreportfilter extends MainEvent {
   String token;
   int vendorId;
@@ -1747,634 +1440,79 @@ class Vehiclestatusreportfilter extends MainEvent {
   });
 }
 
-class FrameFilterEvent extends MainEvent {
-  String token;
-  int vendorId;
-  int branchid;
-  String arai;
-  String fromdate;
-  String fromtime;
-  String todate;
-  String totime;
-  String vehiclelist;
-  String framepacketoption;
-  int pagenumber;
-  int pagesize;
-  FrameFilterEvent({
-    required this.token,
-    required this.vendorId,
-    required this.branchid,
-    required this.arai,
-    required this.fromdate,
-    required this.fromtime,
-    required this.todate,
-    required this.totime,
-    required this.vehiclelist,
-    required this.framepacketoption,
-    required this.pagenumber,
-    required this.pagesize,
-  });
-}
-
-class FrameGridFilterEvent extends MainEvent {
-  String token;
-  int vendorId;
-  int branchid;
-  String arai;
-  String fromdate;
-  String fromtime;
-  String todate;
-  String totime;
-  String vehiclelist;
-  String framepacketoption;
-  int pagenumber;
-  int pagesize;
-  FrameGridFilterEvent({
-    required this.token,
-    required this.vendorId,
-    required this.branchid,
-    required this.arai,
-    required this.fromdate,
-    required this.fromtime,
-    required this.todate,
-    required this.totime,
-    required this.vehiclelist,
-    required this.framepacketoption,
-    required this.pagenumber,
-    required this.pagesize,
-  });
-}
-
-// Device master filter driver code
-class DeviceMasterDrivercode extends MainEvent {
-  String token;
-  int vendorId;
-  int branchId;
-  DeviceMasterDrivercode({
-    required this.token,
-    required this.vendorId,
-    required this.branchId,
-  });
-}
-
-// date wise travel history driver code event
-class DateWiseDriverCodeEvent extends MainEvent {
-  String token;
-  int vendorId;
-  int branchId;
-  DateWiseDriverCodeEvent({
-    required this.token,
-    required this.vendorId,
-    required this.branchId,
-  });
-} 
-
-// Driver wise driver code
-class DriverWiseDriverCodeEvent extends MainEvent {
-  String token;
-  int vendorId;
-  int branchId;
-  DriverWiseDriverCodeEvent({
-    required this.token,
-    required this.vendorId,
-    required this.branchId,
-  });
-} 
-
-class OverSpeedVehicleFilterEvent extends MainEvent {
-  String token;
-  int vendorId;
-  int branchId;
-  OverSpeedVehicleFilterEvent({
-    required this.token,
-    required this.vendorId,
-    required this.branchId,
-  });
-}
-
-class FramepacketDriverCodeEvent extends MainEvent {
-  String token;
-  int vendorId;
-  int branchId;
-  FramepacketDriverCodeEvent({
-    required this.token,
-    required this.vendorId,
-    required this.branchId,
-  });
-}
-
-class FramepacketGridDriverCodeEvent extends MainEvent {
-  String token;
-  int vendorId;
-  int branchId;
-  FramepacketGridDriverCodeEvent({
-    required this.token,
-    required this.vendorId,
-    required this.branchId,
-  });
-}
-
-class VehicleStsRptDriverCodeEvent extends MainEvent {
-  String token;
-  int vendorId;
-  int branchId;
-  VehicleStsRptDriverCodeEvent({
-    required this.token,
-    required this.vendorId,
-    required this.branchId,
-  });
-}
-
-
-class DriverMasterDriverCodeEvent extends MainEvent {
-  String token;
-  int vendorId;
-  int branchId;
-  DriverMasterDriverCodeEvent({
-    required this.token,
-    required this.vendorId,
-    required this.branchId,
-  });
-}
-
-
-
-
-
-class SearchDriverMasterReportEvent extends MainEvent {
+//! FillRoute Define(Getting Route for VTSgeofence) GGR(Get Geofence Route)-----------------------
+class GettingRouteGGR extends MainEvent {
   String token;
   int vendorid;
   int branchid;
-  String searchText;
-  int pagenumber;
-  int pagesize;
-  SearchDriverMasterReportEvent({
+  GettingRouteGGR({
     required this.token,
     required this.vendorid,
     required this.branchid,
-    required this.searchText,
-    required this.pagenumber,
-    required this.pagesize,
   });
 }
 
-
-class SearchDatewiseTravelReportEvent extends MainEvent {
+class RoutesDetailByRoutesNameEvents extends MainEvent {
   String token;
   int vendorid;
   int branchid;
-  String arai;
-  String fromDate;
-  String todate;
-  String searchText;
-  int pagenumber;
-  int pagesize;
-  SearchDatewiseTravelReportEvent({
+  String routename;
+  RoutesDetailByRoutesNameEvents({
     required this.token,
     required this.vendorid,
     required this.branchid,
-    required this.arai,
-    required this.fromDate,
-    required this.todate,
-    required this.searchText,
-    required this.pagenumber,
-    required this.pagesize,
+    required this.routename,
   });
 }
 
-
-//Search event for Search frame packet...
-
-class SearchFramePacktReportEvent extends MainEvent {
+//! POI type event------------------
+class Poitype extends MainEvent {
   String token;
-  int vendorId;
-  int branchId;
-  String araiNonarai;
-  String fromDate;
-  String formTime;
-  String toDate;
-  String toTime;
-  String searchText;
-  String framepacketoption;
-  int pageNumber;
-  int pageSize;
-
-  SearchFramePacktReportEvent(
-  {required this.token,
-  required this.vendorId,
-  required this.branchId,
-  required this.araiNonarai,
-  required this.fromDate,
-  required this.formTime,
-  required this.toDate,
-  required this.toTime,
-  required this.searchText,
-  required this.framepacketoption,
-  required this.pageNumber,
-  required this.pageSize});
+  Poitype({
+    required this.token,
+  });
 }
 
-//Search event for Search frame packet grid...
-
-class SearchFramePacktGridEvent extends MainEvent {
+//! POI post data to server event------------------------------
+class PoiPostdata extends MainEvent {
   String token;
-  int vendorId;
-  int branchId;
-  String araiNonarai;
-  String fromDate;
-  String formTime;
-  String toDate;
-  String toTime;
-  String searchText;
-  String framepacketoption;
-  int pageNumber;
-  int pageSize;
-
-  SearchFramePacktGridEvent(
-      {required this.token,
-        required this.vendorId,
-        required this.branchId,
-        required this.araiNonarai,
-        required this.fromDate,
-        required this.formTime,
-        required this.toDate,
-        required this.toTime,
-        required this.searchText,
-        required this.framepacketoption,
-        required this.pageNumber,
-        required this.pageSize});
-}
-
-class SearchVehicleStatusGroupEvent extends MainEvent {
-  String token;
-  int vendorId;
+  int vendorid;
   int branchid;
-  String araino;
-  String fromdate;
-  String fromTime;
-  String toDate;
-  String toTime;
-  String searchText;
-  int pagenumber;
-  int pagesize;
-  SearchVehicleStatusGroupEvent({
+  String poiname;
+  int poitypeID;
+  String description;
+  int tolerance;
+  String locationlatitude;
+  String locationlongitude;
+  String showpoi;
+  String address;
+  int vehicleid;
+  PoiPostdata({
     required this.token,
-    required this.vendorId,
+    required this.vendorid,
     required this.branchid,
-    required this.araino,
-    required this.fromdate,
-    required this.fromTime,
-    required this.toDate,
-    required this.toTime,
-    required this.searchText,
-    required this.pagenumber,
-    required this.pagesize,
+    required this.poiname,
+    required this.poitypeID,
+    required this.description,
+    required this.tolerance,
+    required this.locationlatitude,
+    required this.locationlongitude,
+    required this.showpoi,
+    required this.address,
+    required this.vehicleid,
   });
 }
 
-
-class SearchOverSpeedCreateEvents extends MainEvent {
- String token;
- int vendorId;
- int barnchId;
- String arainonarai;
- String fromDate;
- String toDate;
- String searchText;
- int pageNumber;
- int pageSize;
-
-  SearchOverSpeedCreateEvents(
-      {required this.token,
-      required this.vendorId,
-      required this.barnchId,
-      required this.arainonarai,
-      required this.fromDate,
-      required this.toDate,
-      required this.searchText,
-      required this.pageNumber,
-      required this.pageSize
-      });
-}
-
-
-
-
-
-
-class SearchVehicleStatusEvent extends MainEvent {
+//! POI for delete data-----------------
+class POIDeletedata extends MainEvent {
   String token;
-  int vendorId;
+  int vendorid;
   int branchid;
-  String araino;
-  String fromdate;
-  String fromTime;
-  String toDate;
-  String toTime;
-  String searchText;
-  int pagenumber;
-  int pagesize;
-  SearchVehicleStatusEvent({
+  int srno;
+  POIDeletedata({
     required this.token,
-    required this.vendorId,
+    required this.vendorid,
     required this.branchid,
-    required this.araino,
-    required this.fromdate,
-    required this.fromTime,
-    required this.toDate,
-    required this.toTime,
-    required this.searchText,
-    required this.pagenumber,
-    required this.pagesize,
-  });
-}
-
-
-
-
-class SearchvehicleStatusSummaryEvent extends MainEvent {
-  String token;
-  int vendorId;
-  int branchid;
-  String araino;
-  String fromdate;
-  String fromTime;
-  String toDate;
-  String toTime;
-  String searchText;
-  int pagenumber;
-  int pagesize;
-  SearchvehicleStatusSummaryEvent({
-    required this.token,
-    required this.vendorId,
-    required this.branchid,
-    required this.araino,
-    required this.fromdate,
-    required this.fromTime,
-    required this.toDate,
-    required this.toTime,
-    required this.searchText,
-    required this.pagenumber,
-    required this.pagesize,
-  });
-}
-
-class DateAndTimeWiseTravelEvents  extends MainEvent {
-  String token;
-  int vendorId;
-  int branchid;
-  String araino;
-  String fromdate;
-  String fromTime;
-  String toDate;
-  String toTime;
-  int imeno;
-  int pagenumber;
-  int pagesize;
-  DateAndTimeWiseTravelEvents({
-    required this.token,
-    required this.vendorId,
-    required this.branchid,
-    required this.araino,
-     required this.fromdate,
-    required this.fromTime,
-    required this.toDate,
-    required this.toTime,
-    required this.imeno,
-    required this.pagenumber,
-    required this.pagesize,
-  });
-}
-
-class DateAndTimeWiseSearchEvents  extends MainEvent {
-  String token;
-  int vendorId;
-  int branchid;
-  String araino;
-  String fromdate;
-  String fromTime;
-  String toDate;
-  String toTime;
-  String searchtxt;
-  int pagenumber;
-  int pagesize;
-  DateAndTimeWiseSearchEvents({
-    required this.token,
-    required this.vendorId,
-    required this.branchid,
-    required this.araino,
-     required this.fromdate,
-    required this.fromTime,
-    required this.toDate,
-    required this.toTime,
-    required this.searchtxt,
-    required this.pagenumber,
-    required this.pagesize,
-  });
-}
-
-class DateAndTimeWiseFilterEvents  extends MainEvent {
-  String token;
-  int vendorId;
-  int branchid;
-  String araino;
-  String fromdate;
-  String fromTime;
-  String toDate;
-  String toTime;
-  String vehiclelist;
-  int pagenumber;
-  int pagesize;
-  DateAndTimeWiseFilterEvents({
-    required this.token,
-    required this.vendorId,
-    required this.branchid,
-    required this.araino,
-     required this.fromdate,
-    required this.fromTime,
-    required this.toDate,
-    required this.toTime,
-    required this.vehiclelist,
-    required this.pagenumber,
-    required this.pagesize,
-  });
-}
-
-class VehicleWiseTravelEvents  extends MainEvent {
-  String token;
-  int vendorId;
-  int branchid;
-  String araino;
-  String fromdate;
-  String fromTime;
-  String toDate;
-  String toTime;
-  int imeno;
-  int pagenumber;
-  int pagesize;
-  VehicleWiseTravelEvents({
-    required this.token,
-    required this.vendorId,
-    required this.branchid,
-    required this.araino,
-    required this.fromdate,
-    required this.fromTime,
-    required this.toDate,
-    required this.toTime,
-    required this.imeno,
-    required this.pagenumber,
-    required this.pagesize,
-  });
-}
-
-class VehicleWiseFilterEvents  extends MainEvent {
-  String token;
-  int vendorId;
-  int branchid;
-  String araino;
-  String fromdate;
-  String fromTime;
-  String toDate;
-  String toTime;
-  String vehiclelist;
-  int pagenumber;
-  int pagesize;
-  VehicleWiseFilterEvents({
-    required this.token,
-    required this.vendorId,
-    required this.branchid,
-    required this.araino,
-    required this.fromdate,
-    required this.fromTime,
-    required this.toDate,
-    required this.toTime,
-    required this.vehiclelist,
-    required this.pagenumber,
-    required this.pagesize,
-  });
-}
-
-class VehicleWiseSearchEvents  extends MainEvent {
-  String token;
-  int vendorId;
-  int branchid;
-  String araino;
-  String fromdate;
-  String toDate;
-  String searchtxt;
-  int pagenumber;
-  int pagesize;
-  VehicleWiseSearchEvents({
-    required this.token,
-    required this.vendorId,
-    required this.branchid,
-    required this.araino,
-    required this.fromdate,
-    required this.toDate,
-    required this.searchtxt,
-    required this.pagenumber,
-    required this.pagesize,
-  });
-}
-
-
-class VehicleWiseTimeWiseTravelEvents  extends MainEvent {
-  String token;
-  int vendorId;
-  int branchid;
-  String araino;
-  String fromdate;
-  String fromTime;
-  String toDate;
-  String toTime;
-  int imeno;
-  int pagenumber;
-  int pagesize;
-  VehicleWiseTimeWiseTravelEvents({
-    required this.token,
-    required this.vendorId,
-    required this.branchid,
-    required this.araino,
-    required this.fromdate,
-    required this.fromTime,
-    required this.toDate,
-    required this.toTime,
-    required this.imeno,
-    required this.pagenumber,
-    required this.pagesize,
-  });
-}
-
-class VehicleWiseTimeWiseFilterEvents  extends MainEvent {
-  String token;
-  int vendorId;
-  int branchid;
-  String araino;
-  String fromdate;
-  String fromTime;
-  String toDate;
-  String toTime;
-  String vehiclelist;
-  int pagenumber;
-  int pagesize;
-  VehicleWiseTimeWiseFilterEvents({
-    required this.token,
-    required this.vendorId,
-    required this.branchid,
-    required this.araino,
-    required this.fromdate,
-    required this.fromTime,
-    required this.toDate,
-    required this.toTime,
-    required this.vehiclelist,
-    required this.pagenumber,
-    required this.pagesize,
-  });
-}
-
-class VehicleWiseTimeWiseSearchEvents  extends MainEvent {
-  String token;
-  int vendorId;
-  int branchid;
-  String araino;
-  String fromdate;
-  String fromTime;
-  String toDate;
-  String toTime;
-  String searchtxt;
-  int pagenumber;
-  int pagesize;
-  VehicleWiseTimeWiseSearchEvents({
-    required this.token,
-    required this.vendorId,
-    required this.branchid,
-    required this.araino,
-    required this.fromdate,
-    required this.fromTime,
-    required this.toDate,
-    required this.toTime,
-    required this.searchtxt,
-    required this.pagenumber,
-    required this.pagesize,
-  });
-}
-
-class VehicleVSrNoEvent extends MainEvent {
-  String token;
-  int vendorId;
-  int branchId;
-  VehicleVSrNoEvent({
-    required this.token,
-    required this.vendorId,
-    required this.branchId,
-  });
-}
-
-class FramePacketOptionGridEvent extends MainEvent {
-  String token;
-  String arai;
-  FramePacketOptionGridEvent({
-    required this.token,
-    required this.arai,
+    required this.srno,
   });
 }

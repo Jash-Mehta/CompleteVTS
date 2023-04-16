@@ -6,12 +6,12 @@ class TravelSummaryFilter {
   int? totalPages;
   int? totalRecords;
   String? nextPage;
-  String? previousPage;
+  Null? previousPage;
   List<Data>? data;
   List<DatewiseStatusWiseTravelFilter>? datewise;
   bool? succeeded;
-  String? errors;
-  String? message;
+  Null? errors;
+  Null? message;
 
   TravelSummaryFilter(
       {this.pageNumber,

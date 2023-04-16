@@ -1,4 +1,12 @@
-class SearchVehOverSpeedRpt {
+import 'dart:convert';
+
+search_overspeed_response search_overspeed_responseFromJson(String str) =>
+    search_overspeed_response.fromJson(json.decode(str));
+
+String search_overspeed_responseToJson(search_overspeed_response data) =>
+    json.encode(data.toJson());
+
+class search_overspeed_response {
   int? pageNumber;
   int? pageSize;
   String? firstPage;
@@ -7,46 +15,55 @@ class SearchVehOverSpeedRpt {
   int? totalRecords;
   String? nextPage;
   String? previousPage;
-  List<OverSpeeddDetailItem>? data;
+  List<Data>? data;
+  List<OverSpeeddSearchDetail>? oversearchspeeddetail;
   bool? succeeded;
   String? errors;
   String? message;
 
-  SearchVehOverSpeedRpt(
+  search_overspeed_response(
       {this.pageNumber,
-        this.pageSize,
-        this.firstPage,
-        this.lastPage,
-        this.totalPages,
-        this.totalRecords,
-        this.nextPage,
-        this.previousPage,
-        this.data,
-        this.succeeded,
-        this.errors,
-        this.message});
+      this.pageSize,
+      this.firstPage,
+      this.lastPage,
+      this.totalPages,
+      this.totalRecords,
+      this.nextPage,
+      this.previousPage,
+      this.data,
+      this.succeeded,
+      this.errors,
+      this.message});
 
-  SearchVehOverSpeedRpt.fromJson(Map<String, dynamic> json) {
-    pageNumber = json['pageNumber']??0;
-    pageSize = json['pageSize']??0;
-    firstPage = json['firstPage']??"";
-    lastPage = json['lastPage']??"";
-    totalPages = json['totalPages']??0;
-    totalRecords = json['totalRecords']??0;
-    nextPage = json['nextPage']??"";
-    previousPage = json['previousPage']??"";
+  search_overspeed_response.fromJson(Map<String, dynamic> json) {
+    pageNumber = json['pageNumber'];
+    pageSize = json['pageSize'];
+    firstPage = json['firstPage'];
+    lastPage = json['lastPage'];
+    totalPages = json['totalPages'];
+    totalRecords = json['totalRecords'];
+    nextPage = json['nextPage'];
+    previousPage = json['previousPage'];
     if (json['data'] != null) {
-      data = <OverSpeeddDetailItem>[];
+      data = <Data>[];
       json['data'].forEach((v) {
-        var searchItem = v['overSpeeddDetail'] as List<dynamic>;
-        searchItem.forEach((element) {
-          data!.add(new OverSpeeddDetailItem.fromJson(element));
-        });
+        data!.add(new Data.fromJson(v));
       });
     }
-    succeeded = json['succeeded']??false;
-    errors = json['errors']??"";
-    message = json['message']??"";
+    if (json['data'] != null) {
+      oversearchspeeddetail = <OverSpeeddSearchDetail>[];
+      json['data'].forEach((v) {
+        var overspeedreportdetail = v['overSpeeddDetail'] as List<dynamic>;
+
+        for (var element in overspeedreportdetail) {
+          print("Here is your element data-----------------");
+          oversearchspeeddetail!.add(OverSpeeddSearchDetail.fromJson(element));
+        }
+      });
+    }
+    succeeded = json['succeeded'];
+    errors = json['errors'];
+    message = json['message'];
   }
 
   Map<String, dynamic> toJson() {
@@ -69,23 +86,22 @@ class SearchVehOverSpeedRpt {
   }
 }
 
-class searchOverspeedData {
+class Data {
   String? fromDate;
   String? toDate;
   List<GroupByDateTotal>? groupByDateTotal;
   List<GroupByVehicleRegNoTotal>? groupByVehicleRegNoTotal;
   double? totalOverSpeedTravel;
-  List<OverSpeeddDetailItem>? overSpeeddDetail;
 
-  searchOverspeedData(
-      {this.fromDate,
-        this.toDate,
-        this.groupByDateTotal,
-        this.groupByVehicleRegNoTotal,
-        this.totalOverSpeedTravel,
-        this.overSpeeddDetail});
+  Data({
+    this.fromDate,
+    this.toDate,
+    this.groupByDateTotal,
+    this.groupByVehicleRegNoTotal,
+    this.totalOverSpeedTravel,
+  });
 
-  searchOverspeedData.fromJson(Map<String, dynamic> json) {
+  Data.fromJson(Map<String, dynamic> json) {
     fromDate = json['fromDate'];
     toDate = json['toDate'];
     if (json['groupByDateTotal'] != null) {
@@ -101,12 +117,6 @@ class searchOverspeedData {
       });
     }
     totalOverSpeedTravel = json['totalOverSpeedTravel'];
-    if (json['overSpeeddDetail'] != null) {
-      overSpeeddDetail = <OverSpeeddDetailItem>[];
-      json['overSpeeddDetail'].forEach((v) {
-        overSpeeddDetail!.add(new OverSpeeddDetailItem.fromJson(v));
-      });
-    }
   }
 
   Map<String, dynamic> toJson() {
@@ -122,10 +132,7 @@ class searchOverspeedData {
           this.groupByVehicleRegNoTotal!.map((v) => v.toJson()).toList();
     }
     data['totalOverSpeedTravel'] = this.totalOverSpeedTravel;
-    if (this.overSpeeddDetail != null) {
-      data['overSpeeddDetail'] =
-          this.overSpeeddDetail!.map((v) => v.toJson()).toList();
-    }
+
     return data;
   }
 }
@@ -158,10 +165,10 @@ class GroupByVehicleRegNoTotal {
 
   GroupByVehicleRegNoTotal(
       {this.transDate,
-        this.vehicleRegNo,
-        this.imei,
-        this.speedLimit,
-        this.distanceTravel});
+      this.vehicleRegNo,
+      this.imei,
+      this.speedLimit,
+      this.distanceTravel});
 
   GroupByVehicleRegNoTotal.fromJson(Map<String, dynamic> json) {
     transDate = json['transDate'];
@@ -182,7 +189,7 @@ class GroupByVehicleRegNoTotal {
   }
 }
 
-class OverSpeeddDetailItem {
+class OverSpeeddSearchDetail {
   String? vehicleRegNo;
   String? imeino;
   String? latitude;
@@ -196,33 +203,33 @@ class OverSpeeddDetailItem {
   String? distancetravel;
   int? speedLimit;
 
-  OverSpeeddDetailItem(
+  OverSpeeddSearchDetail(
       {this.vehicleRegNo,
-        this.imeino,
-        this.latitude,
-        this.longitude,
-        this.address,
-        this.transDate,
-        this.transTime,
-        this.speed,
-        this.overSpeed,
-        this.updatedOn,
-        this.distancetravel,
-        this.speedLimit});
+      this.imeino,
+      this.latitude,
+      this.longitude,
+      this.address,
+      this.transDate,
+      this.transTime,
+      this.speed,
+      this.overSpeed,
+      this.updatedOn,
+      this.distancetravel,
+      this.speedLimit});
 
-  OverSpeeddDetailItem.fromJson(Map<String, dynamic> json) {
-    vehicleRegNo = json['vehicleRegNo']??"";
-    imeino = json['imeino']??"";
-    latitude = json['latitude']??"";
-    longitude = json['longitude']??"";
-    address = json['address']??"";
-    transDate = json['transDate']??"";
-    transTime = json['transTime']??"";
-    speed = json['speed']??"";
-    overSpeed = json['overSpeed']??"";
-    updatedOn = json['updatedOn']??"";
-    distancetravel = json['distancetravel']??"";
-    speedLimit = json['speedLimit']??0;
+  OverSpeeddSearchDetail.fromJson(Map<String, dynamic> json) {
+    vehicleRegNo = json['vehicleRegNo'];
+    imeino = json['imeino'];
+    latitude = json['latitude'];
+    longitude = json['longitude'];
+    address = json['address'];
+    transDate = json['transDate'];
+    transTime = json['transTime'];
+    speed = json['speed'];
+    overSpeed = json['overSpeed'];
+    updatedOn = json['updatedOn'];
+    distancetravel = json['distancetravel'];
+    speedLimit = json['speedLimit'];
   }
 
   Map<String, dynamic> toJson() {

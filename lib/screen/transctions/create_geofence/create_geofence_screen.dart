@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_vts/bloc/main_bloc.dart';
 import 'package:flutter_vts/bloc/main_event.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:flutter_vts/bloc/main_state.dart';
 import 'package:flutter_vts/model/alert/add_alert_master_requesy.dart';
 import 'package:flutter_vts/model/alert/vehicle_fill_srno_response.dart';
@@ -21,11 +22,11 @@ import 'package:google_maps_webservice/places.dart';
 import 'dart:async';
 import 'package:loading_overlay/loading_overlay.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:location/location.dart' as loc;
+import '../../../model/vehicle/all_vehicle_detail_response.dart';
 
-
-
-const googleApiKey="AIzaSyCzJ9rnQfwR2O7lfUnJt2UGwNicQP_eTUk";
-GoogleMapsPlaces _places=GoogleMapsPlaces(apiKey: googleApiKey);
+const googleApiKey = "AIzaSyCzJ9rnQfwR2O7lfUnJt2UGwNicQP_eTUk";
+GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: googleApiKey);
 
 class CreateGeofenceScreen extends StatefulWidget {
   const CreateGeofenceScreen({Key? key}) : super(key: key);
@@ -35,98 +36,184 @@ class CreateGeofenceScreen extends StatefulWidget {
 }
 
 class _CreateGeofenceScreenState extends State<CreateGeofenceScreen> {
-  TextEditingController _vendorNamecontroller=new TextEditingController();
-  TextEditingController _branchNamecontroller=new TextEditingController();
-  TextEditingController _geofenceNamecontroller=new TextEditingController();
-  TextEditingController _descriptiCncontroller=new TextEditingController();
-  TextEditingController _toleranceController=new TextEditingController();
+  TextEditingController _vendorNamecontroller = new TextEditingController();
+  TextEditingController _branchNamecontroller = new TextEditingController();
+  TextEditingController _geofenceNamecontroller = new TextEditingController();
+  TextEditingController _descriptiCncontroller = new TextEditingController();
+  TextEditingController _toleranceController = new TextEditingController();
+  GoogleMapController? mapController;
 
-  TextEditingController searchController=new TextEditingController();
+  bool onseaerchtextn = false;
+  TextEditingController searchController = new TextEditingController();
   late double latitude;
   late double longitute;
-  static late LatLng latLng=new LatLng(18.6298, 73.7997);
+  bool alertbox = false;
+  var geofencename, description, tolerance;
+  bool iscontainerselected = false;
+  var vehiclename, vehicleid, longlatitude, longlongitude, checkstatus;
+  static late LatLng latLng = new LatLng(18.6298, 73.7997);
   final mapErrorScaffoldKey = GlobalKey<ScaffoldState>();
-  final Set<Marker> _marker={};
-
-  String dropdownvalue = 'Item 1',categorydropdown='';
-  late SharedPreferences sharedPreferences;
-  late String userName="";
-  late String vendorName="",branchName="",userType="";
-  late int branchid=0,vendorid=0;
-  late String token="";
-  late bool _isLoading = false;
-  List categoryDataList =[];
-  List<String> list=[];
-  List<VehiclesDetail> vehicleSrNoDetailslist=[];
-  List<VehiclesDetail> selectedvehicleSrNoDetailslist=[];
-  List<GeofenceVehicleList> ?vehicleList=[];
-
-  List<VehicleDatums> vehicleSrNolist=[];
-  bool activeStatus = false;
-  late MainBloc _mainBloc;
-
-
-  late var vehicleresult;
+  final Set<Marker> _marker = {};
+  String dropdownvalueprovider = 'Area';
+  var provideritems = ["Area", "Stay in Zone", "Stay Away from zone"];
+  String categorydropdown = '';
+  String dropdownvalue = 'Y';
 
   // List of items in our dropdown menu
-  var items = [
-    'Item 1',
-    'Item 2',
-    'Item 3',
-    'Item 4',
-    'Item 5',
-  ];
-  static const double cameraZoom = 16.0;
-  static const double cameraTilt = 80;
-  static const double cameraBearing = 30;
-  static const LatLng sourceLocation = LatLng(18.6298, 73.7997);
-  static const LatLng destLocation = LatLng(18.619970, 73.782850);
-
-  CameraPosition initialCameraPosition = const CameraPosition(
-      zoom: cameraZoom,
-      tilt: cameraTilt,
-      bearing: cameraBearing,
-      target: sourceLocation);
+  var items = ['Y', 'N'];
+  late SharedPreferences sharedPreferences;
+  late String userName = "";
+  late String vendorName = "", branchName = "", userType = "";
+  late int branchid = 1, vendorid = 1;
+  late String token = "";
+  late bool _isLoading = false;
+  List categoryDataList = [];
+  List<String> list = [];
+  List<VehiclesDetail> vehicleSrNoDetailslist = [];
+  List<VehiclesDetail> selectedvehicleSrNoDetailslist = [];
+  List<VechileDetailsbyID>? vehiclelistbyid = [];
+  List<VehicleDatums> vehicleSrNolist = [];
+  bool activeStatus = false;
+  String location = "";
+  String addresslocation = "";
+  late MainBloc _mainBloc;
+  String? _currentAddress;
+  Position? _currentPosition;
+  loc.Location gps = loc.Location();
+  late var vehicleresult;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    _getCurrentPosition();
+    // _handleLocationPermission();
     _mainBloc = BlocProvider.of(context);
 
-    // getdata();
+    getdata();
+    setState(() {});
   }
 
+  //! For Address----------------------
+  final _placesApiClient =
+      GoogleMapsPlaces(apiKey: 'AIzaSyBnJPusnfAjrL9xofBjC_R5heU4uPZXgDY');
 
-  getdata()async{
+  List<Prediction> _predictions = [];
+
+  void _onSearchTextChanged(String value) async {
+    if (value.isNotEmpty) {
+      onseaerchtextn = true;
+      setState(() {});
+      PlacesAutocompleteResponse response = await _placesApiClient.autocomplete(
+        value,
+        language: "en",
+        types: [],
+        components: [Component(Component.country, "IND")],
+      );
+      setState(() {
+        _predictions = response.predictions;
+      });
+    } else {
+      setState(() {
+        _predictions = [];
+      });
+    }
+  }
+
+  void _onPredictionSelected(Prediction prediction) async {
+    PlacesDetailsResponse details =
+        await _placesApiClient.getDetailsByPlaceId(prediction.placeId!);
+
+    LatLng latLng = LatLng(details.result.geometry!.location.lat,
+        details.result.geometry!.location.lng);
+    mapController?.animateCamera(CameraUpdate.newCameraPosition(
+        CameraPosition(target: latLng, zoom: 17)));
+    _marker.add(Marker(
+      markerId: MarkerId("Selected Address"),
+      position: latLng,
+      icon: BitmapDescriptor.defaultMarker,
+    ));
+    longlatitude = details.result.geometry!.location.lat;
+    longlongitude = details.result.geometry!.location.lng;
+    setState(() {
+      _predictions = [];
+    });
+  }
+
+  //! handle the google permission----------------
+  Future<bool> _handleLocationPermission() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text(
+              'Location services are disabled. Please enable the services')));
+      return false;
+    }
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Location permissions are denied')));
+        return false;
+      }
+    }
+    if (permission == LocationPermission.deniedForever) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text(
+              'Location permissions are permanently denied, we cannot request permissions.')));
+      return false;
+    }
+    return true;
+  }
+
+  Future<void> _getCurrentPosition() async {
+    final hasPermission = await _handleLocationPermission();
+    if (!hasPermission) return;
+    await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
+        .then((Position position) {
+      setState(() => _currentPosition = position);
+      print("Permission-----------" + hasPermission.toString());
+      print("Here is you current location----------" +
+          _currentPosition!.latitude.toString() +
+          "" +
+          _currentPosition!.longitude.toString() +
+          "" +
+          _currentAddress.toString());
+    }).catchError((e) {
+      debugPrint(e);
+    });
+  }
+
+  getdata() async {
     sharedPreferences = await SharedPreferences.getInstance();
-    if(sharedPreferences.getString("auth_token")!=null){
-      token=sharedPreferences.getString("auth_token")!;
+    if (sharedPreferences.getString("auth_token") != null) {
+      token = sharedPreferences.getString("auth_token")!;
     }
-    if(sharedPreferences.getString("Username")!=null){
-      userName=sharedPreferences.getString("Username")!;
+    if (sharedPreferences.getString("Username") != null) {
+      userName = sharedPreferences.getString("Username")!;
     }
-    vendorName=sharedPreferences.getString("VendorName")!;
-    branchName=sharedPreferences.getString("BranchName")!;
-    userType=sharedPreferences.getString("UserType")!;
-    vendorid=sharedPreferences.getInt("VendorId")!;
-    branchid=sharedPreferences.getInt("BranchId")!;
+    vendorName = sharedPreferences.getString("VendorName")!;
+    branchName = sharedPreferences.getString("BranchName")!;
+    userType = sharedPreferences.getString("UserType")!;
+    vendorid = sharedPreferences.getInt("VendorId")!;
+    branchid = sharedPreferences.getInt("BranchId")!;
 
-    if(userType!=""){
-      _vendorNamecontroller.text=vendorName;
-      _branchNamecontroller.text=branchName;
+    if (userType != "") {
+      _vendorNamecontroller.text = vendorName;
+      _branchNamecontroller.text = branchName;
     }
-    if(token!=""){
-      // getCategorylist();
-      // getvehiclelist();
+    if (token != "") {
+      _mainBloc.add(AllVehicleDetailEvents(
+          token: token, vendorId: 1, branchId: 1, pageNumber: 1, pageSize: 10));
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
-
-
     return Scaffold(
       appBar: AppBar(
         title: Text("CREATE GEOFENCE"),
@@ -142,94 +229,112 @@ class _CreateGeofenceScreenState extends State<CreateGeofenceScreen> {
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.phonelink_erase_rounded,color: MyColors.text4ColorCode,),
-                  Text("Clear",style: TextStyle(color: MyColors.text4ColorCode,decoration: TextDecoration.underline,fontSize: 20)),
+                  GestureDetector(
+                    onTap: () {
+                      _descriptiCncontroller.text = "";
+                      _geofenceNamecontroller.text = "";
+                      _toleranceController.text = "";
+                      vehiclename = "";
+                      location = "";
+                      searchController.text = "";
+                      setState(() {});
+                    },
+                    child: Icon(
+                      Icons.phonelink_erase_rounded,
+                      color: MyColors.text4ColorCode,
+                    ),
+                  ),
+                  Text("Clear",
+                      style: TextStyle(
+                          color: MyColors.text4ColorCode,
+                          decoration: TextDecoration.underline,
+                          fontSize: 20)),
                 ],
               ),
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.close,size: 25,color: MyColors.text4ColorCode),
-                  Text("Close",style: TextStyle(color: MyColors.text4ColorCode,decoration: TextDecoration.underline,fontSize: 20),),
+                  GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: Icon(Icons.close,
+                          size: 25, color: MyColors.text4ColorCode)),
+                  Text(
+                    "Close",
+                    style: TextStyle(
+                        color: MyColors.text4ColorCode,
+                        decoration: TextDecoration.underline,
+                        fontSize: 20),
+                  ),
                 ],
               ),
               GestureDetector(
-                onTap: (){
-               /*   setState(() {
-                    vehicleList!.clear();
-                    for(int i=0;i<selectedvehicleSrNoDetailslist.length;i++){
-                      vehicleList!.add(GeofenceVehicleList(vehicleId: selectedvehicleSrNoDetailslist[0].vsrNo!));
-                    }
-                  });
-
-                  print(categorydropdown);
-                  if(vehicleList!.length!=0){
+                onTap: () {},
+                child: InkWell(
+                  onTap: () {
                     _mainBloc.add(AddGeofenceEvents(
                         token: token,
-                        addGeofenceRequest: AddGeofenceRequest(
-                          vendorSrNo: vendorid,
-                          branchSrNo: branchid,
-                          geofenceName:_geofenceNamecontroller.text,
-                          category:categorydropdown,
-                          description:_descriptiCncontroller.text,
-                          tolerance:int.parse(_toleranceController.text),
-                          showGeofence:activeStatus ? 'Y' : 'N',
-                          locationLatitude:"",
-                          locationLongitude:"",
-                          overlayType:"",
-                          circleBounds:"",
-                          circleRadius:"",
-                          circleArea:"",
-                          circlehectares:"",
-                          circleKilometer:"",
-                          circleMiles:"",
-                          circleCenterLat:"",
-                          circleCenterLng:"",
-                          rectangleBounds:"",
-                          rectangleArea:"",
-                          rectanglehectares:"",
-                          rectangleKilometer:"",
-                          rectangleMiles:"",
-                          polygonPath:"",
-                          polygonArea:"",
-                          polygonhectares:"",
-                          polygonKilometer:"",
-                          polygonMiles:"",
-                          address:"Baner",
-                          vehicleList:vehicleList,
-                        )
-                    )
-                    );
-                  }*/
+                        vendorid: vendorid,
+                        branchid: branchid,
+                        geofencename: geofencename,
+                        category: dropdownvalueprovider,
+                        description: description,
+                        tolerance: int.parse(tolerance),
+                        showgeofence: dropdownvalue,
+                        latitude: longlatitude.toString() ??
+                            _currentPosition!.latitude.toString(),
+                        longitude: longlongitude.toString() ??
+                            _currentPosition!.longitude.toString(),
+                        overlaytype: "Rectangle",
+                        rectanglebond: "12.56",
+                        rectanglearea: "23.4",
+                        rectanglehectares: "34.5",
+                        rectanglekilometer: "25.6",
+                        rectanglemiles: "2.3",
+                        address: addresslocation.toString(),
+                        vehicleid: vehicleid));
+                    if (_geofenceNamecontroller.text.isNotEmpty &&
+                        _descriptiCncontroller.text.isNotEmpty &&
+                        _toleranceController.text.isNotEmpty) {
+                      alertbox = true;
+                      setState(() {});
+                    }
 
-
-                  // validation();
-                  // CustomDialog().popUp(context,"Well done! Record Save Successfully....!!");
-                },
-                child: Container(
-                  alignment: Alignment.center,
-                  width: 148,
-                  height: 56,
-                  margin: const EdgeInsets.only(left: 15),
-                  padding: const EdgeInsets.only(top:6.0,bottom: 6,left: 20,right: 20),
-                  decoration: BoxDecoration(
-                      color: MyColors.buttonColorCode,
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                      border: Border.all(color: MyColors.textBoxBorderColorCode)
+                    alertbox
+                        ? CustomDialog().popUp(context,
+                            "Well done! Record Save Successfully....!!")
+                        : SizedBox();
+                  },
+                  child: Container(
+                    alignment: Alignment.center,
+                    width: 148,
+                    height: 56,
+                    margin: const EdgeInsets.only(left: 15),
+                    padding: const EdgeInsets.only(
+                        top: 6.0, bottom: 6, left: 20, right: 20),
+                    decoration: BoxDecoration(
+                        color: MyColors.buttonColorCode,
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        border:
+                            Border.all(color: MyColors.textBoxBorderColorCode)),
+                    child: Text(
+                      "Save",
+                      style: TextStyle(
+                          color: MyColors.whiteColorCode, fontSize: 20),
+                    ),
                   ),
-                  child: Text("Save",style: TextStyle(color: MyColors.whiteColorCode,fontSize: 20),),
                 ),
               )
-
             ],
           ),
         ),
-
       ),
     );
   }
 
-  _addvehiclemaster(){
+// AllVehicleDetailEvents -----------
+  _addvehiclemaster() {
     return LoadingOverlay(
       isLoading: _isLoading,
       opacity: 0.5,
@@ -239,16 +344,26 @@ class _CreateGeofenceScreenState extends State<CreateGeofenceScreen> {
         valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
       ),
       child: BlocListener<MainBloc, MainState>(
-        listener: (context,state){
+        listener: (context, state) {
+          //! VechileId and vechile number in flutter---------------------
+          if (state is AllVehicleDetailLoadingState) {
+          } else if (state is AllVehicleDetailLoadedState) {
+            if (state.allVehicleDetailResponse.data != null) {
+              vehiclelistbyid!.addAll(state.allVehicleDetailResponse.data!);
+            } else {
+              print("Your data is null");
+            }
+          } else if (state is AllVehicleDetailErrorState) {}
+          //! AddGeofence Create--------
           if (state is AddGeofenceLoadingState) {
             setState(() {
               _isLoading = true;
             });
-          }else  if (state is AddGeofenceLoadedState) {
+          } else if (state is AddGeofenceLoadedState) {
             setState(() {
               _isLoading = false;
             });
-          }else  if (state is AddGeofenceErrorState) {
+          } else if (state is AddGeofenceErrorState) {
             setState(() {
               _isLoading = false;
             });
@@ -256,7 +371,8 @@ class _CreateGeofenceScreenState extends State<CreateGeofenceScreen> {
         },
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.only(top:20.0,left: 15,right: 15,bottom: 20),
+            padding: const EdgeInsets.only(
+                top: 20.0, left: 15, right: 15, bottom: 20),
             child: Column(
               children: [
                 Align(
@@ -265,15 +381,20 @@ class _CreateGeofenceScreenState extends State<CreateGeofenceScreen> {
                       padding: const EdgeInsets.only(bottom: 4),
                       child: Row(
                         children: [
-                          Text("Vendor Name",style: TextStyle(fontSize: 18),),
+                          Text(
+                            "Vendor Name",
+                            style: TextStyle(fontSize: 18),
+                          ),
                           Padding(
                             padding: const EdgeInsets.only(left: 3.0),
-                            child: Text("*",style: TextStyle(fontSize: 18,color: MyColors.redColorCode)),
+                            child: Text("*",
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    color: MyColors.redColorCode)),
                           )
                         ],
                       ),
-                    )
-                ),
+                    )),
                 TextField(
                   controller: _vendorNamecontroller,
                   enabled: false, // to trigger disabledBorder
@@ -282,399 +403,8 @@ class _CreateGeofenceScreenState extends State<CreateGeofenceScreen> {
                     fillColor: MyColors.whiteColorCode,
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(4)),
-                      borderSide: BorderSide(width: 1,color: MyColors.buttonColorCode),
-                    ),
-                    disabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(4)),
-                      borderSide: BorderSide(width: 1,color: Colors.orange),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(4)),
-                      borderSide: BorderSide(width: 1,color: MyColors.textBoxBorderColorCode),
-                    ),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(4)),
-                        borderSide: BorderSide(width: 1,)
-                    ),
-                    errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(4)),
-                        borderSide: BorderSide(width: 1,color: MyColors.textBoxBorderColorCode)
-                    ),
-                    focusedErrorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(4)),
-                        borderSide: BorderSide(width: 2,color: MyColors.buttonColorCode)
-                    ),
-                    hintText: "Type here",
-                    hintStyle: TextStyle(fontSize: 16,color:  MyColors.textFieldHintColorCode),
-                    errorText: "",
-                  ),
-                  // controller: _passwordController,
-                  // onChanged: _authenticationFormBloc.onPasswordChanged,
-                  obscureText: false,
-                ),
-                /*Container(
-                  decoration: BoxDecoration(
-                      color: MyColors.textFieldBackgroundColorCode,
-                      border: Border.all(color: MyColors.textBoxBorderColorCode,width: 2)
-                  ),
-                  child: DropdownButton(
-                    value: dropdownvalue,
-                    underline: SizedBox(),
-                    icon: const Icon(Icons.keyboard_arrow_down),
-                    items: items.map((String items) {
-                      return DropdownMenuItem(
-                        value: items,
-                        child: Container(
-                          *//* decoration: BoxDecoration(
-                            border: Border.all(color:MyColors.text3greyColorCode )
-                          ),*//*
-                            padding: EdgeInsets.only(left: 10),
-                            width: MediaQuery.of(context).size.width-58,
-                            child: Text(items,style: TextStyle(fontSize: 18))
-                        ),
-                      );
-                    }).toList(),
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        dropdownvalue = newValue!;
-                      });
-                    },
-                  ),
-                ),*/
-                Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.only(top:17,bottom: 8),
-                      child: Row(
-                        children: [
-                          Text("Branch Name",style: TextStyle(fontSize: 18),),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 3.0),
-                            child: Text("*",style: TextStyle(fontSize: 18,color: MyColors.redColorCode)),
-                          )
-                        ],
-                      ),
-                    )
-                ),
-                TextField(
-                  controller: _branchNamecontroller,
-                  enabled: false, // to trigger disabledBorder
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: MyColors.whiteColorCode,
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(4)),
-                      borderSide: BorderSide(width: 1,color: MyColors.buttonColorCode),
-                    ),
-                    disabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(4)),
-                      borderSide: BorderSide(width: 1,color: Colors.orange),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(4)),
-                      borderSide: BorderSide(width: 1,color: MyColors.textBoxBorderColorCode),
-                    ),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(4)),
-                        borderSide: BorderSide(width: 1,)
-                    ),
-                    errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(4)),
-                        borderSide: BorderSide(width: 1,color: MyColors.textBoxBorderColorCode)
-                    ),
-                    focusedErrorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(4)),
-                        borderSide: BorderSide(width: 2,color: MyColors.buttonColorCode)
-                    ),
-                    hintText: "Type here",
-                    hintStyle: TextStyle(fontSize: 16,color:  MyColors.textFieldHintColorCode),
-                    errorText: "",
-                  ),
-                  // controller: _passwordController,
-                  // onChanged: _authenticationFormBloc.onPasswordChanged,
-                  obscureText: false,
-                ),
-                /*Container(
-                  decoration: BoxDecoration(
-                      color: MyColors.textFieldBackgroundColorCode,
-                      border: Border.all(color: MyColors.textBoxBorderColorCode,width: 2)
-                  ),
-                  child: DropdownButton(
-                    value: dropdownvalue,
-                    underline: SizedBox(),
-                    icon: const Icon(Icons.keyboard_arrow_down),
-                    items: items.map((String items) {
-                      return DropdownMenuItem(
-                        value: items,
-                        child: Container(
-                          *//* decoration: BoxDecoration(
-                            border: Border.all(color:MyColors.text3greyColorCode )
-                          ),*//*
-                            padding: EdgeInsets.only(left: 10),
-                            width: MediaQuery.of(context).size.width-58,
-                            child: Text(items,style: TextStyle(fontSize: 18))
-                        ),
-                      );
-                    }).toList(),
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        dropdownvalue = newValue!;
-                      });
-                    },
-                  ),
-                ),*/
-                Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.only(top:17.0,bottom: 8),
-                      child: Row(
-                        children: [
-                          Text("Geofence Name",style: TextStyle(fontSize: 18),),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 3.0),
-                            child: Text("*",style: TextStyle(fontSize: 18,color: MyColors.redColorCode)),
-                          )
-                        ],
-                      ),
-                    )
-                ),
-                TextField(
-                  controller: _geofenceNamecontroller,
-                  enabled: true, // to trigger disabledBorder
-                  inputFormatters: <TextInputFormatter>[
-                    FilteringTextInputFormatter.allow(RegExp('^[a-zA-Z][a-zA-Z ]*')),
-                  ],
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: MyColors.whiteColorCode,
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(4)),
-                      borderSide: BorderSide(width: 1,color: MyColors.buttonColorCode),
-                    ),
-                    disabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(4)),
-                      borderSide: BorderSide(width: 1,color: Colors.orange),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(4)),
-                      borderSide: BorderSide(width: 1,color: MyColors.textBoxBorderColorCode),
-                    ),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(4)),
-                        borderSide: BorderSide(width: 1,)
-                    ),
-                    errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(4)),
-                        borderSide: BorderSide(width: 1,color: MyColors.textBoxBorderColorCode)
-                    ),
-                    focusedErrorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(4)),
-                        borderSide: BorderSide(width: 2,color: MyColors.buttonColorCode)
-                    ),
-                    hintText: "Type here",
-                    hintStyle: TextStyle(fontSize: 16,color:  MyColors.textFieldHintColorCode),
-                    errorText: "",
-                  ),
-                  // controller: _passwordController,
-                  // onChanged: _authenticationFormBloc.onPasswordChanged,
-                  obscureText: false,
-                ),
-
-                Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Row(
-                        children: [
-                          Text("Category",style: TextStyle(fontSize: 18),),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 3.0),
-                            child: Text("*",style: TextStyle(fontSize: 18,color: MyColors.redColorCode)),
-                          )
-                        ],
-                      ),
-                    )
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: MyColors.textBoxBorderColorCode,width: 2),
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    color:MyColors.whiteColorCode,
-
-                  ),
-                  width: MediaQuery.of(context).size.width,
-                  child: FormHelper.dropDownWidget(
-                    context,
-                    "Select ",
-                    this.categorydropdown,
-                    this.categoryDataList,
-                        (onChangeVal){
-                      setState(() {
-                        // this.categorydropdown=onChangeVal;
-                        // print(onChangeVal);
-                        for(int i=0;i<categoryDataList.length;i++){
-                          if(onChangeVal.toString()==categoryDataList[i]['categoryCode'].toString()){
-                            categorydropdown=categoryDataList[i]['categoryName'];
-                            // print(categoryDataList[i]['categoryName']);
-                          }
-                        }
-                      });
-                      },
-                      (onValidateval){
-                      if(onValidateval==null){
-                        return "Please Select Device";
-                      }
-                      return null;
-                    },
-                    borderColor:MyColors.whiteColorCode,
-                    borderFocusColor: MyColors.whiteColorCode,
-                    borderRadius: 10,
-                    optionValue: "categoryCode",
-                    optionLabel: "categoryName",
-                    // paddingLeft:20
-                  ),
-                ),
-                Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.only(top:17,bottom: 8.0),
-                      child: Row(
-                        children: [
-                          Text("Description",style: TextStyle(fontSize: 18),),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 3.0),
-                            child: Text("*",style: TextStyle(fontSize: 18,color: MyColors.redColorCode)),
-                          )
-                        ],
-                      ),
-                    )
-                ),
-                TextField(
-                  controller: _descriptiCncontroller,
-                  enabled: true, // to trigger disabledBorder
-                  inputFormatters: <TextInputFormatter>[
-                    FilteringTextInputFormatter.allow(RegExp('^[a-zA-Z][a-zA-Z ]*')),
-                  ],
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: MyColors.whiteColorCode,
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(4)),
-                      borderSide: BorderSide(width: 1,color: MyColors.buttonColorCode),
-                    ),
-                    disabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(4)),
-                      borderSide: BorderSide(width: 1,color: Colors.orange),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(4)),
-                      borderSide: BorderSide(width: 1,color: MyColors.textBoxBorderColorCode),
-                    ),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(4)),
-                        borderSide: BorderSide(width: 1,)
-                    ),
-                    errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(4)),
-                        borderSide: BorderSide(width: 1,color: MyColors.textBoxBorderColorCode)
-                    ),
-                    focusedErrorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(4)),
-                        borderSide: BorderSide(width: 2,color: MyColors.buttonColorCode)
-                    ),
-                    hintText: "Type here",
-                    hintStyle: TextStyle(fontSize: 16,color:  MyColors.textFieldHintColorCode),
-                    errorText: "",
-                  ),
-                  // controller: _passwordController,
-                  // onChanged: _authenticationFormBloc.onPasswordChanged,
-                  obscureText: false,
-                ),
-                Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Row(
-                        children: [
-                          Text("Tolerance",style: TextStyle(fontSize: 18),),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 3.0),
-                            child: Text("*",style: TextStyle(fontSize: 18,color: MyColors.redColorCode)),
-                          )
-                        ],
-                      ),
-                    )
-                ),
-                TextField(
-                  controller: _toleranceController,
-                  enabled: true, // to trigger disabledBorder
-                  inputFormatters: <TextInputFormatter>[
-                    FilteringTextInputFormatter.digitsOnly
-                  ],
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: MyColors.whiteColorCode,
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(4)),
-                      borderSide: BorderSide(width: 1,color: MyColors.buttonColorCode),
-                    ),
-                    disabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(4)),
-                      borderSide: BorderSide(width: 1,color: Colors.orange),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(4)),
-                      borderSide: BorderSide(width: 1,color: MyColors.textBoxBorderColorCode),
-                    ),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(4)),
-                        borderSide: BorderSide(width: 1,)
-                    ),
-                    errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(4)),
-                        borderSide: BorderSide(width: 1,color: MyColors.textBoxBorderColorCode)
-                    ),
-                    focusedErrorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(4)),
-                        borderSide: BorderSide(width: 2,color: MyColors.buttonColorCode)
-                    ),
-                    hintText: "Type here",
-                    hintStyle: TextStyle(fontSize: 16,color:  MyColors.textFieldHintColorCode),
-                    errorText: "",
-                  ),
-                  // controller: _passwordController,
-                  // onChanged: _authenticationFormBloc.onPasswordChanged,
-                  obscureText: false,
-                ),
-                Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Row(
-                        children: [
-                          Text("Select Vehicle",style: TextStyle(fontSize: 18),),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 3.0),
-                            child: Text("*",style: TextStyle(fontSize: 18,color: MyColors.redColorCode)),
-                          )
-                        ],
-                      ),
-                    )
-                ),
-                TextField(
-                  // controller: alertGroupController,
-                  enabled: true,
-                  onTap: () {
-                    FocusScope.of(context).requestFocus(new FocusNode());
-                    _showMultiSelect();
-                  }, // to trigger disabledBorder
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: MyColors.whiteColorCode,
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(4)),
                       borderSide:
-                      BorderSide(width: 1, color: MyColors.buttonColorCode),
+                          BorderSide(width: 1, color: MyColors.buttonColorCode),
                     ),
                     disabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(4)),
@@ -698,159 +428,691 @@ class _CreateGeofenceScreenState extends State<CreateGeofenceScreen> {
                         borderRadius: BorderRadius.all(Radius.circular(4)),
                         borderSide: BorderSide(
                             width: 2, color: MyColors.buttonColorCode)),
-                    hintText: "Select",
-                    suffixIcon: Icon(
-                      Icons.keyboard_arrow_down,
-                      size: 30,
-                      color: MyColors.dateIconColorCode,
-                    ),
+                    hintText: "Type here",
                     hintStyle: TextStyle(
-                        fontSize: 16, color: MyColors.datePlacehoderColorCode),
+                        fontSize: 16, color: MyColors.textFieldHintColorCode),
                     errorText: "",
                   ),
                   // controller: _passwordController,
                   // onChanged: _authenticationFormBloc.onPasswordChanged,
                   obscureText: false,
                 ),
-                selectedvehicleSrNoDetailslist.length==0 ? Container() : GridView.builder(
-                  // physics: NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      childAspectRatio: 10 /4,
-                      mainAxisSpacing: 6.0,
-                      crossAxisSpacing: 6.0,
-                    ),
-                    itemCount: selectedvehicleSrNoDetailslist.length,
-                    itemBuilder: (context,index){
-                      return Container(
-                          padding: EdgeInsets.all(10),
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                              color: MyColors.dateIconColorCode,
-                              borderRadius: BorderRadius.all(Radius.circular(22))
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(child: Text(selectedvehicleSrNoDetailslist[index].vehicleRegNo!,overflow:TextOverflow.ellipsis,style: TextStyle(color: MyColors.whiteColorCode,fontSize: 16),)),
-                              GestureDetector(
-                                  onTap:(){
-                                    setState(() {
-                                      selectedvehicleSrNoDetailslist.removeAt(index);
-                                    });
-                                  },
-                                  child: Icon(Icons.close,color: MyColors.whiteColorCode,)
-                              )
-                            ],
-                          )
+                /*Container(
+                  decoration: BoxDecoration(
+                      color: MyColors.textFieldBackgroundColorCode,
+                      border: Border.all(color: MyColors.textBoxBorderColorCode,width: 2)
+                  ),
+                  child: DropdownButton(
+                    value: dropdownvalue,
+                    underline: SizedBox(),
+                    icon: const Icon(Icons.keyboard_arrow_down),
+                    items: items.map((String items) {
+                      return DropdownMenuItem(
+                        value: items,
+                        child: Container(
+                          */ /* decoration: BoxDecoration(
+                            border: Border.all(color:MyColors.text3greyColorCode )
+                          ),*/ /*
+                            padding: EdgeInsets.only(left: 10),
+                            width: MediaQuery.of(context).size.width-58,
+                            child: Text(items,style: TextStyle(fontSize: 18))
+                        ),
                       );
-                    }
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        dropdownvalue = newValue!;
+                      });
+                    },
+                  ),
+                ),*/
+                Align(
+                    alignment: Alignment.centerLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 17, bottom: 8),
+                      child: Row(
+                        children: [
+                          Text(
+                            "Branch Name",
+                            style: TextStyle(fontSize: 18),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 3.0),
+                            child: Text("*",
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    color: MyColors.redColorCode)),
+                          )
+                        ],
+                      ),
+                    )),
+                TextField(
+                  controller: _branchNamecontroller,
+                  enabled: false, // to trigger disabledBorder
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: MyColors.whiteColorCode,
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(4)),
+                      borderSide:
+                          BorderSide(width: 1, color: MyColors.buttonColorCode),
+                    ),
+                    disabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(4)),
+                      borderSide: BorderSide(width: 1, color: Colors.orange),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(4)),
+                      borderSide: BorderSide(
+                          width: 1, color: MyColors.textBoxBorderColorCode),
+                    ),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(4)),
+                        borderSide: BorderSide(
+                          width: 1,
+                        )),
+                    errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(4)),
+                        borderSide: BorderSide(
+                            width: 1, color: MyColors.textBoxBorderColorCode)),
+                    focusedErrorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(4)),
+                        borderSide: BorderSide(
+                            width: 2, color: MyColors.buttonColorCode)),
+                    hintText: "Type here",
+                    hintStyle: TextStyle(
+                        fontSize: 16, color: MyColors.textFieldHintColorCode),
+                    errorText: "",
+                  ),
+                  // controller: _passwordController,
+                  // onChanged: _authenticationFormBloc.onPasswordChanged,
+                  obscureText: false,
+                ),
+                /*Container(
+                  decoration: BoxDecoration(
+                      color: MyColors.textFieldBackgroundColorCode,
+                      border: Border.all(color: MyColors.textBoxBorderColorCode,width: 2)
+                  ),
+                  child: DropdownButton(
+                    value: dropdownvalue,
+                    underline: SizedBox(),
+                    icon: const Icon(Icons.keyboard_arrow_down),
+                    items: items.map((String items) {
+                      return DropdownMenuItem(
+                        value: items,
+                        child: Container(
+                          */ /* decoration: BoxDecoration(
+                            border: Border.all(color:MyColors.text3greyColorCode )
+                          ),*/ /*
+                            padding: EdgeInsets.only(left: 10),
+                            width: MediaQuery.of(context).size.width-58,
+                            child: Text(items,style: TextStyle(fontSize: 18))
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        dropdownvalue = newValue!;
+                      });
+                    },
+                  ),
+                ),*/
+                Align(
+                    alignment: Alignment.centerLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 17.0, bottom: 8),
+                      child: Row(
+                        children: [
+                          Text(
+                            "Geofence Name",
+                            style: TextStyle(fontSize: 18),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 3.0),
+                            child: Text("*",
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    color: MyColors.redColorCode)),
+                          )
+                        ],
+                      ),
+                    )),
+                TextField(
+                  onChanged: (value) {
+                    geofencename = value.toString();
+                    setState(() {});
+                  },
+                  controller: _geofenceNamecontroller,
+                  enabled: true, // to trigger disabledBorder
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.allow(
+                        RegExp('^[a-zA-Z][a-zA-Z ]*')),
+                  ],
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: MyColors.whiteColorCode,
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(4)),
+                      borderSide:
+                          BorderSide(width: 1, color: MyColors.buttonColorCode),
+                    ),
+                    disabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(4)),
+                      borderSide: BorderSide(width: 1, color: Colors.orange),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(4)),
+                      borderSide: BorderSide(
+                          width: 1, color: MyColors.textBoxBorderColorCode),
+                    ),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(4)),
+                        borderSide: BorderSide(
+                          width: 1,
+                        )),
+                    errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(4)),
+                        borderSide: BorderSide(
+                            width: 1, color: MyColors.textBoxBorderColorCode)),
+                    focusedErrorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(4)),
+                        borderSide: BorderSide(
+                            width: 2, color: MyColors.buttonColorCode)),
+                    hintText: "Type here",
+                    hintStyle: TextStyle(
+                        fontSize: 16, color: MyColors.textFieldHintColorCode),
+                    errorText: "",
+                  ),
+                  // controller: _passwordController,
+                  // onChanged: _authenticationFormBloc.onPasswordChanged,
+                  obscureText: false,
                 ),
                 Align(
                     alignment: Alignment.centerLeft,
                     child: Padding(
-                      padding: const EdgeInsets.only(top:6,bottom: 8),
+                      padding: const EdgeInsets.only(bottom: 8),
                       child: Row(
                         children: [
-                          Text("Status",style: TextStyle(fontSize: 18),),
+                          Text(
+                            "Category",
+                            style: TextStyle(fontSize: 18),
+                          ),
                           Padding(
                             padding: const EdgeInsets.only(left: 3.0),
-                            child: Text("*",style: TextStyle(fontSize: 18,color: MyColors.redColorCode)),
+                            child: Text("*",
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    color: MyColors.redColorCode)),
                           )
                         ],
                       ),
-                    )
+                    )),
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                        color: MyColors.textBoxBorderColorCode, width: 2),
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    color: MyColors.whiteColorCode,
+                  ),
+                  width: MediaQuery.of(context).size.width,
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton(
+                      value: dropdownvalueprovider,
+                      icon: Padding(
+                        padding: const EdgeInsets.only(right: 18.0),
+                        child: const Icon(
+                          Icons.keyboard_arrow_down,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      items: provideritems.map((String items) {
+                        return DropdownMenuItem(
+                          value: items,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 18.0),
+                            child: Text(
+                              items,
+                              style: TextStyle(
+                                  color: Colors.black, fontSize: 15.0),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          dropdownvalueprovider = newValue!;
+                        });
+                      },
+                    ),
+                  ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 4.0),
-                  child: Row(
-                    children: [
-                      Checkbox(
-                          value: activeStatus,
-                          onChanged: (checkvalue) {
-                            setState(() {
-                              activeStatus = checkvalue!;
-                              print(checkvalue);
-                            });
-                          }),
-                      Text("Show Geofence",style: TextStyle(fontSize: 18),),
+                Align(
+                    alignment: Alignment.centerLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 17, bottom: 8.0),
+                      child: Row(
+                        children: [
+                          Text(
+                            "Description",
+                            style: TextStyle(fontSize: 18),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 3.0),
+                            child: Text("*",
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    color: MyColors.redColorCode)),
+                          )
+                        ],
+                      ),
+                    )),
+                TextField(
+                  controller: _descriptiCncontroller,
+                  onChanged: (value) {
+                    description = value.toString();
+                  },
+                  enabled: true, // to trigger disabledBorder
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.allow(
+                        RegExp('^[a-zA-Z][a-zA-Z ]*')),
+                  ],
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: MyColors.whiteColorCode,
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(4)),
+                      borderSide:
+                          BorderSide(width: 1, color: MyColors.buttonColorCode),
+                    ),
+                    disabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(4)),
+                      borderSide: BorderSide(width: 1, color: Colors.orange),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(4)),
+                      borderSide: BorderSide(
+                          width: 1, color: MyColors.textBoxBorderColorCode),
+                    ),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(4)),
+                        borderSide: BorderSide(
+                          width: 1,
+                        )),
+                    errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(4)),
+                        borderSide: BorderSide(
+                            width: 1, color: MyColors.textBoxBorderColorCode)),
+                    focusedErrorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(4)),
+                        borderSide: BorderSide(
+                            width: 2, color: MyColors.buttonColorCode)),
+                    hintText: "Type here",
+                    hintStyle: TextStyle(
+                        fontSize: 16, color: MyColors.textFieldHintColorCode),
+                    errorText: "",
+                  ),
+                  // controller: _passwordController,
+                  // onChanged: _authenticationFormBloc.onPasswordChanged,
+                  obscureText: false,
+                ),
+                Align(
+                    alignment: Alignment.centerLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Row(
+                        children: [
+                          Text(
+                            "Tolerance",
+                            style: TextStyle(fontSize: 18),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 3.0),
+                            child: Text("*",
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    color: MyColors.redColorCode)),
+                          )
+                        ],
+                      ),
+                    )),
+                TextField(
+                  onChanged: (value) {
+                    tolerance = value.toString();
+                  },
+                  controller: _toleranceController,
+                  enabled: true, // to trigger disabledBorder
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.digitsOnly
+                  ],
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: MyColors.whiteColorCode,
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(4)),
+                      borderSide:
+                          BorderSide(width: 1, color: MyColors.buttonColorCode),
+                    ),
+                    disabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(4)),
+                      borderSide: BorderSide(width: 1, color: Colors.orange),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(4)),
+                      borderSide: BorderSide(
+                          width: 1, color: MyColors.textBoxBorderColorCode),
+                    ),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(4)),
+                        borderSide: BorderSide(
+                          width: 1,
+                        )),
+                    errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(4)),
+                        borderSide: BorderSide(
+                            width: 1, color: MyColors.textBoxBorderColorCode)),
+                    focusedErrorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(4)),
+                        borderSide: BorderSide(
+                            width: 2, color: MyColors.buttonColorCode)),
+                    hintText: "Type here",
+                    hintStyle: TextStyle(
+                        fontSize: 16, color: MyColors.textFieldHintColorCode),
+                    errorText: "",
+                  ),
+                  // controller: _passwordController,
+                  // onChanged: _authenticationFormBloc.onPasswordChanged,
+                  obscureText: false,
+                ),
+                Align(
+                    alignment: Alignment.centerLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Row(
+                        children: [
+                          Text(
+                            "Select Vehicle",
+                            style: TextStyle(fontSize: 18),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 3.0),
+                            child: Text("*",
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    color: MyColors.redColorCode)),
+                          )
+                        ],
+                      ),
+                    )),
+                GestureDetector(
+                  onTap: () {
+                    iscontainerselected = true;
+                    setState(() {});
+                  },
+                  child: Container(
+                    height: 40.0,
+                    width: double.infinity,
+                    margin: EdgeInsets.only(left: 20.0, right: 20.0),
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10.0),
+                        border: Border.all(color: Colors.grey)),
+                    child: ListTile(
+                      leading: Text(vehiclename ?? "All"),
+                      trailing: Icon(Icons.keyboard_arrow_down),
+                    ),
+                  ),
+                ),
+                iscontainerselected
+                    ? Card(
+                        elevation: 3.0,
+                        child: Container(
+                          height: 150.0,
+                          width: double.infinity,
+                          margin: EdgeInsets.only(left: 20.0, right: 20.0),
+                          child: ListView.builder(
+                            itemCount: vehiclelistbyid!.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      iscontainerselected = false;
+                                      vehicleid = vehiclelistbyid![index].vsrNo;
+                                      vehiclename = vehiclelistbyid![index]
+                                          .vehicleRegNo
+                                          .toString();
+                                      setState(() {});
+                                    },
+                                    child: SizedBox(
+                                      height: 40.0,
+                                      width: 50.0,
+                                      child: Text(vehiclelistbyid![index]
+                                          .vehicleRegNo
+                                          .toString()),
+                                    ),
+                                  ));
+                            },
+                          ),
+                        ),
+                      )
+                    : SizedBox(),
+                selectedvehicleSrNoDetailslist.length == 0
+                    ? Container()
+                    : GridView.builder(
+                        // physics: NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          childAspectRatio: 10 / 4,
+                          mainAxisSpacing: 6.0,
+                          crossAxisSpacing: 6.0,
+                        ),
+                        itemCount: selectedvehicleSrNoDetailslist.length,
+                        itemBuilder: (context, index) {
+                          return Container(
+                              padding: EdgeInsets.all(10),
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                  color: MyColors.dateIconColorCode,
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(22))),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                      child: Text(
+                                    selectedvehicleSrNoDetailslist[index]
+                                        .vehicleRegNo!,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                        color: MyColors.whiteColorCode,
+                                        fontSize: 16),
+                                  )),
+                                  GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          selectedvehicleSrNoDetailslist
+                                              .removeAt(index);
+                                        });
+                                      },
+                                      child: Icon(
+                                        Icons.close,
+                                        color: MyColors.whiteColorCode,
+                                      ))
+                                ],
+                              ));
+                        }),
+                Align(
+                    alignment: Alignment.centerLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 6, bottom: 8),
+                      child: Row(
+                        children: [
+                          Text(
+                            "Status",
+                            style: TextStyle(fontSize: 18),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 3.0),
+                            child: Text("*",
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    color: MyColors.redColorCode)),
+                          )
+                        ],
+                      ),
+                    )),
+                Container(
+                  height: 50.0,
+                  width: double.infinity,
+                  margin: EdgeInsets.only(left: 10.0, right: 10.0),
+                  child: DropdownButton(
+                    // Initial Value
+                    value: dropdownvalue,
 
-                    ],
+                    // Down Arrow Icon
+
+                    // Array list of items
+                    items: items.map((String items) {
+                      return DropdownMenuItem(
+                        value: items,
+                        child: Text(items),
+                      );
+                    }).toList(),
+                    // After selecting the desired option,it will
+                    // change button value to selected value
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        dropdownvalue = newValue!;
+                      });
+                    },
                   ),
                 ),
                 Stack(
                   alignment: Alignment.topCenter,
                   children: [
-                    Container(
-                      margin: const EdgeInsets.only(top:17,bottom: 8),
-                      height: 400,
-                      decoration: BoxDecoration(
-                          color: MyColors.appDefaultColorCode,
-                          borderRadius: BorderRadius.all(Radius.circular(10))
-                      ),
-                      /*child:  GoogleMap(
-                        markers: _marker,
-                        zoomControlsEnabled: false,
-                        initialCameraPosition: CameraPosition(
-                            target: latLng,
-                            zoom: 14.4748
-                        ),
-                        myLocationEnabled: true,
-                      ),*/  /*GoogleMap(
-                        compassEnabled: true,
-                        // markers: _markers,
-                        // polylines: _polylines,
-                        mapType: MapType.normal,
-                        initialCameraPosition: initialCameraPosition,
-                      ),*/
+                    BlocBuilder<MainBloc, MainState>(
+                      builder: (context, state) {
+                        return Container(
+                          margin: const EdgeInsets.only(top: 17, bottom: 8),
+                          height: 400,
+                          decoration: BoxDecoration(
+                              color: MyColors.appDefaultColorCode,
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10))),
+                          child: GoogleMap(
+                            zoomGesturesEnabled: true,
+                            myLocationEnabled:
+                                true, //enable Zoom in, out on map
+                            myLocationButtonEnabled: true,
+                            initialCameraPosition: CameraPosition(
+                              //innital position in map
+                              target: LatLng(
+                                  _currentPosition!.latitude == null
+                                      ? 18.5204
+                                      : _currentPosition!.latitude,
+                                  _currentPosition!.longitude == null
+                                      ? 73.8567
+                                      : _currentPosition!
+                                          .longitude), //initial position
+                              zoom: 13.0,
+                              //initial zoom level
+                            ),
+                            markers: _marker,
+                            onMapCreated: (controller) {
+                              //method called when map is created
+                              setState(() {
+                                mapController = controller;
+                              });
+                            },
+                          ),
+                        );
+                      },
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(top: 30.0,left: 15,right: 15),
-                      child:TextField(
+                      padding:
+                          const EdgeInsets.only(top: 30.0, left: 15, right: 15),
+                      child: TextField(
                         controller: searchController,
+
+                        onChanged: (value) => _onSearchTextChanged(value),
                         enabled: true, // to trigger disabledBorder
                         decoration: InputDecoration(
                           filled: true,
                           fillColor: MyColors.whiteColorCode,
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.all(Radius.circular(8)),
-                            borderSide: BorderSide(width: 1,color: MyColors.buttonColorCode),
+                            borderSide: BorderSide(
+                                width: 1, color: MyColors.buttonColorCode),
                           ),
                           disabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.all(Radius.circular(8)),
-                            borderSide: BorderSide(width: 1,color: Colors.orange),
+                            borderSide:
+                                BorderSide(width: 1, color: Colors.orange),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.all(Radius.circular(8)),
-                            borderSide: BorderSide(width: 1,color: MyColors.textColorCode),
+                            borderSide: BorderSide(
+                                width: 1, color: MyColors.textColorCode),
                           ),
                           border: OutlineInputBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(8)),
-                              borderSide: BorderSide(width: 1,)
-                          ),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(8)),
+                              borderSide: BorderSide(
+                                width: 1,
+                              )),
                           errorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(8)),
-                              borderSide: BorderSide(width: 1,color: MyColors.textBoxBorderColorCode)
-                          ),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(8)),
+                              borderSide: BorderSide(
+                                  width: 1,
+                                  color: MyColors.textBoxBorderColorCode)),
                           focusedErrorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(8)),
-                              borderSide: BorderSide(width: 2,color: MyColors.buttonColorCode)
-                          ),
-                          hintText: "Select",
-                          hintStyle: TextStyle(fontSize: 18,color:  MyColors.searchTextColorCode),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(8)),
+                              borderSide: BorderSide(
+                                  width: 2, color: MyColors.buttonColorCode)),
+                          hintText: location ?? "Select",
+                          hintStyle:
+                              TextStyle(fontSize: 18, color: Colors.black),
                           errorText: "",
                         ),
-                        // controller: _passwordController,
-                        // onChanged: _authenticationFormBloc.onPasswordChanged,
                         obscureText: false,
-                        onTap: (){
-                          // _searchLocation(context);
-                        },
                       ),
-                    )
+                    ),
+                    onseaerchtextn
+                        ? Container(
+                            margin: EdgeInsets.only(
+                                top: 115.0, left: 20.0, right: 20.0),
+                            height: 150.0,
+                            width: double.infinity,
+                            decoration: BoxDecoration(color: Colors.white),
+                            child: ListView.builder(
+                              itemCount: _predictions.length,
+                              itemBuilder: (context, index) {
+                                return ListTile(
+                                  onTap: () {
+                                    location = _predictions[index]
+                                        .description
+                                        .toString();
+                                    searchController.text = _predictions[index]
+                                        .description
+                                        .toString();
+                                    onseaerchtextn = false;
+                                    addresslocation = location
+                                        .replaceAll(",", "")
+                                        .replaceAll(" ", "");
+                                    _onPredictionSelected(_predictions[index]);
+                                    setState(() {});
+                                  },
+                                  title: Text(_predictions[index]
+                                      .description
+                                      .toString()),
+                                );
+                              },
+                            ),
+                          )
+                        : SizedBox()
                   ],
                 )
-
               ],
             ),
           ),
@@ -859,84 +1121,21 @@ class _CreateGeofenceScreenState extends State<CreateGeofenceScreen> {
     );
   }
 
-  Future<void> _searchLocation(BuildContext context) async{
-    Prediction ?prediction=await PlacesAutocomplete.show(
-        context: context,
-        apiKey:googleApiKey,
-        onError: onError,
-        mode: Mode.overlay,
-        language: "en",
-        components: [Component(Component.country,"IN")]
-    );
-    if(prediction!=null){
-      _displaySelectedLocation(prediction);
-    }
-  }
-
-  void onError(PlacesAutocompleteResponse response){
-   // mapErrorScaffoldKey.currentState!.showSnackBar(
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(response.errorMessage!)));
-       // SnackBar(content: Text(response.errorMessage!)));
-  }
-
-  Future<Null> _displaySelectedLocation(Prediction  p) async{
-    if(p!=null){
-      PlacesDetailsResponse response=await _places.getDetailsByPlaceId(p.placeId!);
-      setState(() {
-        latitude=response.result.geometry!.location.lat;
-        longitute=response.result.geometry!.location.lng;
-      });
-
-
-      // searchScaffoldKey.currentState.showSnackBar(
-      //   SnackBar(content: Text("${p.description}-$lat/$log"),)
-      // );
-
-      setState(() {
-        // currentAddress=p.description;
-        searchController.text=p.description!;
-        // print(currentAddress);
-
-      });
-
-      latLng=LatLng(latitude,longitute);
-
-      // Utility.instance.hideKeyboard(context);
-
-
-      _marker.clear();
-      addMakerButton(latLng);
-
-    }
-  }
-
-  void addMakerButton(LatLng latlong){
-    setState(() {
-      _marker.add(
-          Marker(
-            markerId: MarkerId("111"),
-            position: latlong,
-            icon: BitmapDescriptor.defaultMarker,
-
-          )
-      );
-    });
-  }
-
-  validation(){
+  validation() {
     if (_geofenceNamecontroller.text.isEmpty) {
       Fluttertoast.showToast(
         msg: "Please Enter Geofence Name..!!!",
         toastLength: Toast.LENGTH_SHORT,
         timeInSecForIosWeb: 1,
       );
-    }if (_geofenceNamecontroller.text.length<3) {
+    }
+    if (_geofenceNamecontroller.text.length < 3) {
       Fluttertoast.showToast(
         msg: "Geofence Name must be 3 digit..!!!",
         toastLength: Toast.LENGTH_SHORT,
         timeInSecForIosWeb: 1,
       );
-    } else if (categorydropdown=='') {
+    } else if (categorydropdown == '') {
       Fluttertoast.showToast(
         msg: "Please select geofence category name...!!",
         toastLength: Toast.LENGTH_SHORT,
@@ -948,19 +1147,20 @@ class _CreateGeofenceScreenState extends State<CreateGeofenceScreen> {
         toastLength: Toast.LENGTH_SHORT,
         timeInSecForIosWeb: 1,
       );
-    }else if (_descriptiCncontroller.text.length<3) {
+    } else if (_descriptiCncontroller.text.length < 3) {
       Fluttertoast.showToast(
         msg: "Description must be 3 digit..!!!",
         toastLength: Toast.LENGTH_SHORT,
         timeInSecForIosWeb: 1,
       );
-    }if(selectedvehicleSrNoDetailslist.length==0){
+    }
+    if (selectedvehicleSrNoDetailslist.length == 0) {
       Fluttertoast.showToast(
         msg: "Please select vehicles..!!!",
         toastLength: Toast.LENGTH_SHORT,
         timeInSecForIosWeb: 1,
       );
-    }else{
+    } else {
       Fluttertoast.showToast(
         msg: "success...!!",
         toastLength: Toast.LENGTH_SHORT,
@@ -969,28 +1169,30 @@ class _CreateGeofenceScreenState extends State<CreateGeofenceScreen> {
     }
   }
 
-
   Future<String> getCategorylist() async {
     setState(() {
-      _isLoading=true;
+      _isLoading = true;
     });
     print(Constant.geofenceCategoryUrl);
 
-    var response = await http.get(Uri.parse(Constant.geofenceCategoryUrl),  headers: <String, String>{
-      'Authorization': "Bearer $token",
-    },);
+    var response = await http.get(
+      Uri.parse(Constant.geofenceCategoryUrl),
+      headers: <String, String>{
+        'Authorization': "Bearer $token",
+      },
+    );
     if (response.statusCode == 200) {
       var resBody = json.decode(response.body);
       setState(() {
-        _isLoading=false;
+        _isLoading = false;
         categoryDataList = resBody;
         // }
       });
       print(resBody);
       return "Success";
-    }else{
+    } else {
       setState(() {
-        _isLoading=false;
+        _isLoading = false;
       });
       throw Exception('Failed to load data.');
     }
@@ -998,9 +1200,13 @@ class _CreateGeofenceScreenState extends State<CreateGeofenceScreen> {
 
   Future<String> getvehiclelist() async {
     setState(() {
-      _isLoading=true;
+      _isLoading = true;
     });
-    String url=Constant.vehicleFillSrnoUrl+""+vendorid.toString()+"/"+branchid.toString();
+    String url = Constant.vehicleFillSrnoUrl +
+        "" +
+        vendorid.toString() +
+        "/" +
+        branchid.toString();
 
     print(url);
     final response = await http.get(
@@ -1011,24 +1217,29 @@ class _CreateGeofenceScreenState extends State<CreateGeofenceScreen> {
     );
     print(response.body);
     var resBody = json.decode(response.body);
-    vehicleSrNolist=vehicleFillSrNoResponseFromJson(response.body).data!;
+    vehicleSrNolist = vehicleFillSrNoResponseFromJson(response.body).data!;
     setState(() {
-      _isLoading=false;
+      _isLoading = false;
     });
-    for(int i=0;i<vehicleSrNolist.length;i++){
+    for (int i = 0; i < vehicleSrNolist.length; i++) {
       list.add(vehicleSrNolist[i].vehicleRegNo!);
-      vehicleSrNoDetailslist.add(VehiclesDetail(vsrNo: vehicleSrNolist[i].vsrNo,vehicleRegNo: vehicleSrNolist[i].vehicleRegNo!));
+      vehicleSrNoDetailslist.add(VehiclesDetail(
+          vsrNo: vehicleSrNolist[i].vsrNo,
+          vehicleRegNo: vehicleSrNolist[i].vehicleRegNo!));
     }
 
     return "Success";
   }
 
-
   void _showMultiSelect() async {
     vehicleresult = await showDialog(
       context: context,
       builder: (BuildContext context) {
-        return MultiVehicleSelect(items: list,vehiclelist: vehicleSrNoDetailslist,selectedvehicleSrNoDetailslist: selectedvehicleSrNoDetailslist,);
+        return MultiVehicleSelect(
+          items: list,
+          vehiclelist: vehicleSrNoDetailslist,
+          selectedvehicleSrNoDetailslist: selectedvehicleSrNoDetailslist,
+        );
       },
     );
 
@@ -1039,22 +1250,23 @@ class _CreateGeofenceScreenState extends State<CreateGeofenceScreen> {
     }
     if (vehicleresult != null && vehicleresult.containsKey('VehicleListDemo')) {
       setState(() {
-        selectedvehicleSrNoDetailslist=vehicleresult["VehicleListDemo"];
+        selectedvehicleSrNoDetailslist = vehicleresult["VehicleListDemo"];
       });
     }
   }
-
-
 }
-
 
 class MultiVehicleSelect extends StatefulWidget {
   List<String> items;
   // List<VehicleFillResponse> vehiclelist=[];
   List<VehiclesDetail> vehiclelist = [];
-  List<VehiclesDetail> selectedvehicleSrNoDetailslist=[];
+  List<VehiclesDetail> selectedvehicleSrNoDetailslist = [];
 
-  MultiVehicleSelect({Key? key, required this.items, required this.vehiclelist,required this.selectedvehicleSrNoDetailslist})
+  MultiVehicleSelect(
+      {Key? key,
+      required this.items,
+      required this.vehiclelist,
+      required this.selectedvehicleSrNoDetailslist})
       : super(key: key);
 
   @override
@@ -1067,40 +1279,39 @@ class _MultiVehicleSelectState extends State<MultiVehicleSelect> {
   // final List<VehicleFillResponse> _selectedItemslist = [];
   List<VehiclesDetail> _selectedItemslist = [];
 
-  List<bool> _isChecked=[];
-  List<VehicleList> vehiclelist=[];
+  List<bool> _isChecked = [];
+  List<VehicleList> vehiclelist = [];
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
 
-    for(int i=0;i<widget.selectedvehicleSrNoDetailslist.length;i++){
-      _selectedItems.add(widget.selectedvehicleSrNoDetailslist[i].vehicleRegNo!);
+    for (int i = 0; i < widget.selectedvehicleSrNoDetailslist.length; i++) {
+      _selectedItems
+          .add(widget.selectedvehicleSrNoDetailslist[i].vehicleRegNo!);
       _selectedItemslist.add(VehiclesDetail(
           vsrNo: widget.selectedvehicleSrNoDetailslist[i].vsrNo,
           vehicleRegNo: widget.selectedvehicleSrNoDetailslist[i].vehicleRegNo));
     }
 
-    for(int i=0;i<widget.items.length;i++){
-      vehiclelist.add(VehicleList(vehicleno: widget.items[i], vehicleselected: false));
+    for (int i = 0; i < widget.items.length; i++) {
+      vehiclelist
+          .add(VehicleList(vehicleno: widget.items[i], vehicleselected: false));
     }
 
-
-    for(int i=0;i<widget.items.length;i++){
-      for(int j=0;j<widget.selectedvehicleSrNoDetailslist.length;j++){
-        if(widget.items[i]==widget.selectedvehicleSrNoDetailslist[j].vehicleRegNo){
-          vehiclelist[i].vehicleselected=true;
-        }else{
-        }
+    for (int i = 0; i < widget.items.length; i++) {
+      for (int j = 0; j < widget.selectedvehicleSrNoDetailslist.length; j++) {
+        if (widget.items[i] ==
+            widget.selectedvehicleSrNoDetailslist[j].vehicleRegNo) {
+          vehiclelist[i].vehicleselected = true;
+        } else {}
       }
     }
 
-    for(int i=0;i<vehiclelist.length;i++){
+    for (int i = 0; i < vehiclelist.length; i++) {
       print("Selected vehicle list :${vehiclelist[i].vehicleselected}");
-
     }
-
   }
 
 // This function is triggered when a checkbox is checked or unchecked
@@ -1134,7 +1345,6 @@ class _MultiVehicleSelectState extends State<MultiVehicleSelect> {
       print("selected list : ${_selectedItemslist[i].vehicleRegNo}");
     }
 
-
     Navigator.pop(context, {
       "VehicleList": _selectedItems,
       "VehicleListDemo": _selectedItemslist,
@@ -1149,13 +1359,13 @@ class _MultiVehicleSelectState extends State<MultiVehicleSelect> {
         child: ListBody(
           children: vehiclelist
               .map((item) => CheckboxListTile(
-            value: _selectedItems.contains(item.vehicleno),
-            title: Text(item.vehicleno),
-            controlAffinity: ListTileControlAffinity.leading,
-            onChanged: (isChecked) {
-              _itemChange(item.vehicleno, isChecked!);
-            } ,
-          ))
+                    value: _selectedItems.contains(item.vehicleno),
+                    title: Text(item.vehicleno),
+                    controlAffinity: ListTileControlAffinity.leading,
+                    onChanged: (isChecked) {
+                      _itemChange(item.vehicleno, isChecked!);
+                    },
+                  ))
               .toList(),
         ),
       ),
@@ -1173,11 +1383,9 @@ class _MultiVehicleSelectState extends State<MultiVehicleSelect> {
   }
 }
 
-
-class VehicleList{
+class VehicleList {
   late String vehicleno;
   late bool vehicleselected;
 
-  VehicleList({required this.vehicleno,required this.vehicleselected});
+  VehicleList({required this.vehicleno, required this.vehicleselected});
 }
-

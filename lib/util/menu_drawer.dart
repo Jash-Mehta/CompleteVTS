@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_vts/bloc/main_bloc.dart';
+import 'package:flutter_vts/bloc/main_event.dart';
 import 'package:flutter_vts/model/login/login_response.dart';
 import 'package:flutter_vts/screen/change_password/change_password_screen.dart';
 import 'package:flutter_vts/screen/distance_summary/distance_summary_screen.dart';
@@ -17,7 +18,7 @@ import 'package:flutter_vts/screen/master/vendor_master/vendor_master_screen.dar
 import 'package:flutter_vts/screen/notification/notification_screen.dart';
 import 'package:flutter_vts/screen/profile/profile_screen.dart';
 import 'package:flutter_vts/screen/report/over_speed_report_screen.dart';
-import 'package:flutter_vts/screen/report/vehicle_status_summary.dart';
+// import 'package:flutter_vts/screen/report/vehicle_status_summary_report_screen.dart';
 import 'package:flutter_vts/screen/reset_password/reset_password_screen.dart';
 import 'package:flutter_vts/screen/storage_summary/storage_summary_screen.dart';
 import 'package:flutter_vts/screen/transctions/create_geofence/geofence_create_screen.dart';
@@ -34,23 +35,27 @@ import 'package:flutter_vts/util/MyColor.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_vts/util/constant.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+// import '../screen/report/date_and_time_wise_distance_travel_report_screen.dart';
+// import '../screen/report/device_master_report_screen.dart';
+// import '../screen/report/driver_master_report.dart';
+// import '../screen/report/driver_wise_vehicle_assign.dart';
+// import '../screen/report/frame_packet_grid_view_report.dart';
+// import '../screen/report/frame_packet_report_screen.dart';
+// import '../screen/report/vehicle_distance_travel_report_screen.dart';
+// import '../screen/report/vehicle_report_screen.dart';
+// import '../screen/report/vehicle_status_group_by_report_screen.dart';
+// import '../screen/report/vehicle_status_report.dart';
+// import '../screen/report/vehicle_time_wise_distance_travel_report_screen.dart';
 import '../screen/report/date_and_timewise_distance.dart';
-import '../screen/report/date_wise_travel_history.dart';
-import '../screen/report/device_master_report1.dart';
-import '../screen/report/device_master_report1.dart';
+import '../screen/report/device_master_report.dart';
 import '../screen/report/driver_master_report_screen.dart';
 import '../screen/report/driver_wise_vehicle_assign.dart';
-import '../screen/report/frame_packet.dart';
-import '../screen/report/frame_packet_grid.dart';
-import '../screen/report/vehicle_report_screen.dart';
-import '../screen/report/vehicle_status_group.dart';
+import '../screen/report/vehicle_report.dart';
 import '../screen/report/vehicle_status_report.dart';
-import '../screen/report/vehicle_wise_timewise_travel.dart';
-import '../screen/report/vehicle_wise_travel_history.dart';
+import '../screen/transctions/vts_get_geofence/getting_routedetail.dart';
 import '../screen/utility/create/create_user_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:fluttertoast/fluttertoast.dart';
-
 
 class MenuDrawer extends StatefulWidget {
   const MenuDrawer({Key? key}) : super(key: key);
@@ -65,7 +70,14 @@ class _MenuDrawerState extends State<MenuDrawer> {
     return getMenuDrawer(context);
   }
 
-  Future<LoginResponse> updateLogout(BuildContext context,String menuCaption,int vendorSrNo,int branchsrno,int userId,String sessionId,String token) async {
+  Future<LoginResponse> updateLogout(
+      BuildContext context,
+      String menuCaption,
+      int vendorSrNo,
+      int branchsrno,
+      int userId,
+      String sessionId,
+      String token) async {
     print(Constant.updatelogoutUrl);
     final response = await http.post(
       Uri.parse(Constant.updatelogoutUrl),
@@ -83,18 +95,17 @@ class _MenuDrawerState extends State<MenuDrawer> {
     );
     print(response.body);
 
-    if(response.statusCode==200){
+    if (response.statusCode == 200) {
       _removedata(context);
-    }else{
+    } else {
       Fluttertoast.showToast(
-        msg:"logout failed",
+        msg: "logout failed",
         toastLength: Toast.LENGTH_SHORT,
         timeInSecForIosWeb: 1,
       );
     }
     return LoginResponse.fromJson(jsonDecode(response.body));
   }
-
 
   getMenuDrawer(BuildContext context) {
     return Drawer(
@@ -115,59 +126,59 @@ class _MenuDrawerState extends State<MenuDrawer> {
                 ),
                 child: Center(
                     child: Row(
-                      children: [
-                        Image.asset(
-                          "assets/profile.png",
-                          width: 64,
-                          height: 63,
-                        ),
-                        Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 10.0),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'Techno',
-                                    style: TextStyle(
-                                        color: MyColors.whiteColorCode, fontSize: 20),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 6.0),
-                                    child: GestureDetector(
-                                        onTap: () {
-                                          Navigator.push(context,
-                                                 MaterialPageRoute(builder: (_) =>
-                                                     ProfileScreen()
-                                                 ));
-                                        },
-                                        child: const Text(
-                                          "View Profile",
-                                          style: TextStyle(
-                                              decoration: TextDecoration.underline,
-                                              color: MyColors
-                                                  .linearGradientGrey2ColorCode),
-                                        )),
-                                  ),
-                                ],
-                              ),
-                            )),
-                        Container(
-                          width: 24,
-                          height: 24,
-                          decoration: BoxDecoration(
-                            color: Colors.grey[400],
-                            shape: BoxShape.circle,
+                  children: [
+                    Image.asset(
+                      "assets/profile.png",
+                      width: 64,
+                      height: 63,
+                    ),
+                    Expanded(
+                        child: Padding(
+                      padding: const EdgeInsets.only(left: 10.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Techno',
+                            style: TextStyle(
+                                color: MyColors.whiteColorCode, fontSize: 20),
                           ),
-                          child: const Icon(
-                            Icons.close,
-                            size: 17,
-                            color: MyColors.whiteColorCode,
+                          Padding(
+                            padding: const EdgeInsets.only(top: 6.0),
+                            child: GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (_) => ProfileScreen()));
+                                },
+                                child: const Text(
+                                  "View Profile",
+                                  style: TextStyle(
+                                      decoration: TextDecoration.underline,
+                                      color: MyColors
+                                          .linearGradientGrey2ColorCode),
+                                )),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     )),
+                    Container(
+                      width: 24,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[400],
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.close,
+                        size: 17,
+                        color: MyColors.whiteColorCode,
+                      ),
+                    ),
+                  ],
+                )),
               ),
               GestureDetector(
                 onTap: () {
@@ -190,7 +201,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
                   title: const Text(
                     "Dashboard",
                     style:
-                    TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
                   ),
                 ),
               ),
@@ -206,8 +217,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
                               create: (context) {
                                 return MainBloc(webService: WebService());
                               },
-                              child: const LiveTrackingScreen())));
-
+                              child: LiveTrackingScreen())));
                 },
                 child: ListTile(
                   leading: Image.asset(
@@ -218,7 +228,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
                   title: const Text(
                     "Live Tracking",
                     style:
-                    TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
                   ),
                 ),
               ),
@@ -233,7 +243,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
                               create: (context) {
                                 return MainBloc(webService: WebService());
                               },
-                              child:  VehicleStatusScreen())));
+                              child: VehicleStatusScreen())));
                 },
                 child: ListTile(
                   leading: Image.asset(
@@ -244,7 +254,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
                   title: const Text(
                     "Vehicle Status",
                     style:
-                    TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
                   ),
                 ),
               ),
@@ -259,7 +269,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
                               create: (context) {
                                 return MainBloc(webService: WebService());
                               },
-                              child:  TravelSummaryScreen())));
+                              child: TravelSummaryScreen())));
                 },
                 child: ListTile(
                   leading: Image.asset(
@@ -270,7 +280,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
                   title: const Text(
                     "Travel Summary",
                     style:
-                    TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
                   ),
                 ),
               ),
@@ -285,7 +295,9 @@ class _MenuDrawerState extends State<MenuDrawer> {
                               create: (context) {
                                 return MainBloc(webService: WebService());
                               },
-                              child:  NotificationScreen(isappbar: true,))));
+                              child: NotificationScreen(
+                                isappbar: true,
+                              ))));
                 },
                 child: ListTile(
                   leading: Image.asset(
@@ -296,7 +308,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
                   title: const Text(
                     "Alerts",
                     style:
-                    TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
                   ),
                 ),
               ),
@@ -322,7 +334,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
                   title: const Text(
                     "Distance Summary Details",
                     style:
-                    TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
                   ),
                 ),
               ),
@@ -353,7 +365,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
                   title: const Text(
                     "Settings",
                     style:
-                    TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
                   ),
                 ),
               ),
@@ -368,7 +380,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
                               create: (context) {
                                 return MainBloc(webService: WebService());
                               },
-                              child:  StorageSummaryScreen())));
+                              child: StorageSummaryScreen())));
                 },
                 child: ListTile(
                   leading: Image.asset(
@@ -379,7 +391,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
                   title: const Text(
                     "Storage Summary",
                     style:
-                    TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
                   ),
                 ),
               ),
@@ -394,7 +406,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
                               create: (context) {
                                 return MainBloc(webService: WebService());
                               },
-                              child:  VehicleExpiryScreen2())));
+                              child: VehicleExpiryScreen2())));
                 },
                 child: ListTile(
                   leading: Image.asset(
@@ -405,7 +417,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
                   title: const Text(
                     "Vehicle Expiry (Deactive)",
                     style:
-                    TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
                   ),
                 ),
               ),
@@ -420,7 +432,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
                               create: (context) {
                                 return MainBloc(webService: WebService());
                               },
-                              child:  TravelDetailsScreen())));
+                              child: TravelDetailsScreen())));
                 },
                 child: ListTile(
                   leading: Image.asset(
@@ -431,7 +443,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
                   title: const Text(
                     "Travel Details (Daily)",
                     style:
-                    TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
                   ),
                 ),
               ),
@@ -458,7 +470,8 @@ class _MenuDrawerState extends State<MenuDrawer> {
                                   },
                                   child: VendorMasterScreen())));
                     },
-                    child: _masterMenuText("Vendor Master","assets/vendor_master.png"),
+                    child: _masterMenuText(
+                        "Vendor Master", "assets/vendor_master.png"),
                   ),
                   GestureDetector(
                     onTap: () {
@@ -472,7 +485,8 @@ class _MenuDrawerState extends State<MenuDrawer> {
                                   },
                                   child: BranchMasterScreen())));
                     },
-                    child: _masterMenuText("Branch Master","assets/branch_master.png"),
+                    child: _masterMenuText(
+                        "Branch Master", "assets/branch_master.png"),
                   ),
                   GestureDetector(
                       onTap: () {
@@ -486,7 +500,8 @@ class _MenuDrawerState extends State<MenuDrawer> {
                                     },
                                     child: DeviceMasterScreen())));
                       },
-                      child: _masterMenuText("Device Config Master","assets/device_master.png")),
+                      child: _masterMenuText(
+                          "Device Config Master", "assets/device_master.png")),
                   GestureDetector(
                     onTap: () {
                       Navigator.pop(context);
@@ -499,7 +514,8 @@ class _MenuDrawerState extends State<MenuDrawer> {
                                   },
                                   child: DriverMasterScreen())));
                     },
-                    child: _masterMenuText("Driver Entry Master","assets/driver_master.png"),
+                    child: _masterMenuText(
+                        "Driver Entry Master", "assets/driver_master.png"),
                   ),
                   GestureDetector(
                     onTap: () {
@@ -513,7 +529,8 @@ class _MenuDrawerState extends State<MenuDrawer> {
                                   },
                                   child: VehicleMasterScreen())));
                     },
-                    child: _masterMenuText("Vehicle Entry Master","assets/vehicle_master.png"),
+                    child: _masterMenuText(
+                        "Vehicle Entry Master", "assets/vehicle_master.png"),
                   ),
                   GestureDetector(
                     onTap: () {
@@ -527,7 +544,8 @@ class _MenuDrawerState extends State<MenuDrawer> {
                                   },
                                   child: SubscriptionMasterScreen())));
                     },
-                    child: _masterMenuText("Subscription Setting","assets/subscription_master.png"),
+                    child: _masterMenuText("Subscription Setting",
+                        "assets/subscription_master.png"),
                   ),
                   // _masterMenuText("Command Master"),
 
@@ -543,7 +561,8 @@ class _MenuDrawerState extends State<MenuDrawer> {
                                   },
                                   child: AlertMasterScreen())));
                     },
-                    child:  _masterMenuText("Alert Master","assets/alert_master.png"),
+                    child: _masterMenuText(
+                        "Alert Master", "assets/alert_master.png"),
                   )
                 ],
               ),
@@ -560,7 +579,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
                 ),
                 children: <Widget>[
                   GestureDetector(
-                    onTap: (){
+                    onTap: () {
                       Navigator.pop(context);
                       Navigator.push(
                           context,
@@ -571,10 +590,11 @@ class _MenuDrawerState extends State<MenuDrawer> {
                                   },
                                   child: GeofenceCreateScreen())));
                     },
-                    child: _masterMenuText("Geofence Create","assets/transactions.png"),
+                    child: _masterMenuText(
+                        "Geofence Create", "assets/transactions.png"),
                   ),
                   GestureDetector(
-                    onTap: (){
+                    onTap: () {
                       Navigator.pop(context);
                       Navigator.push(
                           context,
@@ -583,13 +603,13 @@ class _MenuDrawerState extends State<MenuDrawer> {
                                   create: (context) {
                                     return MainBloc(webService: WebService());
                                   },
-                                  child: PointOfInterestScreen()))
-                      );
+                                  child: PointOfInterestScreen())));
                     },
-                    child: _masterMenuText("Point of Interest","assets/transactions.png") ,
+                    child: _masterMenuText(
+                        "Point of Interest", "assets/transactions.png"),
                   ),
                   GestureDetector(
-                    onTap: (){
+                    onTap: () {
                       Navigator.pop(context);
                       Navigator.push(
                           context,
@@ -600,13 +620,23 @@ class _MenuDrawerState extends State<MenuDrawer> {
                                   },
                                   child: RouteDefineScreen())));
                     },
-                    child:_masterMenuText("Route Define","assets/transactions.png") ,
+                    child: _masterMenuText(
+                        "Route Define", "assets/transactions.png"),
                   ),
                   GestureDetector(
-                    onTap: (){
-
+                    onTap: () {
+                        Navigator.pop(context);
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => BlocProvider(
+                                  create: (context) {
+                                    return MainBloc(webService: WebService());
+                                  },
+                                  child: GettingRouteDetail())));
                     },
-                    child: _masterMenuText("VTS Get Geofencing","assets/transactions.png"),
+                    child: _masterMenuText(
+                        "VTS Get Geofencing", "assets/transactions.png"),
                   ),
                   /* _masterMenuText("VTS Live"),
                   _masterMenuText("VTS History"),
@@ -633,7 +663,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
                 ),
                 children: <Widget>[
                   GestureDetector(
-                    onTap: (){
+                    onTap: () {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -643,24 +673,25 @@ class _MenuDrawerState extends State<MenuDrawer> {
                                   },
                                   child: const CreateUserScreen())));
                     },
-
-                    child: _masterMenuText("Create User","assets/create_user.png"),
+                    child: _masterMenuText(
+                        "Create User", "assets/create_user.png"),
                   ),
-
                   GestureDetector(
-                    onTap: (){
-                       Navigator.push(context,
-                    MaterialPageRoute(builder: (_) => BlocProvider(
-                        create: (context) {
-                          return MainBloc(webService: WebService());
-                        },
-                        child: ChangePasswordScreen()
-                    )));
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => BlocProvider(
+                                  create: (context) {
+                                    return MainBloc(webService: WebService());
+                                  },
+                                  child: ChangePasswordScreen())));
                     },
-                    child:_masterMenuText("Change Password","assets/change_password.png") ,
+                    child: _masterMenuText(
+                        "Change Password", "assets/change_password.png"),
                   ),
                   GestureDetector(
-                    onTap: (){
+                    onTap: () {
                       Navigator.pop(context);
 
                       Navigator.push(
@@ -670,12 +701,13 @@ class _MenuDrawerState extends State<MenuDrawer> {
                                   create: (context) {
                                     return MainBloc(webService: WebService());
                                   },
-                                  child:  ResetPassword())));
+                                  child: ResetPassword())));
                     },
-                    child:  _masterMenuText("Reset Password","assets/reset_password.png"),
+                    child: _masterMenuText(
+                        "Reset Password", "assets/reset_password.png"),
                   ),
                   GestureDetector(
-                    onTap: (){
+                    onTap: () {
                       Navigator.of(context).pop();
                       Navigator.push(
                           context,
@@ -684,11 +716,10 @@ class _MenuDrawerState extends State<MenuDrawer> {
                                   create: (context) {
                                     return MainBloc(webService: WebService());
                                   },
-                                  child:  AssignMenuRightScreen())));
+                                  child: AssignMenuRightScreen())));
                     },
-                    child:  _masterMenuText("Menu Rights","assets/menu1.png"),
+                    child: _masterMenuText("Menu Rights", "assets/menu1.png"),
                   )
-
                 ],
               ),
               const Divider(height: 0.5),
@@ -704,7 +735,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
                 ),
                 children: <Widget>[
                   GestureDetector(
-                    onTap: (){
+                    onTap: () {
                       Navigator.pop(context);
                       Navigator.push(
                           context,
@@ -713,14 +744,15 @@ class _MenuDrawerState extends State<MenuDrawer> {
                                   create: (context) {
                                     return MainBloc(webService: WebService());
                                   },
-                                  child:  OverSpeedReportScreen()
-                                //  child:  DeviceMasterReportScreen()
-                              )));
-                      },
-                    child:_masterMenuText("Overspeed Report","assets/small_report.png"),
+                                  child: OverSpeedReportScreen()
+                                  //  child:  DeviceMasterReportScreen()
+                                  )));
+                    },
+                    child: _masterMenuText(
+                        "Overspeed Report", "assets/small_report.png"),
                   ),
                   GestureDetector(
-                    onTap: (){
+                    onTap: () {
                       Navigator.pop(context);
                       Navigator.push(
                           context,
@@ -729,32 +761,14 @@ class _MenuDrawerState extends State<MenuDrawer> {
                                   create: (context) {
                                     return MainBloc(webService: WebService());
                                   },
-                                  child:  DriverMasterReportScreen()
-                              )));
+                                  child: DriverMasterReportScreen())));
                     },
-                    child: _masterMenuText("Driver Master Report","assets/small_report.png"),
-                  ),
-
-                  GestureDetector(
-                    onTap: (){
-                      Navigator.pop(context);
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => BlocProvider(
-                                  create: (context) {
-                                    return MainBloc(webService: WebService());
-                                  },
-                                  child:  VehicleReportScreen()
-                              )));
-                    },
-                    child:
-
-                    _masterMenuText("Vehicle Report","assets/small_report.png"),
+                    child: _masterMenuText(
+                        "Driver Master Report", "assets/small_report.png"),
                   ),
 
                   GestureDetector(
-                    onTap: (){
+                    onTap: () {
                       Navigator.pop(context);
                       Navigator.push(
                           context,
@@ -763,14 +777,14 @@ class _MenuDrawerState extends State<MenuDrawer> {
                                   create: (context) {
                                     return MainBloc(webService: WebService());
                                   },
-                                  child:  DateAndTimeWiseDistanceScreen()
-                              )));
+                                  child: VehicleReportScreen())));
                     },
-                    child: _masterMenuText("Date and Time Wise Distance Travel Report","assets/small_report.png"),
+                    child: _masterMenuText(
+                        "Vehicle Report", "assets/small_report.png"),
                   ),
 
                   GestureDetector(
-                    onTap: (){
+                    onTap: () {
                       Navigator.pop(context);
                       Navigator.push(
                           context,
@@ -779,14 +793,15 @@ class _MenuDrawerState extends State<MenuDrawer> {
                                   create: (context) {
                                     return MainBloc(webService: WebService());
                                   },
-                                  child:  DeviceMasterReportScreen()
-                              )));
+                                  child: DateAndTimeWiseDistanceScreen())));
                     },
-                    child: _masterMenuText("Device Master Report","assets/small_report.png"),
+                    child: _masterMenuText(
+                        "Date and Time Wise Distance Travel Report",
+                        "assets/small_report.png"),
                   ),
 
                   GestureDetector(
-                    onTap: (){
+                    onTap: () {
                       Navigator.pop(context);
                       Navigator.push(
                           context,
@@ -795,14 +810,14 @@ class _MenuDrawerState extends State<MenuDrawer> {
                                   create: (context) {
                                     return MainBloc(webService: WebService());
                                   },
-                                  child:  DriverWiseVehicleAssignScreen()
-                              )));
+                                  child: DeviceMasterReportScreen())));
                     },
-                    child: _masterMenuText("Driver Wise Vehicle Assign","assets/small_report.png"),
+                    child: _masterMenuText(
+                        "Device Master Report", "assets/small_report.png"),
                   ),
 
                   GestureDetector(
-                    onTap: (){
+                    onTap: () {
                       Navigator.pop(context);
                       Navigator.push(
                           context,
@@ -811,81 +826,102 @@ class _MenuDrawerState extends State<MenuDrawer> {
                                   create: (context) {
                                     return MainBloc(webService: WebService());
                                   },
-                                  child:  DateWiseTravelHistory()
-                              )));
+                                  child: DriverWiseVehicleAssignScreen())));
                     },
-                    child: _masterMenuText("Date Wise Travel History Report Screen","assets/small_report.png"),
-                  ),
-
-
-                  GestureDetector(
-                    onTap: (){
-                      Navigator.pop(context);
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => BlocProvider(
-                                  create: (context) {
-                                    return MainBloc(webService: WebService());
-                                  },
-                                  child:  VehicleWiseTravel()
-                              )));
-                    },
-                    child: _masterMenuText("Vehicle Distance Travel Report","assets/small_report.png"),
-                  ),
-
-
-                  GestureDetector(
-                    onTap: (){
-                      Navigator.pop(context);
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => BlocProvider(
-                                  create: (context) {
-                                    return MainBloc(webService: WebService());
-                                  },
-                                  child:  VehicleWiseTimeWiseTravel()
-                              )));
-                    },
-                    child: _masterMenuText("Vehicle Time Wise Distance Travel Report","assets/small_report.png"),
+                    child: _masterMenuText("Driver Wise Vehicle Assign",
+                        "assets/small_report.png"),
                   ),
 
                   GestureDetector(
-                    onTap: (){
+                    onTap: () {
                       Navigator.pop(context);
                       Navigator.push(
                           context,
                           MaterialPageRoute(
                               builder: (_) => BlocProvider(
-                                  create: (context) {
-                                    return MainBloc(webService: WebService());
-                                  },
-                                  child:  FramePacket()
-                              )));
+                                    create: (context) {
+                                      return MainBloc(webService: WebService());
+                                    },
+                                    // child:  DateWiseTravelHistoryReportScreen()
+                                  )));
                     },
-                    child: _masterMenuText("Frame Packet Report","assets/small_report.png"),
+                    child: _masterMenuText(
+                        "Date Wise Travel History Report Screen",
+                        "assets/small_report.png"),
+                  ),
+
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => BlocProvider(
+                                    create: (context) {
+                                      return MainBloc(webService: WebService());
+                                    },
+                                    // child:  VehicleDistanceTravelReportScreen()
+                                  )));
+                    },
+                    child: _masterMenuText("Vehicle Distance Travel Report",
+                        "assets/small_report.png"),
+                  ),
+
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => BlocProvider(
+                                    create: (context) {
+                                      return MainBloc(webService: WebService());
+                                    },
+                                    // child:  VehicleTimeWiseDistanceTravelReportScreen()
+                                  )));
+                    },
+                    child: _masterMenuText(
+                        "Vehicle Time Wise Distance Travel Report",
+                        "assets/small_report.png"),
+                  ),
+
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => BlocProvider(
+                                    create: (context) {
+                                      return MainBloc(webService: WebService());
+                                    },
+                                    // child:  FramePacketReportScreen()
+                                  )));
+                    },
+                    child: _masterMenuText(
+                        "Frame Packet Report", "assets/small_report.png"),
                   ),
                   //FramePacketReportScreen
 
                   GestureDetector(
-                    onTap: (){
+                    onTap: () {
                       Navigator.pop(context);
                       Navigator.push(
                           context,
                           MaterialPageRoute(
                               builder: (_) => BlocProvider(
-                                  create: (context) {
-                                    return MainBloc(webService: WebService());
-                                  },
-                                  child:  FramePacketGrid()
-                              )));
+                                    create: (context) {
+                                      return MainBloc(webService: WebService());
+                                    },
+                                    // child:  FramePacketGridViewReportScreen()
+                                  )));
                     },
-                    child: _masterMenuText("Frame Packet Grid View Report","assets/small_report.png"),
+                    child: _masterMenuText("Frame Packet Grid View Report",
+                        "assets/small_report.png"),
                   ),
 
                   GestureDetector(
-                    onTap: (){
+                    onTap: () {
                       Navigator.pop(context);
                       Navigator.push(
                           context,
@@ -894,59 +930,60 @@ class _MenuDrawerState extends State<MenuDrawer> {
                                   create: (context) {
                                     return MainBloc(webService: WebService());
                                   },
-                                  child:  VehicleStatusReport()
-                              )));
+                                  child: VehicleStatusReport())));
                     },
-                    child: _masterMenuText("Vehicle Status Report","assets/small_report.png"),
+                    child: _masterMenuText(
+                        "Vehicle Status Report", "assets/small_report.png"),
                   ),
 
                   GestureDetector(
-                    onTap: (){
+                    onTap: () {
                       Navigator.pop(context);
                       Navigator.push(
                           context,
                           MaterialPageRoute(
                               builder: (_) => BlocProvider(
-                                  create: (context) {
-                                    return MainBloc(webService: WebService());
-                                  },
-                                  child:  VehicleStatusGroup()
-                              )));
+                                    create: (context) {
+                                      return MainBloc(webService: WebService());
+                                    },
+                                    // child:  VehicleStatusGroupByReportScreen()
+                                  )));
                     },
-                    child: _masterMenuText("Vehicle Status Group By Report","assets/small_report.png"),
+                    child: _masterMenuText("Vehicle Status Group By Report",
+                        "assets/small_report.png"),
                   ),
-
 
                   GestureDetector(
-                    onTap: (){
+                    onTap: () {
                       Navigator.pop(context);
                       Navigator.push(
                           context,
                           MaterialPageRoute(
                               builder: (_) => BlocProvider(
-                                  create: (context) {
-                                    return MainBloc(webService: WebService());
-                                  },
-                                  child:  VehicleStatusSummary()
-                              )));
+                                    create: (context) {
+                                      return MainBloc(webService: WebService());
+                                    },
+                                    // child:  VehicleStatusSummaryReportScreen()
+                                  )));
                     },
-                    child: _masterMenuText("Vehicle Status Summary Report Screen","assets/small_report.png"),
+                    child: _masterMenuText(
+                        "Vehicle Status Summary Report Screen",
+                        "assets/small_report.png"),
                   ),
 
-
-                 //  _masterMenuText("Driver Wise Vehicle Assign","assets/report.png"),
-                 //  _masterMenuText("Vehicle Wise Over Speed Report","assets/report.png"),
-                 //  _masterMenuText("Date Wise Travel History Report","assets/report.png"),
-                 //  _masterMenuText("Time Wise Distance Travel Report","assets/report.png"),
-                 //  _masterMenuText("Vehicle Distance Travel Report","assets/report.png"),
-                 // // _masterMenuText("Vehicle Time Wise Distance Report","assets/report.png"),
-                 //  //_masterMenuText("Frame Packet Report","assets/report.png"),
-                 //  _masterMenuText("Frame Packet Grid View Report","assets/report.png"),
-                 //  _masterMenuText("Data Packet Grid View Report","assets/report.png"),
-                 //  _masterMenuText("Login Audio History Report","assets/report.png"),
-                 //  _masterMenuText("Vehicle Status Report","assets/report.png"),
-                 //  _masterMenuText("Vehicle Status Group By Report","assets/report.png"),
-                 //  _masterMenuText("Vehicle Status Summary Report","assets/report.png"),
+                  //  _masterMenuText("Driver Wise Vehicle Assign","assets/report.png"),
+                  //  _masterMenuText("Vehicle Wise Over Speed Report","assets/report.png"),
+                  //  _masterMenuText("Date Wise Travel History Report","assets/report.png"),
+                  //  _masterMenuText("Time Wise Distance Travel Report","assets/report.png"),
+                  //  _masterMenuText("Vehicle Distance Travel Report","assets/report.png"),
+                  // // _masterMenuText("Vehicle Time Wise Distance Report","assets/report.png"),
+                  //  //_masterMenuText("Frame Packet Report","assets/report.png"),
+                  //  _masterMenuText("Frame Packet Grid View Report","assets/report.png"),
+                  //  _masterMenuText("Data Packet Grid View Report","assets/report.png"),
+                  //  _masterMenuText("Login Audio History Report","assets/report.png"),
+                  //  _masterMenuText("Vehicle Status Report","assets/report.png"),
+                  //  _masterMenuText("Vehicle Status Group By Report","assets/report.png"),
+                  //  _masterMenuText("Vehicle Status Summary Report","assets/report.png"),
                 ],
               ),
               const Divider(height: 0.5),
@@ -963,23 +1000,24 @@ class _MenuDrawerState extends State<MenuDrawer> {
                   title: const Text(
                     "Help",
                     style:
-                    TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
                   ),
                 ),
               ),
               const Divider(height: 0.5),
               GestureDetector(
-                onTap: () async{
+                onTap: () async {
                   // _removedata(context);
                   Navigator.of(context).pop();
 
-                  SharedPreferences sharedPreferences= await SharedPreferences.getInstance();
+                  SharedPreferences sharedPreferences =
+                      await SharedPreferences.getInstance();
                   // print(sharedPreferences.getInt("UserID")!);
                   showDialog(
                       context: context,
                       builder: (BuildContext context) =>
-                          _buildPopupDialogforLogout(context,sharedPreferences)
-                  );
+                          _buildPopupDialogforLogout(
+                              context, sharedPreferences));
                 },
                 child: ListTile(
                   leading: Image.asset(
@@ -1006,18 +1044,28 @@ class _MenuDrawerState extends State<MenuDrawer> {
     );
   }
 
-  Widget _buildPopupDialogforLogout(BuildContext context, SharedPreferences sharedPreferences) {
+  Widget _buildPopupDialogforLogout(
+      BuildContext context, SharedPreferences sharedPreferences) {
     return new AlertDialog(
       // title: const Text('Popup example'),
       content: new Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text("Logout",style: TextStyle(fontSize:20,color: MyColors.appDefaultColorCode,fontWeight: FontWeight.bold),),
+          Text(
+            "Logout",
+            style: TextStyle(
+                fontSize: 20,
+                color: MyColors.appDefaultColorCode,
+                fontWeight: FontWeight.bold),
+          ),
           SizedBox(
             height: 20,
           ),
-          Text("Are you sure you want to Logout VTS App?",style: TextStyle(fontSize: 18),),
+          Text(
+            "Are you sure you want to Logout VTS App?",
+            style: TextStyle(fontSize: 18),
+          ),
         ],
       ),
       actions: <Widget>[
@@ -1037,22 +1085,33 @@ class _MenuDrawerState extends State<MenuDrawer> {
         new TextButton(
           onPressed: () {
             Navigator.pop(context);
-            updateLogout(context,"application",sharedPreferences.getInt("VendorId")!=null ? sharedPreferences.getInt("VendorId")!:0,sharedPreferences.getInt("BranchId")!=null ? sharedPreferences.getInt("BranchId")!:0,sharedPreferences.getInt("UserID")!,"123456789123456",sharedPreferences.getString("auth_token")!=null ? sharedPreferences.getString("auth_token")! : "").then((value)
-            => print("--------------${value.message}--------------"));
+            updateLogout(
+                    context,
+                    "application",
+                    sharedPreferences.getInt("VendorId") != null
+                        ? sharedPreferences.getInt("VendorId")!
+                        : 0,
+                    sharedPreferences.getInt("BranchId") != null
+                        ? sharedPreferences.getInt("BranchId")!
+                        : 0,
+                    sharedPreferences.getInt("UserID")!,
+                    "123456789123456",
+                    sharedPreferences.getString("auth_token") != null
+                        ? sharedPreferences.getString("auth_token")!
+                        : "")
+                .then((value) =>
+                    print("--------------${value.message}--------------"));
 
             Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(
-                  builder: (context) =>
-                      BlocProvider(
-                          create: (context){
-                            return MainBloc(webService: WebService());
-                          },
-                          child:LoginScreen()
-                      ),
-
+                  builder: (context) => BlocProvider(
+                      create: (context) {
+                        return MainBloc(webService: WebService());
+                      },
+                      child: LoginScreen()),
                 ),
-                    (Route<dynamic> route) => false);
+                (Route<dynamic> route) => false);
           },
           // textColor: Theme.of(context).primaryColor,
           child: const Text(
@@ -1068,23 +1127,30 @@ class _MenuDrawerState extends State<MenuDrawer> {
     );
   }
 
-  _masterMenuText(String title,String icon) {
-    return  Padding(
-      padding: const EdgeInsets.only(left: 35.0,bottom: 12),
+  _masterMenuText(String title, String icon) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 35.0, bottom: 12),
       child: Row(
         children: [
-
-          icon=="assets/report.png" ?
-          Icon(Icons.insert_drive_file_outlined,color: MyColors.text3greyColorCode,)
+          icon == "assets/report.png"
+              ? Icon(
+                  Icons.insert_drive_file_outlined,
+                  color: MyColors.text3greyColorCode,
+                )
               : Image.asset(
-            icon,
-            height: 24,
-            width: 24,
-          ),
+                  icon,
+                  height: 24,
+                  width: 24,
+                ),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.only(left: 8.0),
-              child: Text(title, overflow:TextOverflow.ellipsis,maxLines:1,style: const TextStyle(fontWeight: FontWeight.normal,fontSize: 18),
+              child: Text(
+                title,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                style: const TextStyle(
+                    fontWeight: FontWeight.normal, fontSize: 18),
               ),
             ),
           )
@@ -1111,8 +1177,8 @@ class _MenuDrawerState extends State<MenuDrawer> {
     );
   }
 
-  _removedata(BuildContext context)async{
-    SharedPreferences sharedPreferences= await SharedPreferences.getInstance();
+  _removedata(BuildContext context) async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     sharedPreferences.remove("auth_token");
     sharedPreferences.remove("Username");
     sharedPreferences.remove("VendorId");
@@ -1150,8 +1216,6 @@ class _MenuDrawerState extends State<MenuDrawer> {
          ),
          ModalRoute.withName("/UserHome")
      );*/
-
-
   }
 }
 

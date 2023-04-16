@@ -288,6 +288,19 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
               child:Image.asset("assets/filter.png",height: 40,width: 40,) ,
             ),
           ),
+          // isSearchClick ? Container() :data!.length==0 ? Container() :IconButton(
+          //     onPressed: (){
+          //       setState(() {
+          //         isSearchClick=true;
+          //       });
+          //     },
+          //     icon: Icon(Icons.search,size: 30,color:MyColors.whiteColorCode ,)
+          // ),
+          // IconButton(
+          //     onPressed: (){
+          //     },
+          //     icon: Icon(Icons.help_outline,size: 30,color:MyColors.whiteColorCode ,)
+          // )
         ],
       ),
       // CustomAppBar().getCustomAppBar("VEHICLE STATUS", _scaffoldKey,0,context),
@@ -1435,6 +1448,8 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
                                   color: MyColors.searchTextColorCode),
                               errorText: "",
                             ),
+                            // controller: _passwordController,
+                            // onChanged: _authenticationFormBloc.onPasswordChanged,
                             obscureText: false,
                             onTap: (){
                               FocusScope.of(context).requestFocus(new FocusNode());
@@ -1501,6 +1516,8 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
                                     color: MyColors.searchTextColorCode),
                                 errorText: "",
                               ),
+                              // controller: _passwordController,
+                              // onChanged: _authenticationFormBloc.onPasswordChanged,
                               obscureText: false,
                               onTap: (){
                                 FocusScope.of(context).requestFocus(new FocusNode());
@@ -1661,6 +1678,10 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
                           flex: 1,
                           child: GestureDetector(
                             onTap: (){
+                              // _fromdatecontroller.clear();
+                              // _toTimecontroller.clear();
+                              // _fromTimecontroller.clear();
+                              // _todatecontroller.clear();
                               _fromdatecontroller.text="";
                               _toTimecontroller.text="";
                               _fromTimecontroller.text="";

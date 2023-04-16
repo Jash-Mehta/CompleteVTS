@@ -9,6 +9,7 @@ import '../../bloc/main_bloc.dart';
 import '../../bloc/main_event.dart';
 import '../../bloc/main_state.dart';
 import '../../model/distanceSummary/distance_summary_filter.dart';
+import '../../model/distanceSummary/distance_summary_search.dart';
 import '../../model/distanceSummary/distancesummary_entity.dart';
 
 class DistanceSummaryScreen extends StatefulWidget {
@@ -40,7 +41,6 @@ class _DistanceSummaryScreenState extends State<DistanceSummaryScreen> {
   int vendorid = 1;
   int branchid = 1;
   int pagenumber = 1;
-
   int pagesize = 10;
   String fromdate = "01-sep-2022";
   String arainonari = "arai";
@@ -52,6 +52,7 @@ class _DistanceSummaryScreenState extends State<DistanceSummaryScreen> {
   String IMEINO = "867322033819244";
   List<DistanceSummary>? dist = [];
   List<DistanceFilter>? distancefilter = [];
+  List<DistanceSearch>? distancesearch = [];
   @override
   void initState() {
     // TODO: implement initState
@@ -113,6 +114,21 @@ class _DistanceSummaryScreenState extends State<DistanceSummaryScreen> {
   _vehicleStatus() {
     return BlocListener<MainBloc, MainState>(
       listener: (context, state) {
+        //! SearchEvent DistanceSummary fetching Start from here----------------
+        if (state is DistanceSummarySearchLoadingState) {
+          const Center(
+            child: CircularProgressIndicator(),
+          );
+        } else if (state is DistanceSummarySearchLoadedState) {
+          if (state.distanceSummarySearch.dist != null) {
+            print("Search data is printed!!");
+            distancesearch!.addAll(state.distanceSummarySearch.dist!);
+          } else {
+            print("Something is going wrong in Search data");
+          }
+        } else if (state is TravelSummaryErrorState) {
+          print("Something went Wrong search data");
+        }
         //! Distance summary Filter Fetching-----------------------
 
         if (state is DistanceSummaryFilterLoadingState) {
@@ -149,17 +165,19 @@ class _DistanceSummaryScreenState extends State<DistanceSummaryScreen> {
         child: Column(
           children: [
             Container(
-              padding:
-                  EdgeInsets.only(left: 10, right: 10, top: 10, bottom: 10),
-              decoration:
-                  BoxDecoration(color: MyColors.lightgreyColorCode, boxShadow: [
-                BoxShadow(blurRadius: 2, color: MyColors.shadowGreyColorCode)
-              ]),
+              padding: const EdgeInsets.only(
+                  left: 10, right: 10, top: 10, bottom: 10),
+              decoration: const BoxDecoration(
+                  color: MyColors.lightgreyColorCode,
+                  boxShadow: [
+                    BoxShadow(
+                        blurRadius: 2, color: MyColors.shadowGreyColorCode)
+                  ]),
               // width: MediaQuery.of(context).size.width,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  const Text(
                     "Set Summary Range",
                     style: TextStyle(fontSize: 18),
                   ),
@@ -218,6 +236,7 @@ class _DistanceSummaryScreenState extends State<DistanceSummaryScreen> {
               child: Column(
                 children: [
                   TextField(
+                    onChanged: onSearchTextChanged,
                     enabled: true, // to trigger disabledBorder
                     decoration: InputDecoration(
                       filled: true,
@@ -264,166 +283,366 @@ class _DistanceSummaryScreenState extends State<DistanceSummaryScreen> {
                     // onChanged: _authenticationFormBloc.onPasswordChanged,
                     obscureText: false,
                   ),
-                  BlocBuilder<MainBloc, MainState>(
-                    builder: (context, state) {
-                      return ListView.builder(
-                          controller: notificationController,
-                          shrinkWrap: true,
-                          itemCount:
-                              isvalue ? distancefilter!.length : dist!.length,
-                          itemBuilder: (context, index) {
-                            return Card(
-                              shape: RoundedRectangleBorder(
-                                side: BorderSide(
-                                    width: 1,
-                                    color: MyColors.textBoxBorderColorCode),
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                              child: Container(
-                                padding: EdgeInsets.only(
-                                    top: 10, left: 14, right: 14, bottom: 10),
-                                width: MediaQuery.of(context).size.width,
-                                decoration: BoxDecoration(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10)),
-                                ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Container(
-                                          padding: EdgeInsets.all(10),
-                                          decoration: BoxDecoration(
-                                            color: MyColors.whiteColorCode,
-                                            border: Border.all(
-                                                color: MyColors
-                                                    .boxBackgroundColorCode),
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(10)),
-                                          ),
-                                          child: Image.asset(
-                                            "assets/driving_pin.png",
-                                            width: 40,
-                                            height: 40,
-                                          ),
+                  isSelected
+                      ? distancesearch!.isEmpty
+                          ? const Center(child: CircularProgressIndicator())
+                          : SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.7,
+                              width: 350.0,
+                              child: ListView.builder(
+                                  controller: notificationController,
+                                  shrinkWrap: true,
+                                  itemCount: distancesearch!.length,
+                                  itemBuilder: (context, index) {
+                                    return Card(
+                                      shape: RoundedRectangleBorder(
+                                        side: const BorderSide(
+                                            width: 1,
+                                            color: MyColors
+                                                .textBoxBorderColorCode),
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                      ),
+                                      child: Container(
+                                        padding: const EdgeInsets.only(
+                                            top: 10,
+                                            left: 14,
+                                            right: 14,
+                                            bottom: 10),
+                                        width:
+                                            MediaQuery.of(context).size.width,
+                                        decoration: const BoxDecoration(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(10)),
                                         ),
-                                        Expanded(
-                                          child: Padding(
-                                            padding: const EdgeInsets.only(
-                                                left: 10.0),
-                                            child: Column(
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
                                               mainAxisAlignment:
                                                   MainAxisAlignment.start,
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
+                                              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                               children: [
-                                                Text(
-                                                  isvalue
-                                                      ? distancefilter![index]
-                                                          .vehicleregNo
-                                                          .toString()
-                                                      : dist![index]
-                                                          .vehicleregNo
-                                                          .toString(),
-                                                  style: const TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 20),
+                                                Container(
+                                                  padding: EdgeInsets.all(10),
+                                                  decoration: BoxDecoration(
+                                                    color:
+                                                        MyColors.whiteColorCode,
+                                                    border: Border.all(
+                                                        color: MyColors
+                                                            .boxBackgroundColorCode),
+                                                    borderRadius:
+                                                        const BorderRadius.all(
+                                                            Radius.circular(
+                                                                10)),
+                                                  ),
+                                                  child: Image.asset(
+                                                    "assets/driving_pin.png",
+                                                    width: 40,
+                                                    height: 40,
+                                                  ),
                                                 ),
-                                                Text(
-                                                  isvalue
-                                                      ? distancefilter![index]
-                                                          .driverName
-                                                          .toString()
-                                                      : dist![index]
-                                                          .driverName
-                                                          .toString(),
-                                                  style: const TextStyle(
-                                                      fontSize: 16,
-                                                      color: MyColors
-                                                          .analyticGreenColorCode),
-                                                ),
-                                                Row(
-                                                  children: [
-                                                    Icon(
-                                                      Icons.circle,
-                                                      color: MyColors
-                                                          .analyticGreenColorCode,
-                                                      size: 7,
-                                                    ),
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              left: 4.0,
-                                                              top: 6,
-                                                              bottom: 6),
-                                                      child: Text(
-                                                        isvalue
-                                                            ? distancefilter![
-                                                                    index]
-                                                                .vehicleStatus
-                                                                .toString()
-                                                            : dist![index]
-                                                                .vehicleStatus
-                                                                .toString(),
-                                                        style: TextStyle(
-                                                            color: MyColors
-                                                                .analyticGreenColorCode,
-                                                            fontSize: 16),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                                Row(
-                                                  children: [
-                                                    Container(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                    .only(
-                                                                left: 8.0,
-                                                                right: 8,
-                                                                top: 8,
-                                                                bottom: 8),
-                                                        decoration:
-                                                            const BoxDecoration(
-                                                          color: MyColors
-                                                              .textBoxColorCode,
-                                                          borderRadius:
-                                                              BorderRadius.all(
-                                                                  Radius
-                                                                      .circular(
-                                                                          8)),
+                                                Expanded(
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            left: 10.0),
+                                                    child: Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .start,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Text(
+                                                          distancesearch![index]
+                                                              .vehicleregNo
+                                                              .toString(),
+                                                          style:
+                                                              const TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  fontSize: 20),
                                                         ),
-                                                        child: Text(isvalue
-                                                            ? distancefilter![
-                                                                    index]
-                                                                .tDate
-                                                                .toString()
-                                                            : dist![index]
-                                                                .tDate
-                                                                .toString())),
-                                                  ],
+                                                        Text(
+                                                          distancesearch![index]
+                                                              .driverName
+                                                              .toString(),
+                                                          style: const TextStyle(
+                                                              fontSize: 16,
+                                                              color: MyColors
+                                                                  .analyticGreenColorCode),
+                                                        ),
+                                                        Row(
+                                                          children: [
+                                                            const Icon(
+                                                              Icons.circle,
+                                                              color: MyColors
+                                                                  .analyticGreenColorCode,
+                                                              size: 7,
+                                                            ),
+                                                            Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                          .only(
+                                                                      left: 4.0,
+                                                                      top: 6,
+                                                                      bottom:
+                                                                          6),
+                                                              child: Text(
+                                                                distancesearch![
+                                                                        index]
+                                                                    .vehicleStatus
+                                                                    .toString(),
+                                                                style: const TextStyle(
+                                                                    color: MyColors
+                                                                        .analyticGreenColorCode,
+                                                                    fontSize:
+                                                                        16),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        Row(
+                                                          children: [
+                                                            Container(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .only(
+                                                                        left:
+                                                                            8.0,
+                                                                        right:
+                                                                            8,
+                                                                        top: 8,
+                                                                        bottom:
+                                                                            8),
+                                                                decoration:
+                                                                    const BoxDecoration(
+                                                                  color: MyColors
+                                                                      .textBoxColorCode,
+                                                                  borderRadius:
+                                                                      BorderRadius.all(
+                                                                          Radius.circular(
+                                                                              8)),
+                                                                ),
+                                                                child: Text(
+                                                                    distancesearch![
+                                                                            index]
+                                                                        .tDate
+                                                                        .toString())),
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
                                                 ),
                                               ],
                                             ),
-                                          ),
+                                          ],
                                         ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          });
-                    },
-                  )
+                                      ),
+                                    );
+                                  }))
+                      : dist!.length == 0
+                          ? const Center(child: CircularProgressIndicator())
+                          : distancefilter!.length == 0
+                              ? const Center(child: CircularProgressIndicator())
+                              : BlocBuilder<MainBloc, MainState>(
+                                  builder: (context, state) {
+                                    return ListView.builder(
+                                        controller: notificationController,
+                                        shrinkWrap: true,
+                                        itemCount: isvalue
+                                            ? distancefilter!.length
+                                            : dist!.length,
+                                        itemBuilder: (context, index) {
+                                          return Card(
+                                            shape: RoundedRectangleBorder(
+                                              side: const BorderSide(
+                                                  width: 1,
+                                                  color: MyColors
+                                                      .textBoxBorderColorCode),
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0),
+                                            ),
+                                            child: Container(
+                                              padding: const EdgeInsets.only(
+                                                  top: 10,
+                                                  left: 14,
+                                                  right: 14,
+                                                  bottom: 10),
+                                              width: MediaQuery.of(context)
+                                                  .size
+                                                  .width,
+                                              decoration: const BoxDecoration(
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(10)),
+                                              ),
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.start,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                    children: [
+                                                      Container(
+                                                        padding:
+                                                            EdgeInsets.all(10),
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color: MyColors
+                                                              .whiteColorCode,
+                                                          border: Border.all(
+                                                              color: MyColors
+                                                                  .boxBackgroundColorCode),
+                                                          borderRadius:
+                                                              const BorderRadius
+                                                                      .all(
+                                                                  Radius
+                                                                      .circular(
+                                                                          10)),
+                                                        ),
+                                                        child: Image.asset(
+                                                          "assets/driving_pin.png",
+                                                          width: 40,
+                                                          height: 40,
+                                                        ),
+                                                      ),
+                                                      Expanded(
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .only(
+                                                                  left: 10.0),
+                                                          child: Column(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .start,
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Text(
+                                                                isvalue
+                                                                    ? distancefilter![
+                                                                            index]
+                                                                        .vehicleregNo
+                                                                        .toString()
+                                                                    : dist![index]
+                                                                        .vehicleregNo
+                                                                        .toString(),
+                                                                style: const TextStyle(
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    fontSize:
+                                                                        20),
+                                                              ),
+                                                              Text(
+                                                                isvalue
+                                                                    ? distancefilter![
+                                                                            index]
+                                                                        .driverName
+                                                                        .toString()
+                                                                    : dist![index]
+                                                                        .driverName
+                                                                        .toString(),
+                                                                style: const TextStyle(
+                                                                    fontSize:
+                                                                        16,
+                                                                    color: MyColors
+                                                                        .analyticGreenColorCode),
+                                                              ),
+                                                              Row(
+                                                                children: [
+                                                                  const Icon(
+                                                                    Icons
+                                                                        .circle,
+                                                                    color: MyColors
+                                                                        .analyticGreenColorCode,
+                                                                    size: 7,
+                                                                  ),
+                                                                  Padding(
+                                                                    padding: const EdgeInsets
+                                                                            .only(
+                                                                        left:
+                                                                            4.0,
+                                                                        top: 6,
+                                                                        bottom:
+                                                                            6),
+                                                                    child: Text(
+                                                                      isvalue
+                                                                          ? distancefilter![index]
+                                                                              .vehicleStatus
+                                                                              .toString()
+                                                                          : dist![index]
+                                                                              .vehicleStatus
+                                                                              .toString(),
+                                                                      style: const TextStyle(
+                                                                          color: MyColors
+                                                                              .analyticGreenColorCode,
+                                                                          fontSize:
+                                                                              16),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                              Row(
+                                                                children: [
+                                                                  Container(
+                                                                      padding: const EdgeInsets
+                                                                              .only(
+                                                                          left:
+                                                                              8.0,
+                                                                          right:
+                                                                              8,
+                                                                          top:
+                                                                              8,
+                                                                          bottom:
+                                                                              8),
+                                                                      decoration:
+                                                                          const BoxDecoration(
+                                                                        color: MyColors
+                                                                            .textBoxColorCode,
+                                                                        borderRadius:
+                                                                            BorderRadius.all(Radius.circular(8)),
+                                                                      ),
+                                                                      child: Text(isvalue
+                                                                          ? distancefilter![index]
+                                                                              .tDate
+                                                                              .toString()
+                                                                          : dist![index]
+                                                                              .tDate
+                                                                              .toString())),
+                                                                ],
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          );
+                                        });
+                                  },
+                                )
                 ],
               ),
             ),
@@ -431,6 +650,32 @@ class _DistanceSummaryScreenState extends State<DistanceSummaryScreen> {
         ),
       ),
     );
+  }
+
+  onSearchTextChanged(String text) async {
+    if (text.isEmpty) {
+      setState(() {
+        isSelected = false;
+      });
+      return;
+    } else {
+      setState(() {
+        isSelected = true;
+      });
+      _mainBloc.add(DistanceSummarySearchEvent(
+          token: token,
+          vendorid: vendorid,
+          branchid: branchid,
+          arainonarai: arainonari,
+          searchtext: "MH12",
+          fromdata: fromdate,
+          fromtime: fromtime,
+          todate: todate,
+          totime: totime,
+          pagesize: pagesize,
+          pagenumber: pagenumber));
+    }
+
   }
 
   changeDatepopUp(BuildContext context) {

@@ -114,6 +114,7 @@ class TravelData {
     return data;
   }
 }
+
 class DateWiseTravelSummaryDataTotalHours {
   String? tDate;
   String? summaryDateWise;
@@ -132,7 +133,6 @@ class DateWiseTravelSummaryDataTotalHours {
     return data;
   }
 }
-
 
 class DatewiseStatusWiseTravelSummaryData {
   var srNo;

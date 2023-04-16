@@ -250,6 +250,7 @@ class _VendorMasterScreenState extends State<VendorMasterScreen> {
                       setState(() {
                         isSearch=false;
                       });
+                      
                     }else{
                       setState(() {
                         isSearch=true;
@@ -265,6 +266,7 @@ class _VendorMasterScreenState extends State<VendorMasterScreen> {
                   child: ListView.builder(
                       controller: vendorRecordController,
                       shrinkWrap: true,
+                      
                       itemCount: data.length,
                       itemBuilder: (context,index){
                         return Card(

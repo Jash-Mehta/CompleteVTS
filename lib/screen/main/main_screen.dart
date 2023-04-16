@@ -38,7 +38,7 @@ class _MainScreenState extends State<MainScreen> {
           },
           child:LiveTrackingScreen()
       ),
-      // Center(child: Text("Live tracking")),
+      Center(child: Text("Live tracking")),
       BlocProvider(
           create: (context) {
             return MainBloc(webService: WebService());

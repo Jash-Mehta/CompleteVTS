@@ -27,8 +27,14 @@ import 'package:flutter_vts/model/live/live_tracking_filter_response.dart';
 import 'package:flutter_vts/model/live/live_tracking_response.dart';
 import 'package:flutter_vts/model/live/start_location_response.dart';
 import 'package:flutter_vts/model/live/vehicle_status_with_count_response.dart';
-import 'package:flutter_vts/model/report/date_and_timewise_filter.dart';
-import 'package:flutter_vts/model/report/vehicle_wise_timewise_search.dart';
+import 'package:flutter_vts/model/login/check_forget_password_user_response.dart';
+import 'package:flutter_vts/model/login/login_response.dart';
+import 'package:flutter_vts/model/report/frame_packet_report_response.dart';
+import 'package:flutter_vts/model/report/frame_packet_report_response.dart';
+import 'package:flutter_vts/model/report/over_speed_report_response.dart';
+import 'package:flutter_vts/model/report/search_frame_packet_report_response.dart';
+import 'package:flutter_vts/model/report/search_overspeed_response.dart';
+import 'package:flutter_vts/model/report/search_overspeed_response.dart';
 import 'package:flutter_vts/model/serial_number/serial_number_response.dart';
 import 'package:flutter_vts/model/subscription/subscription_master_response.dart';
 import 'package:flutter_vts/model/travel_summary/travel_summary.dart';
@@ -37,7 +43,6 @@ import 'package:flutter_vts/model/user/create_user/get_all_create_user_response.
 import 'package:flutter_vts/model/user/create_user/search_created_user_response.dart';
 import 'package:flutter_vts/model/vehicle/add_vehicle_request.dart';
 import 'package:flutter_vts/model/vehicle/all_vehicle_detail_response.dart';
-import 'package:flutter_vts/model/login/login_response.dart';
 import 'package:flutter_vts/model/vehicle/search_vehicle_response.dart';
 import 'package:flutter_vts/model/vehicle/vehicle_fill_response.dart';
 import 'package:flutter_vts/model/vehicle_history/vehicle_history_filter_response.dart';
@@ -45,81 +50,37 @@ import 'package:flutter_vts/model/vendor/add_new_vendor_response.dart';
 import 'package:flutter_vts/model/vendor/all_vendor_detail_response.dart';
 import 'package:flutter_vts/model/vendor/edit_vendor_response.dart';
 import 'package:flutter_vts/model/vendor/search_vendor_response.dart';
-import 'package:flutter_vts/model/login/check_forget_password_user_response.dart';
 import 'package:flutter_vts/screen/live_tracking_screen.dart';
 import 'package:flutter_vts/screen/master/vendor_master/vendor_name_response.dart';
 import 'package:flutter_vts/screen/profile/profile_detail/profile_detail_screen.dart';
-import 'package:flutter_vts/model/report/frame_packet_report_response.dart';
-import 'package:flutter_vts/model/report/frame_packet_report_response.dart';
-import 'package:flutter_vts/model/report/over_speed_report_response.dart';
-import 'package:flutter_vts/model/report/search_frame_packet_report_response.dart';
-import 'package:flutter_vts/model/report/search_overspeed_response.dart';
-import 'package:flutter_vts/model/report/search_overspeed_response.dart';
 
-import '../model/Driver_Master/driver_master.dart';
-import '../model/Driver_Master/driver_master_drivercode.dart';
-import '../model/Driver_Master/search_driver_master_report_response.dart';
-import '../model/date_wise_travel_history/date_wise_drivercode.dart';
-import '../model/date_wise_travel_history/date_wise_travel_filter.dart';
-import '../model/date_wise_travel_history/date_wise_travel_history.dart';
-import '../model/date_wise_travel_history/search_datewise_travel_history_response.dart';
-import '../model/device_master/get_device_master_report.dart';
-import '../model/device_master/search_device_master_report.dart';
 import '../model/distanceSummary/distance_summary_filter.dart';
+import '../model/distanceSummary/distance_summary_search.dart';
 import '../model/distanceSummary/distancesummary_entity.dart';
-import '../model/driver_wise_vehicle_assign/driver_wise_drivercode.dart';
-import '../model/driver_wise_vehicle_assign/driver_wise_vehicle_assign.dart';
-import '../model/driver_wise_vehicle_assign/driver_wise_vehicle_filter.dart';
-import '../model/driver_wise_vehicle_assign/search_driver_vehicle_assign.dart';
-import '../model/report/date_and_timewise_search.dart';
-import '../model/report/date_and_timewise_travel.dart';
+import '../model/getgeofence.dart/getroute_name_list.dart';
+import '../model/getgeofence.dart/routes_detail_routename.dart';
+import '../model/point_of_interest/create_point_of_interest.dart';
+import '../model/point_of_interest/dropdown_point_of_interest.dart';
+import '../model/point_of_interest/poi_post.dart';
+import '../model/point_of_interest/poi_type.dart';
+import '../model/point_of_interest/search_point_of_interest.dart';
 import '../model/report/device_master_filter.dart';
-import '../model/report/device_master_filter_drivercode.dart';
-import '../model/report/device_master_report.dart';
-import '../model/Driver_Master/driver_master_filter.dart';
 import '../model/report/driver_master_report_response.dart';
-import '../model/report/frame_filter.dart';
-import '../model/report/frame_grid_filter.dart';
-import '../model/report/frame_packet_drivercode.dart';
 import '../model/report/frame_packet_report_response.dart';
 import '../model/report/frame_packet_report_response.dart';
-import '../model/report/frame_packetgrid_drivercode.dart';
-import '../model/report/frame_packetoption_grid.dart';
-import '../model/report/framepacketgrid.dart';
 import '../model/report/over_speed_report_response.dart';
 import '../model/report/over_speed_report_response.dart';
-import '../model/report/overspeed_filter.dart';
-import '../model/report/overspeed_vehicle_filter.dart';
-import '../model/report/search_driverwise_veh_rpt.dart';
 import '../model/report/search_frame_packet_report_response.dart';
 import '../model/report/search_frame_packet_report_response.dart';
 import '../model/report/search_frame_packet_report_response.dart';
 import '../model/report/search_frame_packet_report_response.dart';
-import '../model/report/search_frame_pckt_grid_response.dart';
-import '../model/report/search_frame_pckt_report.dart';
 import '../model/report/search_overspeed_response.dart';
 import '../model/report/search_overspeed_response.dart';
-import '../model/report/search_vehicle_status_group_response.dart';
-import '../model/report/search_vehicle_status_response.dart';
-import '../model/report/search_vehicle_status_summary.dart';
-import '../model/report/vehicle_group_filter.dart';
 import '../model/report/vehicle_status_filter_report.dart';
-import '../model/report/vehicle_status_group.dart';
 import '../model/report/vehicle_status_report.dart';
-import '../model/report/vehicle_status_report_drivercode.dart';
-import '../model/report/vehicle_status_summary.dart';
-import '../model/report/vehicle_summary_filter.dart';
-import '../model/report/vehicle_vsrno.dart';
-import '../model/report/vehicle_wise_search.dart';
-import '../model/report/vehicle_wise_timewise_filter.dart';
-import '../model/report/vehicle_wise_timewise_travel.dart';
-import '../model/report/vehicle_wise_travel.dart';
-import '../model/report/vehicle_wise_travel_filter.dart';
 import '../model/travel_summary/travel_summary_filter.dart';
 import '../model/travel_summary/travel_summary_search.dart';
-import '../model/vehicle_master/search_vehicle_report_data_response.dart';
-import '../model/vehicle_master/vehicle_master_filter.dart';
-import '../model/vehicle_master/vehicle_report_detail.dart';
+import '../screen/distance_summary/distance_summary_screen.dart';
 
 class MainState {
   @override
@@ -775,6 +736,7 @@ class AllDriverErrorState extends MainState {
   // TODO: implement props
   List<Object> get props => throw UnimplementedError();
 }
+//search driver
 
 class SearchDriverLoadingState extends MainState {
   @override
@@ -799,8 +761,6 @@ class SearchDriverErrorState extends MainState {
   // TODO: implement props
   List<Object> get props => throw UnimplementedError();
 }
-
-//End
 //add driver
 
 class AddDriverLoadingState extends MainState {
@@ -1951,7 +1911,7 @@ class SearchGeofenceCreateErrorState extends MainState {
   List<Object> get props => throw UnimplementedError();
 }
 
-//add geofence-----------------------------------------------
+//!add geofence-----------------------------------------------
 
 class AddGeofenceLoadingState extends MainState {
   AddGeofenceLoadingState();
@@ -2022,25 +1982,26 @@ class RemoveAssignMenuRightsLoadedState extends MainState {
   List<Object> get props => throw UnimplementedError();
 }
 
-//Overspeed
-class OverSpeedLoadingState extends MainState {
+//! Overspeed report----------------------
+class GetOverSpeedCreateDetailLoadingState extends MainState {
   @override
   // TODO: implement props
   List<Object> get props => throw UnimplementedError();
 }
 
-class OverSpeedLoadedState extends MainState {
-  GetOverspeedReportResponse OverspeedReportResponse;
-  OverSpeedLoadedState({required this.OverspeedReportResponse});
+class GetOverSpeedCreateDetailLoadedState extends MainState {
+  GetOverspeedReportResponse getOverspeedREportResponse;
+  GetOverSpeedCreateDetailLoadedState(
+      {required this.getOverspeedREportResponse});
 
   @override
   // TODO: implement props
   List<Object> get props => throw UnimplementedError();
 }
 
-class OverSpeedErrorState extends MainState {
+class GetOverSpeedCreateDetailErrorState extends MainState {
   String msg;
-  OverSpeedErrorState({required this.msg});
+  GetOverSpeedCreateDetailErrorState({required this.msg});
 
   @override
   // TODO: implement props
@@ -2056,6 +2017,7 @@ class RemoveAssignMenuRightsErrorState extends MainState {
   List<Object> get props => throw UnimplementedError();
 }
 
+//! Search OverspeedData---------------------------------------
 class SearchOverSpeedCreateLoadingState extends MainState {
   SearchOverSpeedCreateLoadingState();
 
@@ -2065,7 +2027,7 @@ class SearchOverSpeedCreateLoadingState extends MainState {
 }
 
 class SearchOverSpeedCreateLoadedState extends MainState {
-  SearchVehOverSpeedRpt searchOverSpeedCreateResponse;
+  search_overspeed_response searchOverSpeedCreateResponse;
 
   SearchOverSpeedCreateLoadedState(
       {required this.searchOverSpeedCreateResponse});
@@ -2084,7 +2046,7 @@ class SearchOverSpeedCreateErrorState extends MainState {
   List<Object> get props => throw UnimplementedError();
 }
 
-//driver_master_report-----------------------------------------------
+//!  driver_master_report-----------------------------------------------
 
 class DriverMasterLoadingState extends MainState {
   DriverMasterLoadingState();
@@ -2095,8 +2057,8 @@ class DriverMasterLoadingState extends MainState {
 }
 
 class DriverMasterLoadedState extends MainState {
-  DriverMasterReport drivermasterreportresponse;
-  DriverMasterLoadedState({required this.drivermasterreportresponse});
+  getDriverMasterReportResponse DriverMasterReportResponse;
+  DriverMasterLoadedState({required this.DriverMasterReportResponse});
 
   @override
   // TODO: implement props
@@ -2114,214 +2076,24 @@ class DriverMasterErrorState extends MainState {
 
 // Frame Packet Report
 
-class FramePacketLoadingState extends MainState {
+class FramePacketReportLoadingState extends MainState {
+  @override
+  // TODO: implement props
   List<Object> get props => throw UnimplementedError();
 }
 
-class FramePacketLoadedState extends MainState {
-  FramePacketData FramePacketResponse;
-  FramePacketLoadedState({required this.FramePacketResponse});
+class FramePacketReportLoadedState extends MainState {
+  frame_packet_response FramePacketReportResponse;
+  FramePacketReportLoadedState({required this.FramePacketReportResponse});
 
   @override
   // TODO: implement props
   List<Object> get props => throw UnimplementedError();
 }
 
-class FramePacketErrorState extends MainState {
+class FramePacketReportErrorState extends MainState {
   String msg;
-  FramePacketErrorState({required this.msg});
-
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-// Frame packet Grid ---------------------
-
-class FramePacketGridLoadingState extends MainState {
-  List<Object> get props => throw UnimplementedError();
-}
-
-class FramePacketGridLoadedState extends MainState {
-  FramePacketGridModel FramePacketGridResponse;
-  FramePacketGridLoadedState({required this.FramePacketGridResponse});
-
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class FramePacketGridErrorState extends MainState {
-  String msg;
-  FramePacketGridErrorState({required this.msg});
-
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-//vehicle status group
-
-class VehicleStatusGroupLoadingState extends MainState {
-  List<Object> get props => throw UnimplementedError();
-}
-
-class VehicleStatusGroupLoadedState extends MainState {
-  VehicleStatusGroupModel VehicleStatusGroupResponse;
-  VehicleStatusGroupLoadedState({required this.VehicleStatusGroupResponse});
-
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class VehicleStatusGroupErrorState extends MainState {
-  String msg;
-  VehicleStatusGroupErrorState({required this.msg});
-
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class SearchDatewiseTravelReportLoadingState extends MainState {
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class SearchDatewiseTravelReportLoadedState extends MainState {
-  SearchDatewiseTravelHistryRpt searchResponse;
-  SearchDatewiseTravelReportLoadedState(
-      {required this.searchResponse});
-
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-
-}
-
-class SearchDatewiseTravelReportErrorState extends MainState {
-  String msg;
-  SearchDatewiseTravelReportErrorState({required this.msg});
-
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class SearchDriverMasterReportLoadingState extends MainState {
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class SearchDriverMasterReportLoadedState extends MainState {
-  SearchDriverMasterRpt searchResponse;
-  SearchDriverMasterReportLoadedState(
-      {required this.searchResponse});
-
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-
-}
-
-class SearchDriverMasterReportErrorState extends MainState {
-  String msg;
-  SearchDriverMasterReportErrorState({required this.msg});
-
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-// Vehicle Status Report
-
-class VehicleStatusReportLoadingState extends MainState {
-  List<Object> get props => throw UnimplementedError();
-}
-
-class VehicleStatusReportLoadedState extends MainState {
-  VehicleStatusReportModel VehicleStatusReportResponse;
-  VehicleStatusReportLoadedState({required this.VehicleStatusReportResponse});
-
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class VehicleStatusReportErrorState extends MainState {
-  String msg;
-  VehicleStatusReportErrorState({required this.msg});
-
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-// Vehicle Status Summary
-class VehicleStatusSummaryLoadingState extends MainState {
-  List<Object> get props => throw UnimplementedError();
-}
-
-class VehicleStatusSummaryLoadedState extends MainState {
-  VehicleStatusSummaryModel VehicleStatusSummaryResponse;
-  VehicleStatusSummaryLoadedState({required this.VehicleStatusSummaryResponse});
-
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class VehicleStatusSummaryErrorState extends MainState {
-  String msg;
-  VehicleStatusSummaryErrorState({required this.msg});
-
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-// Vehicle status report filter--------
-class VehicleStatusFilterLoadingState extends MainState {
-  List<Object> get props => throw UnimplementedError();
-}
-
-class VehicleStatusFilterLoadedState extends MainState {
-  VehicleStatusReportFilter VehicleStatusReportResponse;
-  VehicleStatusFilterLoadedState({required this.VehicleStatusReportResponse});
-
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class VehicleStatuFilterErrorState extends MainState {
-  String msg;
-  VehicleStatuFilterErrorState({required this.msg});
-
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-//! Vehicle Summary Search------------------
-class SearchVehicleStatusSummaryLoadingState extends MainState {
-  List<Object> get props => throw UnimplementedError();
-}
-
-class SearchVehicleStatusSummaryLoadedState extends MainState {
-  SearchVehicleStatusSummaryRpt searchVehicleStatusGroupResponse;
-  SearchVehicleStatusSummaryLoadedState({required this.searchVehicleStatusGroupResponse});
-
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class SearchVehicleStatusSummaryErrorState extends MainState {
-  String msg;
-  SearchVehicleStatusSummaryErrorState({required this.msg});
+  FramePacketReportErrorState({required this.msg});
 
   @override
   // TODO: implement props
@@ -2435,7 +2207,17 @@ class DistanceSummaryFilterErrorState extends MainState {
   List<Object> get props => throw UnimplementedError();
 }
 
-// Vehicle Report
+// ! Distance summary search loaded state-----------------
+class DistanceSummarySearchLoadingState extends MainState {
+  List<Object> get props => throw UnimplementedError();
+}
+
+class DistanceSummarySearchLoadedState extends MainState {
+  DistanceSummarySearch distanceSummarySearch;
+  DistanceSummarySearchLoadedState({required this.distanceSummarySearch});
+}
+
+//! Vehicle Report
 class VehicleReportLoadingState extends MainState {
   @override
   // TODO: implement props
@@ -2460,31 +2242,57 @@ class VehicleReportErrorState extends MainState {
   List<Object> get props => throw UnimplementedError();
 }
 
-// // Date and Time wise distance
-// class DateAndTimeWiseDistanceLoadingState extends MainState {
-//   @override
-//   // TODO: implement props
-//   List<Object> get props => throw UnimplementedError();
-// }
+// Date and Time wise distance
+class DateAndTimeWiseDistanceLoadingState extends MainState {
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
 
-// class DateAndTimeWiseDistanceLoadedState extends MainState {
-//   GetOverspeedReportResponse DateAndTimeWiseDistanceResponse;
-//   DateAndTimeWiseDistanceLoadedState(
-//       {required this.DateAndTimeWiseDistanceResponse});
+class DateAndTimeWiseDistanceLoadedState extends MainState {
+  GetOverspeedReportResponse DateAndTimeWiseDistanceResponse;
+  DateAndTimeWiseDistanceLoadedState(
+      {required this.DateAndTimeWiseDistanceResponse});
 
-//   @override
-//   // TODO: implement props
-//   List<Object> get props => throw UnimplementedError();
-// }
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
 
-// class DateAndTimeWiseDistanceErrorState extends MainState {
-//   String msg;
-//   DateAndTimeWiseDistanceErrorState({required this.msg});
+class DateAndTimeWiseDistanceErrorState extends MainState {
+  String msg;
+  DateAndTimeWiseDistanceErrorState({required this.msg});
 
-//   @override
-//   // TODO: implement props
-//   List<Object> get props => throw UnimplementedError();
-// }
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+
+// Device Master Report
+
+class DeviceMasterReportLoadingState extends MainState {
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+
+class DeviceMasterReportLoadedState extends MainState {
+  GetOverspeedReportResponse DeviceMasterReportResponse;
+  DeviceMasterReportLoadedState({required this.DeviceMasterReportResponse});
+
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+
+class DeviceMasterReportErrorState extends MainState {
+  String msg;
+  DeviceMasterReportErrorState({required this.msg});
+
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
 
 // Driver Wise Vehicle Assign
 class DriverWiseVehicleAssignLoadingState extends MainState {
@@ -2494,7 +2302,7 @@ class DriverWiseVehicleAssignLoadingState extends MainState {
 }
 
 class DriverWiseVehicleAssignLoadedState extends MainState {
-  DriverWiseVehicleAssign DriverWiseVehicleAssignResponse;
+  GetOverspeedReportResponse DriverWiseVehicleAssignResponse;
   DriverWiseVehicleAssignLoadedState(
       {required this.DriverWiseVehicleAssignResponse});
 
@@ -2512,404 +2320,92 @@ class DriverWiseVehicleAssignErrorState extends MainState {
   List<Object> get props => throw UnimplementedError();
 }
 
-// Driver wise vehicle assign filter
-class DriverWiseVehicleFilterLoadingState extends MainState {
+//! PointOfInterest ------Only create State------------
+class PointOfInterestCreateLoadingState extends MainState {
+  List<Object> get props => throw UnimplementedError();
+}
+
+class PointOfInterestCreateLoadedState extends MainState {
+  CreatePointOfInterest createPointOfInterest;
+
+  PointOfInterestCreateLoadedState({required this.createPointOfInterest});
   @override
   // TODO: implement props
   List<Object> get props => throw UnimplementedError();
 }
 
-class DriverWiseVehicleFilterLoadedState extends MainState {
-  DriverWiseVehicleFilter DriverWiseVehicleFilterResponse;
-  DriverWiseVehicleFilterLoadedState(
-      {required this.DriverWiseVehicleFilterResponse});
-
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class DriverWiseVehicleFilterErrorState extends MainState {
+class PointOfInterestCreateErrorState extends MainState {
   String msg;
-  DriverWiseVehicleFilterErrorState({required this.msg});
-
+  PointOfInterestCreateErrorState({required this.msg});
   @override
   // TODO: implement props
   List<Object> get props => throw UnimplementedError();
 }
 
-// Date wise Travel history filter
-class DateWiseTravelFilterLoadingState extends MainState {
+//! PointOfInterest ------Only All State------------
+class PointOfInterestFilterLoadingState extends MainState {
+  List<Object> get props => throw UnimplementedError();
+}
+
+class PointOfInterestFilterLoadedState extends MainState {
+  DistanceSummaryFilter DistanceSummaryFilterResponse;
+  PointOfInterestFilterLoadedState(
+      {required this.DistanceSummaryFilterResponse});
   @override
   // TODO: implement props
   List<Object> get props => throw UnimplementedError();
 }
 
-class DateWiseTravelFilterLoadedState extends MainState {
-  DateWiseTravelFilterModel dateWiseTravelFilterResponse;
-  DateWiseTravelFilterLoadedState({required this.dateWiseTravelFilterResponse});
-
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class DateWiseTravelFilterErrorState extends MainState {
+class PointOfInterestFilterErrorState extends MainState {
   String msg;
-  DateWiseTravelFilterErrorState({required this.msg});
-
+  PointOfInterestFilterErrorState({required this.msg});
   @override
   // TODO: implement props
   List<Object> get props => throw UnimplementedError();
 }
 
-// Driver wise Vehicle assign search
-class SearchDriverVehAssignReportLoadingState extends MainState {
+//! Point of Interest ------Only Search State------------
+class SearchPointOfInterestLoadingState extends MainState {
+  List<Object> get props => throw UnimplementedError();
+}
+
+class SearchPointOfInterestLoadedState extends MainState {
+  SearchPointOfInterest searchPointOfInterest;
+  SearchPointOfInterestLoadedState({required this.searchPointOfInterest});
   @override
   // TODO: implement props
   List<Object> get props => throw UnimplementedError();
 }
 
-class SearchDriverVehAssignReportLoadedState extends MainState {
-  SearchDriverwiseVehRpt searchvehassignResponse;
-  SearchDriverVehAssignReportLoadedState(
-      {required this.searchvehassignResponse});
-
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-
-}
-
-class SearchDriverVehAssignReportErrorState extends MainState {
+class SearchPointOfInterestErrorState extends MainState {
   String msg;
-  SearchDriverVehAssignReportErrorState({required this.msg});
-
+  SearchPointOfInterestErrorState({required this.msg});
   @override
   // TODO: implement props
   List<Object> get props => throw UnimplementedError();
 }
 
-// Vehicle Report State
-class GetVehicleReportLoadingState extends MainState {
+//end of searching of Point of Interest
+//! PointOfInterest DropdownDetail-------------------
+class PointofInterestDropdownLoadingState extends MainState {
+  List<Object> get props => throw UnimplementedError();
+}
+
+class PointofInterestDropdownLoadedState extends MainState {
+  DropdownPointofInterest dropdownPointOfInterest;
+  PointofInterestDropdownLoadedState({required this.dropdownPointOfInterest});
   @override
   // TODO: implement props
   List<Object> get props => throw UnimplementedError();
 }
 
-class GetVehicleReportLoadedState extends MainState {
-  VehicleReportDetails vehicleReportResponse;
-  GetVehicleReportLoadedState({required this.vehicleReportResponse});
-
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class GetVehicleReportErrorState extends MainState {
+class PointofInterestDropdownErrorState extends MainState {
   String msg;
-  GetVehicleReportErrorState({required this.msg});
-
+  PointofInterestDropdownErrorState({required this.msg});
   @override
   // TODO: implement props
   List<Object> get props => throw UnimplementedError();
 }
-//End
-
-//State for Search text for Vehicle Details...
-// Vehicle Report State
-class SearchVehicleReportLoadingState extends MainState {
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class SearchVehicleReportLoadedState extends MainState {
-  SearchingVehicleDetailsReportData searchVehicleReportResponse;
-  SearchVehicleReportLoadedState({required this.searchVehicleReportResponse});
-
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class SearchVehicleReportErrorState extends MainState {
-  String msg;
-  SearchVehicleReportErrorState({required this.msg});
-
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-//Search Device Master Report Data State----
-// Device Master Report State
-class SearchDeviceMasterReportLoadingState extends MainState {
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class SearchDeviceMasterReportLoadedState extends MainState {
-  SearchDeviceMasterReport searchdmReportResponse;
-  SearchDeviceMasterReportLoadedState({required this.searchdmReportResponse});
-
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class SearchDeviceMasterReportErrorState extends MainState {
-  String msg;
-  SearchDeviceMasterReportErrorState({required this.msg});
-
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-//End
-
-class DateWiseTravelHistoryLoadingState extends MainState {
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class DateWiseTravelHistoryLoadedState extends MainState {
-  DateWiseTravelHistory datedisetravelhistoryresponse;
-  DateWiseTravelHistoryLoadedState(
-      {required this.datedisetravelhistoryresponse});
-
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class DateWiseTravelHistoryErrorState extends MainState {
-  String msg;
-  DateWiseTravelHistoryErrorState({required this.msg});
-
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-// device master report
-class DeviceMasterReportLoadingState extends MainState {
-  List<Object> get props => throw UnimplementedError();
-}
-
-class DeviceMasterReportLoadedState extends MainState {
-  DeviceMasterModel deviceData;
-  DeviceMasterReportLoadedState({
-    required this.deviceData,
-  });
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class DeviceMasterReportErorrState extends MainState {
-  String msg;
-  DeviceMasterReportErorrState({required this.msg});
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-// Date and time wise distance/travel
-class DateAndTimeWiseTravelLoadingState extends MainState {
-  List<Object> get props => throw UnimplementedError();
-}
-
-class DateAndTimeWiseTravelLoadedState extends MainState {
-  DateAndTimeWiseTravel dateandtimewisetravelResponse;
-  DateAndTimeWiseTravelLoadedState({required this.dateandtimewisetravelResponse});
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class DateAndTimeWiseTravelErrorState extends MainState {
-  String msg;
-  DateAndTimeWiseTravelErrorState({required this.msg});
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-// date and time wise filter history
-class DateAndTimeWiseFilterLoadingState extends MainState {
-  List<Object> get props => throw UnimplementedError();
-}
-
-class DateAndTimeWiseFilterLoadedState extends MainState {
-   DateAndTimeWiseFilter dateandtimewisefilterResponse;
-  DateAndTimeWiseFilterLoadedState({required this.dateandtimewisefilterResponse});
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class DateAndTimeWiseFilterErrorState extends MainState {
-  String msg;
-  DateAndTimeWiseFilterErrorState({required this.msg});
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-// date and time wise search history
-class DateAndTimeWiseSearchLoadingState extends MainState {
-  List<Object> get props => throw UnimplementedError();
-}
-
-class DateAndTimeWiseSearchLoadedState extends MainState {
-   DateAndTimeWiseSearchModel dateandtimewisesearchResponse;
-  DateAndTimeWiseSearchLoadedState({required this.dateandtimewisesearchResponse});
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class DateAndTimeWiseSearchErrorState extends MainState {
-  String msg;
-  DateAndTimeWiseSearchErrorState({required this.msg});
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-// Vehicle Wise Travel History
-class VehicleWiseTravelLoadingState extends MainState {
-  List<Object> get props => throw UnimplementedError();
-}
-
-class VehicleWiseTravelLoadedState extends MainState {
-  VehicleWiseTravelModel vehiclewisetravelResponse;
-  VehicleWiseTravelLoadedState({required this.vehiclewisetravelResponse});
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class VehicleWiseTravelErrorState extends MainState {
-  String msg;
-  VehicleWiseTravelErrorState({required this.msg});
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-// Vehicle wise time wise travel history
-class VehicleWiseTimeWiseTravelLoadingState extends MainState {
-  List<Object> get props => throw UnimplementedError();
-}
-
-class VehicleWiseTimeWiseTravelLoadedState extends MainState {
-  VehicleWiseTimeWiseTravelModel vehiclewisewimewisetravelResponse;
-  VehicleWiseTimeWiseTravelLoadedState({required this.vehiclewisewimewisetravelResponse});
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class VehicleWiseTimeWiseTravelErrorState extends MainState {
-  String msg;
-  VehicleWiseTimeWiseTravelErrorState({required this.msg});
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-
-// Vehicle wise filter history
-class VehicleWiseFilterLoadingState extends MainState {
-  List<Object> get props => throw UnimplementedError();
-}
-
-class VehicleWiseFilterLoadedState extends MainState {
-  VehicleWiseFilterModel vehiclewisefilterResponse;
-  VehicleWiseFilterLoadedState({required this.vehiclewisefilterResponse});
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class VehicleWiseFilterErrorState extends MainState {
-  String msg;
-  VehicleWiseFilterErrorState({required this.msg});
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-// Vehicle wise time wise filter history
-class VehicleWiseTimeWiseFilterLoadingState extends MainState {
-  List<Object> get props => throw UnimplementedError();
-}
-
-class VehicleWiseTimeWiseFilterLoadedState extends MainState {
-  VehicleWiseTimeWiseFilterModel vehiclewisetimewisefilterResponse;
-  VehicleWiseTimeWiseFilterLoadedState({required this.vehiclewisetimewisefilterResponse});
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class VehicleWiseTimeWiseFilterErrorState extends MainState {
-  String msg;
-  VehicleWiseTimeWiseFilterErrorState({required this.msg});
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-// Vehicle Wise Search travel 
-class VehicleWiseSearchLoadingState extends MainState {
-  List<Object> get props => throw UnimplementedError();
-}
-
-class VehicleWiseSearchLoadedState extends MainState {
-  VehicleWiseSearchModel vehiclewisesearchResponse;
-  VehicleWiseSearchLoadedState({required this.vehiclewisesearchResponse});
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class VehicleWiseSearchErrorState extends MainState {
-  String msg;
-  VehicleWiseSearchErrorState({required this.msg});
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-// Vehicle Wise time wise Search travel 
-class VehicleWiseTimeWiseSearchLoadingState extends MainState {
-  List<Object> get props => throw UnimplementedError();
-}
-
-class VehicleWiseTimeWiseSearchLoadedState extends MainState {
-  VehicleWiseTimeWiseSearchModel vehiclewisetimewisesearchResponse;
-  VehicleWiseTimeWiseSearchLoadedState({required this.vehiclewisetimewisesearchResponse});
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class VehicleWiseTimeWiseSearchErrorState extends MainState {
-  String msg;
-  VehicleWiseTimeWiseSearchErrorState({required this.msg});
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-
-
-
 
 //! DeviceMaster Filter-----------------------------------
 class DeviceMasterFilterLoadingState extends MainState {
@@ -2934,528 +2430,167 @@ class DeviceMasterFilterErorrState extends MainState {
   List<Object> get props => throw UnimplementedError();
 }
 
-// Vehicle Report Filter
-class VehicleReportFilterLoadingState extends MainState {
+//!-----------------------
+class VehicleStatusReportLoadingState extends MainState {
   List<Object> get props => throw UnimplementedError();
 }
 
-class VehicleReportFilterLoadedState extends MainState {
-  VehicleReportFilter vehicleReportFilter;
-  VehicleReportFilterLoadedState({
-    required this.vehicleReportFilter,
+class VehicleStatusReportLoadedState extends MainState {
+  VehicleStatusReportModel VehicleStatusReportResponse;
+  VehicleStatusReportLoadedState({required this.VehicleStatusReportResponse});
+
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+
+class VehicleStatusReportErrorState extends MainState {
+  String msg;
+  VehicleStatusReportErrorState({required this.msg});
+
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+
+//! filter of vehicle status---------------------------
+class VehicleStatusFilterLoadingState extends MainState {
+  List<Object> get props => throw UnimplementedError();
+}
+
+class VehicleStatusFilterLoadedState extends MainState {
+  VehicleStatusReportFilter VehicleStatusReportResponse;
+  VehicleStatusFilterLoadedState({required this.VehicleStatusReportResponse});
+
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+
+class VehicleStatuFilterErrorState extends MainState {
+  String msg;
+  VehicleStatuFilterErrorState({required this.msg});
+
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+
+//! RouteName List(Geofence)-----------------------
+class RouteNameListLoadingState extends MainState {
+  List<Object> get props => throw UnimplementedError();
+}
+
+class RouteNameListLoadedState extends MainState {
+  RouteNameList routenamelist;
+  RouteNameListLoadedState({
+    required this.routenamelist,
   });
   @override
   // TODO: implement props
   List<Object> get props => throw UnimplementedError();
 }
 
-class VehicleReportFilterErorrState extends MainState {
+class RouteNameListErorrState extends MainState {
   String msg;
-  VehicleReportFilterErorrState({required this.msg});
+  RouteNameListErorrState({required this.msg});
+
   @override
   // TODO: implement props
   List<Object> get props => throw UnimplementedError();
 }
 
-
-// Vehicle status group Report Filter
-class VehicleGroupFilterLoadingState extends MainState {
+//! GetRoutesDetailByRoutesname-------------
+class GetRoutesDetailLoadingState extends MainState {
   List<Object> get props => throw UnimplementedError();
 }
 
-class VehicleGroupFilterLoadedState extends MainState {
-  VehicleGroupFilterModel vehiclegroupFilterresponse;
-  VehicleGroupFilterLoadedState({
-    required this.vehiclegroupFilterresponse,
+class GetRoutesDetailLoadedState extends MainState {
+  RoutesDetailByRouteName routenamelist;
+  GetRoutesDetailLoadedState({
+    required this.routenamelist,
   });
   @override
   // TODO: implement props
   List<Object> get props => throw UnimplementedError();
 }
 
-class VehicleGroupFilterErorrState extends MainState {
+class GetRoutesDetailErrorState extends MainState {
   String msg;
-  VehicleGroupFilterErorrState({required this.msg});
+  GetRoutesDetailErrorState({required this.msg});
+
   @override
   // TODO: implement props
   List<Object> get props => throw UnimplementedError();
 }
 
-// Vehicle status summary Report Filter
-class VehicleSummaryFilterLoadingState extends MainState {
+//! POI type code--------------------
+class POITypeLoadingState extends MainState {
   List<Object> get props => throw UnimplementedError();
 }
 
-class VehicleSummaryFilterLoadedState extends MainState {
-  VehicleSummaryFilterModel vehiclesummaryFilterresponse;
-  VehicleSummaryFilterLoadedState({
-    required this.vehiclesummaryFilterresponse,
+class POITypeLoadedState extends MainState {
+  POITypeCode poitypelist;
+  POITypeLoadedState({
+    required this.poitypelist,
   });
   @override
   // TODO: implement props
   List<Object> get props => throw UnimplementedError();
 }
 
-class VehicleSummaryFilterErorrState extends MainState {
+class POITypeErrorState extends MainState {
   String msg;
-  VehicleSummaryFilterErorrState({required this.msg});
+  POITypeErrorState({required this.msg});
+
   @override
   // TODO: implement props
   List<Object> get props => throw UnimplementedError();
 }
 
-
-// Frame packet filter
-class FrameFilterLoadingState extends MainState {
+//! POI post states-------------------
+class POIPostLoadingState extends MainState {
   List<Object> get props => throw UnimplementedError();
 }
 
-class FrameFilterLoadedState extends MainState {
-  FramePacketFilterModel frameFilterresponse;
-  FrameFilterLoadedState({
-    required this.frameFilterresponse,
+class POIPostLoadedState extends MainState {
+  POIPost poipost;
+  POIPostLoadedState({
+    required this.poipost,
   });
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class FrameFilterErorrState extends MainState {
-  String msg;
-  FrameFilterErorrState({required this.msg});
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-//State for search frame packet...
-
-class SearchFramePacketLoadingState extends MainState {
-  List<Object> get props => throw UnimplementedError();
-}
-class SearchFramePacketLoadedState extends MainState {
-  SearchFramePcktRpt searchFramePacket;
-  SearchFramePacketLoadedState({required this.searchFramePacket});
-
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-class SearchFramePacketErrorState extends MainState {
-  String msg;
-  SearchFramePacketErrorState({required this.msg});
-
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-//State for search frame packet...
-
-class SearchFramePacketGridLoadingState extends MainState {
-  List<Object> get props => throw UnimplementedError();
-}
-class SearchFramePacketGridLoadedState extends MainState {
-  SearchFramepacketgrid searchFramePacketgrid;
-  SearchFramePacketGridLoadedState({required this.searchFramePacketgrid});
-
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-class SearchFramePacketGridErrorState extends MainState {
-  String msg;
-  SearchFramePacketGridErrorState({required this.msg});
-
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-  //State for search vehicle status group report...
-  class SearchVehicleStatusGroupLoadingState extends MainState {
-    List<Object> get props => throw UnimplementedError();
-  }
-  
-  class SearchVehicleStatusGroupLoadedState extends MainState {
-    SearchVehicleStatusGroupRpt searchVehicleStatusGroupResponse;
-    SearchVehicleStatusGroupLoadedState({required this.searchVehicleStatusGroupResponse});
-  
     @override
-    // TODO: implement props
-    List<Object> get props => throw UnimplementedError();
-  }
-  
-  class SearchVehicleStatusGroupErrorState extends MainState {
-    String msg;
-    SearchVehicleStatusGroupErrorState({required this.msg});
-  
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+class POIPostErrorState extends MainState {
+  String msg;
+  POIPostErrorState ({required this.msg});
+
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+//! POI Delete data --------------------------
+class POIDeleteLoadingState extends MainState {
+  List<Object> get props => throw UnimplementedError();
+}
+
+class POIDeleteLoadedState extends MainState {
+ EditDeviceResponse editDeviceResponse;
+  POIDeleteLoadedState({required this.editDeviceResponse});
     @override
-    // TODO: implement props
-    List<Object> get props => throw UnimplementedError();
-  }
-
-
-
-
-//!State for get vehicle status report...
-class SearchVehicleStatusReportLoadingState extends MainState {
-  List<Object> get props => throw UnimplementedError();
-}
-
-class SearchVehicleStatusReportLoadedState extends MainState {
-  SearchVehicleStatusRpt searchvehicleStatusGroupResponse;
-  SearchVehicleStatusReportLoadedState({required this.searchvehicleStatusGroupResponse});
-
-  @override
   // TODO: implement props
   List<Object> get props => throw UnimplementedError();
 }
-
-class SearchVehicleStatusReportErrorState extends MainState {
+class POIDeleteErrorState extends MainState {
   String msg;
-  SearchVehicleStatusReportErrorState({required this.msg});
+  POIDeleteErrorState ({required this.msg});
 
   @override
   // TODO: implement props
   List<Object> get props => throw UnimplementedError();
 }
 
-
-
-
-
-// Frame packet grid filter
-class FrameGridFilterLoadingState extends MainState {
-  List<Object> get props => throw UnimplementedError();
-}
-
-class FrameGridFilterLoadedState extends MainState {
-  FrameGridFilterMode framegridFilterresponse;
-  FrameGridFilterLoadedState({
-    required this.framegridFilterresponse,
-  });
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class FrameGridFilterErorrState extends MainState {
-  String msg;
-  FrameGridFilterErorrState({required this.msg});
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-// device master filter driver code (DMFD)
-class DMFDriverCodeLoadingState extends MainState {
-  List<Object> get props => throw UnimplementedError();
-}
-
-class DMFDriverCodeLoadedState extends MainState {
-  DeviceDriverCode dmfdriverCoderesponse;
-  DMFDriverCodeLoadedState({
-    required this.dmfdriverCoderesponse,
-  });
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class DMFDriverCodeErorrState extends MainState {
-  String msg;
-  DMFDriverCodeErorrState({required this.msg});
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-// Vehicle VSrNo 
-class VehicleVSrNoLoadingState extends MainState {
-  List<Object> get props => throw UnimplementedError();
-}
-
-class VehicleVSrNoLoadedState extends MainState {
-  VehicleVSrNoModel vehiclevsrnoresponse;
-  VehicleVSrNoLoadedState({
-    required this.vehiclevsrnoresponse,
-  });
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class VehicleVSrNoErorrState extends MainState {
-  String msg;
-  VehicleVSrNoErorrState({required this.msg});
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-// Vehicle VSrNo 
-class FramePacketOptiongridLoadingState extends MainState {
-  List<Object> get props => throw UnimplementedError();
-}
-
-class FramePacketOptiongridLoadedState extends MainState {
-  FramePacketOptionGridModel vehiclevsrnoresponse;
-  FramePacketOptiongridLoadedState({
-    required this.vehiclevsrnoresponse,
-  });
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class FramePacketOptiongridErorrState extends MainState {
-  String msg;
-  FramePacketOptiongridErorrState({required this.msg});
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-
-
-// Date wise travel driver code
-class DateWiseDriverCodeLoadingState extends MainState {
-  List<Object> get props => throw UnimplementedError();
-}
-
-class DateWiseDriverCodeLoadedState extends MainState {
-  DateWiseDriverCodeModel dmfdriverCoderesponse;
-  DateWiseDriverCodeLoadedState({
-    required this.dmfdriverCoderesponse,
-  });
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class DateWiseDriverCodeErorrState extends MainState {
-  String msg;
-  DateWiseDriverCodeErorrState({required this.msg});
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-// Driver wise vehicle assign driver code
-class DriverWiseDriverCodeLoadingState extends MainState {
-  List<Object> get props => throw UnimplementedError();
-}
-
-class DriverWiseDriverCodeLoadedState extends MainState {
-  DriverWiseDriverCodeModel dmfdriverCoderesponse;
-  DriverWiseDriverCodeLoadedState({
-    required this.dmfdriverCoderesponse,
-  });
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class DriverWiseDriverCodeErorrState extends MainState {
-  String msg;
-  DriverWiseDriverCodeErorrState({required this.msg});
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-// Frame packet driver code
-class FramePacketDriverCodeLoadingState extends MainState {
-  List<Object> get props => throw UnimplementedError();
-}
-
-class FramePacketDriverCodeLoadedState extends MainState {
-  FramePacketRptDriverCodeModel dmfdriverCoderesponse;
-  FramePacketDriverCodeLoadedState({
-    required this.dmfdriverCoderesponse,
-  });
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class FramePacketDriverCodeErorrState extends MainState {
-  String msg;
-  FramePacketDriverCodeErorrState({required this.msg});
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-// Frame packet grid driver code
-class FramePacketGridDriverCodeLoadingState extends MainState {
-  List<Object> get props => throw UnimplementedError();
-}
-
-class FramePacketGridDriverCodeLoadedState extends MainState {
-  FramePacketGridRptDriverCodeModel dmfdriverCoderesponse;
-  FramePacketGridDriverCodeLoadedState({
-    required this.dmfdriverCoderesponse,
-  });
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class FramePacketGridDriverCodeErorrState extends MainState {
-  String msg;
-  FramePacketGridDriverCodeErorrState({required this.msg});
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-// Vehicle status report driver code
-class VehicleStsRptDriverCodeLoadingState extends MainState {
-  List<Object> get props => throw UnimplementedError();
-}
-
-class VehicleStsRptDriverCodeLoadedState extends MainState {
-  VehicleStatusReportDriverCodeModel dmfdriverCoderesponse;
-  VehicleStsRptDriverCodeLoadedState({
-    required this.dmfdriverCoderesponse,
-  });
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class VehicleStsRptDriverCodeErorrState extends MainState {
-  String msg;
-  VehicleStsRptDriverCodeErorrState({required this.msg});
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-// Driver master driver code
-class DriverMasterDriverCodeLoadingState extends MainState {
-  List<Object> get props => throw UnimplementedError();
-}
-
-class DriverMasterDriverCodeLoadedState extends MainState {
-  DriverMasterDriverCodeModel dmfdriverCoderesponse;
-  DriverMasterDriverCodeLoadedState({
-    required this.dmfdriverCoderesponse,
-  });
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class DriverMasterDriverCodeErorrState extends MainState {
-  String msg;
-  DriverMasterDriverCodeErorrState({required this.msg});
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-// Over Speed Vehicle Filter
-class OverSpeedVehicleFilterLoadingState extends MainState {
-  List<Object> get props => throw UnimplementedError();
-}
-
-class OverSpeedVehicleFilterLoadedState extends MainState {
-  OverSpeedVehicleFilter overspeedvehiclefilterresponse;
-  OverSpeedVehicleFilterLoadedState({
-    required this.overspeedvehiclefilterresponse,
-  });
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class OverSpeedVehicleFilterErorrState extends MainState {
-  String msg;
-  OverSpeedVehicleFilterErorrState({required this.msg});
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-
-// Driver master report filter
-class DriverMasterFilterLoadingState extends MainState {
-  List<Object> get props => throw UnimplementedError();
-}
-
-class DriverMasterFilterLoadedState extends MainState {
-  DriverMasterFilter driverMasterFilter;
-  DriverMasterFilterLoadedState({
-    required this.driverMasterFilter,
-  });
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class DriverMasterFilterErorrState extends MainState {
-  String msg;
-  DriverMasterFilterErorrState({required this.msg});
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-//Overspeed filter
-
-class OverSpeedFilterLoadingState extends MainState {
-  List<Object> get props => throw UnimplementedError();
-}
-
-class OverSpeedFilterLoadedState extends MainState {
-  OverSpeedFilter overspeedFilter;
-  OverSpeedFilterLoadedState({
-    required this.overspeedFilter,
-  });
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-class OverSpeedFilterErorrState extends MainState {
-  String msg;
-  OverSpeedFilterErorrState({required this.msg});
-  @override
-  // TODO: implement props
-  List<Object> get props => throw UnimplementedError();
-}
-
-// class DriverMasterLoadingState extends MainState {
-//   @override
-//   // TODO: implement props
-//   List<Object> get props => throw UnimplementedError();
-// }
-
-// class DriverMasterLoadedState extends MainState {
-//   DriverMaster DriverMasterresponse;
-//   DriverMasterLoadedState(
-//       {required this.DriverMasterresponse});
-
-//   @override
-//   // TODO: implement props
-//   List<Object> get props => throw UnimplementedError();
-// }
-
-// class DriverMasterErrorState extends MainState {
-//   String msg;
-//   DriverMasterErrorState({required this.msg});
-
-//   @override
-//   // TODO: implement props
-//   List<Object> get props => throw UnimplementedError();
-// }
-
-//Driver Master Report
-
-// class DriverMasterReportLoadedState extends MainState{
 //   getDriverMasterReportResponse  DriverMasterReportResponse;
 //   DriverMasterReportLoadedState({required this.DriverMasterReportResponse});
 //
