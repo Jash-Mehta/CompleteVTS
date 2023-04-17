@@ -55,13 +55,21 @@ dev_dependencies:
   fluttertoast: ^8.0.8
   syncfusion_flutter_charts: ^20.1.52
   shared_preferences: ^2.0.12
-  email_validator: ^2.0.1
+  email_validator: ^2.0.1 
   file_picker: ^4.4.0
   path_provider: ^2.0.2
   google_maps_flutter: ^2.1.4
+  google_maps_webservice: ^0.0.19
+  google_maps_cluster_manager: ^3.0.0+1
   location: ^4.4.0
   flutter_polyline_points: ^1.0.0
   solid_bottom_sheet: ^0.1.10
+  permission_handler: ^10.2.0
+  android_intent_plus: ^3.1.6
+  pdf: ^3.9.0
+  open_file: ^3.2.1
+  geolocator: ^7.0.3
+  geocoding: ^2.1.0
   encrypt: ^5.0.1
   flutter_des: ^2.0.0
   snippet_coder_utils: ^1.0.12

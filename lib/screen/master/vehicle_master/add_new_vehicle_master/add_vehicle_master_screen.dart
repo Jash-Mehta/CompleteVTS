@@ -25,7 +25,7 @@ import 'package:snippet_coder_utils/FormHelper.dart';
 
 class AddVehicleMasterScreen extends StatefulWidget {
   int flag;
-  Datum datum;
+  VechileDetailsbyID datum;
   Data searchData;
   bool searchText;
 

@@ -1070,7 +1070,36 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           print(e.toString());
           yield DeleteGeofenceCreateErrorState(msg: e.toString());
         }
+      } else if (event is AddGeofenceEvents) {
+        try {
+          yield AddGeofenceLoadingState();
+          var addGeofenceResponse = await webService.addGeofence(
+              event.token,
+              event.vendorid,
+              event.branchid,
+              event.geofencename,
+              event.category,
+              event.description,
+              event.tolerance,
+              event.showgeofence,
+              event.latitude,
+              event.longitude,
+              event.overlaytype,
+              event.rectanglebond,
+              event.rectanglearea,
+              event.rectanglehectares,
+              event.rectanglekilometer,
+              event.rectanglemiles,
+              event.address,
+              event.vehicleid);
+          yield AddGeofenceLoadedState(
+              addGeofenceResponse: addGeofenceResponse);
+        } catch (e) {
+          print(e.toString());
+          yield AddGeofenceErrorState(msg: e.toString());
+        }
       }
+
       // else if (event is AddGeofenceEvents) {
       //   try {
       //     yield AddGeofenceLoadingState();
@@ -2241,13 +2270,12 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           yield SearchVehicleStatusGroupErrorState(msg: e.toString());
         }
       }
-      
+
       //! ---------------- // Search Vehicle Status Report --------------
       else if (event is SearchVehicleStatusEvent) {
         try {
           yield SearchVehicleStatusReportLoadingState();
-          var vehiclestatusreportresponse =
-          await webService.searchvehstatusrpt(
+          var vehiclestatusreportresponse = await webService.searchvehstatusrpt(
             event.token,
             event.vendorId,
             event.branchid,
@@ -2265,8 +2293,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         } catch (e) {
           print(e.toString());
         }
-        yield SearchVehicleStatusReportErrorState(msg: "Enetr in Error state...");
-
+        yield SearchVehicleStatusReportErrorState(
+            msg: "Enetr in Error state...");
       }
       //! Search Vehicle Status Summary----------------
       //  ------------------- // Search Vehicle Status Summary--------------
@@ -2275,7 +2303,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         try {
           yield SearchVehicleStatusGroupLoadingState();
           var vehiclestatussummaryresponse =
-          await webService.searchvehicleStatusSummary(
+              await webService.searchvehicleStatusSummary(
             event.token,
             event.vendorId,
             event.branchid,
@@ -2289,7 +2317,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             event.pagesize,
           );
           yield SearchVehicleStatusSummaryLoadedState(
-              searchVehicleStatusGroupResponse:  vehiclestatussummaryresponse);
+              searchVehicleStatusGroupResponse: vehiclestatussummaryresponse);
         } catch (e) {
           print(e.toString());
         }
@@ -2331,6 +2359,121 @@ class MainBloc extends Bloc<MainEvent, MainState> {
               dateWiseTravelFilterResponse: devicemasterfilterbloc);
         } catch (e) {
           yield DeviceMasterFilterErorrState(msg: e.toString());
+        }
+      }
+      //! Get Point Of Interest Bloc
+      else if (event is GetPointOfInterestEvent) {
+        try {
+          yield PointOfInterestCreateLoadingState();
+          var pointOfInterestCreateDetailsResponse =
+              await webService.createPointOfInterestGetApi(
+                  event.token,
+                  event.vendorid,
+                  event.branchid,
+                  event.pagenumber,
+                  event.pagesize);
+          yield PointOfInterestCreateLoadedState(
+              createPointOfInterest: pointOfInterestCreateDetailsResponse);
+        } catch (e) {
+          print(e.toString());
+          yield PointOfInterestCreateErrorState(msg: e.toString());
+        }
+      }
+      // //End of bloc
+
+      //! Search Point Of Interest Bloc
+      else if (event is SearchPointOfInterestEvent) {
+        try {
+          yield SearchPointOfInterestLoadingState();
+          var searchPointOfInterestDetailsResponse =
+              await webService.fetchSearchPointInterestDetails(
+            event.token,
+            event.vendorid,
+            event.branchid,
+            event.searchStr,
+          );
+          yield SearchPointOfInterestLoadedState(
+              searchPointOfInterest: searchPointOfInterestDetailsResponse);
+        } catch (e) {
+          print(e.toString());
+          yield PointOfInterestCreateErrorState(msg: e.toString());
+        }
+        //! Dropdown Point Of Interest Bloc----------------
+      } else if (event is DropdownPointOfInterestEvent) {
+        try {
+          yield PointofInterestDropdownLoadingState();
+          var dropdownpointofinterest =
+              await webService.dropdownpointofinterest(event.token);
+          yield PointofInterestDropdownLoadedState(
+              dropdownPointOfInterest: dropdownpointofinterest);
+        } catch (e) {
+          print(e.toString());
+          yield PointofInterestDropdownErrorState(msg: e.toString());
+        }
+      }
+      //! POI type code------------
+      else if (event is Poitype) {
+        try {
+          yield POITypeLoadingState();
+          var poitypecode = await webService.poitypecode(event.token);
+          yield POITypeLoadedState(poitypelist: poitypecode);
+        } catch (e) {
+          print(e.toString());
+        }
+      }
+      //! POI post data mainbloc----------------
+      else if (event is PoiPostdata) {
+        try {
+          yield POIPostLoadingState();
+          var addpoidata = await webService.poiaddeddata(
+              event.token,
+              event.vendorid,
+              event.branchid,
+              event.poiname,
+              event.poitypeID,
+              event.description,
+              event.tolerance,
+              event.locationlatitude,
+              event.locationlongitude,
+              event.showpoi,
+              event.address,
+              event.vehicleid);
+          yield POIPostLoadedState(poipost: addpoidata);
+        } catch (e) {
+          yield POIPostErrorState(msg: e.toString());
+        }
+      }
+      //! POI delete data----------------
+      else if (event is POIDeletedata) {
+        try {
+          yield POIDeleteLoadingState();
+          var editDeviceResponse = await webService.poideletewebservice(
+              event.token, event.vendorid, event.branchid, event.srno);
+          yield POIDeleteLoadedState(editDeviceResponse: editDeviceResponse);
+        } catch (e) {
+          print(e.toString());
+          yield POIDeleteErrorState(msg: e.toString());
+        }
+      }
+            //! Routes Detail By RoutesName---------------------------
+      else if (event is RoutesDetailByRoutesNameEvents) {
+        try {
+          yield GetRoutesDetailLoadingState();
+          var routenamedetail = await webService.routesdetailbyname(
+              event.token, event.vendorid, event.branchid, event.routename);
+          yield GetRoutesDetailLoadedState(routenamelist: routenamedetail);
+        } catch (e) {
+          print(e.toString());
+        }
+        //! VTS Geofence----------------------------------> 
+      }else if (event is GettingRouteGGR) {
+        try {
+          yield RouteNameListLoadingState();
+          var routenamelist = await webService.routedefinelist(
+              event.token, event.vendorid, event.branchid);
+          yield RouteNameListLoadedState(routenamelist: routenamelist);
+        } catch (e) {
+          print(e.toString());
         }
       }
     }

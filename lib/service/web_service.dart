@@ -86,6 +86,13 @@ import '../model/driver_wise_vehicle_assign/driver_wise_drivercode.dart';
 import '../model/driver_wise_vehicle_assign/driver_wise_vehicle_assign.dart';
 import '../model/driver_wise_vehicle_assign/driver_wise_vehicle_filter.dart';
 import '../model/driver_wise_vehicle_assign/search_driver_vehicle_assign.dart';
+import '../model/getgeofence/getroute_name_list.dart';
+import '../model/getgeofence/routes_detail_routename.dart';
+import '../model/point_of_interest/create_point_of_interest.dart';
+import '../model/point_of_interest/dropdown_point_of_interest.dart';
+import '../model/point_of_interest/poi_post.dart';
+import '../model/point_of_interest/poi_type.dart';
+import '../model/point_of_interest/search_point_of_interest.dart';
 import '../model/report/date_and_timewise_filter.dart';
 import '../model/report/date_and_timewise_search.dart';
 import '../model/report/device_master_filter.dart';
@@ -2266,39 +2273,79 @@ class WebService {
     return SearchGeofenceCreateResponse.fromJson(jsonDecode(response.body));
   }
 
-  // Future<AddGeofenceResponse> addGeofence(
-  //    String token,
-  // int vendorid,
-  // int branchid,
-  // String geofencename,
-  // String category,
-  // String description,
-  // int tolerance,
-  // String showgeofence,
-  // String latitude,
-  // String longitude,
-  // String overlaytype,
-  // String rectanglebond,
-  // String rectanglearea,
-  // String rectanglehectares,
-  // String rectanglekilometer,
-  // String rectanglemiles,
-  // String address,
-  // String vehicleid,) async {
-  //   print(Constant.addGeofenceUrl);
+//! AddGeofence is created-------------------------------------------------
+  Future<AddGeofenceResponse> addGeofence(
+    String token,
+    int vendorid,
+    int branchid,
+    String geofencename,
+    String category,
+    String description,
+    int tolerance,
+    String showgeofence,
+    String latitude,
+    String longitude,
+    String overlaytype,
+    String rectanglebond,
+    String rectanglearea,
+    String rectanglehectares,
+    String rectanglekilometer,
+    String rectanglemiles,
+    String address,
+    int vehicleid,
+  ) async {
+    final body = {
+      "vendorSrNo": 1,
+      "branchSrNo": 1,
+      "geofenceName": geofencename,
+      "category": category,
+      "description": description,
+      "tolerance": tolerance,
+      "showGeofence": showgeofence,
+      "locationLatitude": latitude,
+      "locationLongitude": longitude,
+      "overlayType": "Rectangle",
+      "circleBounds": "",
+      "circleRadius": "",
+      "circleArea": "",
+      "circlehectares": "",
+      "circleKilometer": "",
+      "circleMiles": "",
+      "circleCenterLat": "",
+      "circleCenterLng": "",
+      "rectangleBounds": "12.56",
+      "rectangleArea": "12.56",
+      "rectanglehectares": "3.6",
+      "rectangleKilometer": "4",
+      "rectangleMiles": "2.3",
+      "polygonPath": "",
+      "polygonArea": "",
+      "polygonhectares": "",
+      "polygonKilometer": "",
+      "polygonMiles": "",
+      "address": address.toString(),
+      "vehicleList": [
+        {"vehicleId": vehicleid},
+      ]
+    };
+    final response = await http.post(
+      Uri.parse(Constant.addGeofenceUrl),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': "Bearer $token",
+      },
+      body: jsonEncode(body),
+    );
+    print("your token of geoFence------------" + token);
+    if (response.statusCode == 201) {
+      print("Your data was addedd sucessfully");
+      return AddGeofenceResponse.fromJson(jsonDecode(response.body));
+    } else {
+      print(response.body);
+      throw Exception("Failed to loaded Geofence");
+    }
+  }
 
-  //   final response = await http.post(
-  //     Uri.parse(Constant.addGeofenceUrl),
-  //     headers: <String, String>{
-  //       'Content-Type': 'application/json; charset=UTF-8',
-  //       'Authorization': 'Bearer $token',
-  //     },
-  //     body: jsonEncode(addGeofenceRequest),
-  //   );
-
-  //   print(response.body);
-  //   return AddGeofenceResponse.fromJson(jsonDecode(response.body));
-  // }
 
   Future<EditDeviceResponse> createAssignMenuRights(
       AssignMenuRightsRequest assignMenuRightsRequest, String token) async {
@@ -4770,6 +4817,279 @@ class WebService {
       throw Exception('Failed to load data');
     }
   }
+  //! POI API Start from here--------------------------------->
+  
+  Future<CreatePointOfInterest> createPointOfInterestGetApi(String token,
+      int vendorId, int branchId, int pageNumber, int pageSize) async {
+    // print("Api uri is-------" +
+    // "${Constant.getPointOfInterstCreateUrl}VendorId=${vendorId}&BranchId=${branchId}&PageNumber=${pageNumber}&PageSize=${pageSize}" );
+
+    var uriString = Constant.getPointOfInterstCreateUrl +
+        "?VendorId=" +
+        vendorId.toString() +
+        "&BranchId=" +
+        branchId.toString() +
+        "&PageNumber=" +
+        pageNumber.toString() +
+        "&PageSize=" +
+        pageSize.toString();
+
+    //  var uriString =
+    //    'https://vtsgpsapi.m-techinnovations.com/api/PointOfInterestCreate/GetPointofInterestDetails?VendorId=1&BranchId=1&PageNumber=1&PageSize=10';
+
+    // var uriString ='${Constant.getPointOfInterstCreateUrl}?VendorId=${vendorId}&BranchId=${branchId}&PageNumber=${pageNumber}&PageSize=${pageSize}';
+
+    print("New Uri of Point of interset is------------*********${uriString}");
+
+    final response = await http.get(
+      // Uri.parse(Constant.getPointOfInterstCreateUrl +
+      //         "?VendorId=" +
+      //         vendorId.toString() +
+      //         "&BranchId=" +
+      //         branchId.toString() +
+      //         "&IMEINO=867322033819244&PageNumber=" +
+      //         pageNumber.toString() +
+      //         "&PageSize=" +
+      //         pageSize.toString()),
+
+      // Uri.parse('${Constant.getPointOfInterstCreateUrl}VendorId=${vendorId}&BranchId=${branchId}&PageNumber=${pageNumber}&PageSize=${pageSize}'),
+
+      // Uri.parse('https://vtsgpsapi.m-techinnovations.com/api/PointOfInterestCreate/GetPointofInterestDetails?VendorId=1&BranchId=1PageNumber=1&PageSize=10'),
+
+      Uri.parse(uriString),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    if (response.statusCode == 200) {
+      print(response.body);
+      var createResponce =
+          CreatePointOfInterest.fromJson(jsonDecode(response.body));
+
+      return createResponce;
+    } else {
+      print("Data loading failed....");
+      return throw Exception();
+    }
+  }
+  //!--------------End API---------------------------
+
+//!------------- API for Search Point of Interest -----------------//
+  Future<SearchPointOfInterest> fetchSearchPointInterestDetails(
+    String token,
+    int vendorid,
+    int branchid,
+    String searchtext,
+  ) async {
+    print("Enter in main  web service api block");
+    var searchurl =
+        '${Constant.searchStrPointOfInterstCreateUrl}/${vendorid}/${branchid}/${searchtext}';
+    // Constant.searchStrPointOfInterstCreateUrl +
+    //  "?VendorId=" +
+    //  vendorid.toString() +
+    //  "&BranchId=" +
+    //  branchid.toString() +
+    //  "&IMEINO=867322033819244&searchString=" +
+    //  searchtext.toString();
+
+    // var searchurl =
+    //     "https://vtsgpsapi.m-techinnovations.com/api/PointOfInterestCreate/1/1/air";
+    https: //vtsgpsapi.m-techinnovations.com/api/PointOfInterestCreate?VendorId=1&BranchId=1&IMEINO=867322033819244&searchString=c
+    print("Uri is-----------${searchurl}");
+
+    final response =
+        await http.get(Uri.parse(searchurl), headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    });
+
+    print("Successfully getting your data");
+    var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
+    var searchtextresponce = SearchPointOfInterest.fromJson(jsonbody);
+    print("Json decoded body_" + searchtextresponce.toString());
+    return searchtextresponce;
+  }
+
+  //! Dropdown point of Interest---------------------------------
+  Future<DropdownPointofInterest> dropdownpointofinterest(String token) async {
+    final response = await http
+        .get(Uri.parse(Constant.getPOITypeUrl), headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    });
+    if (response.statusCode == 200) {
+      print("Successfully getting your data");
+      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
+      var searchtextresponce = DropdownPointofInterest.fromJson(jsonbody);
+      print("Json decoded body_" + searchtextresponce.toString());
+      return searchtextresponce;
+    } else {
+      print(response.body);
+      throw Exception('Failed to load data');
+    }
+  }
+  //! POI type code--------------------------
+  Future<POITypeCode> poitypecode(
+    String token,
+  ) async {
+    var routenamelist =
+        "https://vtsgpsapi.m-techinnovations.com/api/PointOfInterestCreate/GETPOITypeDetails";
+    final response =
+        await http.get(Uri.parse(routenamelist), headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    });
+
+    if (response.statusCode == 200) {
+      print("Successfully getting your data POI detail data");
+      var jsonbody = jsonDecode(response.body) as List<dynamic>;
+      var searchtextresponce = POITypeCode.fromJson(jsonbody);
+
+      return searchtextresponce;
+    } else {
+      print(response.body);
+      throw Exception('Failed to load data');
+    }
+  }
+
+//! POI Post data added------------------
+  Future<POIPost> poiaddeddata(
+    String token,
+    int vendorid,
+    int branchid,
+    String poiname,
+    int poitypeID,
+    String description,
+    int tolerance,
+    String locationlatitude,
+    String locationlongitude,
+    String showpoi,
+    String address,
+    int vehicleid,
+  ) async {
+    final body = {
+      "vendorSrNo": 1,
+      "branchSrNo": 1,
+      "poiname": poiname.toString(),
+      "poiTypeID": poitypeID,
+      "description": description.toString(),
+      "tolerance": tolerance,
+      "locationLatitude": locationlatitude.toString(),
+      "locationLongitude": locationlongitude.toString(),
+      "showPoi": showpoi.toString(),
+      "address": address.toString(),
+      "vehicleList": [
+        {"vehicleId": vehicleid}
+      ]
+    };
+    final response = await http.post(
+      Uri.parse(
+          "https://vtsgpsapi.m-techinnovations.com/api/PointOfInterestCreate"),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': "Bearer $token",
+      },
+      body: jsonEncode(body),
+    );
+    print("your token of geoFence------------" + token);
+    if (response.statusCode == 201) {
+      print("Your POI data was addedd sucessfully");
+      return POIPost.fromJson(jsonDecode(response.body));
+    } else {
+      print(response.body);
+      throw Exception("Failed to loaded poidata");
+    }
+  }
+
+  //!  Delete poi data--------------------------
+  Future<EditDeviceResponse> poideletewebservice(
+    String token,
+    int vendorid,
+    int branchid,
+    int srno,
+  ) async {
+    var deleteresponse =
+        "https://vtsgpsapi.m-techinnovations.com/api/PointOfInterestCreate/${vendorid}/${branchid}/${srno}";
+    final response = await http.delete(
+      Uri.parse(deleteresponse),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    print(response.body);
+    return EditDeviceResponse.fromJson(jsonDecode(response.body));
+  }
+  
+  //! RouteDefine by Geofence----------------
+  Future<RouteNameList> routedefinelist(
+    String token,
+    int vendorId,
+    int branchid,
+  ) async {
+    var routenamelist =
+        "https://vtsgpsapi.m-techinnovations.com/api/RouteDefine/FillRoute?VendorId=1&BranchId=1";
+    final response =
+        await http.get(Uri.parse(routenamelist), headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    });
+
+    if (response.statusCode == 200) {
+      print("Successfully getting your data route data");
+      var jsonbody = jsonDecode(response.body) as List<dynamic>;
+      var searchtextresponce = RouteNameList.fromJson(jsonbody);
+
+      return searchtextresponce;
+    } else {
+      print(response.body);
+      throw Exception('Failed to load data');
+    }
+  }
+
+  //!Get Geofence------------------------->
+  Future<RoutesDetailByRouteName> routesdetailbyname(
+    String token,
+    int vendorId,
+    int branchid,
+    String routename,
+  ) async {
+    print(Constant.routesdetailbyname +
+        "/" +
+        vendorId.toString() +
+        "/" +
+        branchid.toString() +
+        "/" +
+        routename.toString());
+    var routenamelist = Constant.routesdetailbyname +
+        "/" +
+        vendorId.toString() +
+        "/" +
+        branchid.toString() +
+        "/" +
+        routename.toString();
+
+    // var routenamelist =
+    //     "https://vtsgpsapi.m-techinnovations.com/api/RouteDefine/GetRoutesDetailsByRouteName/1/1/h";
+    final response =
+        await http.get(Uri.parse(routenamelist), headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    });
+
+    if (response.statusCode == 200) {
+      print("Successfully getting your data route detail data");
+      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
+      var searchtextresponce = RoutesDetailByRouteName.fromJson(jsonbody);
+
+      return searchtextresponce;
+    } else {
+      print(response.body);
+      throw Exception('Failed to load data');
+    }
+  }
+
 
   // Driver master report filter
   Future<DriverMasterFilter> drivermasterfilter(

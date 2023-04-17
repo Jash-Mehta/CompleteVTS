@@ -32,7 +32,7 @@ class _VehicleMasterScreenState extends State<VehicleMasterScreen> {
   late MainBloc _mainBloc;
   int pageNumber=1;
   int pageSize=10;
-  List<Datum> ? allVehicleDetaildatalist=[];
+  List<VechileDetailsbyID> ? allVehicleDetaildatalist=[];
   List<Data>? searchData=[];
   int totalVehicleRecords=0;
 

@@ -71,6 +71,13 @@ import '../model/driver_wise_vehicle_assign/driver_wise_drivercode.dart';
 import '../model/driver_wise_vehicle_assign/driver_wise_vehicle_assign.dart';
 import '../model/driver_wise_vehicle_assign/driver_wise_vehicle_filter.dart';
 import '../model/driver_wise_vehicle_assign/search_driver_vehicle_assign.dart';
+import '../model/getgeofence/getroute_name_list.dart';
+import '../model/getgeofence/routes_detail_routename.dart';
+import '../model/point_of_interest/create_point_of_interest.dart';
+import '../model/point_of_interest/dropdown_point_of_interest.dart';
+import '../model/point_of_interest/poi_post.dart';
+import '../model/point_of_interest/poi_type.dart';
+import '../model/point_of_interest/search_point_of_interest.dart';
 import '../model/report/date_and_timewise_search.dart';
 import '../model/report/date_and_timewise_travel.dart';
 import '../model/report/device_master_filter.dart';
@@ -1951,7 +1958,7 @@ class SearchGeofenceCreateErrorState extends MainState {
   List<Object> get props => throw UnimplementedError();
 }
 
-//add geofence-----------------------------------------------
+//!add geofence-----------------------------------------------
 
 class AddGeofenceLoadingState extends MainState {
   AddGeofenceLoadingState();
@@ -3423,6 +3430,205 @@ class OverSpeedFilterLoadedState extends MainState {
 class OverSpeedFilterErorrState extends MainState {
   String msg;
   OverSpeedFilterErorrState({required this.msg});
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+//! PointOfInterest ------Only create State------------
+class PointOfInterestCreateLoadingState extends MainState {
+  List<Object> get props => throw UnimplementedError();
+}
+
+class PointOfInterestCreateLoadedState extends MainState {
+  CreatePointOfInterest createPointOfInterest;
+
+  PointOfInterestCreateLoadedState({required this.createPointOfInterest});
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+
+class PointOfInterestCreateErrorState extends MainState {
+  String msg;
+  PointOfInterestCreateErrorState({required this.msg});
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+
+//! PointOfInterest ------Only All State------------
+class PointOfInterestFilterLoadingState extends MainState {
+  List<Object> get props => throw UnimplementedError();
+}
+
+class PointOfInterestFilterLoadedState extends MainState {
+  DistanceSummaryFilter DistanceSummaryFilterResponse;
+  PointOfInterestFilterLoadedState(
+      {required this.DistanceSummaryFilterResponse});
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+
+class PointOfInterestFilterErrorState extends MainState {
+  String msg;
+  PointOfInterestFilterErrorState({required this.msg});
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+
+//! Point of Interest ------Only Search State------------
+class SearchPointOfInterestLoadingState extends MainState {
+  List<Object> get props => throw UnimplementedError();
+}
+
+class SearchPointOfInterestLoadedState extends MainState {
+  SearchPointOfInterest searchPointOfInterest;
+  SearchPointOfInterestLoadedState({required this.searchPointOfInterest});
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+
+class SearchPointOfInterestErrorState extends MainState {
+  String msg;
+  SearchPointOfInterestErrorState({required this.msg});
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+
+//end of searching of Point of Interest
+//! PointOfInterest DropdownDetail-------------------
+class PointofInterestDropdownLoadingState extends MainState {
+  List<Object> get props => throw UnimplementedError();
+}
+
+class PointofInterestDropdownLoadedState extends MainState {
+  DropdownPointofInterest dropdownPointOfInterest;
+  PointofInterestDropdownLoadedState({required this.dropdownPointOfInterest});
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+
+class PointofInterestDropdownErrorState extends MainState {
+  String msg;
+  PointofInterestDropdownErrorState({required this.msg});
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+
+//! POI type code--------------------
+class POITypeLoadingState extends MainState {
+  List<Object> get props => throw UnimplementedError();
+}
+
+class POITypeLoadedState extends MainState {
+  POITypeCode poitypelist;
+  POITypeLoadedState({
+    required this.poitypelist,
+  });
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+
+class POITypeErrorState extends MainState {
+  String msg;
+  POITypeErrorState({required this.msg});
+
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+
+//! POI post states-------------------
+class POIPostLoadingState extends MainState {
+  List<Object> get props => throw UnimplementedError();
+}
+
+class POIPostLoadedState extends MainState {
+  POIPost poipost;
+  POIPostLoadedState({
+    required this.poipost,
+  });
+    @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+class POIPostErrorState extends MainState {
+  String msg;
+  POIPostErrorState ({required this.msg});
+
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+//! POI Delete data --------------------------
+class POIDeleteLoadingState extends MainState {
+  List<Object> get props => throw UnimplementedError();
+}
+
+class POIDeleteLoadedState extends MainState {
+ EditDeviceResponse editDeviceResponse;
+  POIDeleteLoadedState({required this.editDeviceResponse});
+    @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+class POIDeleteErrorState extends MainState {
+  String msg;
+  POIDeleteErrorState ({required this.msg});
+
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+class RouteNameListLoadingState extends MainState {
+  List<Object> get props => throw UnimplementedError();
+}
+
+class RouteNameListLoadedState extends MainState {
+  RouteNameList routenamelist;
+  RouteNameListLoadedState({
+    required this.routenamelist,
+  });
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+
+class RouteNameListErorrState extends MainState {
+  String msg;
+  RouteNameListErorrState({required this.msg});
+
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+
+//! GetRoutesDetailByRoutesname-------------
+class GetRoutesDetailLoadingState extends MainState {
+  List<Object> get props => throw UnimplementedError();
+}
+
+class GetRoutesDetailLoadedState extends MainState {
+  RoutesDetailByRouteName routenamelist;
+  GetRoutesDetailLoadedState({
+    required this.routenamelist,
+  });
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+
+class GetRoutesDetailErrorState extends MainState {
+  String msg;
+  GetRoutesDetailErrorState({required this.msg});
+
   @override
   // TODO: implement props
   List<Object> get props => throw UnimplementedError();

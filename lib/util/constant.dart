@@ -307,5 +307,17 @@ class Constant {
       'VehicleStatusSummaryReport/SearchVehicleStatusSummaryReport?VendorId=';
 
   //  https://vtsgpsapi.m-techinnovations.com/api/FramePacketGridviewReport/FillFramePacket?ARAI_NONARAI=arai
+   static String getPointOfInterstCreateUrl =
+      baseUrl + 'PointOfInterestCreate/GetPointofInterestDetails';
+
+  // '${baseUrl}/PointOfInterestCreate/GetPointofInterestDetails';
+
+  static String searchStrPointOfInterstCreateUrl =
+      baseUrl + 'PointOfInterestCreate';
+
+  static String getPOITypeUrl =
+      baseUrl + 'PointOfInterestCreate/GETPOITypeDetails';
+  static String routesdetailbyname =
+      baseUrl + 'RouteDefine/GetRoutesDetailsByRouteName';
 
 }

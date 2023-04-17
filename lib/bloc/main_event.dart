@@ -1024,7 +1024,7 @@ class AddGeofenceEvents extends MainEvent {
   String rectanglekilometer;
   String rectanglemiles;
   String address;
-  String vehicleid;
+  int vehicleid;
 
   AddGeofenceEvents({
     required this.token,
@@ -2378,3 +2378,118 @@ class FramePacketOptionGridEvent extends MainEvent {
     required this.arai,
   });
 }
+//! PointOfInterest Get  Event-------------------------
+class GetPointOfInterestEvent extends MainEvent {
+  String token;
+  int vendorid;
+  int branchid;
+  int pagesize;
+  int pagenumber;
+
+  GetPointOfInterestEvent(
+      {required this.token,
+      required this.vendorid,
+      required this.branchid,
+      required this.pagesize,
+      required this.pagenumber});
+}
+//End of PointOfInterest get Event
+
+//! PointOfInterest Search  Event-------------------------
+class SearchPointOfInterestEvent extends MainEvent {
+  String token;
+  int vendorid;
+  int branchid;
+  String searchStr;
+
+  SearchPointOfInterestEvent({
+    required this.token,
+    required this.vendorid,
+    required this.branchid,
+    required this.searchStr,
+  });
+}
+//!End of PointOfInterest search Event
+//! POI type event------------------
+class Poitype extends MainEvent {
+  String token;
+  Poitype({
+    required this.token,
+  });
+}
+
+//! POI post data to server event------------------------------
+class PoiPostdata extends MainEvent {
+  String token;
+  int vendorid;
+  int branchid;
+  String poiname;
+  int poitypeID;
+  String description;
+  int tolerance;
+  String locationlatitude;
+  String locationlongitude;
+  String showpoi;
+  String address;
+  int vehicleid;
+  PoiPostdata({
+    required this.token,
+    required this.vendorid,
+    required this.branchid,
+    required this.poiname,
+    required this.poitypeID,
+    required this.description,
+    required this.tolerance,
+    required this.locationlatitude,
+    required this.locationlongitude,
+    required this.showpoi,
+    required this.address,
+    required this.vehicleid,
+  });
+}
+
+//! POI for delete data-----------------
+class POIDeletedata extends MainEvent {
+  String token;
+  int vendorid;
+  int branchid;
+  int srno;
+  POIDeletedata({
+    required this.token,
+    required this.vendorid,
+    required this.branchid,
+    required this.srno,
+  });
+}
+class DropdownPointOfInterestEvent extends MainEvent {
+  String token;
+  DropdownPointOfInterestEvent({
+    required this.token,
+  });
+}
+//! Route data--------------------->
+class GettingRouteGGR extends MainEvent {
+  String token;
+  int vendorid;
+  int branchid;
+  GettingRouteGGR({
+    required this.token,
+    required this.vendorid,
+    required this.branchid,
+  });
+}
+
+class RoutesDetailByRoutesNameEvents extends MainEvent {
+  String token;
+  int vendorid;
+  int branchid;
+  String routename;
+  RoutesDetailByRoutesNameEvents({
+    required this.token,
+    required this.vendorid,
+    required this.branchid,
+    required this.routename,
+  });
+}
+
+

@@ -32,7 +32,7 @@ class AllVehicleDetailResponse {
   int? totalRecords;
   dynamic ?nextPage;
   String? previousPage;
-  List<Datum> ?data;
+  List<VechileDetailsbyID> ?data;
   bool ?succeeded;
   dynamic ?errors;
   dynamic ? message;
@@ -46,7 +46,7 @@ class AllVehicleDetailResponse {
     totalRecords:  json["totalRecords"]==null ? null :json["totalRecords"],
     nextPage: json["nextPage"]==null ? null : json["nextPage"],
     previousPage:  json["previousPage"]==null ? null :json["previousPage"],
-    data: json["data"]==null ? null : List<Datum>.from(json["data"].map((x) => Datum.fromJson(x))),
+    data: json["data"]==null ? null : List<VechileDetailsbyID>.from(json["data"].map((x) => VechileDetailsbyID.fromJson(x))),
     succeeded:  json["succeeded"]==null ? null :json["succeeded"],
     errors:  json["errors"]==null ? null :json["errors"],
     message:  json["message"]==null ? null :json["message"],
@@ -68,8 +68,8 @@ class AllVehicleDetailResponse {
   };
 }
 
-class Datum {
-  Datum({
+class VechileDetailsbyID {
+  VechileDetailsbyID({
     this.vsrNo,
     this.vendorSrNo,
     this.branchSrNo,
@@ -117,7 +117,7 @@ class Datum {
   DateTime ?acDate;
   String? modifiedBy;
 
-  factory Datum.fromJson(Map<String, dynamic> json) => Datum(
+  factory VechileDetailsbyID.fromJson(Map<String, dynamic> json) => VechileDetailsbyID(
     vsrNo:json["vsrNo"]==null ? null : json["vsrNo"],
     vendorSrNo: json["vendorSrNo"]==null ? null :json["vendorSrNo"],
     branchSrNo: json["branchSrNo"]==null ? null :json["branchSrNo"],
