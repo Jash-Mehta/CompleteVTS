@@ -165,7 +165,7 @@ class _GettingRouteDetailState extends State<GettingRouteDetail> {
                         border: Border.all(width: 1.0, color: Colors.grey),
                         borderRadius: BorderRadius.circular(10.0)),
                     child: ListTile(
-                      leading: Text(routeselect ?? "All"),
+                      leading: Text(routeselect ?? "--select--"),
                       trailing: Padding(
                         padding: const EdgeInsets.only(bottom: 10.0),
                         child: Icon(Icons.keyboard_arrow_down),
@@ -216,21 +216,23 @@ class _GettingRouteDetailState extends State<GettingRouteDetail> {
                       )
                     : SizedBox(),
                 SizedBox(
-                  height: 10.0,
+                  height: 20.0,
                 ),
                 Center(
-                    child: ElevatedButton(
-                        onPressed: () async {
-                          _isloading = true;
-                          setState(() {});
-                          if (routeselect == null) {
-                            final snackBar = SnackBar(
-                              content: const Text("Select Route"),
-                            );
-                            ScaffoldMessenger.of(context)
-                                .showSnackBar(snackBar);
-                          }
-
+                    child: SizedBox(
+                  width: 130.0,
+                  child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Color.fromARGB(255, 3, 7, 247)),
+                      onPressed: () async {
+                        _isloading = true;
+                        setState(() {});
+                        if (routeselect == null) {
+                          final snackBar = SnackBar(
+                            content: const Text("Select Route"),
+                          );
+                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                        } else {
                           Future.delayed(
                               Duration(
                                 seconds: 8,
@@ -257,8 +259,37 @@ class _GettingRouteDetailState extends State<GettingRouteDetail> {
                                           ),
                                         )));
                           });
-                        },
-                        child: Text("Get Route")))
+                        }
+
+                        Future.delayed(
+                            Duration(
+                              seconds: 8,
+                            ), () {
+                          _isloading = false;
+                          setState(() {});
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => BlocProvider(
+                                        create: (context) {
+                                          return MainBloc(
+                                              webService: WebService());
+                                        },
+                                        child: VTSGeofenceMap(
+                                          fromlatitude: fromlatitude!,
+                                          fromlongitude: fromlongitude!,
+                                          tolatitude: tolatitude!,
+                                          tolongitude: tolongitude!,
+                                          coordinatesList: coordinatesList,
+                                          // coordinatesList: coordinatesList,
+                                          // midlatitude: midlat1,
+                                          // midlongatitude: midlat2,
+                                        ),
+                                      )));
+                        });
+                      },
+                      child: Text("Get Route")),
+                ))
               ],
             )),
       ),
@@ -281,7 +312,7 @@ class _GettingRouteDetailState extends State<GettingRouteDetail> {
 //!------------------------
     List<Location> tolocations = await locationFromAddress(routetoaddress
             .toString() ??
-         "Dange Chowk Rd, Hinjawadi Village, Hinjawadi, Pimpri-Chinchwad, Maharashtra 411057, India");
+        "Dange Chowk Rd, Hinjawadi Village, Hinjawadi, Pimpri-Chinchwad, Maharashtra 411057, India");
     // tolocations.clear();
 
     Location tolocation = tolocations[0];

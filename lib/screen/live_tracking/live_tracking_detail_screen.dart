@@ -23,9 +23,19 @@ import 'package:fluttertoast/fluttertoast.dart';
 class LiveTrackingDetailsScreen extends StatefulWidget {
   int transactionId;
   String araiNonarai;
-  LiveTrackingDetailsScreen(
-      {Key? key, required this.transactionId, required this.araiNonarai})
-      : super(key: key);
+  // double start_point_latitude;
+  // double start_point_longitude;
+  // double end_point_latitude;
+  // double end_point_longitude;
+  LiveTrackingDetailsScreen({
+    Key? key,
+    required this.transactionId,
+    required this.araiNonarai,
+    // required this.start_point_latitude,
+    // required this.start_point_longitude,
+    // required this.end_point_latitude,
+    // required this.end_point_longitude
+  }) : super(key: key);
 
   @override
   _LiveTrackingDetailsScreenState createState() =>
@@ -37,7 +47,7 @@ class _LiveTrackingDetailsScreenState extends State<LiveTrackingDetailsScreen> {
   double _lat = 18.5204;
   double _lng = 73.8567;
   late CameraPosition currentPosition;
-
+  late Timer timer;
   SolidController _controller = SolidController();
   bool toggleIcon = true;
   final Set<Marker> _marker = {};
@@ -54,10 +64,11 @@ class _LiveTrackingDetailsScreenState extends State<LiveTrackingDetailsScreen> {
   late String userName = "";
   late String vendorName = "", branchName = "", userType = "";
   late int branchid = 0, vendorid = 0;
-  late Timer timer;
   Map<PolylineId, Polyline> polylines = {};
   PolylinePoints polylinePoints = PolylinePoints();
   Completer<GoogleMapController> googleMapController = Completer();
+  double? livelat;
+  double? livlong;
   late bool isPlayClick = false;
   late List<LiveTrackingByIdResponse> liveTrackingByIdRespons = [];
   List<String> speedList = [
@@ -80,11 +91,16 @@ class _LiveTrackingDetailsScreenState extends State<LiveTrackingDetailsScreen> {
     super.initState();
     _mainBloc = BlocProvider.of(context);
 
-    currentPosition = CameraPosition(
-      target: LatLng(_lat, _lng),
-      zoom: 8,
-    );
     getdata();
+    timer = Timer.periodic(
+        Duration(seconds: 10), (Timer t) => getlivetackingByIdDetail());
+    print("We have call your getdata each and everytime 10 sec ");
+  }
+
+  @override
+  void dispose() {
+    timer.cancel();
+    super.dispose();
   }
 
   @override
@@ -1042,109 +1058,116 @@ class _LiveTrackingDetailsScreenState extends State<LiveTrackingDetailsScreen> {
   }
 
   _livetracking() {
-    return LoadingOverlay(
-      isLoading: _isLoading,
-      opacity: 0.5,
-      color: Colors.white,
-      progressIndicator: const CircularProgressIndicator(
-        backgroundColor: MyColors.appDefaultColorCode,
-        valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
-      ),
-      child: BlocListener<MainBloc, MainState>(
-        listener: (context, state) {
-          if (state is LiveTrackingByIdLoadingState) {
-            setState(() {
-              _isLoading = true;
-            });
-          } else if (state is LiveTrackingByIdLoadedState) {
-            setState(() {
-              _isLoading = false;
-            });
-            setState(() {
-              liveTrackingByIdRespons.addAll(state.liveTrackingByIdResponse);
-              showLocation = LatLng(
-                  double.parse(state.liveTrackingByIdResponse[0].latitude!),
-                  double.parse(state.liveTrackingByIdResponse[0].longitude!));
-            });
+    return BlocListener<MainBloc, MainState>(
+      listener: (context, state) {
+        if (state is LiveTrackingByIdLoadingState) {
+        } else if (state is LiveTrackingByIdLoadedState) {
+          setState(() {
+            liveTrackingByIdRespons.addAll(state.liveTrackingByIdResponse);
+          });
 
-            if (liveTrackingByIdRespons.length != 0) {
-              getmarkers();
-            } else {
-              Fluttertoast.showToast(
-                toastLength: Toast.LENGTH_SHORT,
-                timeInSecForIosWeb: 1,
-                msg: "Record not found for given input ...!",
-              );
-            }
-          } else if (state is LiveTrackingByIdErrorState) {
+          showLocation = LatLng(
+              double.parse(state.liveTrackingByIdResponse[0].latitude!),
+              double.parse(state.liveTrackingByIdResponse[0].longitude!));
+
+          if (liveTrackingByIdRespons.length != 0) {
             setState(() {
-              _isLoading = false;
+              livelat =
+                  double.parse(state.liveTrackingByIdResponse[0].latitude!);
+              livlong =
+                  double.parse(state.liveTrackingByIdResponse[0].longitude!);
+
+              mapController.animateCamera(CameraUpdate.newCameraPosition(
+                  CameraPosition(
+                      target: LatLng(livelat!, livlong!), zoom: 17)));
             });
-          } else if (state is StartLocationLoadingState) {
-            setState(() {
-              _isLoading = true;
-            });
-          } else if (state is StartLocationLoadedState) {
-            setState(() {
-              _isLoading = false;
-            });
-          } else if (state is StartLocationErrorState) {
-            setState(() {
-              _isLoading = false;
-            });
-          } else if (state is NextLocationLoadingState) {
-            setState(() {
-              _isLoading = true;
-            });
-          } else if (state is NextLocationLoadedState) {
-            setState(() {
-              _isLoading = false;
-            });
-          } else if (state is NextLocationErrorState) {
-            setState(() {
-              _isLoading = false;
-            });
+            getmarkers(livelat!, livlong!);
+          } else {
+            Fluttertoast.showToast(
+              toastLength: Toast.LENGTH_SHORT,
+              timeInSecForIosWeb: 1,
+              msg: "Record not found for given input ...!",
+            );
           }
-        },
-        child: Container(
-          height: double.infinity,
-          width: double.infinity,
-          child: GoogleMap(
-            initialCameraPosition: currentPosition,
-            markers: getmarkers(),
-            /*{
-                  Marker(
-                    markerId: MarkerId('current'),
-                    position: LatLng(_lat, _lng),
-                  )
-                },*/
-            onMapCreated: (GoogleMapController controller) {
-              controller1.complete(controller);
-            },
-          ),
+        } else if (state is LiveTrackingByIdErrorState) {
+          setState(() {});
+        } else if (state is StartLocationLoadingState) {
+          setState(() {
+            _isLoading = true;
+          });
+        } else if (state is StartLocationLoadedState) {
+          setState(() {
+            _isLoading = false;
+          });
+        } else if (state is StartLocationErrorState) {
+          setState(() {
+            _isLoading = false;
+          });
+        } else if (state is NextLocationLoadingState) {
+          setState(() {
+            _isLoading = true;
+          });
+        } else if (state is NextLocationLoadedState) {
+          setState(() {
+            _isLoading = false;
+          });
+        } else if (state is NextLocationErrorState) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      },
+      child: SizedBox(
+        height: double.infinity,
+        width: double.infinity,
+        child: GoogleMap(
+          initialCameraPosition:
+              CameraPosition(target: LatLng(18.6298, 73.7997)),
+          markers: _marker,
+          /*{
+                Marker(
+                  markerId: MarkerId('current'),
+                  position: LatLng(_lat, _lng),
+                )
+              },*/
+          onMapCreated: (GoogleMapController controller) {
+            setState(() {
+              mapController = controller;
+            });
+          },
         ),
       ),
     );
   }
 
-  Set<Marker> getmarkers() {
+  Set<Marker> getmarkers(double livelat, double livlong) {
     //markers to place on map
-    setState(() {
+
+    setState(() async {
       if (liveTrackingByIdRespons.length != 0) {
         _marker.add(Marker(
           //add second marker
           markerId: MarkerId(showLocation.toString()),
-          position: LatLng(
-              double.parse(liveTrackingByIdRespons[0].latitude!),
-              double.parse(liveTrackingByIdRespons[0]
-                  .longitude!) /*27.7099116, 85.3132343*/ /*18.6298, 73.7997*/), //position of marker
+          position: LatLng(livelat,
+              livlong /*27.7099116, 85.3132343*/ /*18.6298, 73.7997*/), //position of marker
           infoWindow: InfoWindow(
             //popup info
             title: liveTrackingByIdRespons[0].driverName,
             snippet: liveTrackingByIdRespons[0].vehicleRegNo,
           ),
-          icon: BitmapDescriptor.defaultMarker, //Icon for Marker
+          icon: await BitmapDescriptor.fromAssetImage(
+              const ImageConfiguration(
+                  devicePixelRatio: 1.0, size: Size(10, 10)),
+              liveTrackingByIdRespons[0].vehicleStatus == 'Stop'
+                  ? 'assets/stop_car.png'
+                  : liveTrackingByIdRespons[0].vehicleStatus == 'Running'
+                      ? 'assets/running_car.png'
+                      : liveTrackingByIdRespons[0].vehicleStatus == 'Idle'
+                          ? 'assets/idle_car.png'
+                          : 'assets/inactive_car.png'), //Icon for Marker
         ));
+        mapController.animateCamera(CameraUpdate.newCameraPosition(
+            CameraPosition(target: LatLng(livelat, livlong), zoom: 17)));
       }
     });
     return _marker;

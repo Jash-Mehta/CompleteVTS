@@ -6,28 +6,34 @@ import 'package:flutter_vts/model/travel_summary/travel_summary_search.dart';
 import 'package:flutter_vts/util/MyColor.dart';
 import 'package:flutter_vts/util/custom_app_bar.dart';
 import 'package:flutter_vts/util/menu_drawer.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../bloc/main_bloc.dart';
 import '../../model/travel_summary/travel_summary_filter.dart';
+import 'package:loading_overlay/loading_overlay.dart';
 
 class VehicleExpiryScreen2 extends StatefulWidget {
   @override
-  _VehicleExpiryScreen22State createState() => _VehicleExpiryScreen22State();
+  _VehicleExpiryScreen2State createState() => _VehicleExpiryScreen2State();
 }
 
-class _VehicleExpiryScreen22State extends State<VehicleExpiryScreen2> {
+class _VehicleExpiryScreen2State extends State<VehicleExpiryScreen2> {
   ScrollController notificationController = new ScrollController();
+  ScrollController vendorRecordController = new ScrollController();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   bool isSelected = false;
   bool isvalue = false;
+  bool isData = false;
+  late bool _isLoading = false;
   final controller = ScrollController();
   late String token = "";
   late MainBloc _mainBloc;
   late SharedPreferences sharedPreferences;
   TextEditingController searhcontroller = new TextEditingController();
   late int value = 0;
+  late int searchvalue = 0;
   var fromDateController,
       toDateController,
       fromTimeController,
@@ -37,6 +43,10 @@ class _VehicleExpiryScreen22State extends State<VehicleExpiryScreen2> {
   int branchid = 1;
   int pagenumber = 1;
   int pagesize = 10;
+  TextEditingController fromdateInput = TextEditingController();
+  TextEditingController todateInput = TextEditingController();
+  TextEditingController fromTimeInput = TextEditingController();
+  TextEditingController toTimrInput = TextEditingController();
   String fromdate = "01-sep-2022";
   String arainonari = "arai";
   String todate = "30-sep-2022";
@@ -53,15 +63,18 @@ class _VehicleExpiryScreen22State extends State<VehicleExpiryScreen2> {
   @override
   void initState() {
     super.initState();
+
     getdata();
     setState(() {
       isvalue = false;
     });
-    controller.addListener(() {
-      if (controller.position.maxScrollExtent == controller.offset) {
+    notificationController.addListener(() {
+      if (notificationController.position.maxScrollExtent ==
+          notificationController.offset) {
         setState(() {
           print("Scroll ${pagenumber}");
           getallbranch();
+          isSelected ? getsearch() : null;
         });
       }
     });
@@ -96,6 +109,21 @@ class _VehicleExpiryScreen22State extends State<VehicleExpiryScreen2> {
         vendorid: vendorid));
   }
 
+  getsearch() {
+    _mainBloc.add(TravelSummarySearchEvent(
+        token: token,
+        vendorid: vendorid,
+        branchid: branchid,
+        arainonarai: arainonari,
+        searchtext: searhcontroller.text,
+        fromdata: fromDateController ?? fromdate,
+        fromtime: fromTimeController ?? fromtime,
+        todate: toDateController ?? todate,
+        totime: toTimeController ?? searchtotime,
+        pagesize: pagesize,
+        pagenumber: pagenumber));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -107,577 +135,686 @@ class _VehicleExpiryScreen22State extends State<VehicleExpiryScreen2> {
   }
 
   _vehicleStatus() {
-    return BlocListener<MainBloc, MainState>(
-      listener: (context, state) {
-        //! FilterEvent TravelSummarydata fetching Start from here----------------
-        if (state is TravelSummaryFilterLoadingState) {
-          const Center(
-            child: CircularProgressIndicator(),
-          );
-        } else if (state is TravelSummaryFilterLoadedState) {
-          if (state.travelSummaryFilterResponse.datewise != null) {
-            print("Filter data is printed!!");
-            filterdata!.addAll(state.travelSummaryFilterResponse.datewise!);
-          } else {
-            print("Something went worong in Filter data");
-          }
-        } else if (state is TravelSummaryFilterErrorState) {
-          print("Something went Wrong Filter data");
-        }
-        //! SearchEvent TravelSummarydata fetching Start from here----------------
-        if (state is TravelSummarySearchLoadingState) {
-          const Center(
-            child: CircularProgressIndicator(),
-          );
-        } else if (state is TravelSummarySearchLoadedState) {
-          if (state.travelSummaryResponse.datewise != null) {
-            print("Search data is printed!!");
-            searchdata!.addAll(state.travelSummaryResponse.datewise!);
-          } else {
-            print("Something is going wrong in Search data");
-          }
-        } else if (state is TravelSummaryErrorState) {
-          print("Something went Wrong search data");
-        }
-
-        //! All TravelSummarydata fetching Start from here----------------
-        if (state is TravelSummaryReportLoadingState) {
-          const Center(child: Text("Loading..."));
-        } else if (state is TravelSummaryReportLoadedState) {
-          setState(() {
-            if (state.TravelSummaryResponse.datewise != null) {
-              print("All travel Summary data is printed!!");
-              traveldata!.addAll(state.TravelSummaryResponse.datewise!);
-            } else {
-              print("Something is going wrong");
+    return LoadingOverlay(
+      isLoading: _isLoading,
+      opacity: 0.5,
+      color: Colors.white,
+      progressIndicator: CircularProgressIndicator(
+        backgroundColor: Color(0xFFCE4A6F),
+        valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+      ),
+      child: BlocListener<MainBloc, MainState>(
+        listener: (context, state) {
+          //! FilterEvent TravelSummarydata fetching Start from here----------------
+          if (state is TravelSummaryFilterLoadingState) {
+            setState(() {
+              _isLoading = true;
+            });
+          } else if (state is TravelSummaryFilterLoadedState) {
+            if (state.travelSummaryFilterResponse.datewise != null) {
+              print("Filter data is printed!!");
+              setState(() {
+                isData = false;
+                // pagenumber++;
+                filterdata!.clear();
+                filterdata!.addAll(state.travelSummaryFilterResponse.datewise!);
+              });
             }
-          });
-        } else if (state is TravelSummaryErrorState) {
-          print("Something went Wrong");
-        }
-      },
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.only(
-                  left: 10, right: 10, top: 10, bottom: 10),
-              decoration: const BoxDecoration(
-                  color: MyColors.lightgreyColorCode,
-                  boxShadow: [
-                    BoxShadow(
-                        blurRadius: 2, color: MyColors.shadowGreyColorCode)
-                  ]),
-              // width: MediaQuery.of(context).size.width,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    children: [
-                      Text(isvalue ? fromDateController.toString() : fromdate),
-                      Text(isvalue ? fromTimeController.toString() : fromtime),
-                    ],
-                  ),
-                  const Text("-"),
-                  Column(
-                    children: [
-                      Text(isvalue ? toDateController.toString() : todate),
-                      Text(isvalue ? toTimeController.toString() : totime),
-                    ],
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      changeDatepopUp(context);
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.only(
-                          left: 20, right: 20, top: 10, bottom: 10),
-                      decoration: const BoxDecoration(
-                          color: MyColors.greyColorCode,
-                          borderRadius: BorderRadius.all(Radius.circular(20))),
-                      child: const Text(
-                        "Change",
-                        style: TextStyle(
-                            color: MyColors.text4ColorCode, fontSize: 18),
-                      ),
+          } else if (state is TravelSummaryFilterErrorState) {
+            setState(() {
+              _isLoading = false;
+            });
+            print("Something went Wrong Filter data");
+          }
+          //! SearchEvent TravelSummarydata fetching Start from here----------------
+          if (state is TravelSummarySearchLoadingState) {
+            setState(() {
+              _isLoading = true;
+            });
+          } else if (state is TravelSummarySearchLoadedState) {
+            if (state.travelSummaryResponse.datewise != null) {
+              print("Search data is printed!!");
+              setState(() {
+                _isLoading = false;
+                pagenumber++;
+                searchvalue = state.travelSummaryResponse.totalRecords!;
+              });
+              searchdata!.addAll(state.travelSummaryResponse.datewise!);
+            }
+          } else if (state is TravelSummaryErrorState) {
+            print("Something went Wrong search data");
+            setState(() {
+              _isLoading = false;
+            });
+          }
+          //! All TravelSummarydata fetching Start from here----------------
+          if (state is TravelSummaryReportLoadingState) {
+            setState(() {
+              _isLoading = true;
+            });
+          } else if (state is TravelSummaryReportLoadedState) {
+            setState(() {
+              if (state.TravelSummaryResponse.datewise != null) {
+                print("All travel Summary data is printed!!");
+                setState(() {
+                  _isLoading = false;
+                  pagenumber++;
+                  value = state.TravelSummaryResponse.totalRecords!;
+                });
+                traveldata!.addAll(state.TravelSummaryResponse.datewise!);
+              } else {
+                print("Something is going wrong");
+              }
+            });
+          } else if (state is TravelSummaryErrorState) {
+            print("Something went Wrong");
+            setState(() {
+              _isLoading = false;
+            });
+          }
+        },
+        child: SingleChildScrollView(
+          controller: notificationController,
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.only(
+                    left: 10, right: 10, top: 10, bottom: 10),
+                decoration: const BoxDecoration(
+                    color: MyColors.lightgreyColorCode,
+                    boxShadow: [
+                      BoxShadow(
+                          blurRadius: 2, color: MyColors.shadowGreyColorCode)
+                    ]),
+                // width: MediaQuery.of(context).size.width,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      children: [
+                        Text(
+                            isvalue ? fromDateController.toString() : fromdate),
+                        Text(
+                            isvalue ? fromTimeController.toString() : fromtime),
+                      ],
                     ),
-                  )
-                ],
+                    const Text("-"),
+                    Column(
+                      children: [
+                        Text(isvalue ? toDateController.toString() : todate),
+                        Text(isvalue ? toTimeController.toString() : totime),
+                      ],
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        changeDatepopUp(context);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.only(
+                            left: 20, right: 20, top: 10, bottom: 10),
+                        decoration: const BoxDecoration(
+                            color: MyColors.greyColorCode,
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(20))),
+                        child: const Text(
+                          "Change",
+                          style: TextStyle(
+                              color: MyColors.text4ColorCode, fontSize: 18),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(
-                  top: 10.0, left: 15, right: 15, bottom: 10),
-              child: Column(
-                children: [
-                  TextField(
-                    enabled: true,
-                    controller: searhcontroller,
-                    onChanged: onSearchTextChanged,
-                    // to trigger disabledBorder
-                    decoration: const InputDecoration(
-                      filled: true,
-                      fillColor: MyColors.whiteColorCode,
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(4)),
-                        borderSide: BorderSide(
-                            width: 1, color: MyColors.buttonColorCode),
-                      ),
-                      disabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(4)),
-                        borderSide: BorderSide(width: 1, color: Colors.orange),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(4)),
-                        borderSide:
-                            BorderSide(width: 1, color: MyColors.textColorCode),
-                      ),
-                      border: OutlineInputBorder(
+              Padding(
+                padding: const EdgeInsets.only(
+                    top: 10.0, left: 15, right: 15, bottom: 10),
+                child: Column(
+                  children: [
+                    TextField(
+                      enabled: true,
+                      controller: searhcontroller,
+                      onChanged: onSearchTextChanged,
+                      // to trigger disabledBorder
+                      decoration: const InputDecoration(
+                        filled: true,
+                        fillColor: MyColors.whiteColorCode,
+                        focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(4)),
                           borderSide: BorderSide(
-                            width: 1,
-                          )),
-                      errorBorder: OutlineInputBorder(
+                              width: 1, color: MyColors.buttonColorCode),
+                        ),
+                        disabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(4)),
+                          borderSide:
+                              BorderSide(width: 1, color: Colors.orange),
+                        ),
+                        enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(4)),
                           borderSide: BorderSide(
+                              width: 1, color: MyColors.textColorCode),
+                        ),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(4)),
+                            borderSide: BorderSide(
                               width: 1,
-                              color: MyColors.textBoxBorderColorCode)),
-                      focusedErrorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(4)),
-                          borderSide: BorderSide(
-                              width: 2, color: MyColors.buttonColorCode)),
-                      hintText: "Enter Vehicle Number",
-                      prefixIcon: Icon(
-                        Icons.search,
-                        size: 24,
-                        color: Colors.black,
+                            )),
+                        errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(4)),
+                            borderSide: BorderSide(
+                                width: 1,
+                                color: MyColors.textBoxBorderColorCode)),
+                        focusedErrorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(4)),
+                            borderSide: BorderSide(
+                                width: 2, color: MyColors.buttonColorCode)),
+                        hintText: "Enter Vehicle Number",
+                        prefixIcon: Icon(
+                          Icons.search,
+                          size: 24,
+                          color: Colors.black,
+                        ),
+                        hintStyle: TextStyle(
+                            fontSize: 18, color: MyColors.searchTextColorCode),
+                        errorText: "",
                       ),
-                      hintStyle: TextStyle(
-                          fontSize: 18, color: MyColors.searchTextColorCode),
-                      errorText: "",
-                    ),
 
-                    obscureText: false,
-                  ),
-                  isSelected
-                      ? searchdata!.isEmpty
-                          ? Center(child: Text("No data found"))
-                          : SizedBox(
-                              height: MediaQuery.of(context).size.height * 0.7,
-                              width: 350.0,
-                              child: ListView.builder(
-                                controller: notificationController,
-                                itemCount: searchdata!.length,
-                                shrinkWrap: true,
-                                physics: const ScrollPhysics(),
-                                itemBuilder: (BuildContext context, int index) {
-                                  var article = searchdata![index];
-                                  return Card(
-                                    shape: RoundedRectangleBorder(
-                                      side: const BorderSide(
-                                          width: 1,
-                                          color:
-                                              MyColors.textBoxBorderColorCode),
-                                      borderRadius: BorderRadius.circular(10.0),
-                                    ),
-                                    child: Container(
-                                      padding: const EdgeInsets.only(
-                                          top: 10,
-                                          left: 14,
-                                          right: 14,
-                                          bottom: 10),
-                                      width: MediaQuery.of(context).size.width,
-                                      decoration: const BoxDecoration(
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(10)),
-                                      ),
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Container(
-                                                padding: EdgeInsets.all(10),
-                                                decoration: BoxDecoration(
-                                                  color:
-                                                      MyColors.whiteColorCode,
-                                                  border: Border.all(
-                                                      color: MyColors
-                                                          .boxBackgroundColorCode),
-                                                  borderRadius:
-                                                      const BorderRadius.all(
-                                                          Radius.circular(10)),
-                                                ),
-                                                child: Image.asset(
-                                                  "assets/driving_pin.png",
-                                                  width: 40,
-                                                  height: 40,
-                                                ),
+                      obscureText: false,
+                    ),
+                    isSelected
+                        ? searchdata!.isEmpty
+                            ? Center(
+                                child: Text("No data Found"),
+                              )
+                            : _isLoading
+                                ? Center(
+                                    child: Text("Please wait for data"),
+                                  )
+                                : SizedBox(
+                                    height: MediaQuery.of(context).size.height *
+                                        0.7,
+                                    width: 350.0,
+                                    child: BlocBuilder<MainBloc, MainState>(
+                                        builder: (context, state) {
+                                      return ListView.builder(
+                                        controller: vendorRecordController,
+                                        itemCount: searchdata!.length,
+                                        shrinkWrap: true,
+                                        physics: const ScrollPhysics(),
+                                        itemBuilder:
+                                            (BuildContext context, int index) {
+                                          var article = searchdata![index];
+                                          return Card(
+                                            shape: RoundedRectangleBorder(
+                                              side: const BorderSide(
+                                                  width: 1,
+                                                  color: MyColors
+                                                      .textBoxBorderColorCode),
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0),
+                                            ),
+                                            child: Container(
+                                              padding: const EdgeInsets.only(
+                                                  top: 10,
+                                                  left: 14,
+                                                  right: 14,
+                                                  bottom: 10),
+                                              width: MediaQuery.of(context)
+                                                  .size
+                                                  .width,
+                                              decoration: const BoxDecoration(
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(10)),
                                               ),
-                                              Expanded(
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          left: 10.0),
-                                                  child: Column(
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Row(
                                                     mainAxisAlignment:
                                                         MainAxisAlignment.start,
                                                     crossAxisAlignment:
                                                         CrossAxisAlignment
                                                             .start,
+                                                    // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                     children: [
-                                                      Text(
-                                                        article.vehicleregNo
-                                                            .toString(),
-                                                        style: const TextStyle(
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                            fontSize: 20),
-                                                      ),
-                                                      Text(
-                                                        article.imei.toString(),
-                                                        style: const TextStyle(
-                                                            fontSize: 16,
+                                                      Container(
+                                                          padding:
+                                                              EdgeInsets.all(
+                                                                  10),
+                                                          decoration:
+                                                              BoxDecoration(
                                                             color: MyColors
-                                                                .analyticGreenColorCode),
-                                                      ),
-                                                      Row(
-                                                        children: [
-                                                          const Icon(
-                                                            Icons.circle,
-                                                            color: MyColors
-                                                                .analyticGreenColorCode,
-                                                            size: 7,
+                                                                .whiteColorCode,
+                                                            border: Border.all(
+                                                                color: MyColors
+                                                                    .boxBackgroundColorCode),
+                                                            borderRadius:
+                                                                const BorderRadius
+                                                                        .all(
+                                                                    Radius
+                                                                        .circular(
+                                                                            10)),
                                                           ),
-                                                          Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                        .only(
-                                                                    left: 4.0,
-                                                                    top: 6,
-                                                                    bottom: 6),
-                                                            child: Text(
-                                                              article
-                                                                  .vehicleStatus
-                                                                  .toString(),
-                                                              style: const TextStyle(
-                                                                  color: MyColors
-                                                                      .analyticGreenColorCode,
-                                                                  fontSize: 16),
-                                                            ),
+                                                          child: article
+                                                                      .vehicleStatus ==
+                                                                  "Idle"
+                                                              ? Image.asset(
+                                                                  "assets/idle_car.png")
+                                                              : Image.asset(
+                                                                  "assets/running_car.png")),
+                                                      Expanded(
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .only(
+                                                                  left: 10.0),
+                                                          child: Column(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .start,
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Text(
+                                                                article
+                                                                    .vehicleregNo
+                                                                    .toString(),
+                                                                style: const TextStyle(
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    fontSize:
+                                                                        20),
+                                                              ),
+                                                              Text(
+                                                                article.imei
+                                                                    .toString(),
+                                                                style: const TextStyle(
+                                                                    fontSize:
+                                                                        16,
+                                                                    color: MyColors
+                                                                        .analyticGreenColorCode),
+                                                              ),
+                                                              Row(
+                                                                children: [
+                                                                  const Icon(
+                                                                    Icons
+                                                                        .circle,
+                                                                    color: MyColors
+                                                                        .analyticGreenColorCode,
+                                                                    size: 7,
+                                                                  ),
+                                                                  Padding(
+                                                                    padding: const EdgeInsets
+                                                                            .only(
+                                                                        left:
+                                                                            4.0,
+                                                                        top: 6,
+                                                                        bottom:
+                                                                            6),
+                                                                    child: Text(
+                                                                      article
+                                                                          .vehicleStatus
+                                                                          .toString(),
+                                                                      style: const TextStyle(
+                                                                          color: MyColors
+                                                                              .analyticGreenColorCode,
+                                                                          fontSize:
+                                                                              16),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                              Row(
+                                                                children: [
+                                                                  Container(
+                                                                    padding: const EdgeInsets
+                                                                            .only(
+                                                                        left:
+                                                                            8.0,
+                                                                        right:
+                                                                            8,
+                                                                        top: 8,
+                                                                        bottom:
+                                                                            8),
+                                                                    decoration:
+                                                                        const BoxDecoration(
+                                                                      color: MyColors
+                                                                          .textBoxColorCode,
+                                                                      borderRadius:
+                                                                          BorderRadius.all(
+                                                                              Radius.circular(8)),
+                                                                    ),
+                                                                    child: Text(
+                                                                        article
+                                                                            .tDate
+                                                                            .toString()),
+                                                                  ),
+                                                                  const SizedBox(
+                                                                    width: 2.0,
+                                                                  ),
+                                                                  Container(
+                                                                    padding: const EdgeInsets
+                                                                            .only(
+                                                                        left:
+                                                                            8.0,
+                                                                        right:
+                                                                            8,
+                                                                        top: 8,
+                                                                        bottom:
+                                                                            8),
+                                                                    decoration:
+                                                                        const BoxDecoration(
+                                                                      color: MyColors
+                                                                          .textBoxColorCode,
+                                                                      borderRadius:
+                                                                          BorderRadius.all(
+                                                                              Radius.circular(8)),
+                                                                    ),
+                                                                    child: Text(article
+                                                                        .vehicleStatusTime
+                                                                        .toString()),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ],
                                                           ),
-                                                        ],
-                                                      ),
-                                                      Row(
-                                                        children: [
-                                                          Container(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                        .only(
-                                                                    left: 8.0,
-                                                                    right: 8,
-                                                                    top: 8,
-                                                                    bottom: 8),
-                                                            decoration:
-                                                                const BoxDecoration(
-                                                              color: MyColors
-                                                                  .textBoxColorCode,
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .all(Radius
-                                                                          .circular(
-                                                                              8)),
-                                                            ),
-                                                            child: Text(article
-                                                                .tDate
-                                                                .toString()),
-                                                          ),
-                                                          const SizedBox(
-                                                            width: 2.0,
-                                                          ),
-                                                          Container(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                        .only(
-                                                                    left: 8.0,
-                                                                    right: 8,
-                                                                    top: 8,
-                                                                    bottom: 8),
-                                                            decoration:
-                                                                const BoxDecoration(
-                                                              color: MyColors
-                                                                  .textBoxColorCode,
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .all(Radius
-                                                                          .circular(
-                                                                              8)),
-                                                            ),
-                                                            child: Text(article
-                                                                .vehicleStatusTime
-                                                                .toString()),
-                                                          ),
-                                                        ],
+                                                        ),
                                                       ),
                                                     ],
                                                   ),
-                                                ),
+                                                ],
                                               ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            )
-                      : traveldata!.length == 0
-                          ? Center(child: Text("Loading..."))
-                          : BlocBuilder<MainBloc, MainState>(
-                              builder: (context, state) {
-                                return ListView.builder(
-                                  controller: notificationController,
-                                  shrinkWrap: true,
-                                  itemCount: isvalue
-                                      ? filterdata!.length
-                                      : traveldata!.length,
-                                  itemBuilder: (context, index) {
-                                    // var article = traveldata![index];
-                                    // var filterarticle = filterdata![index];
-                                    return Card(
-                                      shape: RoundedRectangleBorder(
-                                        side: const BorderSide(
-                                            width: 1,
-                                            color: MyColors
-                                                .textBoxBorderColorCode),
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                      ),
-                                      child: Container(
-                                        padding: const EdgeInsets.only(
-                                            top: 10,
-                                            left: 14,
-                                            right: 14,
-                                            bottom: 10),
-                                        width:
-                                            MediaQuery.of(context).size.width,
-                                        decoration: const BoxDecoration(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(10)),
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    }),
+                                  )
+                        : traveldata!.length == 0 || isData
+                            ? Container()
+                            : BlocBuilder<MainBloc, MainState>(
+                                builder: (context, state) {
+                                  return ListView.builder(
+                                    controller: vendorRecordController,
+                                    shrinkWrap: true,
+                                    itemCount: isvalue
+                                        ? filterdata!.length
+                                        : traveldata!.length,
+                                    itemBuilder: (context, index) {
+                                      return Card(
+                                        shape: RoundedRectangleBorder(
+                                          side: const BorderSide(
+                                              width: 1,
+                                              color: MyColors
+                                                  .textBoxBorderColorCode),
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
                                         ),
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                              children: [
-                                                Container(
-                                                  padding: EdgeInsets.all(10),
-                                                  decoration: BoxDecoration(
-                                                    color:
-                                                        MyColors.whiteColorCode,
-                                                    border: Border.all(
-                                                        color: MyColors
-                                                            .boxBackgroundColorCode),
-                                                    borderRadius:
-                                                        const BorderRadius.all(
-                                                            Radius.circular(
-                                                                10)),
+                                        child: Container(
+                                          padding: const EdgeInsets.only(
+                                              top: 10,
+                                              left: 14,
+                                              right: 14,
+                                              bottom: 10),
+                                          width:
+                                              MediaQuery.of(context).size.width,
+                                          decoration: const BoxDecoration(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(10)),
+                                          ),
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  Container(
+                                                    padding: EdgeInsets.all(10),
+                                                    decoration: BoxDecoration(
+                                                      color: MyColors
+                                                          .whiteColorCode,
+                                                      border: Border.all(
+                                                          color: MyColors
+                                                              .boxBackgroundColorCode),
+                                                      borderRadius:
+                                                          const BorderRadius
+                                                                  .all(
+                                                              Radius.circular(
+                                                                  10)),
+                                                    ),
+                                                    child: traveldata![index]
+                                                                .vehicleStatus ==
+                                                            "Idle"
+                                                        ? Image.asset(
+                                                            "assets/idle_truck.png",
+                                                            height: 45.0,
+                                                            width: 45.0,
+                                                          )
+                                                        : traveldata![index]
+                                                                    .vehicleStatus ==
+                                                                "Inactive"
+                                                            ? Image.asset(
+                                                                "assets/inactive_truck.png",
+                                                                height: 45.0,
+                                                                width: 45.0,
+                                                              )
+                                                            : traveldata![index]
+                                                                        .vehicleStatus ==
+                                                                    "Stop"
+                                                                ? Image.asset(
+                                                                    "assets/stopped_truck.png",
+                                                                    height:
+                                                                        45.0,
+                                                                    width: 45.0,
+                                                                  )
+                                                                : traveldata![index]
+                                                                            .vehicleStatus ==
+                                                                        "Overspeed"
+                                                                    ? Image
+                                                                        .asset(
+                                                                        "assets/overspeed_truck.png",
+                                                                        height:
+                                                                            45.0,
+                                                                        width:
+                                                                            45.0,
+                                                                      )
+                                                                    : Image
+                                                                        .asset(
+                                                                        "assets/running_truck.png",
+                                                                        height:
+                                                                            45.0,
+                                                                        width:
+                                                                            45.0,
+                                                                      ),
                                                   ),
-                                                  child: Image.asset(
-                                                    "assets/driving_pin.png",
-                                                    width: 40,
-                                                    height: 40,
-                                                  ),
-                                                ),
-                                                Expanded(
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                            left: 10.0),
-                                                    child: Column(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .start,
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Text(
-                                                          isvalue
-                                                              ? filterdata![
-                                                                      index]
-                                                                  .vehicleregNo
-                                                                  .toString()
-                                                              : traveldata![
-                                                                      index]
-                                                                  .vehicleregNo
-                                                                  .toString(),
-                                                          style:
-                                                              const TextStyle(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  fontSize: 20),
-                                                        ),
-                                                        Text(
-                                                          isvalue
-                                                              ? filterdata![
-                                                                      index]
-                                                                  .imei
-                                                                  .toString()
-                                                              : traveldata![
-                                                                      index]
-                                                                  .imei
-                                                                  .toString(),
-                                                          style: const TextStyle(
-                                                              fontSize: 16,
-                                                              color: MyColors
-                                                                  .analyticGreenColorCode),
-                                                        ),
-                                                        Row(
-                                                          children: [
-                                                            const Icon(
-                                                              Icons.circle,
-                                                              color: MyColors
-                                                                  .analyticGreenColorCode,
-                                                              size: 7,
-                                                            ),
-                                                            Padding(
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                          .only(
-                                                                      left: 4.0,
-                                                                      top: 6,
-                                                                      bottom:
-                                                                          6),
-                                                              child: Text(
-                                                                isvalue
+                                                  Expanded(
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              left: 10.0),
+                                                      child: Column(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .start,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Text(
+                                                            isvalue
+                                                                ? filterdata![
+                                                                        index]
+                                                                    .vehicleregNo
+                                                                    .toString()
+                                                                : traveldata![
+                                                                        index]
+                                                                    .vehicleregNo
+                                                                    .toString(),
+                                                            style: const TextStyle(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                fontSize: 20),
+                                                          ),
+                                                          Text(
+                                                            isvalue
+                                                                ? filterdata![
+                                                                        index]
+                                                                    .imei
+                                                                    .toString()
+                                                                : traveldata![
+                                                                        index]
+                                                                    .imei
+                                                                    .toString(),
+                                                            style: const TextStyle(
+                                                                fontSize: 16,
+                                                                color: MyColors
+                                                                    .analyticGreenColorCode),
+                                                          ),
+                                                          Row(
+                                                            children: [
+                                                              const Icon(
+                                                                Icons.circle,
+                                                                color: MyColors
+                                                                    .analyticGreenColorCode,
+                                                                size: 7,
+                                                              ),
+                                                              Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .only(
+                                                                        left:
+                                                                            4.0,
+                                                                        top: 6,
+                                                                        bottom:
+                                                                            6),
+                                                                child: Text(
+                                                                  isvalue
+                                                                      ? filterdata![
+                                                                              index]
+                                                                          .vehicleStatus
+                                                                          .toString()
+                                                                      : traveldata![
+                                                                              index]
+                                                                          .vehicleStatus
+                                                                          .toString(),
+                                                                  style: const TextStyle(
+                                                                      color: MyColors
+                                                                          .analyticGreenColorCode,
+                                                                      fontSize:
+                                                                          16),
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          Row(
+                                                            children: [
+                                                              Container(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .only(
+                                                                        left:
+                                                                            8.0,
+                                                                        right:
+                                                                            8,
+                                                                        top: 8,
+                                                                        bottom:
+                                                                            8),
+                                                                decoration:
+                                                                    const BoxDecoration(
+                                                                  color: MyColors
+                                                                      .textBoxColorCode,
+                                                                  borderRadius:
+                                                                      BorderRadius.all(
+                                                                          Radius.circular(
+                                                                              8)),
+                                                                ),
+                                                                child: Text(isvalue
                                                                     ? filterdata![
                                                                             index]
-                                                                        .vehicleStatus
+                                                                        .tDate
                                                                         .toString()
                                                                     : traveldata![
                                                                             index]
-                                                                        .vehicleStatus
-                                                                        .toString(),
-                                                                style: const TextStyle(
-                                                                    color: MyColors
-                                                                        .analyticGreenColorCode,
-                                                                    fontSize:
-                                                                        16),
+                                                                        .tDate
+                                                                        .toString()),
                                                               ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                        Row(
-                                                          children: [
-                                                            Container(
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                          .only(
-                                                                      left: 8.0,
-                                                                      right: 8,
-                                                                      top: 8,
-                                                                      bottom:
-                                                                          8),
-                                                              decoration:
-                                                                  const BoxDecoration(
-                                                                color: MyColors
-                                                                    .textBoxColorCode,
-                                                                borderRadius: BorderRadius
-                                                                    .all(Radius
-                                                                        .circular(
-                                                                            8)),
+                                                              const SizedBox(
+                                                                width: 2.0,
                                                               ),
-                                                              child: Text(isvalue
-                                                                  ? filterdata![
-                                                                          index]
-                                                                      .tDate
-                                                                      .toString()
-                                                                  : traveldata![
-                                                                          index]
-                                                                      .tDate
-                                                                      .toString()),
-                                                            ),
-                                                            const SizedBox(
-                                                              width: 2.0,
-                                                            ),
-                                                            Container(
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                          .only(
-                                                                      left: 8.0,
-                                                                      right: 8,
-                                                                      top: 8,
-                                                                      bottom:
-                                                                          8),
-                                                              decoration:
-                                                                  const BoxDecoration(
-                                                                color: MyColors
-                                                                    .textBoxColorCode,
-                                                                borderRadius: BorderRadius
-                                                                    .all(Radius
-                                                                        .circular(
-                                                                            8)),
+                                                              Container(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .only(
+                                                                        left:
+                                                                            8.0,
+                                                                        right:
+                                                                            8,
+                                                                        top: 8,
+                                                                        bottom:
+                                                                            8),
+                                                                decoration:
+                                                                    const BoxDecoration(
+                                                                  color: MyColors
+                                                                      .textBoxColorCode,
+                                                                  borderRadius:
+                                                                      BorderRadius.all(
+                                                                          Radius.circular(
+                                                                              8)),
+                                                                ),
+                                                                child: Text(isvalue
+                                                                    ? filterdata![
+                                                                            index]
+                                                                        .vehicleStatusTime
+                                                                        .toString()
+                                                                    : traveldata![
+                                                                            index]
+                                                                        .vehicleStatusTime
+                                                                        .toString()),
                                                               ),
-                                                              child: Text(isvalue
-                                                                  ? filterdata![
-                                                                          index]
-                                                                      .vehicleStatusTime
-                                                                      .toString()
-                                                                  : traveldata![
-                                                                          index]
-                                                                      .vehicleStatusTime
-                                                                      .toString()),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ],
+                                                            ],
+                                                          ),
+                                                        ],
+                                                      ),
                                                     ),
                                                   ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
+                                                ],
+                                              ),
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                    );
-                                  },
-                                );
-                              },
-                            )
-                ],
+                                      );
+                                    },
+                                  );
+                                },
+                              )
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  onSearchTextChanged(String text) async {
-    if (text.isEmpty) {
+  onSearchTextChanged(value) async {
+    if (searhcontroller.text.isEmpty) {
       setState(() {
         isSelected = false;
       });
-      return;
     } else {
       setState(() {
         isSelected = true;
@@ -688,10 +825,10 @@ class _VehicleExpiryScreen22State extends State<VehicleExpiryScreen2> {
           branchid: branchid,
           arainonarai: arainonari,
           searchtext: searhcontroller.text,
-          fromdata: fromdate,
-          fromtime: searchfromtime,
-          todate: todate,
-          totime: searchtotime,
+          fromdata: fromDateController ?? fromdate,
+          fromtime: fromTimeController ?? fromtime,
+          todate: toDateController ?? todate,
+          totime: toTimeController ?? searchtotime,
           pagesize: pagesize,
           pagenumber: pagenumber));
     }
@@ -731,11 +868,38 @@ class _VehicleExpiryScreen22State extends State<VehicleExpiryScreen2> {
                         Expanded(
                           flex: 3,
                           child: TextField(
-                            onChanged: (value) {
-                              fromDateController = value;
-                            },
-                            enabled: true,
+                            // onChanged: (value) {
+                            //   fromDateController = value;
+                            // },
+                            onTap: () async {
+                              DateTime? pickedDate = await showDatePicker(
+                                  context: context,
+                                  initialDate: DateTime.now(),
+                                  firstDate: DateTime(1950),
+                                  lastDate: DateTime(2100));
 
+                              if (pickedDate != null) {
+                                print(pickedDate);
+                                String formattedDate =
+                                    DateFormat('dd-MMM-yyyy', 'en_US')
+                                        .format(pickedDate);
+                                formattedDate = formattedDate.replaceRange(
+                                    3,
+                                    6,
+                                    formattedDate
+                                        .substring(3, 6)
+                                        .toLowerCase());
+                                print("FormatDate is Set-----------");
+                                print(formattedDate);
+                                fromDateController = formattedDate;
+                                setState(() {
+                                  fromdateInput.text = fromDateController;
+                                });
+                              } else {}
+                            },
+                            controller: fromdateInput,
+                            enabled: true,
+                            readOnly: true,
                             decoration: const InputDecoration(
                               filled: true,
                               fillColor: MyColors.whiteColorCode,
@@ -797,9 +961,35 @@ class _VehicleExpiryScreen22State extends State<VehicleExpiryScreen2> {
                           child: Padding(
                             padding: const EdgeInsets.only(left: 4.0),
                             child: TextField(
-                              onChanged: (value) {
-                                fromTimeController = value;
+                              // onChanged: (value) {
+                              //   fromTimeController = value;
+                              // },
+                              onTap: () async {
+                                final DateFormat formatter = DateFormat(
+                                    'H:mm',
+                                    Localizations.localeOf(context)
+                                        .toLanguageTag());
+                                final TimeOfDay? picked = await showTimePicker(
+                                    context: context,
+                                    initialTime: TimeOfDay.now());
+                                builder:
+                                (BuildContext context, Widget? child) {
+                                  return MediaQuery(
+                                      data: MediaQuery.of(context).copyWith(
+                                          alwaysUse24HourFormat: true),
+                                      child: child!);
+                                };
+                                if (picked != null) {
+                                  final String fromTime = formatter.format(
+                                      DateTime(
+                                          0, 1, 1, picked.hour, picked.minute));
+                                  fromTimeController = fromTime;
+                                  setState(() {
+                                    fromTimeInput.text = fromTimeController;
+                                  });
+                                }
                               },
+                              readOnly: true,
                               enabled: true, // to trigger disabledBorder
                               decoration: const InputDecoration(
                                 filled: true,
@@ -853,6 +1043,7 @@ class _VehicleExpiryScreen22State extends State<VehicleExpiryScreen2> {
                                     color: MyColors.searchTextColorCode),
                                 errorText: "",
                               ),
+                              controller: fromTimeInput,
                               // controller: _passwordController,
                               // onChanged: _authenticationFormBloc.onPasswordChanged,
                               obscureText: false,
@@ -875,10 +1066,34 @@ class _VehicleExpiryScreen22State extends State<VehicleExpiryScreen2> {
                         Expanded(
                           flex: 3,
                           child: TextField(
-                            onChanged: (value) {
-                              toDateController = value;
+                            // onChanged: (value) {
+                            //   toDateController = value;
+                            // },
+                            onTap: () async {
+                              DateTime? pickedDate = await showDatePicker(
+                                  context: context,
+                                  initialDate: DateTime.now(),
+                                  firstDate: DateTime(1950),
+                                  lastDate: DateTime(2100));
+
+                              if (pickedDate != null) {
+                                print(pickedDate);
+                                String toDate =
+                                    DateFormat('dd-MMM-yyyy', 'en_US')
+                                        .format(pickedDate);
+                                toDate = toDate.replaceRange(
+                                    3, 6, toDate.substring(3, 6).toLowerCase());
+                                print("toDate is Set-----------");
+                                toDateController = toDate;
+                                setState(() {
+                                  todateInput.text = toDateController;
+                                });
+                              } else {}
                             },
-                            enabled: true, // to trigger disabledBorder
+                            enabled: true,
+                            readOnly: true,
+                            controller:
+                                todateInput, // to trigger disabledBorder
                             decoration: const InputDecoration(
                               filled: true,
                               fillColor: MyColors.whiteColorCode,
@@ -939,9 +1154,32 @@ class _VehicleExpiryScreen22State extends State<VehicleExpiryScreen2> {
                           child: Padding(
                             padding: const EdgeInsets.only(left: 4.0),
                             child: TextField(
-                              onChanged: (value) {
-                                toTimeController = value;
+                              onTap: () async {
+                                final DateFormat formatter = DateFormat(
+                                    'H:mm',
+                                    Localizations.localeOf(context)
+                                        .toLanguageTag());
+                                final TimeOfDay? picked = await showTimePicker(
+                                    context: context,
+                                    initialTime: TimeOfDay.now());
+                                builder:
+                                (BuildContext context, Widget? child) {
+                                  return MediaQuery(
+                                      data: MediaQuery.of(context).copyWith(
+                                          alwaysUse24HourFormat: true),
+                                      child: child!);
+                                };
+                                if (picked != null) {
+                                  final String toTime = formatter.format(
+                                      DateTime(
+                                          0, 1, 1, picked.hour, picked.minute));
+                                  toTimeController = toTime;
+                                  setState(() {
+                                    toTimrInput.text = toTimeController;
+                                  });
+                                }
                               },
+                              readOnly: true,
                               enabled: true, // to trigger disabledBorder
                               decoration: const InputDecoration(
                                 filled: true,
@@ -995,8 +1233,7 @@ class _VehicleExpiryScreen22State extends State<VehicleExpiryScreen2> {
                                     color: MyColors.searchTextColorCode),
                                 errorText: "",
                               ),
-                              // controller: _passwordController,
-                              // onChanged: _authenticationFormBloc.onPasswordChanged,
+                              controller: toTimrInput,
                               obscureText: false,
                             ),
                           ),
@@ -1007,39 +1244,50 @@ class _VehicleExpiryScreen22State extends State<VehicleExpiryScreen2> {
                       children: [
                         Expanded(
                           flex: 1,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Icon(
-                                Icons.phonelink_erase_rounded,
-                                color: MyColors.text4ColorCode,
-                              ),
-                              Text("Clear",
-                                  style: TextStyle(
-                                      color: MyColors.text4ColorCode,
-                                      decoration: TextDecoration.underline,
-                                      fontSize: 20)),
-                            ],
-                          ),
-                        ),
-                        Expanded(
-                          flex: 1,
-                          child: InkWell(
-                            onTap: ()=>Navigator.pop(context),
+                          child: GestureDetector(
+                            onTap: () {
+                              toTimrInput.text = "";
+                              todateInput.text = "";
+                              fromTimeInput.text = "";
+                              fromdateInput.text = "";
+                              setState(() {});
+                            },
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: const [
                                 Icon(
-                                  Icons.close,
+                                  Icons.phonelink_erase_rounded,
                                   color: MyColors.text4ColorCode,
                                 ),
-                                Text("Close",
+                                Text("Clear",
                                     style: TextStyle(
                                         color: MyColors.text4ColorCode,
                                         decoration: TextDecoration.underline,
                                         fontSize: 20)),
                               ],
                             ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  Navigator.pop(context);
+                                },
+                                child: Icon(
+                                  Icons.close,
+                                  color: MyColors.text4ColorCode,
+                                ),
+                              ),
+                              Text("Close",
+                                  style: TextStyle(
+                                      color: MyColors.text4ColorCode,
+                                      decoration: TextDecoration.underline,
+                                      fontSize: 20)),
+                            ],
                           ),
                         ),
                         // IconButton(
@@ -1051,20 +1299,24 @@ class _VehicleExpiryScreen22State extends State<VehicleExpiryScreen2> {
                           flex: 2,
                           child: MaterialButton(
                             onPressed: () {
+                              print(
+                                  "Here is your fromdatecontroller-------------" +
+                                      fromDateController);
                               _mainBloc.add(TravelSummaryFilterEvent(
                                   token: token,
                                   vendorid: vendorid,
                                   branchid: branchid,
                                   arainonarai: arainonari,
-                                  fromdata: fromdate,
-                                  fromtime: fromtime,
-                                  todate: todate,
-                                  totime: totime,
+                                  fromdata: fromDateController,
+                                  fromtime: fromTimeController,
+                                  todate: toDateController,
+                                  totime: toTimeController,
                                   vehiclelist: vehiclelist,
                                   pagesize: pagesize,
                                   pagenumber: pagenumber));
                               setState(() {
                                 isvalue = true;
+                                isData = true;
                               });
                               Navigator.of(context).pop();
                             },

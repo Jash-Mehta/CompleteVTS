@@ -199,6 +199,7 @@ class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
                 setState(() {
                   _isLoading = false;
                   pointInterstDataitem!.removeAt(deleteposition);
+                  searchdata!.removeAt(deleteposition);
                 });
               } else if (state is POIDeleteErrorState) {
                 setState(() {
@@ -566,6 +567,118 @@ class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
                                                 onTap: () {
                                                   deleteposition = index;
                                                   setState(() {});
+                                                  //! --Delete Alert Box--------------------------------
+                                                  showDialog(
+                                                      context: context,
+                                                      builder: (BuildContext
+                                                          context) {
+                                                        return Dialog(
+                                                          shape: RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          20.0)), //this right here
+                                                          child: Container(
+                                                            height: 200,
+                                                            child: Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                          .all(
+                                                                      12.0),
+                                                              child: Column(
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .center,
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .center,
+                                                                children: [
+                                                                  const Text(
+                                                                      "Delete Record",
+                                                                      style: TextStyle(
+                                                                          fontWeight: FontWeight
+                                                                              .bold,
+                                                                          fontSize:
+                                                                              20)),
+                                                                  Padding(
+                                                                    padding: const EdgeInsets
+                                                                            .only(
+                                                                        top:
+                                                                            10.0,
+                                                                        bottom:
+                                                                            10),
+                                                                    child: Text(
+                                                                      "Are you sure want to delete records...??",
+                                                                      textAlign:
+                                                                          TextAlign
+                                                                              .center,
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                              18),
+                                                                    ),
+                                                                  ),
+                                                                  Row(
+                                                                    mainAxisAlignment:
+                                                                        MainAxisAlignment
+                                                                            .center,
+                                                                    children: [
+                                                                      MaterialButton(
+                                                                        onPressed:
+                                                                            () {
+                                                                          Navigator.of(context)
+                                                                              .pop();
+                                                                        },
+                                                                        shape: const RoundedRectangleBorder(
+                                                                            borderRadius:
+                                                                                BorderRadius.all(Radius.circular(10))),
+                                                                        child:
+                                                                            const Text(
+                                                                          "No",
+                                                                          style: TextStyle(
+                                                                              fontSize: 18,
+                                                                              color: MyColors.whiteColorCode),
+                                                                        ),
+                                                                        color: MyColors
+                                                                            .text3greyColorCode,
+                                                                      ),
+                                                                      Padding(
+                                                                        padding:
+                                                                            const EdgeInsets.only(left: 15.0),
+                                                                        child:
+                                                                            MaterialButton(
+                                                                          // padding: const EdgeInsets.only(left:15.0,right: 15,top: 4,bottom: 4),
+                                                                          onPressed:
+                                                                              () {
+                                                                            //! MainBloc Delete data---------
+
+                                                                            _mainBloc.add(POIDeletedata(
+                                                                                token: token,
+                                                                                vendorid: 1,
+                                                                                branchid: 1,
+                                                                                srno: int.parse(pointInterstDataitem![index].srNo.toString())));
+                                                                            CustomDialog().popUp(context,
+                                                                                "Well done! Record Delete Successfully....!!");
+                                                                          },
+                                                                          shape:
+                                                                              const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10))),
+                                                                          child:
+                                                                              const Text(
+                                                                            "Yes",
+                                                                            style:
+                                                                                TextStyle(fontSize: 18, color: MyColors.whiteColorCode),
+                                                                          ),
+                                                                          color:
+                                                                              MyColors.redColorCode,
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  )
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        );
+                                                      });
                                                 },
                                                 child: Container(
                                                   height: 37,
@@ -966,7 +1079,6 @@ class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
                                                                         CustomDialog().popUp(
                                                                             context,
                                                                             "Well done! Record Delete Successfully....!!");
-                                                                            
                                                                       },
                                                                       shape: const RoundedRectangleBorder(
                                                                           borderRadius:
