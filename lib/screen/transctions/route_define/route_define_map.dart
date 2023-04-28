@@ -204,9 +204,14 @@ class _VTSRouteDefineMapState extends State<VTSRouteDefineMap> {
             color: Colors.white,
           ),
         ),
-        leading: Icon(
-          Icons.arrow_back,
-          color: Colors.white,
+        leading: GestureDetector(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: Icon(
+            Icons.arrow_back,
+            color: Colors.white,
+          ),
         ),
       ),
       body: SafeArea(
