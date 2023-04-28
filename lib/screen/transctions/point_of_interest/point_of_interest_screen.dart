@@ -199,8 +199,8 @@ class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
                 setState(() {
                   _isLoading = false;
                   pointInterstDataitem!.removeAt(deleteposition);
-                  searchdata!.removeAt(deleteposition);
                 });
+                searchdata!.removeAt(deleteposition);
               } else if (state is POIDeleteErrorState) {
                 setState(() {
                   _isLoading = false;
@@ -679,6 +679,7 @@ class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
                                                           ),
                                                         );
                                                       });
+                                                
                                                 },
                                                 child: Container(
                                                   height: 37,

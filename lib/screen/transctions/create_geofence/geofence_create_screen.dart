@@ -14,6 +14,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_vts/model/geofence/search_geofence_create_response.dart';
 
+import '../../../util/custome_dialog.dart';
+
 class GeofenceCreateScreen extends StatefulWidget {
   const GeofenceCreateScreen({Key? key}) : super(key: key);
 
@@ -185,6 +187,7 @@ class _GeofenceCreateScreenState extends State<GeofenceCreateScreen> {
               _isLoading = false;
               data!.removeAt(deleteposition);
             });
+            searchData!.removeAt(deleteposition);
           } else if (state is DeleteGeofenceCreateErrorState) {
             setState(() {
               _isLoading = false;
@@ -578,8 +581,130 @@ class _GeofenceCreateScreenState extends State<GeofenceCreateScreen> {
                                               setState(() {
                                                 deleteposition = index;
                                               });
-                                              _deleteRecordConfirmation(
-                                                  data![index].srNo!);
+                                              showDialog(
+                                                  context: context,
+                                                  builder:
+                                                      (BuildContext context) {
+                                                    return Dialog(
+                                                      shape: RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                  20.0)), //this right here
+                                                      child: Container(
+                                                        height: 200,
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(12.0),
+                                                          child: Column(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .center,
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .center,
+                                                            children: [
+                                                              const Text(
+                                                                  "Delete Record",
+                                                                  style: TextStyle(
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold,
+                                                                      fontSize:
+                                                                          20)),
+                                                              Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .only(
+                                                                        top:
+                                                                            10.0,
+                                                                        bottom:
+                                                                            10),
+                                                                child: Text(
+                                                                  "Are you sure want to delete records...??",
+                                                                  textAlign:
+                                                                      TextAlign
+                                                                          .center,
+                                                                  style: TextStyle(
+                                                                      fontSize:
+                                                                          18),
+                                                                ),
+                                                              ),
+                                                              Row(
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .center,
+                                                                children: [
+                                                                  MaterialButton(
+                                                                    onPressed:
+                                                                        () {
+                                                                      Navigator.of(
+                                                                              context)
+                                                                          .pop();
+                                                                    },
+                                                                    shape: const RoundedRectangleBorder(
+                                                                        borderRadius:
+                                                                            BorderRadius.all(Radius.circular(10))),
+                                                                    child:
+                                                                        const Text(
+                                                                      "No",
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                              18,
+                                                                          color:
+                                                                              MyColors.whiteColorCode),
+                                                                    ),
+                                                                    color: MyColors
+                                                                        .text3greyColorCode,
+                                                                  ),
+                                                                  Padding(
+                                                                    padding: const EdgeInsets
+                                                                            .only(
+                                                                        left:
+                                                                            15.0),
+                                                                    child:
+                                                                        MaterialButton(
+                                                                      // padding: const EdgeInsets.only(left:15.0,right: 15,top: 4,bottom: 4),
+                                                                      onPressed:
+                                                                          () {
+                                                                        //! MainBloc Delete data---------
+
+                                                                        _mainBloc.add(DeleteGeofenceCreateEvents(
+                                                                            vendorId:
+                                                                                vendorid,
+                                                                            branchId:
+                                                                                branchid,
+                                                                            geofenceId:
+                                                                                data![index].srNo,
+                                                                            token: token));
+                                                                        CustomDialog().popUp(
+                                                                            context,
+                                                                            "Well done! Record Delete Successfully....!!");
+                                                                      },
+                                                                      shape: const RoundedRectangleBorder(
+                                                                          borderRadius:
+                                                                              BorderRadius.all(Radius.circular(10))),
+                                                                      child:
+                                                                          const Text(
+                                                                        "Yes",
+                                                                        style: TextStyle(
+                                                                            fontSize:
+                                                                                18,
+                                                                            color:
+                                                                                MyColors.whiteColorCode),
+                                                                      ),
+                                                                      color: MyColors
+                                                                          .redColorCode,
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              )
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    );
+                                                  });
                                             },
                                             child: Container(
                                               height: 37,
@@ -921,7 +1046,7 @@ class _GeofenceCreateScreenState extends State<GeofenceCreateScreen> {
                                                                 CrossAxisAlignment
                                                                     .center,
                                                             children: [
-                                                              Text(
+                                                              const Text(
                                                                   "Delete Record",
                                                                   style: TextStyle(
                                                                       fontWeight:
@@ -959,10 +1084,11 @@ class _GeofenceCreateScreenState extends State<GeofenceCreateScreen> {
                                                                               context)
                                                                           .pop();
                                                                     },
-                                                                    shape: RoundedRectangleBorder(
+                                                                    shape: const RoundedRectangleBorder(
                                                                         borderRadius:
                                                                             BorderRadius.all(Radius.circular(10))),
-                                                                    child: Text(
+                                                                    child:
+                                                                        const Text(
                                                                       "No",
                                                                       style: TextStyle(
                                                                           fontSize:
@@ -983,11 +1109,8 @@ class _GeofenceCreateScreenState extends State<GeofenceCreateScreen> {
                                                                       // padding: const EdgeInsets.only(left:15.0,right: 15,top: 4,bottom: 4),
                                                                       onPressed:
                                                                           () {
-                                                                        // Navigator.of(context).pop();
-                                                                        Navigator.of(context)
-                                                                            .pop();
-                                                                        searchData!
-                                                                            .removeAt(deleteposition);
+                                                                        //! MainBloc Delete data---------
+
                                                                         _mainBloc.add(DeleteGeofenceCreateEvents(
                                                                             vendorId:
                                                                                 vendorid,
@@ -996,12 +1119,15 @@ class _GeofenceCreateScreenState extends State<GeofenceCreateScreen> {
                                                                             geofenceId:
                                                                                 searchData![index].srNo,
                                                                             token: token));
+                                                                        CustomDialog().popUp(
+                                                                            context,
+                                                                            "Well done! Record Delete Successfully....!!");
                                                                       },
-                                                                      shape: RoundedRectangleBorder(
+                                                                      shape: const RoundedRectangleBorder(
                                                                           borderRadius:
                                                                               BorderRadius.all(Radius.circular(10))),
                                                                       child:
-                                                                          Text(
+                                                                          const Text(
                                                                         "Yes",
                                                                         style: TextStyle(
                                                                             fontSize:
