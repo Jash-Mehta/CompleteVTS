@@ -315,15 +315,15 @@
     },
     {
       "name": "image_picker",
-      "rootUri": "file:///C:/Users/jashm/AppData/Local/Pub/Cache/hosted/pub.dev/image_picker-0.8.7+2",
+      "rootUri": "file:///C:/Users/jashm/AppData/Local/Pub/Cache/hosted/pub.dev/image_picker-0.8.7+3",
       "packageUri": "lib/",
       "languageVersion": "2.18"
     },
     {
       "name": "image_picker_android",
-      "rootUri": "file:///C:/Users/jashm/AppData/Local/Pub/Cache/hosted/pub.dev/image_picker_android-0.8.6+6",
+      "rootUri": "file:///C:/Users/jashm/AppData/Local/Pub/Cache/hosted/pub.dev/image_picker_android-0.8.6+7",
       "packageUri": "lib/",
-      "languageVersion": "2.17"
+      "languageVersion": "2.18"
     },
     {
       "name": "image_picker_for_web",
@@ -495,7 +495,7 @@
     },
     {
       "name": "path_provider_android",
-      "rootUri": "file:///C:/Users/jashm/AppData/Local/Pub/Cache/hosted/pub.dev/path_provider_android-2.0.24",
+      "rootUri": "file:///C:/Users/jashm/AppData/Local/Pub/Cache/hosted/pub.dev/path_provider_android-2.0.25",
       "packageUri": "lib/",
       "languageVersion": "2.17"
     },
@@ -579,7 +579,7 @@
     },
     {
       "name": "pointycastle",
-      "rootUri": "file:///C:/Users/jashm/AppData/Local/Pub/Cache/hosted/pub.dev/pointycastle-3.7.2",
+      "rootUri": "file:///C:/Users/jashm/AppData/Local/Pub/Cache/hosted/pub.dev/pointycastle-3.7.3",
       "packageUri": "lib/",
       "languageVersion": "2.14"
     },
@@ -651,7 +651,7 @@
     },
     {
       "name": "shared_preferences_android",
-      "rootUri": "file:///C:/Users/jashm/AppData/Local/Pub/Cache/hosted/pub.dev/shared_preferences_android-2.1.0",
+      "rootUri": "file:///C:/Users/jashm/AppData/Local/Pub/Cache/hosted/pub.dev/shared_preferences_android-2.1.2",
       "packageUri": "lib/",
       "languageVersion": "2.17"
     },
@@ -848,7 +848,7 @@
       "languageVersion": "2.12"
     }
   ],
-  "generated": "2023-04-17T10:13:55.521207Z",
+  "generated": "2023-04-28T11:31:25.337868Z",
   "generator": "pub",
   "generatorVersion": "2.19.6"
 }

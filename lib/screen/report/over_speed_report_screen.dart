@@ -18,7 +18,8 @@ import 'package:flutter_vts/model/report/search_overspeed_response.dart';
 import 'package:flutter_vts/util/MyColor.dart';
 import 'package:flutter_vts/util/custom_app_bar.dart';
 import 'package:flutter_vts/util/menu_drawer.dart';
-
+import 'package:file_picker/src/file_picker.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../model/report/over_speed_report_response.dart';
 import '../../model/report/overspeed_vehicle_filter.dart';
 import '../../model/report/vehicle_vsrno.dart';
@@ -43,6 +44,9 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
   var osvfvehno;
   var osvfvehnolisttiletext;
   // List<OSFilterData>? osvfdata = [];
+
+  final _text = TextEditingController();
+  bool _validate = false;
 
   List<VehicleVSrNoData>? osvfdata = [];
   bool ispopup = false;
@@ -134,6 +138,12 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
       distancetravel = "",
       speedLimit = "",
       searchText = "";
+  @override
+  void dispose() {
+    todateInput.dispose();
+    super.dispose();
+  }
+
   // List<OverSpeeddSearchDetail>? overspeedsearchlist = [];
   @override
   Widget build(BuildContext context) {
@@ -154,7 +164,7 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
               });
             },
             child: !isfilter
-                ? Container(
+                ? Container( 
                     margin: EdgeInsets.only(right: 10),
                     child: Image.asset(
                       "assets/filter.png",
@@ -168,6 +178,7 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                         onPressed: () {
                           setState(() {
                             isfilter = false;
+                            searchController.text = "";
                           });
                         },
                         icon: Icon(Icons.close))),
@@ -381,7 +392,7 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                 setState(() {
                   pageNumber++;
                   _isLoading = false;
-                  // overspeedfilter!.clear();
+                  overspeedfilter!.clear();
                   overspeedfilter!.addAll(state.overspeedFilter.data!);
                 });
                 // overspeedfilter!.addAll(state.overspeedFilter.data!);
@@ -453,7 +464,7 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
           },
           child: isfilter
               ? SingleChildScrollView(
-                  controller: notificationController,
+                  // controller: notificationController,
                   padding: const EdgeInsets.all(0),
                   //left: 8, top: 16.0, right: 8.0),
                   child: Container(
@@ -505,9 +516,7 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                 width: 10,
                               ),
                               GestureDetector(
-                                onTap: () {
-                                  // applyFilter();
-                                },
+                                onTap: () {},
                                 child: Container(
                                     height: 36,
                                     width: 80,
@@ -521,25 +530,36 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                             style:
                                                 TextStyle(color: Colors.white)),
                                         onPressed: () {
-                                          _mainBloc.add(OverSpeedFilterEvents(
-                                              token: token,
-                                              vendorid: vendorid,
-                                              branchid: branchid,
-                                              pagenumber: pageNumber,
-                                              pagesize: pageSize,
-                                              arai: arai,
-                                              fromDate:
-                                                  fromDateController == null
-                                                      ? ""
-                                                      : fromDateController,
-                                              toDate: toDateController == null
-                                                  ? ""
-                                                  : toDateController,
-                                              vehiclelist: osvfvehno));
-                                          setState(() {
-                                            isfilter = false;
-                                            applyclicked = true;
-                                          });
+                                          if (toDateController != null &&
+                                              fromDateController != null &&
+                                              osvfvehnolisttiletext != null) {
+                                            _mainBloc.add(OverSpeedFilterEvents(
+                                                token: token,
+                                                vendorid: vendorid,
+                                                branchid: branchid,
+                                                arai: arai,
+                                                fromDate:
+                                                    fromDateController == null
+                                                        ? ""
+                                                        : fromDateController,
+                                                toDate: toDateController == null
+                                                    ? ""
+                                                    : toDateController,
+                                                vehiclelist: "8,"+osvfvehno,
+                                                 pagenumber: 1,
+                                                pagesize: 200,));
+                                            setState(() {
+                                              isfilter = false;
+                                              applyclicked = true;
+                                            });
+                                          } else {
+                                            Fluttertoast.showToast(
+                                              msg: "Enter required fields..!",
+                                              toastLength: Toast.LENGTH_SHORT,
+                                              timeInSecForIosWeb: 1,
+                                            );
+                                            // Text("Enter required fields");
+                                          }
                                         })),
                               ),
                             ],
@@ -857,65 +877,68 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                           });
                                         } else {}
                                       },
+
                                       enabled: true,
                                       readOnly: true,
                                       controller:
                                           fromdateInput, // to trigger disabledBorder
-                                      decoration: const InputDecoration(
-                                        filled: true,
-                                        fillColor: MyColors.whiteColorCode,
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(4)),
-                                          borderSide: BorderSide(
-                                              width: 1,
-                                              color: MyColors.buttonColorCode),
-                                        ),
-                                        disabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(4)),
-                                          borderSide: BorderSide(
-                                              width: 1, color: Colors.orange),
-                                        ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(4)),
-                                          borderSide: BorderSide(
-                                              width: 1,
-                                              color: MyColors.textColorCode),
-                                        ),
-                                        border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(4)),
-                                            borderSide: BorderSide(
-                                              width: 1,
-                                            )),
-                                        errorBorder: OutlineInputBorder(
+                                      decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: MyColors.whiteColorCode,
+                                          focusedBorder: OutlineInputBorder(
                                             borderRadius: BorderRadius.all(
                                                 Radius.circular(4)),
                                             borderSide: BorderSide(
                                                 width: 1,
-                                                color: MyColors
-                                                    .textBoxBorderColorCode)),
-                                        focusedErrorBorder: OutlineInputBorder(
+                                                color:
+                                                    MyColors.buttonColorCode),
+                                          ),
+                                          disabledBorder: OutlineInputBorder(
                                             borderRadius: BorderRadius.all(
                                                 Radius.circular(4)),
                                             borderSide: BorderSide(
-                                                width: 2,
-                                                color:
-                                                    MyColors.buttonColorCode)),
-                                        hintText: "DD/MM/YY",
-                                        suffixIcon: Icon(
-                                          Icons.calendar_today_outlined,
-                                          size: 24,
-                                          color: MyColors.dateIconColorCode,
-                                        ),
-                                        hintStyle: TextStyle(
-                                            fontSize: 18,
-                                            color:
-                                                MyColors.searchTextColorCode),
-                                        errorText: "",
-                                      ),
+                                                width: 1, color: Colors.orange),
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(4)),
+                                            borderSide: BorderSide(
+                                                width: 1,
+                                                color: MyColors.textColorCode),
+                                          ),
+                                          border: OutlineInputBorder(
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(4)),
+                                              borderSide: BorderSide(
+                                                width: 1,
+                                              )),
+                                          errorBorder: OutlineInputBorder(
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(4)),
+                                              borderSide: BorderSide(
+                                                  width: 1,
+                                                  color: MyColors
+                                                      .textBoxBorderColorCode)),
+                                          focusedErrorBorder:
+                                              OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.all(
+                                                          Radius.circular(4)),
+                                                  borderSide: BorderSide(
+                                                      width: 2,
+                                                      color: MyColors
+                                                          .buttonColorCode)),
+                                          hintText: "DD/MM/YY",
+                                          suffixIcon: Icon(
+                                            Icons.calendar_today_outlined,
+                                            size: 24,
+                                            color: MyColors.dateIconColorCode,
+                                          ),
+                                          hintStyle: TextStyle(
+                                              fontSize: 18,
+                                              color:
+                                                  MyColors.searchTextColorCode),
+                                          errorText: ""),
                                     ),
                                   ),
                                 ],
@@ -984,7 +1007,7 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                       readOnly: true,
                                       controller:
                                           todateInput, // to trigger disabledBorder
-                                      decoration: const InputDecoration(
+                                      decoration: InputDecoration(
                                         filled: true,
                                         fillColor: MyColors.whiteColorCode,
                                         focusedBorder: OutlineInputBorder(
@@ -1037,9 +1060,9 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                             fontSize: 18,
                                             color:
                                                 MyColors.searchTextColorCode),
-                                        errorText: "",
+                                        errorText: '',
                                       ),
-                                      // controller: _passwordController,
+                                      // controller: _text,
                                       // onChanged: _authenticationFormBloc.onPasswordChanged,
                                       obscureText: false,
                                     ),
@@ -1069,16 +1092,63 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Container(
-                              padding: const EdgeInsets.only(
-                                  top: 6.0, left: 15, right: 15, bottom: 6),
                               decoration: const BoxDecoration(
-                                  color: MyColors.greyDividerColorCode,
+                                  color: MyColors.analyticActiveColorCode,
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(20))),
                               child: Row(
-                                children: const [
-                                  Icon(Icons.file_copy_outlined),
-                                  Text("Export"),
+                                children:  [
+                                  GestureDetector(
+                              onTap: () async {
+                                //  final result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['pdf']);
+                                // FilePicker.platform.pickFiles(allowMultiple: false,allowedExtensions:FileType.custom(), );
+                                 final result = await FilePicker.platform
+                                    .pickFiles(
+                                        type: FileType.custom,
+                                        allowedExtensions: ['pdf']);
+                                // FilePicker.platform.pickFiles(allowMultiple: false,allowedExtensions:FileType.custom(), );
+                                try {
+                                  List<String>? files = result?.files
+                                      .map((file) => file.path)
+                                      .cast<String>()
+                                      .toList();
+                                  print("File path------${files}");
+                                  //    List<String>? files = [
+                                  //   "/data/user/0/com.vts.gps/cache/file_picker/DTwisereport.pdf"
+                                  // ];
+                                  // print("File path------${files}");
+                                  await Share.shareFiles(files!);
+                                } catch (e) {
+                                  Fluttertoast.showToast(
+                                    msg: "Download the pdf first",
+                                    toastLength: Toast.LENGTH_SHORT,
+                                    timeInSecForIosWeb: 1,
+                                  );
+                                }
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.only(
+                                    top: 6.0, left: 15, right: 15, bottom: 6),
+                                decoration: BoxDecoration(
+                                    color: MyColors.analyticActiveColorCode,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(20))),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.file_copy_outlined,
+                                      color: Colors.black,
+                                    ),
+                                    Text(
+                                      "Export",
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                                 ],
                               ),
                             ),
@@ -1107,20 +1177,21 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                 padding: const EdgeInsets.only(
                                     top: 6.0, left: 15, right: 15, bottom: 6),
                                 decoration: const BoxDecoration(
-                                    color: MyColors.lightblueColorCode,
+                                    color: MyColors.analyticActiveColorCode,
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(20))),
                                 child: Row(
                                   children: const [
                                     Icon(
                                       Icons.file_copy_sharp,
-                                      color: MyColors.analyticActiveColorCode,
+                                      color: Colors.black,
                                     ),
                                     Text(
                                       "Download",
                                       style: TextStyle(
-                                          color:
-                                              MyColors.analyticActiveColorCode),
+                                          color: 
+                                          Colors.black,fontWeight: FontWeight.w600  
+                                          ),
                                     ),
                                   ],
                                 ),
@@ -1149,7 +1220,7 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                         )
                                       : isSelected
                                           ? Text(
-                                              "${searchData!.length} SEARCH RECORDS FOUND",
+                                              "${searchData!.isEmpty ? "" : searchData!.length} SEARCH RECORDS FOUND",
                                               style: TextStyle(
                                                   fontSize: 18,
                                                   fontWeight: FontWeight.bold),
@@ -1176,6 +1247,7 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                                   "Enter in the overspeed filter list");
                                               var article =
                                                   overspeedfilter![index];
+                                                   var sr = index + 1;
 
                                               return Card(
                                                 margin:
@@ -1239,7 +1311,7 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                                                     crossAxisAlignment:
                                                                         CrossAxisAlignment
                                                                             .start,
-                                                                    children: const [
+                                                                    children:  [
                                                                       Text(
                                                                         "Sr.No",
                                                                         style: TextStyle(
@@ -1248,7 +1320,7 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                                                             fontSize: 18),
                                                                       ),
                                                                       Text(
-                                                                        "1",
+                                                                        sr.toString(),
                                                                         style: TextStyle(
                                                                             color:
                                                                                 MyColors.text5ColorCode,
@@ -1579,6 +1651,7 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                               itemBuilder: (context, index) {
                                                 var article =
                                                     overspeedlist![index];
+                                                     var sr = index + 1;
 
                                                 return Card(
                                                   margin: EdgeInsets.only(
@@ -1647,7 +1720,7 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                                                       crossAxisAlignment:
                                                                           CrossAxisAlignment
                                                                               .start,
-                                                                      children: const [
+                                                                      children:  [
                                                                         Text(
                                                                           "Sr.No",
                                                                           style: TextStyle(
@@ -1655,7 +1728,7 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                                                               fontSize: 18),
                                                                         ),
                                                                         Text(
-                                                                          "1",
+                                                                          sr.toString(),
                                                                           style: TextStyle(
                                                                               color: MyColors.text5ColorCode,
                                                                               fontSize: 18),
@@ -1995,6 +2068,7 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                                                 searchData!
                                                                     .elementAt(
                                                                         index);
+                                                                         var sr = index + 1;
                                                             return Card(
                                                               margin: EdgeInsets
                                                                   .only(
@@ -2071,7 +2145,7 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                                                                       style: TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
                                                                                     ),
                                                                                     Text(
-                                                                                      "1",
+                                                                                      sr.toString(),
                                                                                       style: TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
                                                                                     ),
                                                                                   ],
@@ -2302,35 +2376,37 @@ class PdfInvoiceApi {
     DateTime current_date = DateTime.now();
     pdf.addPage(pw.MultiPage(
       footer: (pw.Context context) {
-       return pw.Column(children:[ 
-        pw.Row(
-          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-          children: [
-            pw.Text(
-              "Printed by : Techno",
-              textAlign: pw.TextAlign.left,
-              style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-            ),
-            pw.Text(
-              "Page : ${context.pageNumber} of ${context.pagesCount}",
-              textDirection: pw.TextDirection.ltr,
-              textAlign: pw.TextAlign.left,
-              style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-            ),
-          ],),
-           pw.Row(
+        return pw.Column(children: [
+          pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            children: [
+              pw.Text(
+                "Printed by : Techno",
+                textAlign: pw.TextAlign.left,
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              ),
+              pw.Text(
+                "Page : ${context.pageNumber} of ${context.pagesCount}",
+                textDirection: pw.TextDirection.ltr,
+                textAlign: pw.TextAlign.left,
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              ),
+            ],
+          ),
+          pw.Row(
             children: [
               pw.Text(
                 "Printed on : " + current_date.toString(),
                 textAlign: pw.TextAlign.left,
                 style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
               )
-            ],)
-          ]);
+            ],
+          )
+        ]);
       },
       pageFormat: PdfPageFormat.a5,
       build: (context) {
-        return <pw.Widget> [
+        return <pw.Widget>[
           pw.Center(
               child: pw.Text("OVER SPEED REPORT",
                   style: pw.TextStyle(
@@ -2341,7 +2417,7 @@ class PdfInvoiceApi {
               border: pw.TableBorder.all(color: PdfColors.black, width: 0.8),
               children: [
                 pw.TableRow(children: [
-                   pw.Padding(
+                  pw.Padding(
                       padding: pw.EdgeInsets.only(
                           top: 8.0, bottom: 8.0, left: 5.0, right: 5.0),
                       child: pw.SizedBox(
@@ -2352,7 +2428,7 @@ class PdfInvoiceApi {
                               fontSize: 12.0, fontWeight: pw.FontWeight.bold),
                         ),
                       )),
-                       pw.Padding(
+                  pw.Padding(
                       padding: pw.EdgeInsets.only(
                           top: 8.0, bottom: 8.0, left: 5.0, right: 5.0),
                       child: pw.SizedBox(
@@ -2418,7 +2494,7 @@ class PdfInvoiceApi {
                               fontSize: 12.0, fontWeight: pw.FontWeight.bold),
                         ),
                       )),
-                       pw.Padding(
+                  pw.Padding(
                       padding: pw.EdgeInsets.only(
                           top: 8.0, bottom: 8.0, left: 5.0, right: 5.0),
                       child: pw.SizedBox(
@@ -2429,117 +2505,116 @@ class PdfInvoiceApi {
                               fontSize: 12.0, fontWeight: pw.FontWeight.bold),
                         ),
                       )),
-                      //  pw.Padding(
-                      // padding: pw.EdgeInsets.only(
-                      //     top: 8.0, bottom: 8.0, left: 5.0, right: 5.0),
-                      // child: pw.SizedBox(
-                      //   width: 50,
-                      //   child: pw.Text(
-                      //     "Address",
-                      //     style: pw.TextStyle(
-                      //         fontSize: 12.0, fontWeight: pw.FontWeight.bold),
-                      //   ),
-                      // )),
+                  //  pw.Padding(
+                  // padding: pw.EdgeInsets.only(
+                  //     top: 8.0, bottom: 8.0, left: 5.0, right: 5.0),
+                  // child: pw.SizedBox(
+                  //   width: 50,
+                  //   child: pw.Text(
+                  //     "Address",
+                  //     style: pw.TextStyle(
+                  //         fontSize: 12.0, fontWeight: pw.FontWeight.bold),
+                  //   ),
+                  // )),
                 ])
               ],
             ),
           ),
-               pw.ListView.builder(
-                  itemBuilder: (pw.Context context, int index) {
-                    var article = pdflist[index];
-                    return pw.Table(
-                        border: pw.TableBorder.all(
-                            color: PdfColors.black, width: 0.8),
-                        children: [
-                          pw.TableRow(children: [
-                             pw.Padding(
-                              padding: pw.EdgeInsets.only(
-                                  left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
-                              child: pw.SizedBox(
-                                width: 50,
-                                child: pw.Text("1",
-                                    style: pw.TextStyle(fontSize: fontsize)),
-                              ),
-                            ),
-                             pw.Padding(
-                              padding: pw.EdgeInsets.only(
-                                  left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
-                              child: pw.SizedBox(
-                                width: 50,
-                                child: pw.Text(article.imeino.toString(),
-                                    style: pw.TextStyle(fontSize: fontsize)),
-                              ),
-                            ),
-                            pw.Padding(
-                              padding: pw.EdgeInsets.only(
-                                  left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
-                              child: pw.SizedBox(
-                                width: 50,
-                                child: pw.Text(article.transTime.toString(),
-                                    style: pw.TextStyle(fontSize: fontsize)),
-                              ),
-                            ),
-                            pw.Padding(
-                              padding: pw.EdgeInsets.only(
-                                  left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
-                              child: pw.SizedBox(
-                                width: 50,
-                                child: pw.Text(article.speed.toString(),
-                                    style: pw.TextStyle(fontSize: fontsize)),
-                              ),
-                            ),
-                            pw.Padding(
-                              padding: pw.EdgeInsets.only(
-                                  left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
-                              child: pw.SizedBox(
-                                width: 50,
-                                child: pw.Text(article.overSpeed.toString(),
-                                    style: pw.TextStyle(fontSize: fontsize)),
-                              ),
-                            ),
-                            pw.Padding(
-                              padding: pw.EdgeInsets.only(
-                                  left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
-                              child: pw.SizedBox(
-                                width: 50,
-                                child: pw.Text(
-                                    article.distancetravel.toString(),
-                                    style: pw.TextStyle(fontSize: fontsize)),
-                              ),
-                            ),
-                            pw.Padding(
-                              padding: pw.EdgeInsets.only(
-                                  left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
-                              child: pw.SizedBox(
-                                width: 50,
-                                child: pw.Text(article.latitude.toString(),
-                                    style: pw.TextStyle(fontSize: fontsize)),
-                              ),
-                            ),
-                             pw.Padding(
-                              padding: pw.EdgeInsets.only(
-                                  left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
-                              child: pw.SizedBox(
-                                width: 50,
-                                child: pw.Text(article.longitude.toString(),
-                                    style: pw.TextStyle(fontSize: fontsize)),
-                              ),
-                            ),
-                            //  pw.Padding(
-                            //   padding: pw.EdgeInsets.only(
-                            //       left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
-                            //   child: pw.SizedBox(
-                            //     width: 50,
-                            //     child: pw.Text(article.address.toString(),
-                            //         style: pw.TextStyle(fontSize: fontsize)),
-                            //   ),
-                            // ),
-                          ])
-                        ]);
-                  },
-                  itemCount: pdflist.length)
-                  // ),
-              
+          pw.ListView.builder(
+              itemBuilder: (pw.Context context, int index) {
+                var article = pdflist[index];
+                 var sr = index + 1;
+                return pw.Table(
+                    border:
+                        pw.TableBorder.all(color: PdfColors.black, width: 0.8),
+                    children: [
+                      pw.TableRow(children: [
+                        pw.Padding(
+                          padding: pw.EdgeInsets.only(
+                              left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
+                          child: pw.SizedBox(
+                            width: 50,
+                            child: pw.Text(sr.toString(),
+                                style: pw.TextStyle(fontSize: fontsize)),
+                          ),
+                        ),
+                        pw.Padding(
+                          padding: pw.EdgeInsets.only(
+                              left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
+                          child: pw.SizedBox(
+                            width: 50,
+                            child: pw.Text(article.imeino.toString(),
+                                style: pw.TextStyle(fontSize: fontsize)),
+                          ),
+                        ),
+                        pw.Padding(
+                          padding: pw.EdgeInsets.only(
+                              left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
+                          child: pw.SizedBox(
+                            width: 50,
+                            child: pw.Text(article.transTime.toString(),
+                                style: pw.TextStyle(fontSize: fontsize)),
+                          ),
+                        ),
+                        pw.Padding(
+                          padding: pw.EdgeInsets.only(
+                              left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
+                          child: pw.SizedBox(
+                            width: 50,
+                            child: pw.Text(article.speed.toString(),
+                                style: pw.TextStyle(fontSize: fontsize)),
+                          ),
+                        ),
+                        pw.Padding(
+                          padding: pw.EdgeInsets.only(
+                              left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
+                          child: pw.SizedBox(
+                            width: 50,
+                            child: pw.Text(article.overSpeed.toString(),
+                                style: pw.TextStyle(fontSize: fontsize)),
+                          ),
+                        ),
+                        pw.Padding(
+                          padding: pw.EdgeInsets.only(
+                              left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
+                          child: pw.SizedBox(
+                            width: 50,
+                            child: pw.Text(article.distancetravel.toString(),
+                                style: pw.TextStyle(fontSize: fontsize)),
+                          ),
+                        ),
+                        pw.Padding(
+                          padding: pw.EdgeInsets.only(
+                              left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
+                          child: pw.SizedBox(
+                            width: 50,
+                            child: pw.Text(article.latitude.toString(),
+                                style: pw.TextStyle(fontSize: fontsize)),
+                          ),
+                        ),
+                        pw.Padding(
+                          padding: pw.EdgeInsets.only(
+                              left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
+                          child: pw.SizedBox(
+                            width: 50,
+                            child: pw.Text(article.longitude.toString(),
+                                style: pw.TextStyle(fontSize: fontsize)),
+                          ),
+                        ),
+                        //  pw.Padding(
+                        //   padding: pw.EdgeInsets.only(
+                        //       left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
+                        //   child: pw.SizedBox(
+                        //     width: 50,
+                        //     child: pw.Text(article.address.toString(),
+                        //         style: pw.TextStyle(fontSize: fontsize)),
+                        //   ),
+                        // ),
+                      ])
+                    ]);
+              },
+              itemCount: pdflist.length)
+          // ),
         ];
       },
     ));

@@ -1,7 +1,7 @@
 class OverSpeedVehicleFilter {
   List<OSFilterData>? data;
   bool? succeeded;
-  Null? errors;
+  String? errors;
   String? message;
 
   OverSpeedVehicleFilter(

@@ -19,6 +19,8 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
+import 'package:file_picker/src/file_picker.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../model/report/search_frame_pckt_report.dart';
 import '../../model/report/vehicle_vsrno.dart';
 import '../../model/report/vehicle_wise_search.dart';
@@ -131,6 +133,7 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
   late bool _isLoading = false;
   late MainBloc _mainBloc;
   int pageNumber = 1;
+  int filpageNumber = 1;
   int pageSize = 10;
   int value = 0;
   SearchStringClass searchClass = SearchStringClass(searchStr: '');
@@ -242,6 +245,7 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
                         onPressed: () {
                           setState(() {
                             isfilter = false;
+                            searchController.text = "";
                           });
                         },
                         icon: Icon(Icons.close))),
@@ -453,7 +457,7 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
         },
         child: isfilter
             ? SingleChildScrollView(
-              controller: notificationController,
+                // controller: notificationController,
                 child: Padding(
                   padding: const EdgeInsets.all(0),
                   //left: 8, top: 16.0, right: 8.0),
@@ -495,7 +499,7 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
                                         todateInput.text = "";
                                         fromTimeInput.text = "";
                                         fromdateInput.text = "";
-                                        vwdvehiclenolisttiletext="-select-";
+                                        vwdvehiclenolisttiletext = "-select-";
                                         setState(() {});
                                       },
                                     ),
@@ -523,24 +527,40 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
                                                 TextStyle(color: Colors.white)),
                                         onPressed: () {
                                           print("Applyy clicked");
-                                          _mainBloc.add(VehicleWiseFilterEvents(
-                                              token: token,
-                                              vendorId: vendorid,
-                                              branchid: branchid,
-                                              araino: arainonari,
-                                              fromdate: fromDateController,
-                                              fromTime: fromTimeController,
-                                              toDate: toDateController,
-                                              toTime: toTimeController,
-                                              vehiclelist: vwdvehicleno == null
-                                                  ? "ALL"
-                                                  : vwdvehicleno,
-                                              pagenumber: 1,
-                                              pagesize: pageSize));
-                                          setState(() {
-                                            isfilter = false;
-                                            applyclicked = true;
-                                          });
+                                          if (fromDateController != null &&
+                                              fromTimeController != null &&
+                                              toDateController != null &&
+                                              toTimeController != null &&
+                                              vwdvehicleno != null) {
+                                            _mainBloc.add(
+                                                VehicleWiseFilterEvents(
+                                                    token: token,
+                                                    vendorId: vendorid,
+                                                    branchid: branchid,
+                                                    araino: arainonari,
+                                                    fromdate:
+                                                        fromDateController,
+                                                    fromTime:
+                                                        fromTimeController,
+                                                    toDate: toDateController,
+                                                    toTime: toTimeController,
+                                                    vehiclelist:
+                                                        vwdvehicleno == null
+                                                            ? "ALL"
+                                                            : vwdvehicleno,
+                                                    pagenumber: filpageNumber,
+                                                    pagesize: 200));
+                                            setState(() {
+                                              isfilter = false;
+                                              applyclicked = true;
+                                            });
+                                          }else{
+                                             Fluttertoast.showToast(
+                                            msg: "Enter required fields..!",
+                                            toastLength: Toast.LENGTH_SHORT,
+                                            timeInSecForIosWeb: 1,
+                                          );
+                                          }
                                         })),
                               ),
                             ],
@@ -711,23 +731,25 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
                                           fontSize: 16,
                                           fontWeight: FontWeight.w400),
                                     ),
-                                    trailing:isvwd ? IconButton(
-                                      icon: Icon(
-                                        Icons.keyboard_arrow_up,
-                                      ),  
-                                      onPressed: () {
-                                        isvwd = false;
-                                        setState(() {});
-                                      },
-                                    ): IconButton(
-                                      icon: Icon(
-                                        Icons.keyboard_arrow_down,
-                                      ),
-                                      onPressed: () {
-                                        isvwd = true;
-                                        setState(() {});
-                                      },
-                                    ),
+                                    trailing: isvwd
+                                        ? IconButton(
+                                            icon: Icon(
+                                              Icons.keyboard_arrow_up,
+                                            ),
+                                            onPressed: () {
+                                              isvwd = false;
+                                              setState(() {});
+                                            },
+                                          )
+                                        : IconButton(
+                                            icon: Icon(
+                                              Icons.keyboard_arrow_down,
+                                            ),
+                                            onPressed: () {
+                                              isvwd = true;
+                                              setState(() {});
+                                            },
+                                          ),
                                   )),
                               isvwd
                                   ? Container(
@@ -1356,17 +1378,66 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
                               padding: const EdgeInsets.only(
                                   top: 6.0, left: 15, right: 15, bottom: 6),
                               decoration: BoxDecoration(
-                                  color: MyColors.greyDividerColorCode,
+                                  color: MyColors.analyticActiveColorCode,
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(20))),
                               child: Row(
                                 children: [
-                                  Icon(Icons.file_copy_outlined),
-                                  Text("Export"),
+                                   GestureDetector(
+                              onTap: () async {
+                                //  final result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['pdf']);
+                                // FilePicker.platform.pickFiles(allowMultiple: false,allowedExtensions:FileType.custom(), );
+                                 final result = await FilePicker.platform
+                                    .pickFiles(
+                                        type: FileType.custom,
+                                        allowedExtensions: ['pdf']);
+                                // FilePicker.platform.pickFiles(allowMultiple: false,allowedExtensions:FileType.custom(), );
+                                try {
+                                  List<String>? files = result?.files
+                                      .map((file) => file.path)
+                                      .cast<String>()
+                                      .toList();
+                                  print("File path------${files}");
+                                  //    List<String>? files = [
+                                  //   "/data/user/0/com.vts.gps/cache/file_picker/DTwisereport.pdf"
+                                  // ];
+                                  // print("File path------${files}");
+                                  await Share.shareFiles(files!);
+                                } catch (e) {
+                                  Fluttertoast.showToast(
+                                    msg: "Download the pdf first",
+                                    toastLength: Toast.LENGTH_SHORT,
+                                    timeInSecForIosWeb: 1,
+                                  );
+                                }
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.only(
+                                    top: 6.0, left: 15, right: 15, bottom: 6),
+                                decoration: BoxDecoration(
+                                    color: MyColors.analyticActiveColorCode,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(20))),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.file_copy_outlined,
+                                      color: Colors.black,
+                                    ),
+                                    Text(
+                                      "Export",
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                                 ],
                               ),
                             ),
-                             GestureDetector(
+                            GestureDetector(
                               onTap: () async {
                                 pdfdatalist.addAll(vehicledata!);
                                 setState(() {});
@@ -1383,25 +1454,26 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
                                   await Permission.storage.request();
                                 }
                               },
-                              child: Container(
+                             child: Container(
                                 margin: const EdgeInsets.only(left: 15),
                                 padding: const EdgeInsets.only(
                                     top: 6.0, left: 15, right: 15, bottom: 6),
                                 decoration: const BoxDecoration(
-                                    color: MyColors.lightblueColorCode,
+                                    color: MyColors.analyticActiveColorCode,
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(20))),
                                 child: Row(
                                   children: const [
                                     Icon(
                                       Icons.file_copy_sharp,
-                                      color: MyColors.analyticActiveColorCode,
+                                      color: Colors.black,
                                     ),
                                     Text(
                                       "Download",
                                       style: TextStyle(
-                                          color:
-                                              MyColors.analyticActiveColorCode),
+                                          color: 
+                                          Colors.black,fontWeight: FontWeight.w600  
+                                          ),
                                     ),
                                   ],
                                 ),
@@ -1434,8 +1506,10 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
                                   ? BlocBuilder<MainBloc, MainState>(
                                       builder: (context, state) {
                                       return Text(
-                                        searchdata!.length.toString() +
-                                            " Search Records found",
+                                        searchdata!.isEmpty
+                                            ? ""
+                                            : searchdata!.length.toString() +
+                                                " Search Records found",
                                         style: TextStyle(
                                             fontSize: 18,
                                             fontWeight: FontWeight.bold),
@@ -1451,65 +1525,70 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
                                             fontWeight: FontWeight.bold),
                                       );
                                     }),
-                         applyclicked ? Container(
-                            margin: EdgeInsets.only(top: 10, bottom: 20),
-                            padding: EdgeInsets.all(15),
-                            decoration: BoxDecoration(
-                                color: MyColors.bluereportColorCode,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10))),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Text("From Date  -  To Date",
-                                        style: TextStyle(fontSize: 18)),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Text(
-                                        fromDateController != null
-                                            ? fromDateController + "  -  "
-                                            : "01-sep-2022" + "  -  ",
-                                        style: TextStyle(fontSize: 18)),
-                                    Text(
-                                        toDateController != null
-                                            ? toDateController
-                                            : "30-sep-2022" + "  -  ",
-                                        style: TextStyle(fontSize: 18)),
-                                  ],
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(top: 10),
-                                  child: Row(
-                                    // mainAxisAlignment: MainAxisAlignment.start,
-                                    // crossAxisAlignment: CrossAxisAlignment.start,
+                          applyclicked
+                              ? Container(
+                                  margin: EdgeInsets.only(top: 10, bottom: 20),
+                                  padding: EdgeInsets.all(15),
+                                  decoration: BoxDecoration(
+                                      color: MyColors.bluereportColorCode,
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(10))),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      Expanded(
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                      Row(
+                                        children: [
+                                          Text("From Date  -  To Date",
+                                              style: TextStyle(fontSize: 18)),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Text(
+                                              fromDateController != null
+                                                  ? fromDateController + "  -  "
+                                                  : "01-sep-2022" + "  -  ",
+                                              style: TextStyle(fontSize: 18)),
+                                          Text(
+                                              toDateController != null
+                                                  ? toDateController
+                                                  : "30-sep-2022" + "  -  ",
+                                              style: TextStyle(fontSize: 18)),
+                                        ],
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.only(top: 10),
+                                        child: Row(
+                                          // mainAxisAlignment: MainAxisAlignment.start,
+                                          // crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            Text(
-                                              "VehicleRegNo",
-                                              style: TextStyle(fontSize: 18),
+                                            Expanded(
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    "VehicleRegNo",
+                                                    style:
+                                                        TextStyle(fontSize: 18),
+                                                  ),
+                                                  Text("MH12AB0015",
+                                                      style: TextStyle(
+                                                          fontSize: 18)),
+                                                ],
+                                              ),
                                             ),
-                                            Text("MH12AB0015",
-                                                style: TextStyle(fontSize: 18)),
                                           ],
                                         ),
                                       ),
                                     ],
                                   ),
-                                ),
-                              ],
-                            ),
-                          ):SizedBox(),
+                                )
+                              : SizedBox(),
                           applyclicked
                               ? Padding(
                                   padding: const EdgeInsets.only(top: 20.0),
@@ -1521,6 +1600,7 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
                                         itemCount: filterdata!.length,
                                         itemBuilder: (context, index) {
                                           var article = filterdata![index];
+                                           var sr = index + 1;
                                           return Card(
                                               margin:
                                                   EdgeInsets.only(bottom: 15),
@@ -1590,7 +1670,7 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
                                                                               fontSize: 18),
                                                                         ),
                                                                         Text(
-                                                                          "1",
+                                                                          sr.toString(),
                                                                           style: TextStyle(
                                                                               color: MyColors.text5ColorCode,
                                                                               fontSize: 18),
@@ -1874,6 +1954,7 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
                                                         (context, index) {
                                                       var article =
                                                           searchdata![index];
+                                                           var sr = index + 1;
                                                       return Card(
                                                           margin:
                                                               EdgeInsets.only(
@@ -1944,7 +2025,7 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
                                                                                       style: TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
                                                                                     ),
                                                                                     Text(
-                                                                                      "1",
+                                                                                      sr.toString(),
                                                                                       style: TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
                                                                                     ),
                                                                                   ],
@@ -2116,6 +2197,7 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
                                             itemCount: vehicledata!.length,
                                             itemBuilder: (context, index) {
                                               var article = vehicledata![index];
+                                               var sr = index + 1;
                                               return Card(
                                                   margin: EdgeInsets.only(
                                                       bottom: 15),
@@ -2184,7 +2266,7 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
                                                                               style: TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
                                                                             ),
                                                                             Text(
-                                                                              "1",
+                                                                              sr.toString(),
                                                                               style: TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
                                                                             ),
                                                                           ],
@@ -2424,43 +2506,44 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
   }
 }
 
-
 class PdfInvoiceApi {
   static Future<File> generate(List<VehicleWiseData> pdflist) async {
     final pdf = pw.Document();
     double fontsize = 8.0;
-    
+
     DateTime current_date = DateTime.now();
     pdf.addPage(pw.MultiPage(
       // header: (pw.Context context) {
       //   return pw.Text("header");
       // },
       footer: (pw.Context context) {
-       return pw.Column(children:[ 
-        pw.Row(
-          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-          children: [
-            pw.Text(
-              "Printed by : Techno",
-              textAlign: pw.TextAlign.left,
-              style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-            ),
-            pw.Text(
-              "Page : ${context.pageNumber} of ${context.pagesCount}",
-              textDirection: pw.TextDirection.ltr,
-              textAlign: pw.TextAlign.left,
-              style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-            ),
-          ],),
-           pw.Row(
+        return pw.Column(children: [
+          pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            children: [
+              pw.Text(
+                "Printed by : Techno",
+                textAlign: pw.TextAlign.left,
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              ),
+              pw.Text(
+                "Page : ${context.pageNumber} of ${context.pagesCount}",
+                textDirection: pw.TextDirection.ltr,
+                textAlign: pw.TextAlign.left,
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              ),
+            ],
+          ),
+          pw.Row(
             children: [
               pw.Text(
                 "Printed on : " + current_date.toString(),
                 textAlign: pw.TextAlign.left,
                 style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
               )
-            ],)
-          ]);
+            ],
+          )
+        ]);
       },
       pageFormat: PdfPageFormat.a5,
       build: (pw.Context context) {
@@ -2572,6 +2655,7 @@ class PdfInvoiceApi {
           pw.ListView.builder(
               itemBuilder: (pw.Context context, int index) {
                 var article = pdflist[index];
+                 var sr = index + 1;
                 return pw.Table(
                     border:
                         pw.TableBorder.all(color: PdfColors.black, width: 0.8),
@@ -2582,7 +2666,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text("1",
+                            child: pw.Text(sr.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),

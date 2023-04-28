@@ -16,6 +16,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:open_file/open_file.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import '../../model/driver_wise_vehicle_assign/driver_wise_drivercode.dart';
@@ -24,6 +25,7 @@ import '../../model/driver_wise_vehicle_assign/driver_wise_vehicle_filter.dart';
 import '../../model/driver_wise_vehicle_assign/search_driver_vehicle_assign.dart';
 import '../../model/report/search_driverwise_veh_rpt.dart';
 import '../../model/report/vehicle_vsrno.dart';
+import 'package:file_picker/src/file_picker.dart';
 
 class DriverWiseVehicleAssignScreen extends StatefulWidget {
   const DriverWiseVehicleAssignScreen({Key? key}) : super(key: key);
@@ -190,6 +192,7 @@ class _DriverWiseVehicleAssignScreenState
                         onPressed: () {
                           setState(() {
                             isfilter = false;
+                            searchController.text = "";
                           });
                         },
                         icon: Icon(Icons.close))),
@@ -355,7 +358,7 @@ class _DriverWiseVehicleAssignScreenState
         },
         child: isfilter
             ? SingleChildScrollView(
-                controller: notificationController,
+                // controller: notificationController,
                 child: Padding(
                   padding: const EdgeInsets.all(0),
                   //left: 8, top: 16.0, right: 8.0),
@@ -420,23 +423,31 @@ class _DriverWiseVehicleAssignScreenState
                                             style:
                                                 TextStyle(color: Colors.white)),
                                         onPressed: () {
-                                          _mainBloc.add(
-                                              DriverVehicleFilterEvent(
-                                                  token: token,
-                                                  vendorId: vendorid,
-                                                  branchid: branchid,
-                                                  vsrno: dwdcvehicleno
-                                                              .toString() ==
-                                                          null
-                                                      ? "ALL"
-                                                      : dwdcvehicleno
-                                                          .toString(),
-                                                  pagenumber: 1,
-                                                  pagesize: pageSize));
-                                          setState(() {
-                                            isfilter = false;
-                                            applyclicked = true;
-                                          });
+                                          if (dwdcvehicleno != null) {
+                                            _mainBloc.add(
+                                                DriverVehicleFilterEvent(
+                                                    token: token,
+                                                    vendorId: vendorid,
+                                                    branchid: branchid,
+                                                    vsrno: dwdcvehicleno
+                                                                .toString() ==
+                                                            null
+                                                        ? "ALL"
+                                                        : dwdcvehicleno
+                                                            .toString(),
+                                                    pagenumber: 1,
+                                                    pagesize: 200));
+                                            setState(() {
+                                              isfilter = false;
+                                              applyclicked = true;
+                                            });
+                                          }else{
+                                            Fluttertoast.showToast(
+                                              msg: "Enter vehicle number..!",
+                                              toastLength: Toast.LENGTH_SHORT,
+                                              timeInSecForIosWeb: 1,
+                                            );
+                                          }
                                         })),
                               ),
                             ],
@@ -722,16 +733,60 @@ class _DriverWiseVehicleAssignScreenState
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Container(
-                              padding: const EdgeInsets.only(
-                                  top: 6.0, left: 15, right: 15, bottom: 6),
                               decoration: BoxDecoration(
-                                  color: MyColors.greyDividerColorCode,
+                                  color: MyColors.analyticActiveColorCode,
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(20))),
                               child: Row(
                                 children: [
-                                  Icon(Icons.file_copy_outlined),
-                                  Text("Export"),
+                                   GestureDetector(
+                              onTap: () async {         
+                                final result = await FilePicker.platform
+                                    .pickFiles(
+                                        type: FileType.custom,
+                                        allowedExtensions: ['pdf']);
+                                // FilePicker.platform.pickFiles(allowMultiple: false,allowedExtensions:FileType.custom(), );
+                                try {
+                                  List<String>? files = result?.files
+                                      .map((file) => file.path)
+                                      .cast<String>()
+                                      .toList();
+                                  print("File path------${files}");
+                                  //    List<String>? files = [
+                                  //   "/data/user/0/com.vts.gps/cache/file_picker/DTwisereport.pdf"
+                                  // ];
+                                  // print("File path------${files}");
+                                  await Share.shareFiles(files!);
+                                } catch (e) {
+                                  Fluttertoast.showToast(
+                                    msg: "Download the pdf first",
+                                    toastLength: Toast.LENGTH_SHORT,
+                                    timeInSecForIosWeb: 1,
+                                  );
+                                }},
+                              child: Container(
+                                padding: const EdgeInsets.only(
+                                    top: 6.0, left: 15, right: 15, bottom: 6),
+                                decoration: BoxDecoration(
+                                    color: MyColors.analyticActiveColorCode,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(20))),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.file_copy_outlined,
+                                      color: Colors.black,
+                                    ),
+                                    Text(
+                                      "Export",
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                                 ],
                               ),
                             ),
@@ -760,20 +815,21 @@ class _DriverWiseVehicleAssignScreenState
                                 padding: const EdgeInsets.only(
                                     top: 6.0, left: 15, right: 15, bottom: 6),
                                 decoration: const BoxDecoration(
-                                    color: MyColors.lightblueColorCode,
+                                    color: MyColors.analyticActiveColorCode,
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(20))),
                                 child: Row(
                                   children: const [
                                     Icon(
                                       Icons.file_copy_sharp,
-                                      color: MyColors.analyticActiveColorCode,
+                                      color: Colors.black,
                                     ),
                                     Text(
                                       "Download",
                                       style: TextStyle(
-                                          color:
-                                              MyColors.analyticActiveColorCode),
+                                          color: 
+                                          Colors.black,fontWeight: FontWeight.w600  
+                                          ),
                                     ),
                                   ],
                                 ),
@@ -857,8 +913,11 @@ class _DriverWiseVehicleAssignScreenState
                                   ? BlocBuilder<MainBloc, MainState>(
                                       builder: (context, state) {
                                       return Text(
-                                        searchdatalist!.length.toString() +
-                                            " Records found",
+                                        searchdatalist!.isEmpty
+                                            ? ""
+                                            : searchdatalist!.length
+                                                    .toString() +
+                                                " Records found",
                                         style: TextStyle(
                                             fontSize: 18,
                                             fontWeight: FontWeight.bold),
@@ -952,7 +1011,9 @@ class _DriverWiseVehicleAssignScreenState
                                                                             18),
                                                                   ),
                                                                   Text(
-                                                                    "1",
+                                                                    article
+                                                                        .vsrNo
+                                                                        .toString(),
                                                                     style: TextStyle(
                                                                         color: MyColors
                                                                             .text5ColorCode,
@@ -1163,7 +1224,9 @@ class _DriverWiseVehicleAssignScreenState
                                                                             fontSize: 18),
                                                                       ),
                                                                       Text(
-                                                                        "1",
+                                                                        article
+                                                                            .vsrNo
+                                                                            .toString(),
                                                                         style: TextStyle(
                                                                             color:
                                                                                 MyColors.text5ColorCode,
@@ -1382,7 +1445,7 @@ class _DriverWiseVehicleAssignScreenState
                                                                                 TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
                                                                           ),
                                                                           Text(
-                                                                            "1",
+                                                                            article.vsrNo.toString(),
                                                                             style:
                                                                                 TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
                                                                           ),
@@ -1740,42 +1803,45 @@ class _DriverWiseVehicleAssignScreenState
     );
   }
 }
+
 class PdfInvoiceApi {
   static Future<File> generate(List<DriverWiseVehicle> pdflist) async {
     final pdf = pw.Document();
     double fontsize = 8.0;
-    
+
     DateTime current_date = DateTime.now();
     pdf.addPage(pw.MultiPage(
       // header: (pw.Context context) {
       //   return pw.Text("header");
       // },
       footer: (pw.Context context) {
-       return pw.Column(children:[ 
-        pw.Row(
-          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-          children: [
-            pw.Text(
-              "Printed by : Techno",
-              textAlign: pw.TextAlign.left,
-              style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-            ),
-            pw.Text(
-              "Page : ${context.pageNumber} of ${context.pagesCount}",
-              textDirection: pw.TextDirection.ltr,
-              textAlign: pw.TextAlign.left,
-              style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-            ),
-          ],),
-           pw.Row(
+        return pw.Column(children: [
+          pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            children: [
+              pw.Text(
+                "Printed by : Techno",
+                textAlign: pw.TextAlign.left,
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              ),
+              pw.Text(
+                "Page : ${context.pageNumber} of ${context.pagesCount}",
+                textDirection: pw.TextDirection.ltr,
+                textAlign: pw.TextAlign.left,
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              ),
+            ],
+          ),
+          pw.Row(
             children: [
               pw.Text(
                 "Printed on : " + current_date.toString(),
                 textAlign: pw.TextAlign.left,
                 style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
               )
-            ],)
-          ]);
+            ],
+          )
+        ]);
       },
       pageFormat: PdfPageFormat.a5,
       build: (pw.Context context) {
@@ -1834,7 +1900,6 @@ class PdfInvoiceApi {
                               fontSize: 12.0, fontWeight: pw.FontWeight.bold),
                         ),
                       )),
-                 
                 ])
               ],
             ),
@@ -1854,7 +1919,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 20,
-                            child: pw.Text("1",
+                            child: pw.Text(article.vsrNo.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
