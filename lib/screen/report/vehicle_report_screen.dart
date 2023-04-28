@@ -143,7 +143,10 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
           GestureDetector(
             onTap: () {
               isfilter = true;
-              setState(() {});
+              isfilter
+                    ? _mainBloc.add(VehicleVSrNoEvent(
+                        token: token, vendorId: 1, branchId: 1))
+                    : Text("Driver code not loaded");
             },
             child: !isfilter
                 ? Container(
