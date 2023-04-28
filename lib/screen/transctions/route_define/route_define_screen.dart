@@ -750,24 +750,69 @@ class _RouteDefineScreenState extends State<RouteDefineScreen> {
                         );
                         ScaffoldMessenger.of(context).showSnackBar(snackBar);
                       } else {
-                         String? waypoint1;
+                        String? waypoint1;
                         if (textchanged1 != null || textchanges2 != null) {
-                        waypoint1  = textchanged1 ??
-                              "nopeisthere" + "\$" + textchanges2 ??
-                              "Nopeisthere";
-                          _midaddress(waypoint1 ?? "NOtavaiable");
+                          if (textchanged1 == null) {
+                            waypoint1 = textchanges2;
+                            _midaddress(waypoint1 ?? "NOtavaiable");
+                            Future.delayed(Duration(seconds: 3), () {
+                              _isloading = false;
+                              setState(() {});
+                              _mainBloc.add(RouteDefinePostEvents(
+                                  token: token,
+                                  vendorid: 1,
+                                  branchid: 1,
+                                  routefrom: _endcontroller.text,
+                                  routeto: _startcontroller.text,
+                                  routename: _routernamecontrollers.text,
+                                  midwaypoint: waypoint1.toString()));
+                            });
+                          } else if (textchanges2 == null) {
+                            waypoint1 = textchanged1;
+                            Future.delayed(Duration(seconds: 3), () {
+                              _isloading = false;
+                              setState(() {});
+                              _mainBloc.add(RouteDefinePostEvents(
+                                  token: token,
+                                  vendorid: 1,
+                                  branchid: 1,
+                                  routefrom: _endcontroller.text,
+                                  routeto: _startcontroller.text,
+                                  routename: _routernamecontrollers.text,
+                                  midwaypoint: waypoint1.toString()));
+                            });
+                            _midaddress(waypoint1 ?? "NOtavaiable");
+                          } else {
+                            waypoint1 = textchanged1 + "\$" + textchanges2;
+                            Future.delayed(Duration(seconds: 3), () {
+                              _isloading = false;
+                              setState(() {});
+                              _mainBloc.add(RouteDefinePostEvents(
+                                  token: token,
+                                  vendorid: 1,
+                                  branchid: 1,
+                                  routefrom: _endcontroller.text,
+                                  routeto: _startcontroller.text,
+                                  routename: _routernamecontrollers.text,
+                                  midwaypoint: waypoint1.toString()));
+                            });
+
+                            _midaddress(waypoint1 ?? "NOtavaiable");
+                          }
+                        } else {
+                          Future.delayed(Duration(seconds: 3), () {
+                            _isloading = false;
+                            setState(() {});
+                            _mainBloc.add(RouteDefinePostEvents(
+                                token: token,
+                                vendorid: 1,
+                                branchid: 1,
+                                routefrom: _endcontroller.text,
+                                routeto: _startcontroller.text,
+                                routename: _routernamecontrollers.text,
+                                midwaypoint: "Notthere"));
+                          });
                         }
-                        Future.delayed(Duration(seconds: 3), () {
-                         
-                          _mainBloc.add(RouteDefinePostEvents(
-                              token: token,
-                              vendorid: 1,
-                              branchid: 1,
-                              routefrom: _endcontroller.text,
-                              routeto: _startcontroller.text,
-                              routename: _routernamecontrollers.text,
-                              midwaypoint: waypoint1!.isEmpty?"Notavailable":waypoint1));
-                        });
                       }
 
                       // CustomDialog()
@@ -802,10 +847,18 @@ class _RouteDefineScreenState extends State<RouteDefineScreen> {
                         ScaffoldMessenger.of(context).showSnackBar(snackBar);
                       } else {
                         if (textchanged1 != null || textchanges2 != null) {
-                          String? waypoint1 = textchanged1 ??
-                              "nopeisthere" + "\$" + textchanges2 ??
-                              "Nopeisthere";
-                          _midaddress(waypoint1 ?? "NOtavaiable");
+                          if (textchanged1 == null) {
+                            String? waypoint1 = textchanges2;
+                            _midaddress(waypoint1 ?? "NOtavaiable");
+                          } else if (textchanges2 == null) {
+                            String? waypoint1 = textchanged1;
+                            _midaddress(waypoint1 ?? "NOtavaiable");
+                          } else {
+                            String waypoint1 =
+                                textchanged1 + "\$" + textchanges2;
+
+                            _midaddress(waypoint1 ?? "NOtavaiable");
+                          }
                         }
                         Future.delayed(Duration(seconds: 5), () {
                           _isloading = false;
