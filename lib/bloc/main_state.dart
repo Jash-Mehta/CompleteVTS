@@ -66,6 +66,7 @@ import '../model/date_wise_travel_history/search_datewise_travel_history_respons
 import '../model/device_master/get_device_master_report.dart';
 import '../model/device_master/search_device_master_report.dart';
 import '../model/distanceSummary/distance_summary_filter.dart';
+import '../model/distanceSummary/distance_summary_search.dart';
 import '../model/distanceSummary/distancesummary_entity.dart';
 import '../model/driver_wise_vehicle_assign/driver_wise_drivercode.dart';
 import '../model/driver_wise_vehicle_assign/driver_wise_vehicle_assign.dart';
@@ -2441,6 +2442,27 @@ class DistanceSummaryFilterErrorState extends MainState {
   // TODO: implement props
   List<Object> get props => throw UnimplementedError();
 }
+
+// Distance summary search
+ class DistanceSummarySearchLoadingState extends MainState {
+    List<Object> get props => throw UnimplementedError();
+  }
+  
+  class DistanceSummarySearchLoadedState extends MainState {
+    DistanceSummarySearchModel distancesummarysearch;
+    DistanceSummarySearchLoadedState({required this.distancesummarysearch});
+    @override
+    // TODO: implement props
+    List<Object> get props => throw UnimplementedError();
+  }
+  
+  class DistanceSummarySearchErrorState extends MainState {
+    String msg;
+    DistanceSummarySearchErrorState({required this.msg});
+    @override
+    // TODO: implement props
+    List<Object> get props => throw UnimplementedError();
+  }
 
 // Vehicle Report
 class VehicleReportLoadingState extends MainState {

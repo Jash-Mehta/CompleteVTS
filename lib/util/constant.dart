@@ -199,6 +199,8 @@ class Constant {
       baseUrl + 'DistanceTravelSummary/GetDistanceTravelSummaryReport';
   static String distancesummaryfilter = baseUrl +
       'DistanceTravelSummary/FilterDistanceTravelSummaryReport_SummaryRange';
+   static String distancesummarysearch =
+      baseUrl + 'DistanceTravelSummary/SearchDistanceTravelSummaryReport';
   // Driver Wise Vehicle Assign
   static String driverwisevehicleassign =
       baseUrl + 'DriverWiseVehicalAssignReports/GetDriverVehicleAssign';

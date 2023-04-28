@@ -1287,6 +1287,33 @@ class DistanceSummaryFilterEvent extends MainEvent {
   });
 }
 
+class DistanceSummarySearchEvent extends MainEvent {
+  String token;
+  int vendorid;
+  int branchid;
+  String arainonarai;
+  String fromdate;
+  String fromtime;
+  String todate;
+  String totime;
+  String searchtext;
+  int pagesize;
+  int pagenumber;
+  DistanceSummarySearchEvent({
+    required this.token,
+    required this.vendorid,
+    required this.branchid,
+    required this.arainonarai,
+    required this.fromdate,
+    required this.fromtime,
+    required this.todate,
+    required this.totime,
+    required this.searchtext,
+    required this.pagesize,
+    required this.pagenumber,
+  });
+}
+
 class DriverWiseVehicleAssignEvent extends MainEvent {
   String token;
   int vendorid;

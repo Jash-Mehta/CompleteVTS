@@ -81,6 +81,7 @@ import '../model/date_wise_travel_history/date_wise_travel_history.dart';
 import '../model/date_wise_travel_history/search_datewise_travel_history_response.dart';
 import '../model/device_master/get_device_master_report.dart';
 import '../model/device_master/search_device_master_report.dart';
+import '../model/distanceSummary/distance_summary_search.dart';
 import '../model/distanceSummary/distancesummary_entity.dart';
 import '../model/driver_wise_vehicle_assign/driver_wise_drivercode.dart';
 import '../model/driver_wise_vehicle_assign/driver_wise_vehicle_assign.dart';
@@ -2639,6 +2640,52 @@ class WebService {
       throw Exception('Failed to load data');
     }
   }
+
+  // distance summary search
+   Future<DistanceSummarySearchModel> distancesummarysearch(
+    String token,
+    int vendorid,
+    int branchid,
+    int pagenumber,
+    int pagesize,
+    String arinonarai,
+    String fromdate,
+    String fromtime,
+    String searchtext,
+    String totime,
+    String todate,
+  ) async {
+     var distanceurl = Constant.distancesummarysearch +
+          "?VendorId=" +
+          vendorid.toString() +
+          "&BranchId=" +
+          branchid.toString() +
+          "&ARAI_NONARAI=$arinonarai"+
+          "&FromDate=" +
+          fromdate.toString() +
+          "&FromTime=" +
+          fromtime.toString() +
+          "&ToDate=" +
+          todate.toString() +
+          "&ToTime=" +
+          totime.toString() +
+          "&SearchText=$searchtext"+
+          "&PageNumber=" +
+          pagenumber.toString() +
+          "&PageSize=" +
+          pagesize.toString();
+     
+    final response =
+        await http.get(Uri.parse(distanceurl),
+            headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    });
+      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
+      var distancesummaryjson = DistanceSummarySearchModel.fromJson(jsonbody);
+      return distancesummaryjson;
+  }
+
 
   // Driver wise vehicle assign
   Future<DriverWiseVehicleAssign> driverwisevehicleassign(

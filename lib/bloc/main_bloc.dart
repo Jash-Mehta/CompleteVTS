@@ -1321,7 +1321,30 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         } catch (e) {
           print(e.toString());
         }
-      } else if (event is DriverWiseVehicleAssignEvent) {
+      } else if (event is DistanceSummarySearchEvent) {
+        try {
+          yield DistanceSummarySearchLoadingState();
+          var distancesummarysearchresponse =
+              await webService.distancesummarysearch(
+                  event.token,
+                  event.vendorid,
+                  event.branchid,
+                  event.pagenumber,
+                  event.pagesize,
+                  event.arainonarai,
+                  event.fromdate,
+                  event.fromtime,
+                  event.searchtext,
+                  event.totime,
+                  event.todate);
+          yield DistanceSummarySearchLoadedState(
+              distancesummarysearch: distancesummarysearchresponse);
+        } catch (e) {
+          print(e.toString());
+          yield DistanceSummaryErrorState(msg:  e.toString());
+        }
+      }
+       else if (event is DriverWiseVehicleAssignEvent) {
         try {
           yield DriverWiseVehicleAssignLoadingState();
           var driverwisevehicleassignresponse =
