@@ -122,6 +122,7 @@ import '../model/report/vehicle_wise_timewise_filter.dart';
 import '../model/report/vehicle_wise_timewise_travel.dart';
 import '../model/report/vehicle_wise_travel.dart';
 import '../model/report/vehicle_wise_travel_filter.dart';
+import '../model/route_define/route_define_post.dart';
 import '../model/travel_summary/travel_summary_filter.dart';
 import '../model/travel_summary/travel_summary_search.dart';
 import '../model/vehicle_master/search_vehicle_report_data_response.dart';
@@ -3633,7 +3634,29 @@ class GetRoutesDetailErrorState extends MainState {
   // TODO: implement props
   List<Object> get props => throw UnimplementedError();
 }
+//! Route Define Post Data-------------->
+class RouteDefinePostLoadingState extends MainState {
+  List<Object> get props => throw UnimplementedError();
+}
 
+class RouteDefinePostLoadedState extends MainState {
+  RouteDefinePost routedefinepost;
+  RouteDefinePostLoadedState({
+    required this.routedefinepost,
+  });
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+
+class RouteDefinePostErrorState extends MainState {
+  String msg;
+  RouteDefinePostErrorState({required this.msg});
+
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
 // class DriverMasterLoadingState extends MainState {
 //   @override
 //   // TODO: implement props

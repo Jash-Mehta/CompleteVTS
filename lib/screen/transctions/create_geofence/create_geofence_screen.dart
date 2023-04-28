@@ -234,7 +234,7 @@ class _CreateGeofenceScreenState extends State<CreateGeofenceScreen> {
                       _descriptiCncontroller.text = "";
                       _geofenceNamecontroller.text = "";
                       _toleranceController.text = "";
-                      vehiclename = "";
+                      vehiclename = "--select--";
                       location = "";
                       searchController.text = "";
                       setState(() {});
@@ -273,32 +273,37 @@ class _CreateGeofenceScreenState extends State<CreateGeofenceScreen> {
                 onTap: () {},
                 child: InkWell(
                   onTap: () {
-                    _mainBloc.add(AddGeofenceEvents(
-                        token: token,
-                        vendorid: vendorid,
-                        branchid: branchid,
-                        geofencename: geofencename,
-                        category: dropdownvalueprovider,
-                        description: description,
-                        tolerance: int.parse(tolerance),
-                        showgeofence: dropdownvalue,
-                        latitude: longlatitude.toString() ??
-                            _currentPosition!.latitude.toString(),
-                        longitude: longlongitude.toString() ??
-                            _currentPosition!.longitude.toString(),
-                        overlaytype: "Rectangle",
-                        rectanglebond: "12.56",
-                        rectanglearea: "23.4",
-                        rectanglehectares: "34.5",
-                        rectanglekilometer: "25.6",
-                        rectanglemiles: "2.3",
-                        address: addresslocation.toString(),
-                        vehicleid: vehicleid));
                     if (_geofenceNamecontroller.text.isNotEmpty &&
                         _descriptiCncontroller.text.isNotEmpty &&
                         _toleranceController.text.isNotEmpty) {
+                      _mainBloc.add(AddGeofenceEvents(
+                          token: token,
+                          vendorid: vendorid,
+                          branchid: branchid,
+                          geofencename: geofencename,
+                          category: dropdownvalueprovider,
+                          description: description,
+                          tolerance: int.parse(tolerance),
+                          showgeofence: dropdownvalue,
+                          latitude: longlatitude.toString() ??
+                              _currentPosition!.latitude.toString(),
+                          longitude: longlongitude.toString() ??
+                              _currentPosition!.longitude.toString(),
+                          overlaytype: "Rectangle",
+                          rectanglebond: "12.56",
+                          rectanglearea: "23.4",
+                          rectanglehectares: "34.5",
+                          rectanglekilometer: "25.6",
+                          rectanglemiles: "2.3",
+                          address: addresslocation.toString(),
+                          vehicleid: vehicleid));
                       alertbox = true;
                       setState(() {});
+                    } else {
+                      final snackBar = SnackBar(
+                        content: const Text("Fill Required Detail"),
+                      );
+                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     }
 
                     alertbox
@@ -822,6 +827,7 @@ class _CreateGeofenceScreenState extends State<CreateGeofenceScreen> {
                   // controller: _passwordController,
                   // onChanged: _authenticationFormBloc.onPasswordChanged,
                   obscureText: false,
+                  keyboardType: TextInputType.number,
                 ),
                 Align(
                     alignment: Alignment.centerLeft,
@@ -856,7 +862,7 @@ class _CreateGeofenceScreenState extends State<CreateGeofenceScreen> {
                         borderRadius: BorderRadius.circular(10.0),
                         border: Border.all(color: Colors.grey)),
                     child: ListTile(
-                      leading: Text(vehiclename ?? "All"),
+                      leading: Text(vehiclename ?? "--select--"),
                       trailing: Icon(Icons.keyboard_arrow_down),
                     ),
                   ),
@@ -1003,6 +1009,7 @@ class _CreateGeofenceScreenState extends State<CreateGeofenceScreen> {
                             myLocationEnabled:
                                 true, //enable Zoom in, out on map
                             myLocationButtonEnabled: true,
+                           
                             initialCameraPosition: CameraPosition(
                               //innital position in map
                               target: LatLng(
@@ -1034,7 +1041,11 @@ class _CreateGeofenceScreenState extends State<CreateGeofenceScreen> {
                         controller: searchController,
 
                         onChanged: (value) => _onSearchTextChanged(value),
-                        enabled: true, // to trigger disabledBorder
+                        enabled: true,
+                        inputFormatters: <TextInputFormatter>[
+                          FilteringTextInputFormatter.allow(
+                              RegExp("[0-9a-zA-Z]")),
+                        ], // to trigger disabledBorder
                         decoration: InputDecoration(
                           filled: true,
                           fillColor: MyColors.whiteColorCode,

@@ -2467,7 +2467,7 @@ class DropdownPointOfInterestEvent extends MainEvent {
     required this.token,
   });
 }
-//! Route data--------------------->
+//! Route data---------------------(getVstGeofecnce)>
 class GettingRouteGGR extends MainEvent {
   String token;
   int vendorid;
@@ -2491,5 +2491,25 @@ class RoutesDetailByRoutesNameEvents extends MainEvent {
     required this.routename,
   });
 }
+//! Route Define Post Data---------------------------->
+class RouteDefinePostEvents extends MainEvent {
+  String token;
+  int vendorid;
+  int branchid;
+  String routefrom;
+  String routeto;
+  String routename;
+  String midwaypoint;
+  RouteDefinePostEvents({
+    required this.token,
+    required this.vendorid,
+    required this.branchid,
+    required this.routefrom,
+    required this.routeto,
+    required this.routename,
+    required this.midwaypoint,
+  });
 
+
+}
 

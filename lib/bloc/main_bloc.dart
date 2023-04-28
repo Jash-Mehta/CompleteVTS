@@ -2455,7 +2455,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           yield POIDeleteErrorState(msg: e.toString());
         }
       }
-            //! Routes Detail By RoutesName---------------------------
+      //! Routes Detail By RoutesName---------------------------
       else if (event is RoutesDetailByRoutesNameEvents) {
         try {
           yield GetRoutesDetailLoadingState();
@@ -2465,8 +2465,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         } catch (e) {
           print(e.toString());
         }
-        //! VTS Geofence----------------------------------> 
-      }else if (event is GettingRouteGGR) {
+        //! VTS Geofence---------------------------------->
+      } else if (event is GettingRouteGGR) {
         try {
           yield RouteNameListLoadingState();
           var routenamelist = await webService.routedefinelist(
@@ -2474,6 +2474,23 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           yield RouteNameListLoadedState(routenamelist: routenamelist);
         } catch (e) {
           print(e.toString());
+        }
+      }
+      //! Route Define Post Data-------------------------------->
+      else if (event is RouteDefinePostEvents) {
+        try {
+          yield RouteDefinePostLoadingState();
+          var routedefinepost = await webService.routedefinepost(
+              event.token,
+              event.vendorid,
+              event.branchid,
+              event.routefrom,
+              event.routeto,
+              event.routename,
+              event.midwaypoint);
+          yield RouteDefinePostLoadedState(routedefinepost: routedefinepost);
+        } catch (e) {
+          yield RouteDefinePostErrorState(msg: e.toString());
         }
       }
     }

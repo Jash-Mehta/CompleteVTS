@@ -340,6 +340,7 @@ class _LiveTrackingFilterScreenState extends State<LiveTrackingFilterScreen> {
                                       selectedVendorid = 0;
                                       selectedbranchid = 0;
                                       selectedvehicleSrNolist.clear();
+                                      activeStatus = false;
                                       selectedalerttypeList.clear();
                                       branchList.clear();
                                       vehicleSrNolist.clear();

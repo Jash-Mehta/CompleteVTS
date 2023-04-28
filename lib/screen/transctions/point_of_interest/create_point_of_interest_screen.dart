@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_vts/bloc/main_bloc.dart';
 import 'package:flutter_vts/bloc/main_event.dart';
 import 'package:flutter_vts/bloc/main_state.dart';
@@ -212,10 +213,10 @@ class _CreatePointOfInterestScreenState
                   GestureDetector(
                     onTap: () {
                       _poinamecontroller.text = "";
-                      poitypetext = "";
+                      poitypetext = "--select--";
                       _descriptioncontroller.text = "";
                       _tolerancecontroller.text = "";
-                      vehiclelisttext = "";
+                      vehiclelisttext = "--select--";
                       _selectcontroller.text = "";
                       setState(() {});
                     },
@@ -461,7 +462,9 @@ class _CreatePointOfInterestScreenState
                 validator: (value) {
                   value!.isEmpty ? "Enter the poiname" : null;
                 },
-
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.allow(RegExp("[0-9a-zA-Z]")),
+                ],
                 enabled: true, // to trigger disabledBorder
                 decoration: const InputDecoration(
                   filled: true,
@@ -535,7 +538,7 @@ class _CreatePointOfInterestScreenState
                       setState(() {});
                     },
                     child: ListTile(
-                      leading: Text(poitypetext ?? "All"),
+                      leading: Text(poitypetext ?? "--select--"),
                       trailing: Padding(
                         padding: const EdgeInsets.only(bottom: 10.0),
                         child: Icon(Icons.keyboard_arrow_down),
@@ -610,6 +613,9 @@ class _CreatePointOfInterestScreenState
                   value!.isEmpty ? "Enter the description" : null;
                 },
                 controller: _descriptioncontroller,
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.allow(RegExp("[0-9a-zA-Z]")),
+                ],
                 enabled: true, // to trigger disabledBorder
                 decoration: const InputDecoration(
                   filled: true,
@@ -678,6 +684,9 @@ class _CreatePointOfInterestScreenState
                   value!.isEmpty ? "Enter the tolerance" : null;
                 },
                 controller: _tolerancecontroller,
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.digitsOnly
+                ],
                 enabled: true, // to trigger disabledBorder
                 decoration: const InputDecoration(
                     filled: true,
@@ -716,6 +725,7 @@ class _CreatePointOfInterestScreenState
                 // controller: _passwordController,
                 // onChanged: _authenticationFormBloc.onPasswordChanged,
                 obscureText: false,
+                keyboardType: TextInputType.number,
               ),
               Align(
                   alignment: Alignment.centerLeft,
@@ -750,7 +760,7 @@ class _CreatePointOfInterestScreenState
                   child: ListTile(
                     title: Padding(
                       padding: const EdgeInsets.only(bottom: 10.0),
-                      child: Text(vehiclelisttext ?? "All"),
+                      child: Text(vehiclelisttext ?? "--select--"),
                     ),
                     trailing: Padding(
                       padding: const EdgeInsets.only(bottom: 10.0),
@@ -802,7 +812,7 @@ class _CreatePointOfInterestScreenState
                     child: Row(
                       children: [
                         Text(
-                          "Show Geofence",
+                          "Show POI",
                           style: TextStyle(fontSize: 18),
                         ),
                         Padding(
@@ -945,6 +955,10 @@ class _CreatePointOfInterestScreenState
                       // }
                       // },
                       controller: _selectcontroller,
+                      inputFormatters: <TextInputFormatter>[
+                        FilteringTextInputFormatter.allow(
+                            RegExp("[0-9a-zA-Z]")),
+                      ],
                       decoration: InputDecoration(
                         filled: true,
                         fillColor: MyColors.whiteColorCode,

@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'package:flutter_vts/bloc/main_bloc.dart';
 import 'package:flutter_vts/bloc/main_state.dart';
 import 'package:flutter_vts/screen/transctions/vts_get_geofence/getting_routedetail.dart';
@@ -189,7 +188,7 @@ class _VTSGeofenceMapState extends State<VTSGeofenceMap> {
       "AIzaSyBnJPusnfAjrL9xofBjC_R5heU4uPZXgDY",
       PointLatLng(fromlatitude!, fromlongitude!),
       PointLatLng(tolatitude!, tolongitude!),
-      travelMode: TravelMode.walking,
+      travelMode: TravelMode.driving,
       wayPoints: polylineWayPoints,
     );
 

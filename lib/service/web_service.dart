@@ -128,6 +128,7 @@ import '../model/report/vehicle_wise_timewise_search.dart';
 import '../model/report/vehicle_wise_timewise_travel.dart';
 import '../model/report/vehicle_wise_travel.dart';
 import '../model/report/vehicle_wise_travel_filter.dart';
+import '../model/route_define/route_define_post.dart';
 import '../model/searchString.dart';
 import '../model/travel_summary/travel_summary.dart';
 import '../model/vehicle_master/search_vehicle_report_data_response.dart';
@@ -2346,7 +2347,6 @@ class WebService {
     }
   }
 
-
   Future<EditDeviceResponse> createAssignMenuRights(
       AssignMenuRightsRequest assignMenuRightsRequest, String token) async {
     print(Constant.createAssignMenuRightsUrl);
@@ -2528,18 +2528,53 @@ class WebService {
       'Content-Type': 'application/json; charset=UTF-8',
       'Authorization': 'Bearer $token',
     });
-    if (response.statusCode == 200) {
-      print("Successfully getting your data 3");
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
 
-      var travelsummaryjson = TravelSummaryFilter.fromJson(jsonbody);
-      print("Json decoded body3_" + travelsummaryjson.toString());
-      return travelsummaryjson;
+    print("Successfully getting your data 3");
+    var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
+
+    var travelsummaryjson = TravelSummaryFilter.fromJson(jsonbody);
+
+    return travelsummaryjson;
+  }
+  //! Route Define Post----------------
+    Future<RouteDefinePost> routedefinepost(
+   String token,
+   int vendorid,
+   int branchid,
+   String routefrom,
+   String routeto,
+   String routename,
+   String midway,
+  ) async {
+    final body = {
+    
+  "vendorSrNo": 1,
+  "branchSrNo": 1,
+  "routeName": routename.toString(),
+  "routeFrom": routefrom.toString(),
+  "routeTo": routeto.toString(),
+  "latlang": midway.toString()
+
+    };
+    final response = await http.post(
+      Uri.parse(
+          "https://vtsgpsapi.m-techinnovations.com/api/RouteDefine"),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': "Bearer $token",
+      },
+      body: jsonEncode(body),
+    );
+    print("your token of geoFence------------" + token);
+    if (response.statusCode == 201) {
+      print("Your RouteDefine data was addedd sucessfully");
+      return RouteDefinePost.fromJson(jsonDecode(response.body));
     } else {
       print(response.body);
-      throw Exception('Failed to load data');
+      throw Exception("Failed to loaded poidata");
     }
   }
+
 
   //! All Data Distance Summary Screen---------------------------
   Future<DistancesummaryEntity> distancesummarydetail(
@@ -4818,7 +4853,7 @@ class WebService {
     }
   }
   //! POI API Start from here--------------------------------->
-  
+
   Future<CreatePointOfInterest> createPointOfInterestGetApi(String token,
       int vendorId, int branchId, int pageNumber, int pageSize) async {
     // print("Api uri is-------" +
@@ -4929,6 +4964,7 @@ class WebService {
       throw Exception('Failed to load data');
     }
   }
+
   //! POI type code--------------------------
   Future<POITypeCode> poitypecode(
     String token,
@@ -5021,7 +5057,7 @@ class WebService {
     print(response.body);
     return EditDeviceResponse.fromJson(jsonDecode(response.body));
   }
-  
+
   //! RouteDefine by Geofence----------------
   Future<RouteNameList> routedefinelist(
     String token,
@@ -5089,7 +5125,6 @@ class WebService {
       throw Exception('Failed to load data');
     }
   }
-
 
   // Driver master report filter
   Future<DriverMasterFilter> drivermasterfilter(

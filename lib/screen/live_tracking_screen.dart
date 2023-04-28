@@ -1,9 +1,21 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:http/http.dart' as http;
+import 'package:loading_overlay/loading_overlay.dart';
+import 'package:location/location.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:snippet_coder_utils/FormHelper.dart';
+
 import 'package:flutter_vts/bloc/main_bloc.dart';
 import 'package:flutter_vts/bloc/main_event.dart';
 import 'package:flutter_vts/bloc/main_state.dart';
@@ -17,23 +29,11 @@ import 'package:flutter_vts/screen/live_tracking/live_tracking_detail_screen.dar
 import 'package:flutter_vts/screen/live_tracking/live_tracking_filter_screen.dart';
 import 'package:flutter_vts/screen/live_tracking/live_tracking_map_setting_screen.dart';
 import 'package:flutter_vts/screen/vehicle_status_details_screen.dart';
-
 import 'package:flutter_vts/service/map_pin_pull.dart';
 import 'package:flutter_vts/service/web_service.dart';
 import 'package:flutter_vts/util/MyColor.dart';
 import 'package:flutter_vts/util/constant.dart';
 import 'package:flutter_vts/util/menu_drawer.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart';
-import 'package:flutter/material.dart';
-import 'dart:async';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:loading_overlay/loading_overlay.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:http/http.dart' as http;
-import 'package:snippet_coder_utils/FormHelper.dart';
-import 'dart:ui' as ui;
 
 class NumberList {
   String number;
@@ -42,7 +42,13 @@ class NumberList {
 }
 
 class LiveTrackingScreen extends StatefulWidget {
-  const LiveTrackingScreen({Key? key}) : super(key: key);
+  bool? label;
+  bool? cluster;
+  LiveTrackingScreen({
+    Key? key,
+    this.label,
+    this.cluster,
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => LiveTrackingScreenState();
@@ -144,7 +150,6 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
     location = Location();
     polylinePoints = PolylinePoints();
     location!.onLocationChanged.listen((LocationData cLoc) {
-
       currentLocation = cLoc;
 
       updatePinOnMap();
@@ -153,6 +158,7 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
     setSourceAndDestinationIcons();
     // set the initial location
     setInitialLocation();
+    // getstartlocation("865006049169296");
   }
 
   //! GetBytes from Assets--------------------------->
@@ -344,7 +350,7 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
             mapController?.animateCamera(CameraUpdate.newCameraPosition(
                 CameraPosition(target: LatLng(lat, lng), zoom: 17)));
           }
-          
+
           // _markerlist.add(Marker(
           //   //add second marker
           //   markerId: MarkerId(LatLng(18.6598, 73.7497).toString()),
@@ -448,9 +454,10 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
                                 return MainBloc(webService: WebService());
                               },
                               child: LiveTrackingDetailsScreen(
-                                  transactionId: searchliveTrackingResponse[i]
-                                      .transactionId,
-                                  araiNonarai: "arai"))));
+                                transactionId:
+                                    searchliveTrackingResponse[i].transactionId,
+                                araiNonarai: "arai",
+                              ))));
                 }),
             icon: await BitmapDescriptor.fromAssetImage(
                 const ImageConfiguration(
@@ -515,7 +522,6 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
     }
 
     return searchVehicle ? _searchmarkerlist : Set<Marker>.of(_markerlist);
-
   }
 
   Future<BitmapDescriptor> _locationIcon() async {
@@ -865,6 +871,7 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
   //     ],
   //   );
   // }
+
   //! Bloc Listner Start from hereeee---------------------
   _livevehicletracking(CameraPosition initialCameraPosition) {
     return BlocListener<MainBloc, MainState>(
@@ -947,11 +954,14 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
           setState(() {
             _isLoading = false;
           });
+          //! Search live vehicle state---------------------->
         } else if (state is SearchLiveTrackingLoadingState) {
           setState(() {
             _isLoading = true;
           });
         } else if (state is SearchLiveTrackingLoadedState) {
+          print("Enter in the search loaded state--------->");
+
           setState(() {
             _isLoading = false;
             searchliveTrackingResponse = state.searchliveTrackingResponse;
@@ -960,9 +970,10 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
 
             // _markerlist.clear();
           });
-          getmarkers(3);
 
-          getstartlocation(state.searchliveTrackingResponse[0].imei!);
+          getmarkers(3);
+          // print("Your Start location is there---------->" +
+          //     state.searchliveTrackingResponse[0].latitude.toString());
         } else if (state is SearchLiveTrackingErrorState) {
           setState(() {
             _isLoading = false;
@@ -981,7 +992,9 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
           setState(() {
             _isLoading = false;
             _searchmarkerlist.clear();
+
             startLocationResponse = state.startLocationResponse;
+
             // showStartLocation=LatLng(double.parse(state.startLocationResponse[0].latitude!),double.parse(state.startLocationResponse[0].longitude!)/*27.7089427, 85.3086209*/);
           });
           // BitmapDescriptor.fromAssetImage(
@@ -992,7 +1005,7 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
           //         LiveLocationStatusIcon = onValue;
           //       });
           // });
-          getmarkers(4);
+          // getmarkers(4);
 
           // getStartLocationMakers(state.startLocationResponse[0].latitude!,state.startLocationResponse[0].longitude!);
 
@@ -1019,7 +1032,9 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
           setState(() {
             _isLoading = true;
           });
+          //! Start locatiom IMEI Number loaded state--------------------------------->
         } else if (state is StartLocationIMEILoadedState) {
+          print("Your Start location is there---------->");
           setState(() {
             _isLoading = false;
             _searchmarkerlist.clear();
@@ -1040,11 +1055,13 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
 
           if (state.startLocationResponse[0].vehicleStatus == "Running") {
             getNextlocation(state.startLocationResponse[0].imei!);
+            for (int i = 0; i < state.startLocationResponse.length; i++) {}
           }
         } else if (state is StartLocationIMEIErrorState) {
           setState(() {
             _isLoading = false;
           });
+          //! NextLocation IMEI Loading state---------------------->
         } else if (state is NextLocationIMEILoadingState) {
           setState(() {
             _isLoading = true;
@@ -1195,11 +1212,12 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
                     setState(() {
                       mapController = controller;
                     });
-                    
                   },
                   zoomControlsEnabled: true,
                   // initialCameraPosition: initialCameraPosition,
                   myLocationEnabled: true,
+                  mapType: MapType.normal,
+
                   initialCameraPosition: CameraPosition(
                     //innital position in map
                     target: showLocation, //initial position
@@ -1211,7 +1229,7 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
       ),
     );
   }
- 
+
   void showPinsOnMap() {
     // get a LatLng for the source location
     // from the LocationData currentLocation object
@@ -1293,7 +1311,7 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
           vendorId: vendorid,
           branchId: branchid,
           token: token,
-          araiNonarai: 'nonarai',
+          araiNonarai: 'arai',
           imeiNUmber: imei));
     });
   }

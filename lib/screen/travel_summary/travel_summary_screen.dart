@@ -74,7 +74,7 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
         setState(() {
           print("Scroll ${pagenumber}");
           getallbranch();
-          isSelected ? getsearch() : null ;
+          isSelected ? getsearch() : null;
         });
       }
     });
@@ -159,10 +159,11 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
                 filterdata!.clear();
                 filterdata!.addAll(state.travelSummaryFilterResponse.datewise!);
               });
-            } else {
-              print("Something went worong in Filter data");
             }
           } else if (state is TravelSummaryFilterErrorState) {
+            setState(() {
+              _isLoading = false;
+            });
             print("Something went Wrong Filter data");
           }
           //! SearchEvent TravelSummarydata fetching Start from here----------------
@@ -179,8 +180,6 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
                 searchvalue = state.travelSummaryResponse.totalRecords!;
               });
               searchdata!.addAll(state.travelSummaryResponse.datewise!);
-            } else {
-              print("Something is going wrong in Search data");
             }
           } else if (state is TravelSummaryErrorState) {
             print("Something went Wrong search data");
@@ -382,28 +381,30 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
                                                     // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                     children: [
                                                       Container(
-                                                        padding:
-                                                            EdgeInsets.all(10),
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          color: MyColors
-                                                              .whiteColorCode,
-                                                          border: Border.all(
-                                                              color: MyColors
-                                                                  .boxBackgroundColorCode),
-                                                          borderRadius:
-                                                              const BorderRadius
-                                                                      .all(
-                                                                  Radius
-                                                                      .circular(
-                                                                          10)),
-                                                        ),
-                                                        child: Image.asset(
-                                                          "assets/driving_pin.png",
-                                                          width: 40,
-                                                          height: 40,
-                                                        ),
-                                                      ),
+                                                          padding:
+                                                              EdgeInsets.all(
+                                                                  10),
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            color: MyColors
+                                                                .whiteColorCode,
+                                                            border: Border.all(
+                                                                color: MyColors
+                                                                    .boxBackgroundColorCode),
+                                                            borderRadius:
+                                                                const BorderRadius
+                                                                        .all(
+                                                                    Radius
+                                                                        .circular(
+                                                                            10)),
+                                                          ),
+                                                          child: article
+                                                                      .vehicleStatus ==
+                                                                  "Idle"
+                                                              ? Image.asset(
+                                                                  "assets/idle_car.png")
+                                                              : Image.asset(
+                                                                  "assets/running_car.png")),
                                                       Expanded(
                                                         child: Padding(
                                                           padding:
@@ -593,11 +594,50 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
                                                               Radius.circular(
                                                                   10)),
                                                     ),
-                                                    child: Image.asset(
-                                                      "assets/driving_pin.png",
-                                                      width: 40,
-                                                      height: 40,
-                                                    ),
+                                                    child: traveldata![index]
+                                                                .vehicleStatus ==
+                                                            "Idle"
+                                                        ? Image.asset(
+                                                            "assets/idle_truck.png",
+                                                            height: 45.0,
+                                                            width: 45.0,
+                                                          )
+                                                        : traveldata![index]
+                                                                    .vehicleStatus ==
+                                                                "Inactive"
+                                                            ? Image.asset(
+                                                                "assets/inactive_truck.png",
+                                                                height: 45.0,
+                                                                width: 45.0,
+                                                              )
+                                                            : traveldata![index]
+                                                                        .vehicleStatus ==
+                                                                    "Stop"
+                                                                ? Image.asset(
+                                                                    "assets/stopped_truck.png",
+                                                                    height:
+                                                                        45.0,
+                                                                    width: 45.0,
+                                                                  )
+                                                                : traveldata![index]
+                                                                            .vehicleStatus ==
+                                                                        "Overspeed"
+                                                                    ? Image
+                                                                        .asset(
+                                                                        "assets/overspeed_truck.png",
+                                                                        height:
+                                                                            45.0,
+                                                                        width:
+                                                                            45.0,
+                                                                      )
+                                                                    : Image
+                                                                        .asset(
+                                                                        "assets/running_truck.png",
+                                                                        height:
+                                                                            45.0,
+                                                                        width:
+                                                                            45.0,
+                                                                      ),
                                                   ),
                                                   Expanded(
                                                     child: Padding(
