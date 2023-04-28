@@ -1675,7 +1675,7 @@ class VehicleReportFilterEvent extends MainEvent {
   String token;
   int vendorId;
   int branchid;
-  int vsrno;
+  String vsrno;
   int pagenumber;
   int pagesize;
   VehicleReportFilterEvent({

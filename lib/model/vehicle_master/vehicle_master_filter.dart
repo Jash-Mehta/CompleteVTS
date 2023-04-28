@@ -27,7 +27,7 @@ class VehicleReportFilter {
       this.message});
 
   VehicleReportFilter.fromJson(Map<String, dynamic> json) {
-    print("Entering in json api body" + json.toString());
+    // print("Entering in json api body" + json.toString());
     pageNumber = json['pageNumber'];
     pageSize = json['pageSize'];
     firstPage = json['firstPage'];
@@ -39,9 +39,8 @@ class VehicleReportFilter {
     if (json['data'] != null) {
       data = <VehicleFilterData>[];
       json['data'].forEach((v) {
-       
         data!.add(new VehicleFilterData.fromJson(v));
-        print("v data is ---> " + v);
+        // print("v data is ---> " + v);
       });
     }
     succeeded = json['succeeded'];

@@ -4599,23 +4599,23 @@ class WebService {
     String token,
     int vendorId,
     int branchid,
-    int vsrno,
+    String vsrno,
     int pagenumber,
     int pagesize,
   ) async {
-    // var vehiclereporturl = Constant.filterVehicleReporturl +
-    //     vendorId.toString() +
-    //     "&BranchId=" +
-    //     branchid.toString() +
-    //     "&VSrNo=" +
-    //     vsrno.toString() +
-    //     "&PageNumber=" +
-    //     pagenumber.toString() +
-    //     "&PageSize=" +
-    //     pagesize.toString();
+    var vehiclereporturl = Constant.filterVehicleReporturl +
+        vendorId.toString() +
+        "&BranchId=" +
+        branchid.toString() +
+        "&VSrNo=" +
+        vsrno.toString() +
+        "&PageNumber=" +
+        pagenumber.toString() +
+        "&PageSize=" +
+        pagesize.toString();
 
-    var vehiclereporturl =
-        "https://vtsgpsapi.m-techinnovations.com/api/VehicleMasterReports/ApplyFilterVehicleMaster?VendorId=1&BranchId=1&VSrNo=8&PageNumber=1&PageSize=10";
+    // var vehiclereporturl =
+    //     "https://vtsgpsapi.m-techinnovations.com/api/VehicleMasterReports/ApplyFilterVehicleMaster?VendorId=1&BranchId=1&VSrNo=8&PageNumber=1&PageSize=10";
 
     print("This is vehicle report filter url " + vehiclereporturl);
 

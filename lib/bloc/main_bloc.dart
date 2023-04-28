@@ -1341,10 +1341,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
               distancesummarysearch: distancesummarysearchresponse);
         } catch (e) {
           print(e.toString());
-          yield DistanceSummaryErrorState(msg:  e.toString());
+          yield DistanceSummaryErrorState(msg: e.toString());
         }
-      }
-       else if (event is DriverWiseVehicleAssignEvent) {
+      } else if (event is DriverWiseVehicleAssignEvent) {
         try {
           yield DriverWiseVehicleAssignLoadingState();
           var driverwisevehicleassignresponse =
@@ -1714,6 +1713,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           yield VehicleReportFilterLoadedState(
               vehicleReportFilter: vehiclereportfilterbloc);
         } catch (e) {
+          print("vehicle report went wrong in main bloc");
           yield VehicleReportFilterErorrState(msg: e.toString());
         }
       }

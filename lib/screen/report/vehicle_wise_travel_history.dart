@@ -1375,8 +1375,6 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Container(
-                              padding: const EdgeInsets.only(
-                                  top: 6.0, left: 15, right: 15, bottom: 6),
                               decoration: BoxDecoration(
                                   color: MyColors.analyticActiveColorCode,
                                   borderRadius:
