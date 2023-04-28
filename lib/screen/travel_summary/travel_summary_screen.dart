@@ -154,7 +154,7 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
             if (state.travelSummaryFilterResponse.datewise != null) {
               print("Filter data is printed!!");
               setState(() {
-                isData = false;
+                _isLoading = false;
                 // pagenumber++;
                 filterdata!.clear();
                 filterdata!.addAll(state.travelSummaryFilterResponse.datewise!);
@@ -164,6 +164,9 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
             }
           } else if (state is TravelSummaryFilterErrorState) {
             print("Something went Wrong Filter data");
+             setState(() {
+              _isLoading = false;
+            });
           }
           //! SearchEvent TravelSummarydata fetching Start from here----------------
           if (state is TravelSummarySearchLoadingState) {
@@ -534,7 +537,7 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
                                       );
                                     }),
                                   )
-                        : traveldata!.length == 0 || isData
+                        : traveldata!.length == 0 || _isLoading
                             ? Container()
                             : BlocBuilder<MainBloc, MainState>(
                                 builder: (context, state) {

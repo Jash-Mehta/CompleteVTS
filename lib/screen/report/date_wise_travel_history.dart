@@ -14,6 +14,8 @@ import '../../model/alert/all_alert_master_response.dart';
 import 'package:flutter_vts/model/report/search_overspeed_response.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
+import 'package:file_picker/src/file_picker.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:open_file/open_file.dart';
@@ -44,7 +46,7 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
   TextEditingController searchController = new TextEditingController();
   late bool isSearch = false;
   bool isData = false;
-   List<DatewiseTravelHistoryData> pdfdatalist = [];
+  List<DatewiseTravelHistoryData> pdfdatalist = [];
   List<DatewiseTravelHistoryData>? dwth = [];
   List<DatewiseTravelFilterData>? dwthfilter = [];
   List<DatewiseTravelHistorySearchData>? dwthsearch = [];
@@ -221,6 +223,7 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
                         onPressed: () {
                           setState(() {
                             isfilter = false;
+                            searchController.text = "";
                           });
                         },
                         icon: Icon(Icons.close))),
@@ -337,7 +340,7 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
               } else if (state is VehicleVSrNoLoadedState) {
                 if (state.vehiclevsrnoresponse.data != null) {
                   print("overspeed vehicle filter data is Loaded state");
-                  datewisedrivercode!.clear();
+                  // datewisedrivercode!.clear();
                   datewisedrivercode!.addAll(state.vehiclevsrnoresponse.data!);
                 }
               } else if (state is VehicleVSrNoErorrState) {
@@ -420,7 +423,7 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
             },
             child: isfilter
                 ? SingleChildScrollView(
-                    controller: notificationController,
+                    // controller: notificationController,
                     child: Padding(
                       padding: const EdgeInsets.all(0),
                       //left: 8, top: 16.0, right: 8.0),
@@ -494,27 +497,40 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
                                                     color: Colors.white)),
                                             onPressed: () {
                                               print("Applyy clicked");
-                                              _mainBloc.add(
-                                                  DateWiseTravelFilterEvent(
-                                                      token: token,
-                                                      vendorId: vendorid,
-                                                      branchid: branchid,
-                                                      arai: arai,
-                                                      fromdate:
-                                                          fromDateController,
-                                                      todate: toDateController,
-                                                      vehiclelist: dwdcdeviceno
-                                                                  .toString() ==
-                                                              null
-                                                          ? "ALL"
-                                                          : dwdcdeviceno
-                                                              .toString(),
-                                                      pagenumber: pageNumber,
-                                                      pagesize: pageSize));
-                                              setState(() {
-                                                isfilter = false;
-                                                applyclicked = true;
-                                              });
+                                              if (toDateController != null &&
+                                                  fromDateController != null &&
+                                                  dwdcdeviceno != null) {
+                                                _mainBloc.add(
+                                                    DateWiseTravelFilterEvent(
+                                                        token: token,
+                                                        vendorId: vendorid,
+                                                        branchid: branchid,
+                                                        arai: arai,
+                                                        fromdate:
+                                                            fromDateController,
+                                                        todate:
+                                                            toDateController,
+                                                        vehiclelist: dwdcdeviceno
+                                                                    .toString() ==
+                                                                null
+                                                            ? "ALL"
+                                                            : dwdcdeviceno
+                                                                .toString(),
+                                                        pagenumber: 1,
+                                                        pagesize: 200));
+                                                setState(() {
+                                                  isfilter = false;
+                                                  applyclicked = true;
+                                                });
+                                              } else {
+                                                Fluttertoast.showToast(
+                                                  msg:
+                                                      "Enter required fields..!",
+                                                  toastLength:
+                                                      Toast.LENGTH_SHORT,
+                                                  timeInSecForIosWeb: 1,
+                                                );
+                                              }
                                             })),
                                   ),
                                 ],
@@ -705,23 +721,25 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
                                               fontSize: 16,
                                               fontWeight: FontWeight.w400),
                                         ),
-                                        trailing:isdwdc ? IconButton(
-                                      icon: Icon(
-                                        Icons.keyboard_arrow_up,
-                                      ),  
-                                      onPressed: () {
-                                        isdwdc = false;
-                                        setState(() {});
-                                      },
-                                    ): IconButton(
-                                          icon: Icon(
-                                            Icons.keyboard_arrow_down,
-                                          ),
-                                          onPressed: () {
-                                            isdwdc = true;
-                                            setState(() {});
-                                          },
-                                        ),
+                                        trailing: isdwdc
+                                            ? IconButton(
+                                                icon: Icon(
+                                                  Icons.keyboard_arrow_up,
+                                                ),
+                                                onPressed: () {
+                                                  isdwdc = false;
+                                                  setState(() {});
+                                                },
+                                              )
+                                            : IconButton(
+                                                icon: Icon(
+                                                  Icons.keyboard_arrow_down,
+                                                ),
+                                                onPressed: () {
+                                                  isdwdc = true;
+                                                  setState(() {});
+                                                },
+                                              ),
                                       )),
                                   isdwdc
                                       ? Container(
@@ -1059,63 +1077,117 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Container(
-                                padding: const EdgeInsets.only(
-                                    top: 6.0, left: 15, right: 15, bottom: 6),
                                 decoration: BoxDecoration(
-                                    color: MyColors.greyDividerColorCode,
+                                    color: MyColors.analyticActiveColorCode,
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(20))),
                                 child: Row(
                                   children: [
-                                    Icon(Icons.file_copy_outlined),
-                                    Text("Export"),
+                                    GestureDetector(
+                                      onTap: () async {
+                                        // final result = await FilePicker.platform
+                                        //     .pickFiles(
+                                        //         type: FileType.custom,
+                                        //         allowedExtensions: ['pdf']);
+                                         final result = await FilePicker.platform
+                                    .pickFiles(
+                                        type: FileType.custom,
+                                        allowedExtensions: ['pdf']);
+                                // FilePicker.platform.pickFiles(allowMultiple: false,allowedExtensions:FileType.custom(), );
+                                try {
+                                  List<String>? files = result?.files
+                                      .map((file) => file.path)
+                                      .cast<String>()
+                                      .toList();
+                                  print("File path------${files}");
+                                  //    List<String>? files = [
+                                  //   "/data/user/0/com.vts.gps/cache/file_picker/DTwisereport.pdf"
+                                  // ];
+                                  // print("File path------${files}");
+                                  await Share.shareFiles(files!);
+                                } catch (e) {
+                                  Fluttertoast.showToast(
+                                    msg: "Download the pdf first",
+                                    toastLength: Toast.LENGTH_SHORT,
+                                    timeInSecForIosWeb: 1,
+                                  );
+                                }
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.only(
+                                            top: 6.0,
+                                            left: 15,
+                                            right: 15,
+                                            bottom: 6),
+                                        decoration: BoxDecoration(
+                                            color: MyColors
+                                                .analyticActiveColorCode,
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(20))),
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              Icons.file_copy_outlined,
+                                              color: Colors.black,
+                                            ),
+                                            Text(
+                                              "Export",
+                                              style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontWeight: FontWeight.w600),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
                               GestureDetector(
-                              onTap: () async {
-                                pdfdatalist.addAll(dwth!);
-                                setState(() {});
+                                onTap: () async {
+                                  pdfdatalist.addAll(dwth!);
+                                  setState(() {});
 
-                                var status = await Permission.storage.status;
-                                if (await Permission.storage
-                                    .request()
-                                    .isGranted) {
-                                  final pdfFile =
-                                      await PdfInvoiceApi.generate(pdfdatalist);
-                                  PdfApi.openFile(pdfFile);
-                                } else {
-                                  print("Request is not accepted");
-                                  await Permission.storage.request();
-                                }
+                                  var status = await Permission.storage.status;
+                                  if (await Permission.storage
+                                      .request()
+                                      .isGranted) {
+                                    final pdfFile =
+                                        await PdfInvoiceApi.generate(
+                                            pdfdatalist);
+                                    PdfApi.openFile(pdfFile);
+                                  } else {
+                                    print("Request is not accepted");
+                                    await Permission.storage.request();
+                                  }
 
-                                // if (status.isDenied) {
-                                // }
-                              },
-                              child: Container(
-                                margin: const EdgeInsets.only(left: 15),
-                                padding: const EdgeInsets.only(
-                                    top: 6.0, left: 15, right: 15, bottom: 6),
-                                decoration: const BoxDecoration(
-                                    color: MyColors.lightblueColorCode,
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(20))),
-                                child: Row(
-                                  children: const [
-                                    Icon(
-                                      Icons.file_copy_sharp,
+                                  // if (status.isDenied) {
+                                  // }
+                                },
+                                child: Container(
+                                  margin: const EdgeInsets.only(left: 15),
+                                  padding: const EdgeInsets.only(
+                                      top: 6.0, left: 15, right: 15, bottom: 6),
+                                  decoration: const BoxDecoration(
                                       color: MyColors.analyticActiveColorCode,
-                                    ),
-                                    Text(
-                                      "Download",
-                                      style: TextStyle(
-                                          color:
-                                              MyColors.analyticActiveColorCode),
-                                    ),
-                                  ],
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(20))),
+                                  child: Row(
+                                    children: const [
+                                      Icon(
+                                        Icons.file_copy_sharp,
+                                        color: Colors.black,
+                                      ),
+                                      Text(
+                                        "Download",
+                                        style: TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            )
+                              )
                             ],
                           )),
                       Padding(
@@ -1143,8 +1215,10 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
                                     ? BlocBuilder<MainBloc, MainState>(
                                         builder: (context, state) {
                                         return Text(
-                                          dwthsearch!.length.toString() +
-                                              " Search Records found",
+                                          dwthsearch!.isEmpty
+                                              ? ""
+                                              : dwthsearch!.length.toString() +
+                                                  " Search Records found",
                                           style: TextStyle(
                                               fontSize: 18,
                                               fontWeight: FontWeight.bold),
@@ -1180,6 +1254,7 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
                                                   vehicleRecordController,
                                               itemCount: dwthfilter!.length,
                                               itemBuilder: (context, index) {
+                                                var sr = index + 1;
                                                 var article =
                                                     dwthfilter![index];
                                                 return Card(
@@ -1255,7 +1330,7 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
                                                                               fontSize: 18),
                                                                         ),
                                                                         Text(
-                                                                          "1",
+                                                                          sr.toString(),
                                                                           style: TextStyle(
                                                                               color: MyColors.text5ColorCode,
                                                                               fontSize: 18),
@@ -1525,6 +1600,7 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
                                                   vehicleRecordController,
                                               itemCount: dwth!.length,
                                               itemBuilder: (context, index) {
+                                                var sr = index + 1;
                                                 var article = dwth![index];
                                                 return Card(
                                                   margin: EdgeInsets.only(
@@ -1599,7 +1675,7 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
                                                                               fontSize: 18),
                                                                         ),
                                                                         Text(
-                                                                          "1",
+                                                                          sr.toString(),
                                                                           style: TextStyle(
                                                                               color: MyColors.text5ColorCode,
                                                                               fontSize: 18),
@@ -1882,6 +1958,7 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
                                                           dwthsearch!.length,
                                                       itemBuilder:
                                                           (context, index) {
+                                                        var sr = index + 1;
                                                         var article =
                                                             dwthsearch![index];
                                                         return Card(
@@ -1956,7 +2033,7 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
                                                                                   style: TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
                                                                                 ),
                                                                                 Text(
-                                                                                  "1",
+                                                                                  sr.toString(),
                                                                                   style: TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
                                                                                 ),
                                                                               ],
@@ -2165,8 +2242,8 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
         branchid: branchid,
         arai: arai,
         fromDate:
-            fromDateController == null ? "01-sep-2022" : fromDateController,
-        todate: toDateController == null ? "30-sep-2022" : toDateController,
+            fromDateController ?? "01-sep-2022" ,
+        todate: toDateController ?? "30-sep-2022",
         searchText: searchClass.searchStr,
         pagenumber: pageNumber,
         pagesize: pageSize,
@@ -2179,38 +2256,40 @@ class PdfInvoiceApi {
   static Future<File> generate(List<DatewiseTravelHistoryData> pdflist) async {
     final pdf = pw.Document();
     double fontsize = 8.0;
-    
+
     DateTime current_date = DateTime.now();
     pdf.addPage(pw.MultiPage(
       // header: (pw.Context context) {
       //   return pw.Text("header");
       // },
       footer: (pw.Context context) {
-       return pw.Column(children:[ 
-        pw.Row(
-          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-          children: [
-            pw.Text(
-              "Printed by : Techno",
-              textAlign: pw.TextAlign.left,
-              style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-            ),
-            pw.Text(
-              "Page : ${context.pageNumber} of ${context.pagesCount}",
-              textDirection: pw.TextDirection.ltr,
-              textAlign: pw.TextAlign.left,
-              style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-            ),
-          ],),
-           pw.Row(
+        return pw.Column(children: [
+          pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            children: [
+              pw.Text(
+                "Printed by : Techno",
+                textAlign: pw.TextAlign.left,
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              ),
+              pw.Text(
+                "Page : ${context.pageNumber} of ${context.pagesCount}",
+                textDirection: pw.TextDirection.ltr,
+                textAlign: pw.TextAlign.left,
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              ),
+            ],
+          ),
+          pw.Row(
             children: [
               pw.Text(
                 "Printed on : " + current_date.toString(),
                 textAlign: pw.TextAlign.left,
                 style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
               )
-            ],)
-          ]);
+            ],
+          )
+        ]);
       },
       pageFormat: PdfPageFormat.a5,
       build: (pw.Context context) {
@@ -2322,6 +2401,7 @@ class PdfInvoiceApi {
           pw.ListView.builder(
               itemBuilder: (pw.Context context, int index) {
                 var article = pdflist[index];
+                var sr = index + 1;
                 return pw.Table(
                     border:
                         pw.TableBorder.all(color: PdfColors.black, width: 0.8),
@@ -2332,7 +2412,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 20,
-                            child: pw.Text("1",
+                            child: pw.Text(sr.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),

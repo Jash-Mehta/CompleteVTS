@@ -14,6 +14,8 @@ import 'package:flutter_vts/model/report/search_overspeed_response.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:open_file/open_file.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:intl/intl.dart';
@@ -211,6 +213,7 @@ class _DateAndTimeWiseDistanceScreenState
                         onPressed: () {
                           setState(() {
                             isfilter = false;
+                            searchController.text = "";
                           });
                         },
                         icon: Icon(Icons.close))),
@@ -354,7 +357,6 @@ class _DateAndTimeWiseDistanceScreenState
               pageNumber++;
               setState(() {
                 _isLoading = false;
-                // pageNumber++;
                 value = state.dateandtimewisetravelResponse.totalRecords!;
               });
               data!.addAll(state.dateandtimewisetravelResponse.data!);
@@ -370,6 +372,15 @@ class _DateAndTimeWiseDistanceScreenState
             setState(() {
               _isLoading = true;
             });
+            try {
+              filterData!.isEmpty;
+            } catch (e) {
+              Fluttertoast.showToast(
+                msg: "Enter valid vehicle number..!",
+                toastLength: Toast.LENGTH_SHORT,
+                timeInSecForIosWeb: 3,
+              );
+            }
           } else if (state is DateAndTimeWiseFilterLoadedState) {
             print("Entering in Date And Time Wise Filter  loaded state");
             setState(() {
@@ -406,7 +417,7 @@ class _DateAndTimeWiseDistanceScreenState
         },
         child: isfilter
             ? SingleChildScrollView(
-                controller: notificationController,
+                // controller: notificationController,
                 child: Padding(
                     padding: const EdgeInsets.all(0),
                     //left: 8, top: 16.0, right: 8.0),
@@ -479,24 +490,39 @@ class _DateAndTimeWiseDistanceScreenState
                                                 style: TextStyle(
                                                     color: Colors.white)),
                                             onPressed: () {
-                                              _mainBloc.add(
-                                                  DateAndTimeWiseFilterEvents(
-                                                token: token,
-                                                vendorId: vendorid,
-                                                branchid: branchid,
-                                                araino: arai,
-                                                fromdate: fromDateController,
-                                                fromTime: fromTimeController,
-                                                toDate: toDateController,
-                                                toTime: toTimeController,
-                                                vehiclelist: osvfvehno,
-                                                pagenumber: pageNumber,
-                                                pagesize: pageSize,
-                                              ));
-                                              setState(() {
-                                                isfilter = false;
-                                                applyclicked = true;
-                                              });
+                                              if (toDateController != null &&
+                                                  fromDateController != null &&
+                                                  toTimeController != null &&
+                                                  fromTimeController != null &&
+                                                  osvfvehno != null) {
+                                                _mainBloc.add(
+                                                    DateAndTimeWiseFilterEvents(
+                                                  token: token,
+                                                  vendorId: vendorid,
+                                                  branchid: branchid,
+                                                  araino: arai,
+                                                  fromdate: fromDateController,
+                                                  fromTime: fromTimeController,
+                                                  toDate: toDateController,
+                                                  toTime: toTimeController,
+                                                  vehiclelist: osvfvehno,
+                                                  pagenumber: 1,
+                                                  pagesize: 200,
+                                                ));
+                                                setState(() {
+                                                  isfilter = false;
+                                                  applyclicked = true;
+                                                  searchController.text = "";
+                                                });
+                                              } else {
+                                                Fluttertoast.showToast(
+                                                  msg:
+                                                      "Enter required fields..!",
+                                                  toastLength:
+                                                      Toast.LENGTH_SHORT,
+                                                  timeInSecForIosWeb: 1,
+                                                );
+                                              }
                                             })),
                                   ),
                                 ],
@@ -785,17 +811,31 @@ class _DateAndTimeWiseDistanceScreenState
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
                                               children: [
-                                                const Padding(
+                                                Padding(
                                                   padding:
                                                       const EdgeInsets.only(
                                                           top: 2.0, bottom: 10),
-                                                  child: Text(
-                                                    "From Date/Time",
-                                                    textAlign: TextAlign.center,
-                                                    style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 18),
+                                                  child: Row(
+                                                    children: [
+                                                      Text(
+                                                        "From Data/Time",
+                                                        style: TextStyle(
+                                                            fontSize: 20,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w500),
+                                                      ),
+                                                      Padding(
+                                                        padding:
+                                                            EdgeInsets.only(
+                                                                left: 3.0),
+                                                        child: Text("*",
+                                                            style: TextStyle(
+                                                                fontSize: 18,
+                                                                color: MyColors
+                                                                    .redColorCode)),
+                                                      )
+                                                    ],
                                                   ),
                                                 ),
                                                 Row(
@@ -1105,16 +1145,30 @@ class _DateAndTimeWiseDistanceScreenState
                                                     ),
                                                   ],
                                                 ),
-                                                const Padding(
+                                                Padding(
                                                   padding: EdgeInsets.only(
                                                       top: 2.0, bottom: 10),
-                                                  child: Text(
-                                                    "To Date/Time",
-                                                    textAlign: TextAlign.center,
-                                                    style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 18),
+                                                  child: Row(
+                                                    children: [
+                                                      Text(
+                                                        "To Data/Time",
+                                                        style: TextStyle(
+                                                            fontSize: 20,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w500),
+                                                      ),
+                                                      Padding(
+                                                        padding:
+                                                            EdgeInsets.only(
+                                                                left: 3.0),
+                                                        child: Text("*",
+                                                            style: TextStyle(
+                                                                fontSize: 18,
+                                                                color: MyColors
+                                                                    .redColorCode)),
+                                                      )
+                                                    ],
                                                   ),
                                                 ),
                                                 Row(
@@ -1434,25 +1488,59 @@ class _DateAndTimeWiseDistanceScreenState
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Container(
-                              padding: const EdgeInsets.only(
-                                  top: 6.0, left: 15, right: 15, bottom: 6),
-                              decoration: BoxDecoration(
-                                  color: MyColors.greyDividerColorCode,
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(20))),
-                              child: Row(
-                                children: [
-                                  Icon(Icons.file_copy_outlined),
-                                  Text("Export"),
-                                ],
+                            GestureDetector(
+                              onTap: () async {
+                                final result = await FilePicker.platform
+                                    .pickFiles(
+                                        type: FileType.custom,
+                                        allowedExtensions: ['pdf']);
+                                // FilePicker.platform.pickFiles(allowMultiple: false,allowedExtensions:FileType.custom(), );
+                                try {
+                                  List<String>? files = result?.files
+                                      .map((file) => file.path)
+                                      .cast<String>()
+                                      .toList();
+                                  print("File path------${files}");
+                                  //    List<String>? files = [
+                                  //   "/data/user/0/com.vts.gps/cache/file_picker/DTwisereport.pdf"
+                                  // ];
+                                  // print("File path------${files}");
+                                  await Share.shareFiles(files!);
+                                } catch (e) {
+                                  Fluttertoast.showToast(
+                                    msg: "Download the pdf first",
+                                    toastLength: Toast.LENGTH_SHORT,
+                                    timeInSecForIosWeb: 1,
+                                  );
+                                }
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.only(
+                                    top: 6.0, left: 15, right: 15, bottom: 6),
+                                decoration: BoxDecoration(
+                                    color: MyColors.analyticActiveColorCode,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(20))),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.file_copy_outlined,
+                                      color: Colors.black,
+                                    ),
+                                    Text(
+                                      "Export",
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                             GestureDetector(
                               onTap: () async {
                                 pdfdatalist.addAll(data!);
                                 setState(() {});
-
                                 var status = await Permission.storage.status;
                                 if (await Permission.storage
                                     .request()
@@ -1464,29 +1552,26 @@ class _DateAndTimeWiseDistanceScreenState
                                   print("Request is not accepted");
                                   await Permission.storage.request();
                                 }
-
-                                // if (status.isDenied) {
-                                // }
                               },
                               child: Container(
                                 margin: const EdgeInsets.only(left: 15),
                                 padding: const EdgeInsets.only(
                                     top: 6.0, left: 15, right: 15, bottom: 6),
                                 decoration: const BoxDecoration(
-                                    color: MyColors.lightblueColorCode,
+                                    color: MyColors.analyticActiveColorCode,
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(20))),
                                 child: Row(
                                   children: const [
                                     Icon(
                                       Icons.file_copy_sharp,
-                                      color: MyColors.analyticActiveColorCode,
+                                      color: Colors.black,
                                     ),
                                     Text(
                                       "Download",
                                       style: TextStyle(
-                                          color:
-                                              MyColors.analyticActiveColorCode),
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.w600),
                                     ),
                                   ],
                                 ),
@@ -1519,8 +1604,10 @@ class _DateAndTimeWiseDistanceScreenState
                                   ? BlocBuilder<MainBloc, MainState>(
                                       builder: (context, state) {
                                       return Text(
-                                        searchData!.length.toString() +
-                                            " Search Records found",
+                                        searchData!.isEmpty
+                                            ? ""
+                                            : searchData!.length.toString() +
+                                                " Search Records found",
                                         style: TextStyle(
                                             fontSize: 18,
                                             fontWeight: FontWeight.bold),
@@ -1536,65 +1623,65 @@ class _DateAndTimeWiseDistanceScreenState
                                             fontWeight: FontWeight.bold),
                                       );
                                     }),
-                          Container(
-                            margin: EdgeInsets.only(top: 10, bottom: 20),
-                            padding: EdgeInsets.all(15),
-                            decoration: BoxDecoration(
-                                color: MyColors.bluereportColorCode,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10))),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Text("From Date  -  To Date",
-                                        style: TextStyle(fontSize: 18)),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Text(
-                                        fromDateController != null
-                                            ? fromDateController + "  -  "
-                                            : "01-sep-2022" + "  -  ",
-                                        style: TextStyle(fontSize: 18)),
-                                    Text(
-                                        toDateController != null
-                                            ? toDateController
-                                            : "30-sep-2022" + "  -  ",
-                                        style: TextStyle(fontSize: 18)),
-                                  ],
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(top: 10),
-                                  child: Row(
-                                    // mainAxisAlignment: MainAxisAlignment.start,
-                                    // crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Expanded(
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              "VehicleRegNo",
-                                              style: TextStyle(fontSize: 18),
-                                            ),
-                                            Text("MH12AB0015",
-                                                style: TextStyle(fontSize: 18)),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                          // Container(
+                          //   margin: EdgeInsets.only(top: 10, bottom: 20),
+                          //   padding: EdgeInsets.all(15),
+                          //   decoration: BoxDecoration(
+                          //       color: MyColors.bluereportColorCode,
+                          //       borderRadius:
+                          //           BorderRadius.all(Radius.circular(10))),
+                          //   child: Column(
+                          //     mainAxisAlignment: MainAxisAlignment.start,
+                          //     crossAxisAlignment: CrossAxisAlignment.start,
+                          //     children: [
+                          //       Row(
+                          //         children: [
+                          //           Text("From Date  -  To Date",
+                          //               style: TextStyle(fontSize: 18)),
+                          //         ],
+                          //       ),
+                          //       Row(
+                          //         children: [
+                          //           Text(
+                          //               fromDateController != null
+                          //                   ? fromDateController + "  -  "
+                          //                   : "01-sep-2022" + "  -  ",
+                          //               style: TextStyle(fontSize: 18)),
+                          //           Text(
+                          //               toDateController != null
+                          //                   ? toDateController
+                          //                   : "30-sep-2022" + "  -  ",
+                          //               style: TextStyle(fontSize: 18)),
+                          //         ],
+                          //       ),
+                          //       Padding(
+                          //         padding: EdgeInsets.only(top: 10),
+                          //         child: Row(
+                          //           // mainAxisAlignment: MainAxisAlignment.start,
+                          //           // crossAxisAlignment: CrossAxisAlignment.start,
+                          //           children: [
+                          //             Expanded(
+                          //               child: Column(
+                          //                 mainAxisAlignment:
+                          //                     MainAxisAlignment.start,
+                          //                 crossAxisAlignment:
+                          //                     CrossAxisAlignment.start,
+                          //                 children: [
+                          //                   Text(
+                          //                     "VehicleRegNo",
+                          //                     style: TextStyle(fontSize: 18),
+                          //                   ),
+                          //                   Text("MH12AB0015",
+                          //                       style: TextStyle(fontSize: 18)),
+                          //                 ],
+                          //               ),
+                          //             ),
+                          //           ],
+                          //         ),
+                          //       ),
+                          //     ],
+                          //   ),
+                          // ),
                           applyclicked
                               ? Padding(
                                   padding: const EdgeInsets.only(top: 20.0),
@@ -1606,6 +1693,7 @@ class _DateAndTimeWiseDistanceScreenState
                                         controller: vehicleRecordController,
                                         itemCount: filterData!.length,
                                         itemBuilder: (context, index) {
+                                          var sr = index + 1;
                                           var article = filterData![index];
                                           return Card(
                                             margin: EdgeInsets.only(bottom: 15),
@@ -1673,7 +1761,7 @@ class _DateAndTimeWiseDistanceScreenState
                                                                             18),
                                                                   ),
                                                                   Text(
-                                                                    "1",
+                                                                    sr.toString(),
                                                                     style: TextStyle(
                                                                         color: MyColors
                                                                             .text5ColorCode,
@@ -2257,7 +2345,7 @@ class _DateAndTimeWiseDistanceScreenState
                                             itemCount: data!.length,
                                             itemBuilder: (context, index) {
                                               var article = data![index];
-
+                                              var sr = index + 1;
                                               return Card(
                                                 margin:
                                                     EdgeInsets.only(bottom: 15),
@@ -2327,7 +2415,7 @@ class _DateAndTimeWiseDistanceScreenState
                                                                             fontSize: 18),
                                                                       ),
                                                                       Text(
-                                                                        "1",
+                                                                        sr.toString(),
                                                                         style: TextStyle(
                                                                             color:
                                                                                 MyColors.text5ColorCode,
@@ -2615,7 +2703,7 @@ class _DateAndTimeWiseDistanceScreenState
       });
       return;
     } else {
-      if (text.isNotEmpty || text.length > 0) {
+      if (text.isNotEmpty) {
         setState(() {
           isSearch = true;
           searchClass.searchStr = text;
@@ -2626,10 +2714,10 @@ class _DateAndTimeWiseDistanceScreenState
           vendorId: vendorid,
           branchid: branchid,
           araino: arai,
-          fromdate: fromdate,
-          fromTime: SfromTime,
-          toDate: todate,
-          toTime: StoTime,
+          fromdate: fromDateController ?? fromdate,
+          fromTime: fromTimeController ?? SfromTime,
+          toDate: toDateController ?? todate,
+          toTime: toTimeController ?? StoTime,
           searchtxt: searchClass.searchStr,
           pagenumber: 1,
           pagesize: pageSize,
@@ -2643,38 +2731,40 @@ class PdfInvoiceApi {
   static Future<File> generate(List<DateAndTimewiseData> pdflist) async {
     final pdf = pw.Document();
     double fontsize = 8.0;
-    
+
     DateTime current_date = DateTime.now();
     pdf.addPage(pw.MultiPage(
       // header: (pw.Context context) {
       //   return pw.Text("header");
       // },
       footer: (pw.Context context) {
-       return pw.Column(children:[ 
-        pw.Row(
-          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-          children: [
-            pw.Text(
-              "Printed by : Techno",
-              textAlign: pw.TextAlign.left,
-              style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-            ),
-            pw.Text(
-              "Page : ${context.pageNumber} of ${context.pagesCount}",
-              textDirection: pw.TextDirection.ltr,
-              textAlign: pw.TextAlign.left,
-              style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-            ),
-          ],),
-           pw.Row(
+        return pw.Column(children: [
+          pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            children: [
+              pw.Text(
+                "Printed by : Techno",
+                textAlign: pw.TextAlign.left,
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              ),
+              pw.Text(
+                "Page : ${context.pageNumber} of ${context.pagesCount}",
+                textDirection: pw.TextDirection.ltr,
+                textAlign: pw.TextAlign.left,
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              ),
+            ],
+          ),
+          pw.Row(
             children: [
               pw.Text(
                 "Printed on : " + current_date.toString(),
                 textAlign: pw.TextAlign.left,
                 style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
               )
-            ],)
-          ]);
+            ],
+          )
+        ]);
       },
       pageFormat: PdfPageFormat.a5,
       build: (pw.Context context) {
@@ -2786,6 +2876,7 @@ class PdfInvoiceApi {
           pw.ListView.builder(
               itemBuilder: (pw.Context context, int index) {
                 var article = pdflist[index];
+                var sr = index + 1;
                 return pw.Table(
                     border:
                         pw.TableBorder.all(color: PdfColors.black, width: 0.8),
@@ -2796,7 +2887,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text("1",
+                            child: pw.Text(sr.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),

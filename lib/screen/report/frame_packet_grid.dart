@@ -12,7 +12,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:file_picker/src/file_picker.dart';
 import 'package:open_file/open_file.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -158,7 +160,8 @@ class _FramePacketGridState extends State<FramePacketGrid> {
       if (notificationController.position.maxScrollExtent ==
           notificationController.offset) {
         setState(() {
-          getdataDM();
+          getData();
+          getallbranch();
         });
       }
     });
@@ -240,6 +243,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                         onPressed: () {
                           setState(() {
                             isfilter = false;
+                            searchController.text = "";
                           });
                         },
                         icon: Icon(Icons.close))),
@@ -248,6 +252,66 @@ class _FramePacketGridState extends State<FramePacketGrid> {
       ),
       body: _vehicleMaster(),
     );
+  }
+
+  getData() async {
+    sharedPreferences = await SharedPreferences.getInstance();
+    if (sharedPreferences.getString("auth_token") != null) {
+      token = sharedPreferences.getString("auth_token")!;
+      print("token ${token}");
+    }
+    if (sharedPreferences.getInt("SrNo") != null) {
+      vendorid = sharedPreferences.getInt("SrNo")!;
+    }
+    if (sharedPreferences.getInt("vehicleRegNo") != null) {
+      vendorid = sharedPreferences.getInt("vehicleRegNo")!;
+    }
+
+    if (sharedPreferences.getString("latitude") != null) {
+      userName = sharedPreferences.getString("latitude")!;
+    }
+    if (sharedPreferences.getString("longitude") != null) {
+      vendorName = sharedPreferences.getString("longitude")!;
+    }
+    if (sharedPreferences.getString("address") != null) {
+      branchName = sharedPreferences.getString("address")!;
+    }
+    if (sharedPreferences.getString("transDate") != null) {
+      userType = sharedPreferences.getString("transDate")!;
+    }
+    if (sharedPreferences.getString("transTime") != null) {
+      userType = sharedPreferences.getString("transTime")!;
+    }
+    if (sharedPreferences.getString("speed") != null) {
+      userType = sharedPreferences.getString("speed")!;
+    }
+    if (sharedPreferences.getString("overSpeed") != null) {
+      userType = sharedPreferences.getString("overSpeed")!;
+    }
+    if (sharedPreferences.getString("updatedOn") != null) {
+      userType = sharedPreferences.getString("updatedOn")!;
+    }
+    if (sharedPreferences.getString("distancetravel") != null) {
+      userType = sharedPreferences.getString("distancetravel")!;
+    }
+    if (sharedPreferences.getString("speedLimit") != null) {
+      userType = sharedPreferences.getString("speedLimit")!;
+    }
+    if (sharedPreferences.getString("searchText") != null) {
+      userType = sharedPreferences.getString("searchText")!;
+    }
+
+    print("branchid ${branchid}   Vendor id   ${vendorid}");
+
+    //print(""+vendorid.toString()+" "+branchid.toString()+" "+userName+" "+vendorName+" "+branchName+" "+userType);
+
+    if (token != "" ||
+        vehicleRegNo != 0 ||
+        imeino != 0 ||
+        transDate != "" ||
+        overSpeed != "") {
+      // _getOverSpeedCreatedetail();
+    }
   }
 
   _vehicleMaster() {
@@ -275,7 +339,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
               osvfdata!.forEach((element) {
                 print("Overspeed vehicle filter element is Printed");
               });
-            } 
+            }
           } else if (state is VehicleVSrNoErorrState) {
             print("Something went Wrong  data VehicleVSrNoErorrState");
             Fluttertoast.showToast(
@@ -330,10 +394,8 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                 // framepacketgriddata!.clear();
                 pageNumber++;
                 _isLoading = false;
-                pageNumber++;
-
                 value = state.FramePacketGridResponse.totalRecords!;
-                framepacketgriddata!.clear();
+                // framepacketgriddata!.clear();
               });
               framepacketgriddata!.addAll(state.FramePacketGridResponse.data!);
             }
@@ -370,7 +432,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
         },
         child: isfilter
             ? SingleChildScrollView(
-                controller: notificationController,
+                // controller: notificationController,
                 child: Padding(
                   padding: const EdgeInsets.all(0),
                   //left: 8, top: 16.0, right: 8.0),
@@ -441,29 +503,42 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                 TextStyle(color: Colors.white)),
                                         onPressed: () {
                                           print("Applyy clicked");
-                                          _mainBloc.add(FrameGridFilterEvent(
-                                              token: token,
-                                              vendorId: vendorid,
-                                              branchid: branchid,
-                                              arai: arai,
-                                              fromdate: fromDateController,
-                                              fromtime: fromTimeController,
-                                              todate: toDateController,
-                                              totime: toTimeController,
-                                              vehiclelist:
-                                                  fpgdcvehicleno == null
-                                                      ? "ALL"
-                                                      : fpgdcvehicleno,
-                                              framepacketoption:
-                                                  fpgovehicleno == null
-                                                      ? "ALL"
-                                                      : fpgovehicleno,
-                                              pagenumber: 1,
-                                              pagesize: pageSize));
-                                          setState(() {
-                                            isfilter = false;
-                                            applyclicked = true;
-                                          });
+                                          if (toDateController != null &&
+                                              fromDateController != null &&
+                                              toTimeController != null &&
+                                              fromTimeController != null &&
+                                              fpgdcvehicleno != null &&
+                                              fpgovehicleno != null) {
+                                            _mainBloc.add(FrameGridFilterEvent(
+                                                token: token,
+                                                vendorId: vendorid,
+                                                branchid: branchid,
+                                                arai: arai,
+                                                fromdate: fromDateController,
+                                                fromtime: fromTimeController,
+                                                todate: toDateController,
+                                                totime: toTimeController,
+                                                vehiclelist:
+                                                    fpgdcvehicleno == null
+                                                        ? "ALL"
+                                                        : fpgdcvehicleno,
+                                                framepacketoption:
+                                                    fpgovehicleno == null
+                                                        ? "ALL"
+                                                        : fpgovehicleno,
+                                                pagenumber: 1,
+                                                pagesize: 200));
+                                            setState(() {
+                                              isfilter = false;
+                                              applyclicked = true;
+                                            });
+                                          } else {
+                                            Fluttertoast.showToast(
+                                              msg: "Enter required fields..!",
+                                              toastLength: Toast.LENGTH_SHORT,
+                                              timeInSecForIosWeb: 1,
+                                            );
+                                          }
                                         })),
                               ),
                             ],
@@ -1390,20 +1465,67 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Container(
-                              padding: const EdgeInsets.only(
-                                  top: 6.0, left: 15, right: 15, bottom: 6),
                               decoration: BoxDecoration(
-                                  color: MyColors.greyDividerColorCode,
+                                  color: MyColors.analyticActiveColorCode,
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(20))),
                               child: Row(
                                 children: [
-                                  Icon(Icons.file_copy_outlined),
-                                  Text("Export"),
+                                  GestureDetector(
+                              onTap: () async {
+                                //  final result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['pdf']);
+                                // FilePicker.platform.pickFiles(allowMultiple: false,allowedExtensions:FileType.custom(), );
+                                 final result = await FilePicker.platform
+                                    .pickFiles(
+                                        type: FileType.custom,
+                                        allowedExtensions: ['pdf']);
+                                // FilePicker.platform.pickFiles(allowMultiple: false,allowedExtensions:FileType.custom(), );
+                                try {
+                                  List<String>? files = result?.files
+                                      .map((file) => file.path)
+                                      .cast<String>()
+                                      .toList();
+                                  print("File path------${files}");
+                                  //    List<String>? files = [
+                                  //   "/data/user/0/com.vts.gps/cache/file_picker/DTwisereport.pdf"
+                                  // ];
+                                  // print("File path------${files}");
+                                  await Share.shareFiles(files!);
+                                } catch (e) {
+                                  Fluttertoast.showToast(
+                                    msg: "Download the pdf first",
+                                    toastLength: Toast.LENGTH_SHORT,
+                                    timeInSecForIosWeb: 1,
+                                  );
+                                }
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.only(
+                                    top: 6.0, left: 15, right: 15, bottom: 6),
+                                decoration: BoxDecoration(
+                                    color: MyColors.analyticActiveColorCode,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(20))),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.file_copy_outlined,
+                                      color: Colors.black,
+                                    ),
+                                    Text(
+                                      "Export",
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                                 ],
                               ),
                             ),
-                             GestureDetector(
+                            GestureDetector(
                               onTap: () async {
                                 pdfdatalist.addAll(framepacketgriddata!);
                                 setState(() {});
@@ -1423,25 +1545,26 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                 // if (status.isDenied) {
                                 // }
                               },
-                              child: Container(
+                             child: Container(
                                 margin: const EdgeInsets.only(left: 15),
                                 padding: const EdgeInsets.only(
                                     top: 6.0, left: 15, right: 15, bottom: 6),
                                 decoration: const BoxDecoration(
-                                    color: MyColors.lightblueColorCode,
+                                    color: MyColors.analyticActiveColorCode,
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(20))),
                                 child: Row(
                                   children: const [
                                     Icon(
                                       Icons.file_copy_sharp,
-                                      color: MyColors.analyticActiveColorCode,
+                                      color: Colors.black,
                                     ),
                                     Text(
                                       "Download",
                                       style: TextStyle(
-                                          color:
-                                              MyColors.analyticActiveColorCode),
+                                          color: 
+                                          Colors.black,fontWeight: FontWeight.w600  
+                                          ),
                                     ),
                                   ],
                                 ),
@@ -1470,9 +1593,10 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                       ? framepacketgriddata!.length != 0
                                           ? "${framepacketgriddata!.length} RECORDS"
                                           : "0 RECORDS"
-                                      : searchdatalist!.length != 0
-                                          ? "${searchdatalist!.length} Search Records found"
-                                          : "0 RECORDS",
+                                      : searchdatalist!.isEmpty
+                                            ? ""
+                                            :
+                                           "${searchdatalist!.length} Search Records found",
                               style: TextStyle(
                                   fontSize: 18, fontWeight: FontWeight.bold),
                             );
@@ -4351,41 +4475,44 @@ class _FramePacketGridState extends State<FramePacketGrid> {
 }
 
 class PdfInvoiceApi {
-  static Future<File> generate(List<DatewiseFramePacketGridViewData> pdflist) async {
+  static Future<File> generate(
+      List<DatewiseFramePacketGridViewData> pdflist) async {
     final pdf = pw.Document();
     double fontsize = 8.0;
-    
+
     DateTime current_date = DateTime.now();
     pdf.addPage(pw.MultiPage(
       // header: (pw.Context context) {
       //   return pw.Text("header");
       // },
       footer: (pw.Context context) {
-       return pw.Column(children:[ 
-        pw.Row(
-          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-          children: [
-            pw.Text(
-              "Printed by : Techno",
-              textAlign: pw.TextAlign.left,
-              style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-            ),
-            pw.Text(
-              "Page : ${context.pageNumber} of ${context.pagesCount}",
-              textDirection: pw.TextDirection.ltr,
-              textAlign: pw.TextAlign.left,
-              style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-            ),
-          ],),
-           pw.Row(
+        return pw.Column(children: [
+          pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            children: [
+              pw.Text(
+                "Printed by : Techno",
+                textAlign: pw.TextAlign.left,
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              ),
+              pw.Text(
+                "Page : ${context.pageNumber} of ${context.pagesCount}",
+                textDirection: pw.TextDirection.ltr,
+                textAlign: pw.TextAlign.left,
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              ),
+            ],
+          ),
+          pw.Row(
             children: [
               pw.Text(
                 "Printed on : " + current_date.toString(),
                 textAlign: pw.TextAlign.left,
                 style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
               )
-            ],)
-          ]);
+            ],
+          )
+        ]);
       },
       pageFormat: PdfPageFormat.a5,
       build: (pw.Context context) {

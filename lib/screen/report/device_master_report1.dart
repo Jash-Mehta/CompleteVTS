@@ -13,9 +13,12 @@ import '../../model/alert/all_alert_master_response.dart';
 import 'package:flutter_vts/model/report/search_overspeed_response.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:file_picker/file_picker.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import '../../model/device_master/search_device_master_report.dart';
 import '../../model/report/device_master_filter.dart';
 import '../../model/report/device_master_filter_drivercode.dart';
@@ -37,6 +40,7 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   ScrollController vehicleRecordController = new ScrollController();
   ScrollController notificationController = new ScrollController();
+  ScrollController filnotificationController = new ScrollController();
   TextEditingController searchController = new TextEditingController();
   late bool isSearch = false;
   bool applyclicked = false;
@@ -58,6 +62,7 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
   List<DeviceData> pdfdatalist = [];
   List<SearchDMReportData>? searchData = [];
   SearchStringClass searchClass = SearchStringClass(searchStr: '');
+  int filpagenumber = 1;
 
   bool isfilter = false;
   bool isdmdf = false;
@@ -128,6 +133,14 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
         });
       }
     });
+    filnotificationController.addListener(() {
+      if (filnotificationController.position.maxScrollExtent ==
+          filnotificationController.offset) {
+        setState(() {
+          getfilter();
+        });
+      }
+    });
     _mainBloc = BlocProvider.of(context);
   }
 
@@ -155,6 +168,16 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
         pagesize: pageSize));
   }
 
+  getfilter() {
+    _mainBloc.add(DeviceMasterFilter(
+        token: token,
+        vendorid: "1",
+        branchid: "1",
+        deviceno: dmdfdeviceno == null ? "All" : dmdfdeviceno,
+        pagenumber: filpagenumber,
+        pagesize: 10));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -164,7 +187,7 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
         actions: [
           GestureDetector(
             onTap: () {
-              setState(() { 
+              setState(() {
                 isfilter = true;
                 isfilter
                     ? _mainBloc.add(DeviceMasterDrivercode(
@@ -187,6 +210,7 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
                         onPressed: () {
                           setState(() {
                             isfilter = false;
+                            searchController.text = "";
                           });
                         },
                         icon: Icon(Icons.close))),
@@ -328,11 +352,20 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
             });
           } else if (state is DeviceMasterFilterLoadedState) {
             print("Device Master Filter Loaded Satet is enter");
-            setState(() {
-              _isLoading = false;
-              devicemasterdata!.clear();
+            if (state.deviceMasterFilter.data != null) {
+              filpagenumber++;
+              print("Device master data loaded");
+              setState(() {
+                _isLoading = false;
+                value = state.deviceMasterFilter.totalRecords!;
+              });
               devicemasterdata!.addAll(state.deviceMasterFilter.data!);
-            });
+            }
+            // setState(() {
+            //   _isLoading = false;
+            //   devicemasterdata!.clear();
+            //   devicemasterdata!.addAll(state.deviceMasterFilter.data!);
+            // });
           } else if (state is DeviceMasterReportLoadingState) {
             print("Device Master is enter in the loading state");
             setState(() {
@@ -357,7 +390,7 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
         },
         child: isfilter
             ? SingleChildScrollView(
-                controller: notificationController,
+                // controller: notificationController,
                 child: Padding(
                   padding: const EdgeInsets.all(0),
                   //left: 8, top: 16.0, right: 8.0),
@@ -422,19 +455,27 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
                                             style:
                                                 TextStyle(color: Colors.white)),
                                         onPressed: () {
-                                          _mainBloc.add(DeviceMasterFilter(
-                                              token: token,
-                                              vendorid: "1",
-                                              branchid: "1",
-                                              deviceno: dmdfdeviceno == null
-                                                  ? "All"
-                                                  : dmdfdeviceno,
-                                              pagenumber: 1,
-                                              pagesize: 10));
-                                          setState(() {
-                                            isfilter = false;
-                                            applyclicked = true;
-                                          });
+                                          if (dmdfdeviceno != null) {
+                                            _mainBloc.add(DeviceMasterFilter(
+                                                token: token,
+                                                vendorid: "1",
+                                                branchid: "1",
+                                                deviceno: dmdfdeviceno == null
+                                                    ? "All"
+                                                    : dmdfdeviceno,
+                                                pagenumber: 1,
+                                                pagesize: 200));
+                                            setState(() {
+                                              isfilter = false;
+                                              applyclicked = true;
+                                            });
+                                          } else {
+                                            Fluttertoast.showToast(
+                                              msg: "Enter device name..!",
+                                              toastLength: Toast.LENGTH_SHORT,
+                                              timeInSecForIosWeb: 1,
+                                            );
+                                          }
                                         })),
                               ),
                             ],
@@ -629,23 +670,25 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
                                           fontSize: 16,
                                           fontWeight: FontWeight.w400),
                                     ),
-                                    trailing: isdmdf ? IconButton(
-                                      icon: Icon(
-                                        Icons.keyboard_arrow_up,
-                                      ),  
-                                      onPressed: () {
-                                        isdmdf = false;
-                                        setState(() {});
-                                      },
-                                    ): IconButton(
-                                      icon: Icon(
-                                        Icons.keyboard_arrow_down,
-                                      ),  
-                                      onPressed: () {
-                                        isdmdf = true;
-                                        setState(() {});
-                                      },
-                                    ),
+                                    trailing: isdmdf
+                                        ? IconButton(
+                                            icon: Icon(
+                                              Icons.keyboard_arrow_up,
+                                            ),
+                                            onPressed: () {
+                                              isdmdf = false;
+                                              setState(() {});
+                                            },
+                                          )
+                                        : IconButton(
+                                            icon: Icon(
+                                              Icons.keyboard_arrow_down,
+                                            ),
+                                            onPressed: () {
+                                              isdmdf = true;
+                                              setState(() {});
+                                            },
+                                          ),
                                   )),
                               isdmdf
                                   ? Container(
@@ -715,20 +758,69 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Container(
-                              padding: const EdgeInsets.only(
-                                  top: 6.0, left: 15, right: 15, bottom: 6),
                               decoration: BoxDecoration(
-                                  color: MyColors.greyDividerColorCode,
+                                  color: MyColors.analyticActiveColorCode,
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(20))),
                               child: Row(
                                 children: [
-                                  Icon(Icons.file_copy_outlined),
-                                  Text("Export"),
+                                  GestureDetector(
+                                    onTap: () async {
+                                       final result = await FilePicker.platform
+                                    .pickFiles(
+                                        type: FileType.custom,
+                                        allowedExtensions: ['pdf']);
+                                // FilePicker.platform.pickFiles(allowMultiple: false,allowedExtensions:FileType.custom(), );
+                                try {
+                                  List<String>? files = result?.files
+                                      .map((file) => file.path)
+                                      .cast<String>()
+                                      .toList();
+                                  print("File path------${files}");
+                                  //    List<String>? files = [
+                                  //   "/data/user/0/com.vts.gps/cache/file_picker/DTwisereport.pdf"
+                                  // ];
+                                  // print("File path------${files}");
+                                  await Share.shareFiles(files!);
+                                } catch (e) {
+                                  Fluttertoast.showToast(
+                                    msg: "Download the pdf first",
+                                    toastLength: Toast.LENGTH_SHORT,
+                                    timeInSecForIosWeb: 1,
+                                  );
+                                }
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.only(
+                                          top: 6.0,
+                                          left: 15,
+                                          right: 15,
+                                          bottom: 6),
+                                      decoration: BoxDecoration(
+                                          color:
+                                              MyColors.analyticActiveColorCode,
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(20))),
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            Icons.file_copy_outlined,
+                                            color: Colors.black,
+                                          ),
+                                          Text(
+                                            "Export",
+                                            style: TextStyle(
+                                                color: Colors.black,
+                                                fontWeight: FontWeight.w600),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
-                           GestureDetector(
+                            GestureDetector(
                               onTap: () async {
                                 pdfdatalist.addAll(data!);
                                 setState(() {});
@@ -753,20 +845,20 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
                                 padding: const EdgeInsets.only(
                                     top: 6.0, left: 15, right: 15, bottom: 6),
                                 decoration: const BoxDecoration(
-                                    color: MyColors.lightblueColorCode,
+                                    color: MyColors.analyticActiveColorCode,
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(20))),
                                 child: Row(
                                   children: const [
                                     Icon(
                                       Icons.file_copy_sharp,
-                                      color: MyColors.analyticActiveColorCode,
+                                      color: Colors.black,
                                     ),
                                     Text(
                                       "Download",
                                       style: TextStyle(
-                                          color:
-                                              MyColors.analyticActiveColorCode),
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.w600),
                                     ),
                                   ],
                                 ),
@@ -788,8 +880,10 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
                               builder: (context, state) {
                             return Text(
                               isSearch
-                                  ? searchData!.length.toString() +
-                                      " Record found"
+                                  ? searchData!.isEmpty
+                                      ? ""
+                                      : searchData!.length.toString() +
+                                          " Record found"
                                   : applyclicked
                                       ? devicemasterdata!.length.toString() +
                                           " Filter Record found"
@@ -812,6 +906,7 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
                                           print("Enter in the filter list");
                                           var article =
                                               devicemasterdata![index];
+                                          var sr = index + 1;
                                           return Card(
                                             margin: EdgeInsets.only(bottom: 15),
                                             shape: RoundedRectangleBorder(
@@ -878,7 +973,7 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
                                                                             18),
                                                                   ),
                                                                   Text(
-                                                                    "1",
+                                                                    sr.toString(),
                                                                     style: TextStyle(
                                                                         color: MyColors
                                                                             .text5ColorCode,
@@ -1059,6 +1154,7 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
                                           controller: vehicleRecordController,
                                           itemCount: data!.length,
                                           itemBuilder: (context, index) {
+                                            var sr = index + 1;
                                             var article = data![index];
                                             // print("Enter in the filter list");
                                             return Card(
@@ -1129,7 +1225,9 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
                                                                               18),
                                                                     ),
                                                                     Text(
-                                                                      "1",
+                                                                      article
+                                                                          .srNo
+                                                                          .toString(),
                                                                       style: TextStyle(
                                                                           color: MyColors
                                                                               .text5ColorCode,
@@ -1319,6 +1417,7 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
                                                   itemCount: searchData!.length,
                                                   itemBuilder:
                                                       (context, index) {
+                                                    var sr = index + 1;
                                                     var article =
                                                         searchData![index];
                                                     // print("Enter in the filter list");
@@ -1394,7 +1493,7 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
                                                                               style: TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
                                                                             ),
                                                                             Text(
-                                                                              "1",
+                                                                              sr.toString(),
                                                                               style: TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
                                                                             ),
                                                                           ],
@@ -1564,31 +1663,33 @@ class PdfInvoiceApi {
       //   return pw.Text("header");
       // },
       footer: (pw.Context context) {
-       return pw.Column(children:[ 
-        pw.Row(
-          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-          children: [
-            pw.Text(
-              "Printed by : Techno",
-              textAlign: pw.TextAlign.left,
-              style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-            ),
-            pw.Text(
-              "Page : ${context.pageNumber} of ${context.pagesCount}",
-              textDirection: pw.TextDirection.ltr,
-              textAlign: pw.TextAlign.left,
-              style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-            ),
-          ],),
-           pw.Row(
+        return pw.Column(children: [
+          pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            children: [
+              pw.Text(
+                "Printed by : Techno",
+                textAlign: pw.TextAlign.left,
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              ),
+              pw.Text(
+                "Page : ${context.pageNumber} of ${context.pagesCount}",
+                textDirection: pw.TextDirection.ltr,
+                textAlign: pw.TextAlign.left,
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              ),
+            ],
+          ),
+          pw.Row(
             children: [
               pw.Text(
                 "Printed on : " + current_date.toString(),
                 textAlign: pw.TextAlign.left,
                 style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
               )
-            ],)
-          ]);
+            ],
+          )
+        ]);
       },
       pageFormat: PdfPageFormat.a5,
       build: (pw.Context context) {
@@ -1665,6 +1766,7 @@ class PdfInvoiceApi {
           pw.ListView.builder(
               itemBuilder: (pw.Context context, int index) {
                 var article = pdflist[index];
+                var sr = index + 1;
                 return pw.Table(
                     border:
                         pw.TableBorder.all(color: PdfColors.black, width: 0.8),
@@ -1675,7 +1777,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 20,
-                            child: pw.Text("1",
+                            child: pw.Text(sr.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),

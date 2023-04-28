@@ -16,6 +16,8 @@ import '../../model/report/frame_packet_drivercode.dart';
 import '../../model/report/frame_packet_report_response.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:file_picker/src/file_picker.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
@@ -256,6 +258,7 @@ class _FramePacketState extends State<FramePacket> {
                         onPressed: () {
                           setState(() {
                             isfilter = false;
+                            searchController.text = "";
                           });
                         },
                         icon: Icon(Icons.close))),
@@ -457,7 +460,7 @@ class _FramePacketState extends State<FramePacket> {
         },
         child: isfilter
             ? SingleChildScrollView(
-                controller: notificationController,
+                // controller: notificationController,
                 child: Padding(
                   padding: const EdgeInsets.all(0),
                   //left: 8, top: 16.0, right: 8.0),
@@ -528,6 +531,12 @@ class _FramePacketState extends State<FramePacket> {
                                                 TextStyle(color: Colors.white)),
                                         onPressed: () {
                                           print("Applyy clicked");
+                                           if (toDateController != null &&
+                                              fromDateController != null &&
+                                              toTimeController != null &&
+                                              fromTimeController != null &&
+                                              fpdcvehicleno != null &&
+                                              fpgovehicleno != null){
                                           _mainBloc.add(FrameFilterEvent(
                                               token: token,
                                               vendorId: vendorid,
@@ -544,12 +553,18 @@ class _FramePacketState extends State<FramePacket> {
                                                   fpgovehicleno == null
                                                       ? "ALL"
                                                       : fpgovehicleno,
-                                              pagenumber: pageNumber,
-                                              pagesize: pageSize));
+                                              pagenumber: 1,
+                                              pagesize: 200));
                                           setState(() {
                                             isfilter = false;
                                             applyclicked = true;
-                                          });
+                                          });}else{
+                                            Fluttertoast.showToast(
+                                              msg: "Enter required fields..!",
+                                              toastLength: Toast.LENGTH_SHORT,
+                                              timeInSecForIosWeb: 1,
+                                            );
+                                          }
                                         })),
                               ),
                             ],
@@ -1479,13 +1494,62 @@ class _FramePacketState extends State<FramePacket> {
                               padding: const EdgeInsets.only(
                                   top: 6.0, left: 15, right: 15, bottom: 6),
                               decoration: BoxDecoration(
-                                  color: MyColors.greyDividerColorCode,
+                                  color: MyColors.analyticActiveColorCode,
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(20))),
                               child: Row(
                                 children: [
-                                  Icon(Icons.file_copy_outlined),
-                                  Text("Export"),
+                                   GestureDetector(
+                              onTap: () async {
+                                //  final result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['pdf']);
+                                // FilePicker.platform.pickFiles(allowMultiple: false,allowedExtensions:FileType.custom(), );
+                                 final result = await FilePicker.platform
+                                    .pickFiles(
+                                        type: FileType.custom,
+                                        allowedExtensions: ['pdf']);
+                                // FilePicker.platform.pickFiles(allowMultiple: false,allowedExtensions:FileType.custom(), );
+                                try {
+                                  List<String>? files = result?.files
+                                      .map((file) => file.path)
+                                      .cast<String>()
+                                      .toList();
+                                  print("File path------${files}");
+                                  //    List<String>? files = [
+                                  //   "/data/user/0/com.vts.gps/cache/file_picker/DTwisereport.pdf"
+                                  // ];
+                                  // print("File path------${files}");
+                                  await Share.shareFiles(files!);
+                                } catch (e) {
+                                  Fluttertoast.showToast(
+                                    msg: "Download the pdf first",
+                                    toastLength: Toast.LENGTH_SHORT,
+                                    timeInSecForIosWeb: 1,
+                                  );
+                                }
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.only(
+                                    top: 6.0, left: 15, right: 15, bottom: 6),
+                                decoration: BoxDecoration(
+                                    color: MyColors.analyticActiveColorCode,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(20))),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.file_copy_outlined,
+                                      color: Colors.black,
+                                    ),
+                                    Text(
+                                      "Export",
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                                 ],
                               ),
                             ),
@@ -1509,25 +1573,26 @@ class _FramePacketState extends State<FramePacket> {
                                 // if (status.isDenied) {
                                 // }
                               },
-                              child: Container(
+                             child: Container(
                                 margin: const EdgeInsets.only(left: 15),
                                 padding: const EdgeInsets.only(
                                     top: 6.0, left: 15, right: 15, bottom: 6),
                                 decoration: const BoxDecoration(
-                                    color: MyColors.lightblueColorCode,
+                                    color: MyColors.analyticActiveColorCode,
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(20))),
                                 child: Row(
                                   children: const [
                                     Icon(
                                       Icons.file_copy_sharp,
-                                      color: MyColors.analyticActiveColorCode,
+                                      color: Colors.black,
                                     ),
                                     Text(
                                       "Download",
                                       style: TextStyle(
-                                          color:
-                                              MyColors.analyticActiveColorCode),
+                                          color: 
+                                          Colors.black,fontWeight: FontWeight.w600  
+                                          ),
                                     ),
                                   ],
                                 ),
@@ -1559,7 +1624,7 @@ class _FramePacketState extends State<FramePacket> {
                               : isSearch
                                   ? BlocBuilder<MainBloc, MainState>(
                                       builder: (context, state) {
-                                      return Text(
+                                      return Text(searchdataList!.isEmpty ? "" :
                                         searchdataList!.length.toString() +
                                             " Search Records found",
                                         style: TextStyle(
@@ -1659,6 +1724,7 @@ class _FramePacketState extends State<FramePacket> {
                                             controller: vehicleRecordController,
                                             itemCount: framefilterdata!.length,
                                             itemBuilder: (context, index) {
+                                               var sr = index + 1;
                                               var article =
                                                   framefilterdata![index];
                                               return Card(
@@ -1730,7 +1796,7 @@ class _FramePacketState extends State<FramePacket> {
                                                                             fontSize: 18),
                                                                       ),
                                                                       Text(
-                                                                        "1",
+                                                                        sr.toString(),
                                                                         style: TextStyle(
                                                                             color:
                                                                                 MyColors.text5ColorCode,
@@ -2367,6 +2433,7 @@ class _FramePacketState extends State<FramePacket> {
                                             controller: vehicleRecordController,
                                             itemCount: framedata!.length,
                                             itemBuilder: (context, index) {
+                                               var sr = index + 1;
                                               var article = framedata![index];
                                               return Card(
                                                 margin:
@@ -2437,7 +2504,7 @@ class _FramePacketState extends State<FramePacket> {
                                                                             fontSize: 18),
                                                                       ),
                                                                       Text(
-                                                                        "1",
+                                                                        article.transID.toString(),
                                                                         style: TextStyle(
                                                                             color:
                                                                                 MyColors.text5ColorCode,
@@ -3115,6 +3182,7 @@ class _FramePacketState extends State<FramePacket> {
                                                             itemBuilder:
                                                                 (context,
                                                                     index) {
+                                                                       var sr = index + 1;
                                                               var article =
                                                                   searchdataList![
                                                                       index];
@@ -3191,7 +3259,7 @@ class _FramePacketState extends State<FramePacket> {
                                                                                         style: TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
                                                                                       ),
                                                                                       Text(
-                                                                                        "1",
+                                                                                        sr.toString(),
                                                                                         style: TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
                                                                                       ),
                                                                                     ],
@@ -3747,6 +3815,7 @@ class PdfInvoiceApi {
           pw.ListView.builder(
               itemBuilder: (pw.Context context, int index) {
                 var article = pdflist[index];
+                 var sr = index + 1;
                 return pw.Table(
                     border:
                         pw.TableBorder.all(color: PdfColors.black, width: 0.8),
@@ -3757,7 +3826,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text("1",
+                            child: pw.Text(sr.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),

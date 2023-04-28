@@ -15,6 +15,8 @@ import 'package:intl/intl.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import '../../model/report/search_vehicle_status_response.dart';
 
+import 'package:file_picker/src/file_picker.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:open_file/open_file.dart';
@@ -53,6 +55,7 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
       toTimeController,
       vehiclenumber;
   int pageNumber = 1;
+  int filpageNumber = 1;
   int pageSize = 10;
   int value = 0;
   late String srNo = "";
@@ -216,6 +219,7 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
                         onPressed: () {
                           setState(() {
                             isFilter = false;
+                            searchController.text = "";
                           });
                         },
                         icon: Icon(Icons.close))),
@@ -347,7 +351,7 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
         child: isFilter
             //! filterscreen clicked-----------------------------
             ? SingleChildScrollView(
-                controller: notificationController,
+                // controller: notificationController,
                 child: Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: Container(
@@ -410,27 +414,41 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
                                               TextStyle(color: Colors.white)),
                                       onPressed: () {
                                         print("Applyy clicked");
-                                        _mainBloc.add(Vehiclestatusreportfilter(
-                                          token: token,
-                                          vendorId: vendorid,
-                                          branchid: branchid,
-                                          araino: arai,
-                                          fromdate: fromDateController,
-                                          fromTime: fromTimeController,
-                                          toDate: toDateController,
-                                          toTime: toTimeController,
-                                          vehiclelist:
-                                              vsrdcvehicleno.toString() == null
-                                                  ? "ALL"
-                                                  : vsrdcvehicleno.toString(),
-                                          imeno: imeino,
-                                          pagesize: pageSize,
-                                          pagenumber: 1,
-                                        ));
-                                        setState(() {
-                                          isFilter = false;
-                                          applyclick = true;
-                                        });
+                                        if (fromDateController != null &&
+                                            fromTimeController != null &&
+                                            toDateController != null &&
+                                            toTimeController != null &&
+                                            vsrdcvehicleno != null) {
+                                          _mainBloc
+                                              .add(Vehiclestatusreportfilter(
+                                            token: token,
+                                            vendorId: vendorid,
+                                            branchid: branchid,
+                                            araino: arai,
+                                            fromdate: fromDateController,
+                                            fromTime: fromTimeController,
+                                            toDate: toDateController,
+                                            toTime: toTimeController,
+                                            vehiclelist:
+                                                vsrdcvehicleno.toString() ==
+                                                        null
+                                                    ? "ALL"
+                                                    : vsrdcvehicleno.toString(),
+                                            imeno: imeino,
+                                            pagesize: 1,
+                                            pagenumber: 200,
+                                          ));
+                                          setState(() {
+                                            isFilter = false;
+                                            applyclick = true;
+                                          });
+                                        } else {
+                                          Fluttertoast.showToast(
+                                            msg: "Enter required fields..!",
+                                            toastLength: Toast.LENGTH_SHORT,
+                                            timeInSecForIosWeb: 1,
+                                          );
+                                        }
                                       })),
                             ],
                           ),
@@ -1122,17 +1140,66 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
                               padding: const EdgeInsets.only(
                                   top: 6.0, left: 15, right: 15, bottom: 6),
                               decoration: BoxDecoration(
-                                  color: MyColors.greyDividerColorCode,
+                                  color: MyColors.analyticActiveColorCode,
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(20))),
                               child: Row(
                                 children: [
-                                  Icon(Icons.file_copy_outlined),
-                                  Text("Export"),
+                                    GestureDetector(
+                              onTap: () async {
+                                //  final result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['pdf']);
+                                // FilePicker.platform.pickFiles(allowMultiple: false,allowedExtensions:FileType.custom(), );
+                                 final result = await FilePicker.platform
+                                    .pickFiles(
+                                        type: FileType.custom,
+                                        allowedExtensions: ['pdf']);
+                                // FilePicker.platform.pickFiles(allowMultiple: false,allowedExtensions:FileType.custom(), );
+                                try {
+                                  List<String>? files = result?.files
+                                      .map((file) => file.path)
+                                      .cast<String>()
+                                      .toList();
+                                  print("File path------${files}");
+                                  //    List<String>? files = [
+                                  //   "/data/user/0/com.vts.gps/cache/file_picker/DTwisereport.pdf"
+                                  // ];
+                                  // print("File path------${files}");
+                                  await Share.shareFiles(files!);
+                                } catch (e) {
+                                  Fluttertoast.showToast(
+                                    msg: "Download the pdf first",
+                                    toastLength: Toast.LENGTH_SHORT,
+                                    timeInSecForIosWeb: 1,
+                                  );
+                                }
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.only(
+                                    top: 6.0, left: 15, right: 15, bottom: 6),
+                                decoration: BoxDecoration(
+                                    color: MyColors.analyticActiveColorCode,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(20))),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.file_copy_outlined,
+                                      color: Colors.black,
+                                    ),
+                                    Text(
+                                      "Export",
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                                 ],
                               ),
                             ),
-                           GestureDetector(
+                            GestureDetector(
                               onTap: () async {
                                 pdfdatalist.addAll(data!);
                                 setState(() {});
@@ -1152,25 +1219,26 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
                                 // if (status.isDenied) {
                                 // }
                               },
-                              child: Container(
+                            child: Container(
                                 margin: const EdgeInsets.only(left: 15),
                                 padding: const EdgeInsets.only(
                                     top: 6.0, left: 15, right: 15, bottom: 6),
                                 decoration: const BoxDecoration(
-                                    color: MyColors.lightblueColorCode,
+                                    color: MyColors.analyticActiveColorCode,
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(20))),
                                 child: Row(
                                   children: const [
                                     Icon(
                                       Icons.file_copy_sharp,
-                                      color: MyColors.analyticActiveColorCode,
+                                      color: Colors.black,
                                     ),
                                     Text(
                                       "Download",
                                       style: TextStyle(
-                                          color:
-                                              MyColors.analyticActiveColorCode),
+                                          color: 
+                                          Colors.black,fontWeight: FontWeight.w600  
+                                          ),
                                     ),
                                   ],
                                 ),
@@ -1203,6 +1271,7 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
                                 })
                               : isSelected
                                   ? Text(
+                                    searchData!.isEmpty ? "" :
                                       searchData!.length.toString() +
                                           " Records found",
                                       style: TextStyle(
@@ -1364,6 +1433,7 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
                                             var article =
                                                 vehiclestatusfilterreport![
                                                     index];
+                                                     var sr = index + 1;
                                             return Card(
                                               margin:
                                                   EdgeInsets.only(bottom: 15),
@@ -1432,7 +1502,7 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
                                                                               18),
                                                                     ),
                                                                     Text(
-                                                                      "1",
+                                                                      sr.toString(),
                                                                       style: TextStyle(
                                                                           color: MyColors
                                                                               .text5ColorCode,
@@ -1788,6 +1858,7 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
                                             itemCount: data!.length,
                                             itemBuilder: (context, index) {
                                               var article = data![index];
+                                               var sr = index + 1;
                                               return Card(
                                                 margin:
                                                     EdgeInsets.only(bottom: 15),
@@ -1857,7 +1928,7 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
                                                                             fontSize: 18),
                                                                       ),
                                                                       Text(
-                                                                        "1",
+                                                                        sr.toString(),
                                                                         style: TextStyle(
                                                                             color:
                                                                                 MyColors.text5ColorCode,
@@ -2223,6 +2294,7 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
                                                         (context, index) {
                                                       var article =
                                                           searchData![index];
+                                                           var sr = index + 1;
                                                       return Card(
                                                         margin: EdgeInsets.only(
                                                             bottom: 15),
@@ -2298,7 +2370,7 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
                                                                                 style: TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
                                                                               ),
                                                                               Text(
-                                                                                "1",
+                                                                                sr.toString(),
                                                                                 style: TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
                                                                               ),
                                                                             ],
@@ -2597,38 +2669,40 @@ class PdfInvoiceApi {
   static Future<File> generate(List<VehicleStatusReportData> pdflist) async {
     final pdf = pw.Document();
     double fontsize = 8.0;
-    
+
     DateTime current_date = DateTime.now();
     pdf.addPage(pw.MultiPage(
       // header: (pw.Context context) {
       //   return pw.Text("header");
       // },
       footer: (pw.Context context) {
-       return pw.Column(children:[ 
-        pw.Row(
-          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-          children: [
-            pw.Text(
-              "Printed by : Techno",
-              textAlign: pw.TextAlign.left,
-              style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-            ),
-            pw.Text(
-              "Page : ${context.pageNumber} of ${context.pagesCount}",
-              textDirection: pw.TextDirection.ltr,
-              textAlign: pw.TextAlign.left,
-              style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-            ),
-          ],),
-           pw.Row(
+        return pw.Column(children: [
+          pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            children: [
+              pw.Text(
+                "Printed by : Techno",
+                textAlign: pw.TextAlign.left,
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              ),
+              pw.Text(
+                "Page : ${context.pageNumber} of ${context.pagesCount}",
+                textDirection: pw.TextDirection.ltr,
+                textAlign: pw.TextAlign.left,
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              ),
+            ],
+          ),
+          pw.Row(
             children: [
               pw.Text(
                 "Printed on : " + current_date.toString(),
                 textAlign: pw.TextAlign.left,
                 style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
               )
-            ],)
-          ]);
+            ],
+          )
+        ]);
       },
       pageFormat: PdfPageFormat.a5,
       build: (pw.Context context) {
@@ -2718,6 +2792,7 @@ class PdfInvoiceApi {
           pw.ListView.builder(
               itemBuilder: (pw.Context context, int index) {
                 var article = pdflist[index];
+                 var sr = index + 1;
                 return pw.Table(
                     border:
                         pw.TableBorder.all(color: PdfColors.black, width: 0.8),
@@ -2728,7 +2803,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text("1",
+                            child: pw.Text(sr.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
