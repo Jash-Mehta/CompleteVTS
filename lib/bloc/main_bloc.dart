@@ -2047,7 +2047,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
       else if (event is FrameGridFilterEvent) {
         try {
-          yield VehicleStatusFilterLoadingState();
+          yield FrameGridFilterLoadingState();
           var vehiclestatusreportfilterbloc =
               await webService.framepacketgridfilter(
                   event.token,

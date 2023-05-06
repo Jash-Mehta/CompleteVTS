@@ -980,6 +980,7 @@ class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
                                           ),
                                           GestureDetector(
                                             onTap: () {
+                                              deleteposition = index;
                                               //! --Delete Alert Box--------------------------------
                                               showDialog(
                                                   context: context,

@@ -357,15 +357,20 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
               print("Device master data loaded");
               setState(() {
                 _isLoading = false;
+                devicemasterdata!.clear();
                 value = state.deviceMasterFilter.totalRecords!;
               });
               devicemasterdata!.addAll(state.deviceMasterFilter.data!);
+            } else {
+              setState(() {
+                _isLoading = false;
+              });
             }
-            // setState(() {
-            //   _isLoading = false;
-            //   devicemasterdata!.clear();
-            //   devicemasterdata!.addAll(state.deviceMasterFilter.data!);
-            // });
+          } else if (state is DeviceMasterFilterErorrState) {
+            print("Device master filter error");
+            setState(() {
+              _isLoading = false;
+            });
           } else if (state is DeviceMasterReportLoadingState) {
             print("Device Master is enter in the loading state");
             setState(() {
@@ -455,6 +460,7 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
                                             style:
                                                 TextStyle(color: Colors.white)),
                                         onPressed: () {
+                                          searchController.text = "";
                                           if (dmdfdeviceno != null) {
                                             _mainBloc.add(DeviceMasterFilter(
                                                 token: token,
@@ -766,29 +772,29 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
                                 children: [
                                   GestureDetector(
                                     onTap: () async {
-                                       final result = await FilePicker.platform
-                                    .pickFiles(
-                                        type: FileType.custom,
-                                        allowedExtensions: ['pdf']);
-                                // FilePicker.platform.pickFiles(allowMultiple: false,allowedExtensions:FileType.custom(), );
-                                try {
-                                  List<String>? files = result?.files
-                                      .map((file) => file.path)
-                                      .cast<String>()
-                                      .toList();
-                                  print("File path------${files}");
-                                  //    List<String>? files = [
-                                  //   "/data/user/0/com.vts.gps/cache/file_picker/DTwisereport.pdf"
-                                  // ];
-                                  // print("File path------${files}");
-                                  await Share.shareFiles(files!);
-                                } catch (e) {
-                                  Fluttertoast.showToast(
-                                    msg: "Download the pdf first",
-                                    toastLength: Toast.LENGTH_SHORT,
-                                    timeInSecForIosWeb: 1,
-                                  );
-                                }
+                                      final result = await FilePicker.platform
+                                          .pickFiles(
+                                              type: FileType.custom,
+                                              allowedExtensions: ['pdf']);
+                                      // FilePicker.platform.pickFiles(allowMultiple: false,allowedExtensions:FileType.custom(), );
+                                      try {
+                                        List<String>? files = result?.files
+                                            .map((file) => file.path)
+                                            .cast<String>()
+                                            .toList();
+                                        print("File path------${files}");
+                                        //    List<String>? files = [
+                                        //   "/data/user/0/com.vts.gps/cache/file_picker/DTwisereport.pdf"
+                                        // ];
+                                        // print("File path------${files}");
+                                        await Share.shareFiles(files!);
+                                      } catch (e) {
+                                        Fluttertoast.showToast(
+                                          msg: "Download the pdf first",
+                                          toastLength: Toast.LENGTH_SHORT,
+                                          timeInSecForIosWeb: 1,
+                                        );
+                                      }
                                     },
                                     child: Container(
                                       padding: const EdgeInsets.only(
@@ -822,6 +828,7 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
                             ),
                             GestureDetector(
                               onTap: () async {
+                                pdfdatalist.clear();
                                 pdfdatalist.addAll(data!);
                                 setState(() {});
 
@@ -885,8 +892,11 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
                                       : searchData!.length.toString() +
                                           " Record found"
                                   : applyclicked
-                                      ? devicemasterdata!.length.toString() +
-                                          " Filter Record found"
+                                      ? devicemasterdata!.isEmpty
+                                          ? ""
+                                          : devicemasterdata!.length
+                                                  .toString() +
+                                              " Filter Records found"
                                       : data!.length.toString() +
                                           " Records found",
                               style: TextStyle(
@@ -894,258 +904,255 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
                             );
                           }),
                           applyclicked
-                              ? Padding(
-                                  padding: const EdgeInsets.only(top: 20.0),
-                                  child: BlocBuilder<MainBloc, MainState>(
-                                      builder: (context, state) {
-                                    return ListView.builder(
-                                        shrinkWrap: true,
-                                        controller: vehicleRecordController,
-                                        itemCount: devicemasterdata!.length,
-                                        itemBuilder: (context, index) {
-                                          print("Enter in the filter list");
-                                          var article =
-                                              devicemasterdata![index];
-                                          var sr = index + 1;
-                                          return Card(
-                                            margin: EdgeInsets.only(bottom: 15),
-                                            shape: RoundedRectangleBorder(
-                                              side: BorderSide(
-                                                  width: 1,
-                                                  color: MyColors
-                                                      .textBoxBorderColorCode),
-                                              borderRadius:
-                                                  BorderRadius.circular(10.0),
-                                            ),
-                                            child: Container(
-                                              padding: EdgeInsets.only(
-                                                  top: 15,
-                                                  left: 14,
-                                                  right: 14,
-                                                  bottom: 15),
-                                              width: MediaQuery.of(context)
-                                                  .size
-                                                  .width,
-                                              decoration: BoxDecoration(
-                                                borderRadius: BorderRadius.all(
-                                                    Radius.circular(10)),
-                                              ),
-                                              child: SingleChildScrollView(
-                                                // controller: overSpeedScrollController,
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          top: 20.0,
-                                                          left: 15,
-                                                          right: 15,
-                                                          bottom: 20),
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                    .only(
-                                                                top: 15.0,
-                                                                bottom: 15),
-                                                        child: Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .spaceAround,
-                                                          children: [
-                                                            Expanded(
-                                                              child: Column(
-                                                                mainAxisAlignment:
-                                                                    MainAxisAlignment
-                                                                        .start,
-                                                                crossAxisAlignment:
-                                                                    CrossAxisAlignment
-                                                                        .start,
-                                                                children: [
-                                                                  Text(
-                                                                    "Sr.No",
-                                                                    style: TextStyle(
-                                                                        color: MyColors
-                                                                            .textprofiledetailColorCode,
-                                                                        fontSize:
-                                                                            18),
-                                                                  ),
-                                                                  Text(
-                                                                    sr.toString(),
-                                                                    style: TextStyle(
-                                                                        color: MyColors
-                                                                            .text5ColorCode,
-                                                                        fontSize:
-                                                                            18),
-                                                                  ),
-                                                                ],
+                              ? devicemasterdata!.isEmpty
+                                  ? Center(
+                                      child: Text(
+                                      "No data found",
+                                      style: TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.w500),
+                                    ))
+                                  : _isLoading
+                                      ? Center(
+                                          child: Text("Wait data is Loading.."))
+                                      : Padding(
+                                          padding:
+                                              const EdgeInsets.only(top: 20.0),
+                                          child:
+                                              BlocBuilder<MainBloc, MainState>(
+                                                  builder: (context, state) {
+                                            return ListView.builder(
+                                                shrinkWrap: true,
+                                                controller:
+                                                    vehicleRecordController,
+                                                itemCount:
+                                                    devicemasterdata!.length,
+                                                itemBuilder: (context, index) {
+                                                  print(
+                                                      "Enter in the filter list");
+                                                  var article =
+                                                      devicemasterdata![index];
+                                                  var sr = index + 1;
+                                                  return Card(
+                                                    margin: EdgeInsets.only(
+                                                        bottom: 15),
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      side: BorderSide(
+                                                          width: 1,
+                                                          color: MyColors
+                                                              .textBoxBorderColorCode),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10.0),
+                                                    ),
+                                                    child: Container(
+                                                      padding: EdgeInsets.only(
+                                                          top: 15,
+                                                          left: 14,
+                                                          right: 14,
+                                                          bottom: 15),
+                                                      width:
+                                                          MediaQuery.of(context)
+                                                              .size
+                                                              .width,
+                                                      decoration: BoxDecoration(
+                                                        borderRadius:
+                                                            BorderRadius.all(
+                                                                Radius.circular(
+                                                                    10)),
+                                                      ),
+                                                      child:
+                                                          SingleChildScrollView(
+                                                        // controller: overSpeedScrollController,
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .only(
+                                                                  top: 20.0,
+                                                                  left: 15,
+                                                                  right: 15,
+                                                                  bottom: 20),
+                                                          child: Column(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .only(
+                                                                        top:
+                                                                            15.0,
+                                                                        bottom:
+                                                                            15),
+                                                                child: Row(
+                                                                  mainAxisAlignment:
+                                                                      MainAxisAlignment
+                                                                          .spaceAround,
+                                                                  children: [
+                                                                    Expanded(
+                                                                      child:
+                                                                          Column(
+                                                                        mainAxisAlignment:
+                                                                            MainAxisAlignment.start,
+                                                                        crossAxisAlignment:
+                                                                            CrossAxisAlignment.start,
+                                                                        children: [
+                                                                          Text(
+                                                                            "Sr.No",
+                                                                            style:
+                                                                                TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
+                                                                          ),
+                                                                          Text(
+                                                                            sr.toString(),
+                                                                            style:
+                                                                                TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                    ),
+                                                                    Expanded(
+                                                                        child:
+                                                                            Column(
+                                                                      mainAxisAlignment:
+                                                                          MainAxisAlignment
+                                                                              .start,
+                                                                      crossAxisAlignment:
+                                                                          CrossAxisAlignment
+                                                                              .start,
+                                                                      children: [
+                                                                        Text(
+                                                                          "Device No",
+                                                                          style: TextStyle(
+                                                                              color: MyColors.textprofiledetailColorCode,
+                                                                              fontSize: 18),
+                                                                        ),
+                                                                        Text(
+                                                                          article
+                                                                              .deviceNo
+                                                                              .toString(),
+                                                                          textAlign:
+                                                                              TextAlign.left,
+                                                                          style: TextStyle(
+                                                                              color: MyColors.text5ColorCode,
+                                                                              fontSize: 18),
+                                                                        ),
+                                                                      ],
+                                                                    ))
+                                                                  ],
+                                                                ),
                                                               ),
-                                                            ),
-                                                            Expanded(
-                                                                child: Column(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .start,
-                                                              crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .start,
-                                                              children: [
-                                                                Text(
-                                                                  "Device No",
-                                                                  style: TextStyle(
-                                                                      color: MyColors
-                                                                          .textprofiledetailColorCode,
-                                                                      fontSize:
-                                                                          18),
+                                                              Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .only(
+                                                                        top:
+                                                                            15.0,
+                                                                        bottom:
+                                                                            15),
+                                                                child: Row(
+                                                                  mainAxisAlignment:
+                                                                      MainAxisAlignment
+                                                                          .spaceAround,
+                                                                  children: [
+                                                                    Expanded(
+                                                                      child:
+                                                                          Column(
+                                                                        mainAxisAlignment:
+                                                                            MainAxisAlignment.start,
+                                                                        crossAxisAlignment:
+                                                                            CrossAxisAlignment.start,
+                                                                        children: [
+                                                                          Text(
+                                                                            "Model No",
+                                                                            style:
+                                                                                TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
+                                                                          ),
+                                                                          Text(
+                                                                            article.modelNo.toString(),
+                                                                            style:
+                                                                                TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                    ),
+                                                                    Expanded(
+                                                                        child:
+                                                                            Column(
+                                                                      mainAxisAlignment:
+                                                                          MainAxisAlignment
+                                                                              .start,
+                                                                      crossAxisAlignment:
+                                                                          CrossAxisAlignment
+                                                                              .start,
+                                                                      children: [
+                                                                        Text(
+                                                                          "Device Name",
+                                                                          style: TextStyle(
+                                                                              color: MyColors.textprofiledetailColorCode,
+                                                                              fontSize: 18),
+                                                                        ),
+                                                                        Text(
+                                                                          article
+                                                                              .deviceName
+                                                                              .toString(),
+                                                                          textAlign:
+                                                                              TextAlign.left,
+                                                                          style: TextStyle(
+                                                                              color: MyColors.text5ColorCode,
+                                                                              fontSize: 18),
+                                                                        ),
+                                                                      ],
+                                                                    ))
+                                                                  ],
                                                                 ),
-                                                                Text(
-                                                                  article
-                                                                      .deviceNo
-                                                                      .toString(),
-                                                                  textAlign:
-                                                                      TextAlign
-                                                                          .left,
-                                                                  style: TextStyle(
-                                                                      color: MyColors
-                                                                          .text5ColorCode,
-                                                                      fontSize:
-                                                                          18),
+                                                              ),
+                                                              Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .only(
+                                                                        top:
+                                                                            15.0,
+                                                                        bottom:
+                                                                            15),
+                                                                child: Row(
+                                                                  mainAxisAlignment:
+                                                                      MainAxisAlignment
+                                                                          .spaceAround,
+                                                                  children: [
+                                                                    Expanded(
+                                                                      child:
+                                                                          Column(
+                                                                        mainAxisAlignment:
+                                                                            MainAxisAlignment.start,
+                                                                        crossAxisAlignment:
+                                                                            CrossAxisAlignment.start,
+                                                                        children: [
+                                                                          Text(
+                                                                            "IMEINo",
+                                                                            style:
+                                                                                TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
+                                                                          ),
+                                                                          Text(
+                                                                            article.imeino.toString(),
+                                                                            style:
+                                                                                TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                    ),
+                                                                  ],
                                                                 ),
-                                                              ],
-                                                            ))
-                                                          ],
+                                                              ),
+                                                            ],
+                                                          ),
                                                         ),
                                                       ),
-                                                      Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                    .only(
-                                                                top: 15.0,
-                                                                bottom: 15),
-                                                        child: Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .spaceAround,
-                                                          children: [
-                                                            Expanded(
-                                                              child: Column(
-                                                                mainAxisAlignment:
-                                                                    MainAxisAlignment
-                                                                        .start,
-                                                                crossAxisAlignment:
-                                                                    CrossAxisAlignment
-                                                                        .start,
-                                                                children: [
-                                                                  Text(
-                                                                    "Model No",
-                                                                    style: TextStyle(
-                                                                        color: MyColors
-                                                                            .textprofiledetailColorCode,
-                                                                        fontSize:
-                                                                            18),
-                                                                  ),
-                                                                  Text(
-                                                                    article
-                                                                        .modelNo
-                                                                        .toString(),
-                                                                    style: TextStyle(
-                                                                        color: MyColors
-                                                                            .text5ColorCode,
-                                                                        fontSize:
-                                                                            18),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ),
-                                                            Expanded(
-                                                                child: Column(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .start,
-                                                              crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .start,
-                                                              children: [
-                                                                Text(
-                                                                  "Device Name",
-                                                                  style: TextStyle(
-                                                                      color: MyColors
-                                                                          .textprofiledetailColorCode,
-                                                                      fontSize:
-                                                                          18),
-                                                                ),
-                                                                Text(
-                                                                  article
-                                                                      .branchName
-                                                                      .toString(),
-                                                                  textAlign:
-                                                                      TextAlign
-                                                                          .left,
-                                                                  style: TextStyle(
-                                                                      color: MyColors
-                                                                          .text5ColorCode,
-                                                                      fontSize:
-                                                                          18),
-                                                                ),
-                                                              ],
-                                                            ))
-                                                          ],
-                                                        ),
-                                                      ),
-                                                      Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                    .only(
-                                                                top: 15.0,
-                                                                bottom: 15),
-                                                        child: Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .spaceAround,
-                                                          children: [
-                                                            Expanded(
-                                                              child: Column(
-                                                                mainAxisAlignment:
-                                                                    MainAxisAlignment
-                                                                        .start,
-                                                                crossAxisAlignment:
-                                                                    CrossAxisAlignment
-                                                                        .start,
-                                                                children: [
-                                                                  Text(
-                                                                    "IMEINo",
-                                                                    style: TextStyle(
-                                                                        color: MyColors
-                                                                            .textprofiledetailColorCode,
-                                                                        fontSize:
-                                                                            18),
-                                                                  ),
-                                                                  Text(
-                                                                    article
-                                                                        .imeino
-                                                                        .toString(),
-                                                                    style: TextStyle(
-                                                                        color: MyColors
-                                                                            .text5ColorCode,
-                                                                        fontSize:
-                                                                            18),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          );
-                                        });
-                                  }))
+                                                    ),
+                                                  );
+                                                });
+                                          }))
                               : !isSearch
                                   ? BlocBuilder<MainBloc, MainState>(
                                       builder: (context, state) {
