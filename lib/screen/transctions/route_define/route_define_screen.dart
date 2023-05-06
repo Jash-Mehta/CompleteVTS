@@ -16,6 +16,7 @@ import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:location/location.dart' as loc;
 
 import '../../../bloc/main_event.dart';
+import '../../../model/route_define/custom_textfield.dart';
 import '../../../model/route_define/route_define_post.dart';
 
 class RouteDefineScreen extends StatefulWidget {
@@ -31,6 +32,7 @@ class _RouteDefineScreenState extends State<RouteDefineScreen> {
   bool isaddwaypoint = false;
   bool onseaerchtextn = false;
   bool onendpointchanged = false;
+  String _allText = '';
   //! For Starting Point address---------------
   final _placesApiClient =
       wp.GoogleMapsPlaces(apiKey: 'AIzaSyBnJPusnfAjrL9xofBjC_R5heU4uPZXgDY');
@@ -58,6 +60,9 @@ class _RouteDefineScreenState extends State<RouteDefineScreen> {
   TextEditingController _routernamecontrollers = TextEditingController();
 
   List<Map<String, double>>? coordinatesList = [];
+  List<TextEditingController> _controllers = [];
+  List<CustomTextformfield> _textFields = [];
+
   bool endpoint = false;
   List<String> mergeString = [];
   var textchanged1, textchanges2;
@@ -153,6 +158,18 @@ class _RouteDefineScreenState extends State<RouteDefineScreen> {
     getdata();
     setState(() {});
     _mainBloc = BlocProvider.of(context);
+    _controllers.forEach((controller) {
+      controller.addListener(() {
+        _updateAllText();
+      });
+    });
+  }
+
+  void _updateAllText() {
+    setState(() {
+      _allText = _controllers.map((controller) => controller.text).join('\$');
+    });
+    print(_allText.toString());
   }
 
   getdata() async {
@@ -399,6 +416,37 @@ class _RouteDefineScreenState extends State<RouteDefineScreen> {
                         color: MyColors.text3greyColorCode,
                         height: 1,
                       ),
+                      Container(
+                        height: 40.0,
+                        width: double.infinity,
+                        margin: EdgeInsets.only(left: 20, right: 20.0),
+                        child: Center(
+                            child: GestureDetector(
+                          onTap: () {
+                            TextEditingController controller =
+                                TextEditingController();
+                            CustomTextformfield textField = CustomTextformfield(
+                              controller: controller,
+                              onTextChanged: (response) {},
+                            );
+
+                            setState(() {
+                              _controllers.add(controller);
+                              _textFields.add(textField);
+                            });
+                            controller.addListener(() {
+                              _updateAllText();
+                            });
+                          },
+                          child: Text(
+                            "+ Add Way Point",
+                            style: TextStyle(
+                                color: Color.fromARGB(255, 5, 49, 124),
+                                fontSize: 18.0,
+                                fontWeight: FontWeight.w500),
+                          ),
+                        )),
+                      ),
                       Align(
                           alignment: Alignment.centerLeft,
                           child: Padding(
@@ -412,212 +460,18 @@ class _RouteDefineScreenState extends State<RouteDefineScreen> {
                           )),
                       Column(
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 8.0, right: 8),
-                            child: TextField(
-                              onTap: () {},
-                              inputFormatters: <TextInputFormatter>[
-                                FilteringTextInputFormatter.allow(
-                                    RegExp("[0-9a-zA-Z]")),
-                              ],
-                              enabled: true,
-                              onEditingComplete: () {},
-                              onChanged: (value) {
-                                if (value.isEmpty) {
-                                  midwaypoint = false;
-                                  setState(() {});
-                                } else {
-                                  midwaypoint = true;
-                                  _onwaypoin1(value);
-                                  setState(() {});
-                                }
-                              },
-                              controller: _waypointcontrollers,
-                              // to trigger disabledBorder
-                              decoration: InputDecoration(
-                                filled: true,
-                                fillColor: MyColors.whiteColorCode,
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(4)),
-                                  borderSide: BorderSide(
-                                      width: 1,
-                                      color: MyColors.buttonColorCode),
-                                ),
-                                disabledBorder: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(4)),
-                                  borderSide: BorderSide(
-                                      width: 1, color: Colors.orange),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(4)),
-                                  borderSide: BorderSide(
-                                      width: 1,
-                                      color: MyColors.textBoxBorderColorCode),
-                                ),
-                                border: OutlineInputBorder(
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(4)),
-                                    borderSide: BorderSide(
-                                      width: 1,
-                                    )),
-                                errorBorder: OutlineInputBorder(
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(4)),
-                                    borderSide: BorderSide(
-                                        width: 1,
-                                        color:
-                                            MyColors.textBoxBorderColorCode)),
-                                focusedErrorBorder: OutlineInputBorder(
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(4)),
-                                    borderSide: BorderSide(
-                                        width: 2,
-                                        color: MyColors.buttonColorCode)),
-                                hintText: "Searchable Dropdown",
-                                hintStyle: TextStyle(
-                                    fontSize: 16,
-                                    color: MyColors.textFieldHintColorCode),
-                                errorText: "",
-                              ),
-                              // controller: _passwordController,
-                              // onChanged: _authenticationFormBloc.onPasswordChanged,
-                              obscureText: false,
-                            ),
-                          ),
-                          midwaypoint
-                              ? Container(
-                                  height: 100.0,
-                                  child: ListView.builder(
-                                    itemCount: _waypredictions.length,
-                                    itemBuilder:
-                                        (BuildContext context, int index) {
-                                      return ListTile(
-                                        onTap: () {
-                                          textchanged1 = _waypredictions[index]
-                                              .description
-                                              .toString();
-                                          _waypointcontrollers.text =
-                                              _waypredictions[index]
-                                                  .description
-                                                  .toString();
-                                          midwaypoint = false;
+                          SizedBox(
+                            height: 100.0,
+                            child: ListView.builder(
+                              itemCount: _textFields.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                var personfield =
+                                    _controllers[index].text.toString();
 
-                                          setState(() {});
-                                        },
-                                        title: Text(_waypredictions[index]
-                                            .description
-                                            .toString()),
-                                      );
-                                    },
-                                  ),
-                                )
-                              : SizedBox(),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 8.0, right: 8),
-                            child: TextField(
-                              inputFormatters: <TextInputFormatter>[
-                                FilteringTextInputFormatter.allow(
-                                    RegExp("[0-9a-zA-Z]")),
-                              ],
-                              onTap: () {},
-                              enabled: true,
-                              onEditingComplete: () {},
-                              onChanged: (value) {
-                                if (value.isEmpty) {
-                                  midwaypoint2 = false;
-                                  setState(() {});
-                                } else {
-                                  midwaypoint2 = true;
-                                  _onwaypoin2(value);
-                                  setState(() {});
-                                }
+                                return _textFields[index];
                               },
-                              controller: _waypointcontrollers2,
-                              // to trigger disabledBorder
-                              decoration: InputDecoration(
-                                filled: true,
-                                fillColor: MyColors.whiteColorCode,
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(4)),
-                                  borderSide: BorderSide(
-                                      width: 1,
-                                      color: MyColors.buttonColorCode),
-                                ),
-                                disabledBorder: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(4)),
-                                  borderSide: BorderSide(
-                                      width: 1, color: Colors.orange),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(4)),
-                                  borderSide: BorderSide(
-                                      width: 1,
-                                      color: MyColors.textBoxBorderColorCode),
-                                ),
-                                border: OutlineInputBorder(
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(4)),
-                                    borderSide: BorderSide(
-                                      width: 1,
-                                    )),
-                                errorBorder: OutlineInputBorder(
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(4)),
-                                    borderSide: BorderSide(
-                                        width: 1,
-                                        color:
-                                            MyColors.textBoxBorderColorCode)),
-                                focusedErrorBorder: OutlineInputBorder(
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(4)),
-                                    borderSide: BorderSide(
-                                        width: 2,
-                                        color: MyColors.buttonColorCode)),
-                                hintText: "Searchable Dropdown",
-                                hintStyle: TextStyle(
-                                    fontSize: 16,
-                                    color: MyColors.textFieldHintColorCode),
-                                errorText: "",
-                              ),
-                              // controller: _passwordController,
-                              // onChanged: _authenticationFormBloc.onPasswordChanged,
-                              obscureText: false,
                             ),
-                          ),
-                          midwaypoint2
-                              ? Container(
-                                  height: 100.0,
-                                  child: ListView.builder(
-                                    itemCount: _waypredictions2.length,
-                                    itemBuilder:
-                                        (BuildContext context, int index) {
-                                      return ListTile(
-                                        onTap: () {
-                                          textchanges2 = _waypredictions2[index]
-                                              .description
-                                              .toString();
-                                          _waypointcontrollers2.text =
-                                              _waypredictions2[index]
-                                                  .description
-                                                  .toString();
-                                          midwaypoint2 = false;
-
-                                          setState(() {});
-                                        },
-                                        title: Text(_waypredictions2[index]
-                                            .description
-                                            .toString()),
-                                      );
-                                    },
-                                  ),
-                                )
-                              : SizedBox()
+                          )
                         ],
                       ),
                     ],
@@ -749,77 +603,36 @@ class _RouteDefineScreenState extends State<RouteDefineScreen> {
                           content: const Text("Fill Required Detail"),
                         );
                         ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                      } else if (_allText.isEmpty) {
+                        Future.delayed(Duration(seconds: 3), () {
+                          _isloading = false;
+
+                          setState(() {});
+                          _mainBloc.add(RouteDefinePostEvents(
+                              token: token,
+                              vendorid: 1,
+                              branchid: 1,
+                              routefrom: _startcontroller.text,
+                              routeto: _endcontroller.text,
+                              routename: _routernamecontrollers.text,
+                              midwaypoint: "Not there"));
+                        }).whenComplete(() => CustomDialog().popUp(
+                            context, "Well done! Record Save Successfully"));
                       } else {
-                        String? waypoint1;
-                        if (textchanged1 != null || textchanges2 != null) {
-                          if (textchanged1 == null) {
-                            waypoint1 = textchanges2;
-                            _midaddress(waypoint1 ?? "NOtavaiable");
-                            Future.delayed(Duration(seconds: 3), () {
-                              _isloading = false;
-                              setState(() {});
-                              _mainBloc.add(RouteDefinePostEvents(
-                                  token: token,
-                                  vendorid: 1,
-                                  branchid: 1,
-                                  routefrom: _startcontroller.text,
-                                  routeto: _endcontroller.text,
-                                  routename: _routernamecontrollers.text,
-                                  midwaypoint: waypoint1.toString()));
-                            });
-                            CustomDialog().popUp(
-                                context, "Well done! Record Save Successfully");
-                          } else if (textchanges2 == null) {
-                            waypoint1 = textchanged1;
-                            Future.delayed(Duration(seconds: 3), () {
-                              _isloading = false;
-                              setState(() {});
-                             _mainBloc.add(RouteDefinePostEvents(
-                                  token: token,
-                                  vendorid: 1,
-                                  branchid: 1,
-                                  routefrom: _startcontroller.text,
-                                  routeto: _endcontroller.text,
-                                  routename: _routernamecontrollers.text,
-                                  midwaypoint: waypoint1.toString()));
-                            });
-                            CustomDialog().popUp(
-                                context, "Well done! Record Save Successfully");
-                            _midaddress(waypoint1 ?? "NOtavaiable");
-                          } else {
-                            waypoint1 = textchanged1 + "\$" + textchanges2;
-                            Future.delayed(Duration(seconds: 3), () {
-                              _isloading = false;
-                              setState(() {});
-                              _mainBloc.add(RouteDefinePostEvents(
-                                  token: token,
-                                  vendorid: 1,
-                                  branchid: 1,
-                                  routefrom: _startcontroller.text,
-                                  routeto: _endcontroller.text,
-                                  routename: _routernamecontrollers.text,
-                                  midwaypoint: waypoint1.toString()));
-                            });
-                            CustomDialog().popUp(
-                                context, "Well done! Record Save Successfully");
-                            _midaddress(waypoint1 ?? "NOtavaiable");
-                          }
-                        } else {
-                          Future.delayed(Duration(seconds: 3), () {
-                            _isloading = false;
-                            setState(() {});
-                            _mainBloc.add(RouteDefinePostEvents(
-                                token: token,
-                                vendorid: 1,
-                                branchid: 1,
-                                routefrom: _startcontroller.text,
-                                routeto: _endcontroller.text,
-                                routename: _routernamecontrollers.text,
-                                midwaypoint: "Notthere"));
-                          });
-                          CustomDialog().popUp(
-                              context, "Well done! Record Save Successfully");
-                        }
+                        Future.delayed(Duration(seconds: 3), () {
+                          _isloading = false;
+                          _midaddress(_allText.toString());
+                          setState(() {});
+                          _mainBloc.add(RouteDefinePostEvents(
+                              token: token,
+                              vendorid: 1,
+                              branchid: 1,
+                              routefrom: _startcontroller.text,
+                              routeto: _endcontroller.text,
+                              routename: _routernamecontrollers.text,
+                              midwaypoint: _allText.toString()));
+                        }).whenComplete(() => CustomDialog().popUp(
+                            context, "Well done! Record Save Successfully"));
                       }
                     },
                     shape: RoundedRectangleBorder(
@@ -850,20 +663,7 @@ class _RouteDefineScreenState extends State<RouteDefineScreen> {
                         );
                         ScaffoldMessenger.of(context).showSnackBar(snackBar);
                       } else {
-                        if (textchanged1 != null || textchanges2 != null) {
-                          if (textchanged1 == null) {
-                            String? waypoint1 = textchanges2;
-                            _midaddress(waypoint1 ?? "NOtavaiable");
-                          } else if (textchanges2 == null) {
-                            String? waypoint1 = textchanged1;
-                            _midaddress(waypoint1 ?? "NOtavaiable");
-                          } else {
-                            String waypoint1 =
-                                textchanged1 + "\$" + textchanges2;
-
-                            _midaddress(waypoint1 ?? "NOtavaiable");
-                          }
-                        }
+                        _midaddress(_allText.toString());
                         Future.delayed(Duration(seconds: 5), () {
                           _isloading = false;
                           setState(() {});
