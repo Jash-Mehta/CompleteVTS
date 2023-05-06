@@ -6,11 +6,11 @@ class VehicleStatusReportFilter {
   int? totalPages;
   int? totalRecords;
   String? nextPage;
-  Null? previousPage;
+  String? previousPage;
   List<ReportVehicleStatusFilter>? data;
   bool? succeeded;
-  Null? errors;
-  Null? message;
+  String? errors;
+  String? message;
 
   VehicleStatusReportFilter(
       {this.pageNumber,

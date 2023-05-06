@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_vts/bloc/main_event.dart';
 import 'package:flutter_vts/model/alert/add_alert_master_requesy.dart';
 import 'package:flutter_vts/model/alert/add_alert_master_response.dart';
@@ -2803,17 +2804,17 @@ class WebService {
       'Content-Type': 'application/json; charset=UTF-8',
       'Authorization': 'Bearer $token',
     });
-    if (response.statusCode == 200) {
+    // if (response.statusCode == 200) {
       print("Successfully getting your data");
       var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
 
       var driverwisevehiclejson = DriverWiseVehicleFilter.fromJson(jsonbody);
       print("Json decoded body_" + driverwisevehiclejson.toString());
       return driverwisevehiclejson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
+    // } else {
+    //   print(response.body);
+    //   throw Exception('Failed to load data');
+    // }
   }
 
   // Date wise travel history filter
@@ -2860,17 +2861,17 @@ class WebService {
       'Content-Type': 'application/json; charset=UTF-8',
       'Authorization': 'Bearer $token',
     });
-    if (response.statusCode == 200) {
+    // if (response.statusCode == 200) {
       print("Successfully getting your data");
       var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
 
       var driverwisevehiclejson = DateWiseTravelFilterModel.fromJson(jsonbody);
       print("Json decoded body_" + datewisetravelfilterurl.toString());
       return driverwisevehiclejson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
+    // } else {
+    //   print(response.body);
+    //   throw Exception('Failed to load data');
+    // }
   }
 
   // Frame packet grid filter
@@ -2926,7 +2927,7 @@ class WebService {
       'Content-Type': 'application/json; charset=UTF-8',
       'Authorization': 'Bearer $token',
     });
-    if (response.statusCode == 200) {
+    // if (response.statusCode == 200) {
       print("Successfully getting your data");
       var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
 
@@ -2935,10 +2936,10 @@ class WebService {
       print("this is packet frame grid filter data" +
           driverwisevehiclejson.toString());
       return driverwisevehiclejson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
+    // } else {
+    //   print(response.body);
+    //   throw Exception('Failed to load data');
+    // }
   }
 
   // Frame packet filter
@@ -2994,17 +2995,17 @@ class WebService {
       'Content-Type': 'application/json; charset=UTF-8',
       'Authorization': 'Bearer $token',
     });
-    if (response.statusCode == 200) {
+    // if (response.statusCode == 200) {
       print("Successfully getting your data");
       var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
 
       var driverwisevehiclejson = FramePacketFilterModel.fromJson(jsonbody);
       print("Json decoded body_" + framepacketfilterurl.toString());
       return driverwisevehiclejson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
+    // } else {
+    //   print(response.body);
+    //   throw Exception('Failed to load data');
+    // }
   }
 
   // vehicle status report filter
@@ -3048,16 +3049,16 @@ class WebService {
       'Content-Type': 'application/json; charset=UTF-8',
       'Authorization': 'Bearer $token',
     });
-    if (response.statusCode == 200) {
+    // if (response.statusCode == 200) {
       print("Successfully getting your data");
       var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
       var searchtextresponce = VehicleStatusReportFilter.fromJson(jsonbody);
       print("Json decoded body_" + searchtextresponce.toString());
       return searchtextresponce;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
+    // } else {
+    //   print(response.body);
+    //   throw Exception('Failed to load data');
+    // }
   }
 
   Future<DriverWiseVehicleAssignSearch> driverwisevehicleassignsearch(
@@ -3307,17 +3308,17 @@ class WebService {
       'Content-Type': 'application/json; charset=UTF-8',
       'Authorization': 'Bearer $token',
     });
-    if (response.statusCode == 200) {
+    // if (response.statusCode == 200) {
       print("Successfully getting your data");
       var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
 
       var vehiclewisetravelhistoryjson =
           VehicleWiseFilterModel.fromJson(jsonbody);
       return vehiclewisetravelhistoryjson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
+    // } else {
+    //   print(response.body);
+    //   throw Exception('Failed to load data');
+    // }
   }
 
   // Vehicle wise Time wise FIlter
@@ -3362,17 +3363,17 @@ class WebService {
       'Content-Type': 'application/json; charset=UTF-8',
       'Authorization': 'Bearer $token',
     });
-    if (response.statusCode == 200) {
+    // if (response.statusCode == 200) {
       print("Successfully getting your data");
       var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
 
       var vehiclewisetravelhistoryjson =
           VehicleWiseTimeWiseFilterModel.fromJson(jsonbody);
       return vehiclewisetravelhistoryjson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
+    // } else {
+    //   print(response.body);
+    //   throw Exception('Failed to load data');
+    // }
   }
 
   // Vehicle wise  search
@@ -3575,17 +3576,17 @@ class WebService {
       'Content-Type': 'application/json; charset=UTF-8',
       'Authorization': 'Bearer $token',
     });
-    if (response.statusCode == 200) {
+    // if (response.statusCode == 200) {
       print("Successfully getting your data");
       var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
 
       var vehiclewisetravelhistoryjson =
           DateAndTimeWiseFilter.fromJson(jsonbody);
-      return vehiclewisetravelhistoryjson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
+    return vehiclewisetravelhistoryjson;
+    // } else {
+    //   print(response.body);
+    //   throw Exception('Failed to load data');
+    // }
   }
 
   // Date and time wise search
@@ -3728,7 +3729,7 @@ class WebService {
       'Content-Type': 'application/json; charset=UTF-8',
       'Authorization': 'Bearer $token',
     });
-    if (response.statusCode == 200) {
+    // if (response.statusCode == 200) {
       print("Successfully getting your data");
       print("This is overspeed filter -------- " + response.body);
       var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
@@ -3736,10 +3737,10 @@ class WebService {
       var overspeedurljson = OverSpeedFilter.fromJson(jsonbody);
       print("Json decoded body_" + overspeedurl.toString());
       return overspeedurljson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
+    // } else {
+    //   print(response.body);
+    //   throw Exception('Failed to load data');
+    // }
   }
 
   // ----------------------------------
@@ -4294,17 +4295,17 @@ class WebService {
       'Content-Type': 'application/json; charset=UTF-8',
       'Authorization': 'Bearer $token',
     });
-    if (response.statusCode == 200) {
+    // if (response.statusCode == 200) {
       print("Successfully getting your data");
       var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
 
       var ddevicemasterjson = DeviceMasterFilterModel.fromJson(jsonbody);
       print("Json decoded body_" + devicemasterurl.toString());
       return ddevicemasterjson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
+    // } else {
+    //   print(response.body);
+    //   throw Exception('Failed to load data');
+    // }
   }
 
   // Vehicle Status Driver code
@@ -4608,23 +4609,23 @@ class WebService {
     String token,
     int vendorId,
     int branchid,
-    int vsrno,
+    String vsrno,
     int pagenumber,
     int pagesize,
   ) async {
-    // var vehiclereporturl = Constant.filterVehicleReporturl +
-    //     vendorId.toString() +
-    //     "&BranchId=" +
-    //     branchid.toString() +
-    //     "&VSrNo=" +
-    //     vsrno.toString() +
-    //     "&PageNumber=" +
-    //     pagenumber.toString() +
-    //     "&PageSize=" +
-    //     pagesize.toString();
+    var vehiclereporturl = Constant.filterVehicleReporturl +
+        vendorId.toString() +
+        "&BranchId=" +
+        branchid.toString() +
+        "&VSrNo=" +
+        vsrno.toString() +
+        "&PageNumber=" +
+        pagenumber.toString() +
+        "&PageSize=" +
+        pagesize.toString();
 
-    var vehiclereporturl =
-        "https://vtsgpsapi.m-techinnovations.com/api/VehicleMasterReports/ApplyFilterVehicleMaster?VendorId=1&BranchId=1&VSrNo=8&PageNumber=1&PageSize=10";
+    // var vehiclereporturl =
+    //     "https://vtsgpsapi.m-techinnovations.com/api/VehicleMasterReports/ApplyFilterVehicleMaster?VendorId=1&BranchId=1&VSrNo=8&PageNumber=1&PageSize=10";
 
     print("This is vehicle report filter url " + vehiclereporturl);
 
@@ -4633,17 +4634,17 @@ class WebService {
       'Content-Type': 'application/json; charset=UTF-8',
       'Authorization': 'Bearer $token',
     });
-    if (response.statusCode == 200) {
+    // if (response.statusCode == 200) {
       print("Successfully getting your data" + response.body);
       var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
 
       var ddevicemasterjson = VehicleReportFilter.fromJson(jsonbody);
       print("Json decoded body_" + vehiclereporturl.toString());
       return ddevicemasterjson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
+    // } else {
+    //   print(response.body);
+    //   throw Exception('Failed to load data');
+    // }
   }
 
   // Vehicle Summary Report Filter
@@ -4692,17 +4693,17 @@ class WebService {
       'Content-Type': 'application/json; charset=UTF-8',
       'Authorization': 'Bearer $token',
     });
-    if (response.statusCode == 200) {
+    // if (response.statusCode == 200) {
       print("Successfully getting your data" + response.body);
       var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
 
       var ddevicemasterjson = VehicleSummaryFilterModel.fromJson(jsonbody);
       print("Json decoded body_" + vehiclereporturl.toString());
       return ddevicemasterjson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
+    // } else {
+    //   print(response.body);
+    //   throw Exception('Failed to load data');
+    // }
   }
 
   // Vehicle group Report Filter
@@ -4750,17 +4751,17 @@ class WebService {
       'Content-Type': 'application/json; charset=UTF-8',
       'Authorization': 'Bearer $token',
     });
-    if (response.statusCode == 200) {
+    // if (response.statusCode == 200) {
       print("Successfully getting your data" + response.body);
       var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
 
       var ddevicemasterjson = VehicleGroupFilterModel.fromJson(jsonbody);
       print("Json decoded body_" + vehiclereporturl.toString());
       return ddevicemasterjson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
+    // } else {
+    //   print(response.body);
+    //   throw Exception('Failed to load data');
+    // }
   }
 
   Future<SearchFramePcktRpt> searchTextFramePckt(
@@ -5213,17 +5214,17 @@ class WebService {
       'Content-Type': 'application/json; charset=UTF-8',
       'Authorization': 'Bearer $token',
     });
-    if (response.statusCode == 200) {
+    // if (response.statusCode == 200) {
       print("Successfully getting your data");
       var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
 
       var ddevicemasterjson = DriverMasterFilter.fromJson(jsonbody);
       print("Json decoded body_" + drivermasterurl.toString());
       return ddevicemasterjson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
+    // } else {
+    //   print(response.body);
+    //   throw Exception('Failed to load data');
+    // }
   }
 
 //

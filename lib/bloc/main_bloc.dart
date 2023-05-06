@@ -1717,6 +1717,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           yield VehicleReportFilterLoadedState(
               vehicleReportFilter: vehiclereportfilterbloc);
         } catch (e) {
+          print("vehicle report went wrong in main bloc");
           yield VehicleReportFilterErorrState(msg: e.toString());
         }
       }
@@ -2050,7 +2051,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
       else if (event is FrameGridFilterEvent) {
         try {
-          yield VehicleStatusFilterLoadingState();
+          yield FrameGridFilterLoadingState();
           var vehiclestatusreportfilterbloc =
               await webService.framepacketgridfilter(
                   event.token,

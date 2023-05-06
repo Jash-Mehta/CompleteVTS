@@ -6,11 +6,11 @@ class FramePacketFilterModel {
   int? totalPages;
   int? totalRecords;
   String? nextPage;
-  Null? previousPage;
+  String? previousPage;
   List<FrameFilterData>? data;
   bool? succeeded;
-  Null? errors;
-  Null? message;
+  String? errors;
+  String? message;
 
   FramePacketFilterModel(
       {this.pageNumber,

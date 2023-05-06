@@ -1,7 +1,7 @@
 class VehicleStatusReportDriverCodeModel {
   List<VSRDCData>? data;
   bool? succeeded;
-  Null? errors;
+  String? errors;
   String? message;
 
   VehicleStatusReportDriverCodeModel(
