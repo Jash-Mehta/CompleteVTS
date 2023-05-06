@@ -974,7 +974,11 @@ class MainBloc extends Bloc<MainEvent, MainState> {
               event.vendorId,
               event.branchId,
               event.araiNonarai,
-              event.imeiNUmber);
+              event.currentimeiNUmber,
+              event.prevTransactionId,
+              event.prevDate,
+              event.prevTime,
+              event.prevIMEINo);
           yield NextLocationIMEILoadedState(
               startLocationResponse: startLocationResponse);
         } catch (e) {
@@ -1341,10 +1345,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
               distancesummarysearch: distancesummarysearchresponse);
         } catch (e) {
           print(e.toString());
-          yield DistanceSummaryErrorState(msg:  e.toString());
+          yield DistanceSummaryErrorState(msg: e.toString());
         }
-      }
-       else if (event is DriverWiseVehicleAssignEvent) {
+      } else if (event is DriverWiseVehicleAssignEvent) {
         try {
           yield DriverWiseVehicleAssignLoadingState();
           var driverwisevehicleassignresponse =

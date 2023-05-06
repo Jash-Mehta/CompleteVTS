@@ -89,6 +89,8 @@ import '../model/driver_wise_vehicle_assign/driver_wise_vehicle_filter.dart';
 import '../model/driver_wise_vehicle_assign/search_driver_vehicle_assign.dart';
 import '../model/getgeofence/getroute_name_list.dart';
 import '../model/getgeofence/routes_detail_routename.dart';
+import '../model/live/nextlocation_imei.dart';
+import '../model/live/startlocation_imei.dart';
 import '../model/point_of_interest/create_point_of_interest.dart';
 import '../model/point_of_interest/dropdown_point_of_interest.dart';
 import '../model/point_of_interest/poi_post.dart';
@@ -1964,7 +1966,7 @@ class WebService {
     return startLocationResponseFromJson(response.body);
   }
 
-  Future<List<StartLocationResponse>> getStartLocationImei(String token,
+  Future<List<StartLocationImei>> getStartLocationImei(String token,
       int vendorId, int branchId, String araiNonarai, String imeino) async {
     print(Constant.getStartLocationImeiUrl +
         "" +
@@ -1991,8 +1993,9 @@ class WebService {
         'Authorization': 'Bearer $token',
       },
     );
-    print(response.body);
-    return startLocationResponseFromJson(response.body);
+    if (response.statusCode == 200) {}
+
+    return startLocationImeiFromJson(response.body);
   }
 
   Future<List<StartLocationResponse>> getNextLocation(
@@ -2022,17 +2025,18 @@ class WebService {
     return startLocationResponseFromJson(response.body);
   }
 
-  Future<List<StartLocationResponse>> getnextLocationImei(String token,
-      int vendorId, int branchId, String araiNonarai, String imeino) async {
-    print(Constant.getNextLocationImeiUrl +
-        "" +
-        vendorId.toString() +
-        "&BranchId=" +
-        branchId.toString() +
-        "&ARAI_NONARAI=" +
-        araiNonarai.toString() +
-        "&IMEINO=" +
-        imeino.toString());
+//! nextlocation ime---------------->
+  Future<List<NextLocationImei>> getnextLocationImei(
+      String token,
+      int vendorId,
+      int branchId,
+      String araiNonarai,
+      String currentimeino,
+      int prevTransactionId,
+      String prevDate,
+      String prevTime,
+      String prevIMEINo) async {
+  
 
     final response = await http.get(
       Uri.parse(Constant.getNextLocationImeiUrl +
@@ -2042,15 +2046,25 @@ class WebService {
           branchId.toString() +
           "&ARAI_NONARAI=" +
           araiNonarai.toString() +
-          "&IMEINO=" +
-          imeino.toString()),
+          "&CurrentIMEINO=" +
+          currentimeino.toString() +
+          "&PreviousTransactionId=" +
+          prevTransactionId.toString() +
+          "&PreviousDate=" +
+          prevDate.toString() +
+          "&PreviousTime=" +
+          prevTime.toString() +
+          "&PreviousIMEINo=" +
+          prevIMEINo.toString()),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': 'Bearer $token',
       },
     );
-    print(response.body);
-    return startLocationResponseFromJson(response.body);
+    if (response.statusCode == 200) {
+      print("Enter in the nextlocation Live----------->" + response.body);
+    }
+    return nextLocationImeiFromJson(response.body);
   }
 
   Future<LiveTrackingFilterResponse> getLiveTrackingFilter(
@@ -2537,29 +2551,27 @@ class WebService {
 
     return travelsummaryjson;
   }
+
   //! Route Define Post----------------
-    Future<RouteDefinePost> routedefinepost(
-   String token,
-   int vendorid,
-   int branchid,
-   String routefrom,
-   String routeto,
-   String routename,
-   String midway,
+  Future<RouteDefinePost> routedefinepost(
+    String token,
+    int vendorid,
+    int branchid,
+    String routefrom,
+    String routeto,
+    String routename,
+    String midway,
   ) async {
     final body = {
-    
-  "vendorSrNo": 1,
-  "branchSrNo": 1,
-  "routeName": routename.toString(),
-  "routeFrom": routefrom.toString(),
-  "routeTo": routeto.toString(),
-  "latlang": midway.toString()
-
+      "vendorSrNo": 1,
+      "branchSrNo": 1,
+      "routeName": routename.toString(),
+      "routeFrom": routefrom.toString(),
+      "routeTo": routeto.toString(),
+      "latlang": midway.toString()
     };
     final response = await http.post(
-      Uri.parse(
-          "https://vtsgpsapi.m-techinnovations.com/api/RouteDefine"),
+      Uri.parse("https://vtsgpsapi.m-techinnovations.com/api/RouteDefine"),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': "Bearer $token",
@@ -2575,7 +2587,6 @@ class WebService {
       throw Exception("Failed to loaded poidata");
     }
   }
-
 
   //! All Data Distance Summary Screen---------------------------
   Future<DistancesummaryEntity> distancesummarydetail(
@@ -2677,7 +2688,7 @@ class WebService {
   }
 
   // distance summary search
-   Future<DistanceSummarySearchModel> distancesummarysearch(
+  Future<DistanceSummarySearchModel> distancesummarysearch(
     String token,
     int vendorid,
     int branchid,
@@ -2690,37 +2701,35 @@ class WebService {
     String totime,
     String todate,
   ) async {
-     var distanceurl = Constant.distancesummarysearch +
-          "?VendorId=" +
-          vendorid.toString() +
-          "&BranchId=" +
-          branchid.toString() +
-          "&ARAI_NONARAI=$arinonarai"+
-          "&FromDate=" +
-          fromdate.toString() +
-          "&FromTime=" +
-          fromtime.toString() +
-          "&ToDate=" +
-          todate.toString() +
-          "&ToTime=" +
-          totime.toString() +
-          "&SearchText=$searchtext"+
-          "&PageNumber=" +
-          pagenumber.toString() +
-          "&PageSize=" +
-          pagesize.toString();
-     
+    var distanceurl = Constant.distancesummarysearch +
+        "?VendorId=" +
+        vendorid.toString() +
+        "&BranchId=" +
+        branchid.toString() +
+        "&ARAI_NONARAI=$arinonarai" +
+        "&FromDate=" +
+        fromdate.toString() +
+        "&FromTime=" +
+        fromtime.toString() +
+        "&ToDate=" +
+        todate.toString() +
+        "&ToTime=" +
+        totime.toString() +
+        "&SearchText=$searchtext" +
+        "&PageNumber=" +
+        pagenumber.toString() +
+        "&PageSize=" +
+        pagesize.toString();
+
     final response =
-        await http.get(Uri.parse(distanceurl),
-            headers: <String, String>{
+        await http.get(Uri.parse(distanceurl), headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
       'Authorization': 'Bearer $token',
     });
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
-      var distancesummaryjson = DistanceSummarySearchModel.fromJson(jsonbody);
-      return distancesummaryjson;
+    var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
+    var distancesummaryjson = DistanceSummarySearchModel.fromJson(jsonbody);
+    return distancesummaryjson;
   }
-
 
   // Driver wise vehicle assign
   Future<DriverWiseVehicleAssign> driverwisevehicleassign(

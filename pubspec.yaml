@@ -65,6 +65,8 @@ dev_dependencies:
   flutter_polyline_points: ^1.0.0
   solid_bottom_sheet: ^0.1.10
   permission_handler: ^10.2.0
+  flutter_session_manager: ^1.0.2
+  cookie_jar: ^4.0.2
   android_intent_plus: ^3.1.6
   pdf: ^3.9.0
   open_file: ^3.2.1

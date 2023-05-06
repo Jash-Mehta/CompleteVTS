@@ -35,6 +35,9 @@ import 'package:flutter_vts/util/MyColor.dart';
 import 'package:flutter_vts/util/constant.dart';
 import 'package:flutter_vts/util/menu_drawer.dart';
 
+import '../model/live/nextlocation_imei.dart';
+import '../model/live/startlocation_imei.dart';
+
 class NumberList {
   String number;
   int index;
@@ -109,6 +112,8 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
   TextEditingController searchController = new TextEditingController();
   List<SearchLiveTrackingResponse> searchliveTrackingResponse = [];
   List<StartLocationResponse> startLocationResponse = [];
+  List<StartLocationImei> startLocationResponseime = [];
+  List<NextLocationImei> nextLocationResponseime = [];
 
   late SharedPreferences sharedPreferences;
   late String userName = "";
@@ -350,55 +355,20 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
             mapController?.animateCamera(CameraUpdate.newCameraPosition(
                 CameraPosition(target: LatLng(lat, lng), zoom: 17)));
           }
-
-          // _markerlist.add(Marker(
-          //   //add second marker
-          //   markerId: MarkerId(LatLng(18.6598, 73.7497).toString()),
-          //   position: LatLng(
-          //       /*double.parse(liveTrackingDetails![i].latitude!),double.parse(liveTrackingDetails![i].longitude!)*/ /*27.7099116, 85.3132343*/ 18.6598,
-          //       73.7497), //position of marker
-          //   infoWindow: InfoWindow(
-          //       //popup info
-          //       title: 'Marker Title Second ',
-          //       snippet: 'My Custom Subtitle',
-          //       onTap: () {
-          //         print("click");
-          //         Navigator.push(
-          //             context,
-          //             MaterialPageRoute(
-          //                 builder: (_) => BlocProvider(
-          //                     create: (context) {
-          //                       return MainBloc(webService: WebService());
-          //                     },
-          //                     child: LiveTrackingDetailsScreen(
-          //                       transactionId: 85680,
-          //                       araiNonarai:
-          //                           '' /*liveTrackingDetails![i].transactionId*/,
-          //                     ))));
-          //       }),
-          //   onTap: () {
-          //     print("click");
-          //   },
-          //   icon: BitmapDescriptor.defaultMarker, //Icon for Marker
-          // ));
         }
       });
       //! FLAG = 2 is for filter response--------------------
     } else if (flag == 2) {
-      setState(() {
+      _markerlist.clear();
+      setState(() async {
         for (int i = 0; i < liveTrackingFilterResponse.data!.length; i++) {
           _markerlist.add(Marker(
             //add second marker
             markerId: MarkerId(showLocation.toString()),
             position: LatLng(
-                liveTrackingFilterResponse.data![i].latitude == "0000000000"
-                    ? 18.6298
-                    : double.parse(
-                        liveTrackingFilterResponse.data![i].latitude!),
-                liveTrackingFilterResponse.data![i].longitude == "00000000000"
-                    ? 73.7997
-                    : double.parse(liveTrackingFilterResponse
-                        .data![i].longitude!)), //position of marker
+                double.parse(liveTrackingFilterResponse.data![i].latitude!),
+                double.parse(liveTrackingFilterResponse
+                    .data![i].longitude!)), //position of marker
             infoWindow: InfoWindow(
                 //popup info
                 title: liveTrackingFilterResponse.data![i].driverName,
@@ -417,8 +387,28 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
                                       .data![i].transactionId,
                                   araiNonarai: 'arai'))));
                 }),
-            icon: BitmapDescriptor.defaultMarker, //Icon for Marker
+            icon: await BitmapDescriptor.fromAssetImage(
+                const ImageConfiguration(
+                    devicePixelRatio: 1.0, size: Size(10, 10)),
+                liveTrackingFilterResponse.data![i].vehicleStatus == 'Stop'
+                    ? 'assets/stop_car.png'
+                    : liveTrackingFilterResponse.data![i].vehicleStatus ==
+                            'Running'
+                        ? 'assets/running_car.png'
+                        : liveTrackingFilterResponse.data![i].vehicleStatus ==
+                                'Idle'
+                            ? 'assets/idle_car.png'
+                            : 'assets/inactive_car.png'), //Icon for Marker
           ));
+          setState(() {});
+          mapController?.animateCamera(CameraUpdate.newCameraPosition(
+              CameraPosition(
+                  target: LatLng(
+                      double.parse(
+                          liveTrackingFilterResponse.data![i].latitude!),
+                      double.parse(
+                          liveTrackingFilterResponse.data![i].longitude!)),
+                  zoom: 17)));
         }
       });
       //! Flag == 3 is for search response------------------
@@ -977,6 +967,7 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
         } else if (state is SearchLiveTrackingErrorState) {
           setState(() {
             _isLoading = false;
+            _markerlist.clear();
           });
 
           Fluttertoast.showToast(
@@ -1010,7 +1001,7 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
           // getStartLocationMakers(state.startLocationResponse[0].latitude!,state.startLocationResponse[0].longitude!);
 
           if (state.startLocationResponse[0].vehicleStatus == "Running") {
-            getNextlocation(state.startLocationResponse[0].imei!);
+            //  getNextlocation(state.startLocationResponse[0].imei!,);
           }
         } else if (state is StartLocationErrorState) {
           setState(() {
@@ -1038,7 +1029,7 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
           setState(() {
             _isLoading = false;
             _searchmarkerlist.clear();
-            startLocationResponse = state.startLocationResponse;
+            startLocationResponseime = state.startLocationResponse;
             // showStartLocation=LatLng(double.parse(state.startLocationResponse[0].latitude!),double.parse(state.startLocationResponse[0].longitude!)/*27.7089427, 85.3086209*/);
           });
           // BitmapDescriptor.fromAssetImage(
@@ -1054,8 +1045,12 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
           // getStartLocationMakers(state.startLocationResponse[0].latitude!,state.startLocationResponse[0].longitude!);
 
           if (state.startLocationResponse[0].vehicleStatus == "Running") {
-            getNextlocation(state.startLocationResponse[0].imei!);
-            for (int i = 0; i < state.startLocationResponse.length; i++) {}
+            getNextlocation(
+                state.startLocationResponse[0].imei,
+                state.startLocationResponse[0].transactionId,
+                state.startLocationResponse[0].date,
+                state.startLocationResponse[0].previousTime,
+                state.startLocationResponse[0].imei);
           }
         } else if (state is StartLocationIMEIErrorState) {
           setState(() {
@@ -1071,7 +1066,6 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
             startLocationResponse.clear();
             _isLoading = false;
             _searchmarkerlist.clear();
-            startLocationResponse = state.startLocationResponse;
           });
           getmarkers(4);
         } else if (state is NextLocationIMEIErrorState) {
@@ -1133,10 +1127,33 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
                                 child: Padding(
                                   padding: const EdgeInsets.only(top: 4.0),
                                   child: Text(
-                                    vehicleStatusWithCountResponse[i].status!,
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
-                                  ),
+                                      vehicleStatusWithCountResponse[i].status!,
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: vehicleStatusWithCountResponse[i]
+                                                      .status ==
+                                                  "RUNNING"
+                                              ? ui.Color.fromARGB(
+                                                  255, 74, 172, 79)
+                                              : vehicleStatusWithCountResponse[i]
+                                                          .status ==
+                                                      "IDLE"
+                                                  ? ui.Color.fromARGB(
+                                                      255, 233, 215, 60)
+                                                  : vehicleStatusWithCountResponse[i]
+                                                              .status ==
+                                                          "INACTIVE"
+                                                      ? Colors.blue
+                                                      : vehicleStatusWithCountResponse[i]
+                                                                  .status ==
+                                                              "STOP"
+                                                          ? Colors.red
+                                                          : vehicleStatusWithCountResponse[
+                                                                          i]
+                                                                      .status ==
+                                                                  "OVERSPEED"
+                                                              ? Colors.orange
+                                                              : Colors.grey)),
                                 ),
                               ),
                             ],
@@ -1304,7 +1321,8 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
         imeiNUmber: imei));
   }
 
-  getNextlocation(String imei) {
+  getNextlocation(String imei, int transcationID, String prevTime,
+      String prevDate, String prevImei) {
     timer = Timer.periodic(Duration(seconds: 1), (Timer t) {
       // _mainBloc.add(NextLocationEvents(vendorId: vendorid,branchId: branchid,token: token, araiNonarai: 'nonarai'));
       _mainBloc.add(NextLocationIMEIEvents(
@@ -1312,7 +1330,11 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
           branchId: branchid,
           token: token,
           araiNonarai: 'arai',
-          imeiNUmber: imei));
+          currentimeiNUmber: imei,
+          prevTransactionId: transcationID,
+          prevDate: prevDate,
+          prevTime: prevTime,
+          prevIMEINo: prevImei));
     });
   }
 

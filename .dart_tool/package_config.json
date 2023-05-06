@@ -80,6 +80,12 @@
       "languageVersion": "2.18"
     },
     {
+      "name": "cookie_jar",
+      "rootUri": "file:///C:/Users/jashm/AppData/Local/Pub/Cache/hosted/pub.dev/cookie_jar-4.0.2",
+      "packageUri": "lib/",
+      "languageVersion": "2.15"
+    },
+    {
       "name": "cross_file",
       "rootUri": "file:///C:/Users/jashm/AppData/Local/Pub/Cache/hosted/pub.dev/cross_file-0.3.3+4",
       "packageUri": "lib/",
@@ -178,6 +184,12 @@
     {
       "name": "flutter_polyline_points",
       "rootUri": "file:///C:/Users/jashm/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_polyline_points-1.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "flutter_session_manager",
+      "rootUri": "file:///C:/Users/jashm/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_session_manager-1.0.3",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
@@ -764,6 +776,12 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "universal_io",
+      "rootUri": "file:///C:/Users/jashm/AppData/Local/Pub/Cache/hosted/pub.dev/universal_io-2.2.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.15"
+    },
+    {
       "name": "url_launcher",
       "rootUri": "file:///C:/Users/jashm/AppData/Local/Pub/Cache/hosted/pub.dev/url_launcher-6.1.10",
       "packageUri": "lib/",
@@ -848,7 +866,7 @@
       "languageVersion": "2.12"
     }
   ],
-  "generated": "2023-04-28T11:31:25.337868Z",
+  "generated": "2023-05-03T14:48:40.699358Z",
   "generator": "pub",
   "generatorVersion": "2.19.6"
 }
