@@ -129,7 +129,7 @@ class Constant {
   static String getStartLocationImeiUrl =
       baseUrl + 'VTSLive/GetStartLocationVTSLiveDetailsByIMEINo?VendorId=';
   static String getNextLocationImeiUrl =
-      baseUrl + 'VTSLive/GetNextLocationVTSLiveDetailsByIMEINo?VendorId=';
+      baseUrl + 'VTSLive/GetNextLocationVTSLiveDetailsByIMEINoNew?VendorId=';
 
   static String getLiveTrackingCompanyUrl = baseUrl + 'VTSLive/FillVendor';
   static String getLiveTrackingBranchUrl = baseUrl + 'VTSLive/FillBranch/';

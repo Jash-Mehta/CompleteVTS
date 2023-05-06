@@ -906,14 +906,24 @@ class NextLocationIMEIEvents extends MainEvent {
   int vendorId;
   int branchId;
   String araiNonarai;
-  String imeiNUmber;
+  String currentimeiNUmber;
+  int prevTransactionId;
+  String prevDate;
+  String prevTime;
+  String prevIMEINo;
+  NextLocationIMEIEvents({
+    required this.token,
+    required this.vendorId,
+    required this.branchId,
+    required this.araiNonarai,
+    required this.currentimeiNUmber,
+    required this.prevTransactionId,
+    required this.prevDate,
+    required this.prevTime,
+    required this.prevIMEINo,
+  });
 
-  NextLocationIMEIEvents(
-      {required this.token,
-      required this.vendorId,
-      required this.branchId,
-      required this.araiNonarai,
-      required this.imeiNUmber});
+  
 }
 
 class LiveTrackingFilterEvents extends MainEvent {
@@ -1063,7 +1073,6 @@ class RemoveAssignMenuRightsEvents extends MainEvent {
   RemoveAssignMenuRightsEvents(
       {required this.token, required this.assignMenuRightsRequest});
 }
-
 
 // class getDriverMasterReportEvents extends MainEvent {
 //   int srNo;
@@ -1339,11 +1348,11 @@ class SearchDriverwiseVehAssignDetailsEvent extends MainEvent {
 
   SearchDriverwiseVehAssignDetailsEvent(
       {required this.token,
-        required this.vendorid,
-        required this.branchid,
-        required this.pageSize,
-        required this.pageNumber,
-        required this.searchText});
+      required this.vendorid,
+      required this.branchid,
+      required this.pageSize,
+      required this.pageNumber,
+      required this.searchText});
 }
 
 //! Event for get vehicle reports-----
@@ -1854,7 +1863,7 @@ class DateWiseDriverCodeEvent extends MainEvent {
     required this.vendorId,
     required this.branchId,
   });
-} 
+}
 
 // Driver wise driver code
 class DriverWiseDriverCodeEvent extends MainEvent {
@@ -1866,7 +1875,7 @@ class DriverWiseDriverCodeEvent extends MainEvent {
     required this.vendorId,
     required this.branchId,
   });
-} 
+}
 
 class OverSpeedVehicleFilterEvent extends MainEvent {
   String token;
@@ -1912,7 +1921,6 @@ class VehicleStsRptDriverCodeEvent extends MainEvent {
   });
 }
 
-
 class DriverMasterDriverCodeEvent extends MainEvent {
   String token;
   int vendorId;
@@ -1923,10 +1931,6 @@ class DriverMasterDriverCodeEvent extends MainEvent {
     required this.branchId,
   });
 }
-
-
-
-
 
 class SearchDriverMasterReportEvent extends MainEvent {
   String token;
@@ -1944,7 +1948,6 @@ class SearchDriverMasterReportEvent extends MainEvent {
     required this.pagesize,
   });
 }
-
 
 class SearchDatewiseTravelReportEvent extends MainEvent {
   String token;
@@ -1969,7 +1972,6 @@ class SearchDatewiseTravelReportEvent extends MainEvent {
   });
 }
 
-
 //Search event for Search frame packet...
 
 class SearchFramePacktReportEvent extends MainEvent {
@@ -1987,18 +1989,18 @@ class SearchFramePacktReportEvent extends MainEvent {
   int pageSize;
 
   SearchFramePacktReportEvent(
-  {required this.token,
-  required this.vendorId,
-  required this.branchId,
-  required this.araiNonarai,
-  required this.fromDate,
-  required this.formTime,
-  required this.toDate,
-  required this.toTime,
-  required this.searchText,
-  required this.framepacketoption,
-  required this.pageNumber,
-  required this.pageSize});
+      {required this.token,
+      required this.vendorId,
+      required this.branchId,
+      required this.araiNonarai,
+      required this.fromDate,
+      required this.formTime,
+      required this.toDate,
+      required this.toTime,
+      required this.searchText,
+      required this.framepacketoption,
+      required this.pageNumber,
+      required this.pageSize});
 }
 
 //Search event for Search frame packet grid...
@@ -2019,17 +2021,17 @@ class SearchFramePacktGridEvent extends MainEvent {
 
   SearchFramePacktGridEvent(
       {required this.token,
-        required this.vendorId,
-        required this.branchId,
-        required this.araiNonarai,
-        required this.fromDate,
-        required this.formTime,
-        required this.toDate,
-        required this.toTime,
-        required this.searchText,
-        required this.framepacketoption,
-        required this.pageNumber,
-        required this.pageSize});
+      required this.vendorId,
+      required this.branchId,
+      required this.araiNonarai,
+      required this.fromDate,
+      required this.formTime,
+      required this.toDate,
+      required this.toTime,
+      required this.searchText,
+      required this.framepacketoption,
+      required this.pageNumber,
+      required this.pageSize});
 }
 
 class SearchVehicleStatusGroupEvent extends MainEvent {
@@ -2059,17 +2061,16 @@ class SearchVehicleStatusGroupEvent extends MainEvent {
   });
 }
 
-
 class SearchOverSpeedCreateEvents extends MainEvent {
- String token;
- int vendorId;
- int barnchId;
- String arainonarai;
- String fromDate;
- String toDate;
- String searchText;
- int pageNumber;
- int pageSize;
+  String token;
+  int vendorId;
+  int barnchId;
+  String arainonarai;
+  String fromDate;
+  String toDate;
+  String searchText;
+  int pageNumber;
+  int pageSize;
 
   SearchOverSpeedCreateEvents(
       {required this.token,
@@ -2080,14 +2081,8 @@ class SearchOverSpeedCreateEvents extends MainEvent {
       required this.toDate,
       required this.searchText,
       required this.pageNumber,
-      required this.pageSize
-      });
+      required this.pageSize});
 }
-
-
-
-
-
 
 class SearchVehicleStatusEvent extends MainEvent {
   String token;
@@ -2116,9 +2111,6 @@ class SearchVehicleStatusEvent extends MainEvent {
   });
 }
 
-
-
-
 class SearchvehicleStatusSummaryEvent extends MainEvent {
   String token;
   int vendorId;
@@ -2146,7 +2138,7 @@ class SearchvehicleStatusSummaryEvent extends MainEvent {
   });
 }
 
-class DateAndTimeWiseTravelEvents  extends MainEvent {
+class DateAndTimeWiseTravelEvents extends MainEvent {
   String token;
   int vendorId;
   int branchid;
@@ -2163,7 +2155,7 @@ class DateAndTimeWiseTravelEvents  extends MainEvent {
     required this.vendorId,
     required this.branchid,
     required this.araino,
-     required this.fromdate,
+    required this.fromdate,
     required this.fromTime,
     required this.toDate,
     required this.toTime,
@@ -2173,7 +2165,7 @@ class DateAndTimeWiseTravelEvents  extends MainEvent {
   });
 }
 
-class DateAndTimeWiseSearchEvents  extends MainEvent {
+class DateAndTimeWiseSearchEvents extends MainEvent {
   String token;
   int vendorId;
   int branchid;
@@ -2190,7 +2182,7 @@ class DateAndTimeWiseSearchEvents  extends MainEvent {
     required this.vendorId,
     required this.branchid,
     required this.araino,
-     required this.fromdate,
+    required this.fromdate,
     required this.fromTime,
     required this.toDate,
     required this.toTime,
@@ -2200,7 +2192,7 @@ class DateAndTimeWiseSearchEvents  extends MainEvent {
   });
 }
 
-class DateAndTimeWiseFilterEvents  extends MainEvent {
+class DateAndTimeWiseFilterEvents extends MainEvent {
   String token;
   int vendorId;
   int branchid;
@@ -2217,7 +2209,7 @@ class DateAndTimeWiseFilterEvents  extends MainEvent {
     required this.vendorId,
     required this.branchid,
     required this.araino,
-     required this.fromdate,
+    required this.fromdate,
     required this.fromTime,
     required this.toDate,
     required this.toTime,
@@ -2227,7 +2219,7 @@ class DateAndTimeWiseFilterEvents  extends MainEvent {
   });
 }
 
-class VehicleWiseTravelEvents  extends MainEvent {
+class VehicleWiseTravelEvents extends MainEvent {
   String token;
   int vendorId;
   int branchid;
@@ -2254,7 +2246,7 @@ class VehicleWiseTravelEvents  extends MainEvent {
   });
 }
 
-class VehicleWiseFilterEvents  extends MainEvent {
+class VehicleWiseFilterEvents extends MainEvent {
   String token;
   int vendorId;
   int branchid;
@@ -2281,7 +2273,7 @@ class VehicleWiseFilterEvents  extends MainEvent {
   });
 }
 
-class VehicleWiseSearchEvents  extends MainEvent {
+class VehicleWiseSearchEvents extends MainEvent {
   String token;
   int vendorId;
   int branchid;
@@ -2304,8 +2296,7 @@ class VehicleWiseSearchEvents  extends MainEvent {
   });
 }
 
-
-class VehicleWiseTimeWiseTravelEvents  extends MainEvent {
+class VehicleWiseTimeWiseTravelEvents extends MainEvent {
   String token;
   int vendorId;
   int branchid;
@@ -2332,7 +2323,7 @@ class VehicleWiseTimeWiseTravelEvents  extends MainEvent {
   });
 }
 
-class VehicleWiseTimeWiseFilterEvents  extends MainEvent {
+class VehicleWiseTimeWiseFilterEvents extends MainEvent {
   String token;
   int vendorId;
   int branchid;
@@ -2359,7 +2350,7 @@ class VehicleWiseTimeWiseFilterEvents  extends MainEvent {
   });
 }
 
-class VehicleWiseTimeWiseSearchEvents  extends MainEvent {
+class VehicleWiseTimeWiseSearchEvents extends MainEvent {
   String token;
   int vendorId;
   int branchid;
@@ -2405,6 +2396,7 @@ class FramePacketOptionGridEvent extends MainEvent {
     required this.arai,
   });
 }
+
 //! PointOfInterest Get  Event-------------------------
 class GetPointOfInterestEvent extends MainEvent {
   String token;
@@ -2436,6 +2428,7 @@ class SearchPointOfInterestEvent extends MainEvent {
     required this.searchStr,
   });
 }
+
 //!End of PointOfInterest search Event
 //! POI type event------------------
 class Poitype extends MainEvent {
@@ -2488,12 +2481,14 @@ class POIDeletedata extends MainEvent {
     required this.srno,
   });
 }
+
 class DropdownPointOfInterestEvent extends MainEvent {
   String token;
   DropdownPointOfInterestEvent({
     required this.token,
   });
 }
+
 //! Route data---------------------(getVstGeofecnce)>
 class GettingRouteGGR extends MainEvent {
   String token;
@@ -2518,6 +2513,7 @@ class RoutesDetailByRoutesNameEvents extends MainEvent {
     required this.routename,
   });
 }
+
 //! Route Define Post Data---------------------------->
 class RouteDefinePostEvents extends MainEvent {
   String token;
@@ -2536,7 +2532,4 @@ class RouteDefinePostEvents extends MainEvent {
     required this.routename,
     required this.midwaypoint,
   });
-
-
 }
-

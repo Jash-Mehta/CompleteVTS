@@ -762,25 +762,29 @@ class _RouteDefineScreenState extends State<RouteDefineScreen> {
                                   token: token,
                                   vendorid: 1,
                                   branchid: 1,
-                                  routefrom: _endcontroller.text,
-                                  routeto: _startcontroller.text,
+                                  routefrom: _startcontroller.text,
+                                  routeto: _endcontroller.text,
                                   routename: _routernamecontrollers.text,
                                   midwaypoint: waypoint1.toString()));
                             });
+                            CustomDialog().popUp(
+                                context, "Well done! Record Save Successfully");
                           } else if (textchanges2 == null) {
                             waypoint1 = textchanged1;
                             Future.delayed(Duration(seconds: 3), () {
                               _isloading = false;
                               setState(() {});
-                              _mainBloc.add(RouteDefinePostEvents(
+                             _mainBloc.add(RouteDefinePostEvents(
                                   token: token,
                                   vendorid: 1,
                                   branchid: 1,
-                                  routefrom: _endcontroller.text,
-                                  routeto: _startcontroller.text,
+                                  routefrom: _startcontroller.text,
+                                  routeto: _endcontroller.text,
                                   routename: _routernamecontrollers.text,
                                   midwaypoint: waypoint1.toString()));
                             });
+                            CustomDialog().popUp(
+                                context, "Well done! Record Save Successfully");
                             _midaddress(waypoint1 ?? "NOtavaiable");
                           } else {
                             waypoint1 = textchanged1 + "\$" + textchanges2;
@@ -791,12 +795,13 @@ class _RouteDefineScreenState extends State<RouteDefineScreen> {
                                   token: token,
                                   vendorid: 1,
                                   branchid: 1,
-                                  routefrom: _endcontroller.text,
-                                  routeto: _startcontroller.text,
+                                  routefrom: _startcontroller.text,
+                                  routeto: _endcontroller.text,
                                   routename: _routernamecontrollers.text,
                                   midwaypoint: waypoint1.toString()));
                             });
-
+                            CustomDialog().popUp(
+                                context, "Well done! Record Save Successfully");
                             _midaddress(waypoint1 ?? "NOtavaiable");
                           }
                         } else {
@@ -807,16 +812,15 @@ class _RouteDefineScreenState extends State<RouteDefineScreen> {
                                 token: token,
                                 vendorid: 1,
                                 branchid: 1,
-                                routefrom: _endcontroller.text,
-                                routeto: _startcontroller.text,
+                                routefrom: _startcontroller.text,
+                                routeto: _endcontroller.text,
                                 routename: _routernamecontrollers.text,
                                 midwaypoint: "Notthere"));
                           });
+                          CustomDialog().popUp(
+                              context, "Well done! Record Save Successfully");
                         }
                       }
-
-                      // CustomDialog()
-                      //     .popUp(context, "Well done! Record Save Successfully");
                     },
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(10))),

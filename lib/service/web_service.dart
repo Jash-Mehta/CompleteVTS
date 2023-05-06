@@ -90,6 +90,8 @@ import '../model/driver_wise_vehicle_assign/driver_wise_vehicle_filter.dart';
 import '../model/driver_wise_vehicle_assign/search_driver_vehicle_assign.dart';
 import '../model/getgeofence/getroute_name_list.dart';
 import '../model/getgeofence/routes_detail_routename.dart';
+import '../model/live/nextlocation_imei.dart';
+import '../model/live/startlocation_imei.dart';
 import '../model/point_of_interest/create_point_of_interest.dart';
 import '../model/point_of_interest/dropdown_point_of_interest.dart';
 import '../model/point_of_interest/poi_post.dart';
@@ -1965,7 +1967,7 @@ class WebService {
     return startLocationResponseFromJson(response.body);
   }
 
-  Future<List<StartLocationResponse>> getStartLocationImei(String token,
+  Future<List<StartLocationImei>> getStartLocationImei(String token,
       int vendorId, int branchId, String araiNonarai, String imeino) async {
     print(Constant.getStartLocationImeiUrl +
         "" +
@@ -1992,8 +1994,9 @@ class WebService {
         'Authorization': 'Bearer $token',
       },
     );
-    print(response.body);
-    return startLocationResponseFromJson(response.body);
+    if (response.statusCode == 200) {}
+
+    return startLocationImeiFromJson(response.body);
   }
 
   Future<List<StartLocationResponse>> getNextLocation(
@@ -2023,17 +2026,18 @@ class WebService {
     return startLocationResponseFromJson(response.body);
   }
 
-  Future<List<StartLocationResponse>> getnextLocationImei(String token,
-      int vendorId, int branchId, String araiNonarai, String imeino) async {
-    print(Constant.getNextLocationImeiUrl +
-        "" +
-        vendorId.toString() +
-        "&BranchId=" +
-        branchId.toString() +
-        "&ARAI_NONARAI=" +
-        araiNonarai.toString() +
-        "&IMEINO=" +
-        imeino.toString());
+//! nextlocation ime---------------->
+  Future<List<NextLocationImei>> getnextLocationImei(
+      String token,
+      int vendorId,
+      int branchId,
+      String araiNonarai,
+      String currentimeino,
+      int prevTransactionId,
+      String prevDate,
+      String prevTime,
+      String prevIMEINo) async {
+  
 
     final response = await http.get(
       Uri.parse(Constant.getNextLocationImeiUrl +
@@ -2043,15 +2047,25 @@ class WebService {
           branchId.toString() +
           "&ARAI_NONARAI=" +
           araiNonarai.toString() +
-          "&IMEINO=" +
-          imeino.toString()),
+          "&CurrentIMEINO=" +
+          currentimeino.toString() +
+          "&PreviousTransactionId=" +
+          prevTransactionId.toString() +
+          "&PreviousDate=" +
+          prevDate.toString() +
+          "&PreviousTime=" +
+          prevTime.toString() +
+          "&PreviousIMEINo=" +
+          prevIMEINo.toString()),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': 'Bearer $token',
       },
     );
-    print(response.body);
-    return startLocationResponseFromJson(response.body);
+    if (response.statusCode == 200) {
+      print("Enter in the nextlocation Live----------->" + response.body);
+    }
+    return nextLocationImeiFromJson(response.body);
   }
 
   Future<LiveTrackingFilterResponse> getLiveTrackingFilter(

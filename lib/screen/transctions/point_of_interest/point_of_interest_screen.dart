@@ -679,7 +679,6 @@ class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
                                                           ),
                                                         );
                                                       });
-                                                
                                                 },
                                                 child: Container(
                                                   height: 37,
@@ -980,7 +979,9 @@ class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
                                           ),
                                           GestureDetector(
                                             onTap: () {
-                                              deleteposition = index;
+                                              print(
+                                                  "here is your delete index------------>" +
+                                                      index.toString());
                                               //! --Delete Alert Box--------------------------------
                                               showDialog(
                                                   context: context,

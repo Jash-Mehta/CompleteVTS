@@ -48,6 +48,7 @@ class _CreateGeofenceScreenState extends State<CreateGeofenceScreen> {
   late double latitude;
   late double longitute;
   bool alertbox = false;
+  bool category = false;
   var geofencename, description, tolerance;
   bool iscontainerselected = false;
   var vehiclename, vehicleid, longlatitude, longlongitude, checkstatus;
@@ -55,12 +56,13 @@ class _CreateGeofenceScreenState extends State<CreateGeofenceScreen> {
   final mapErrorScaffoldKey = GlobalKey<ScaffoldState>();
   final Set<Marker> _marker = {};
   String dropdownvalueprovider = 'Area';
-  var provideritems = ["Area", "Stay in Zone", "Stay Away from zone"];
+  List provideritems = ["Area", "Stay in Zone", "Stay Away from zone"];
   String categorydropdown = '';
   String dropdownvalue = 'Y';
-
+  var categoryvalue, status;
+  bool geostatus = false;
   // List of items in our dropdown menu
-  var items = ['Y', 'N'];
+  List items = ['Y', 'N'];
   late SharedPreferences sharedPreferences;
   late String userName = "";
   late String vendorName = "", branchName = "", userType = "";
@@ -236,6 +238,8 @@ class _CreateGeofenceScreenState extends State<CreateGeofenceScreen> {
                       _toleranceController.text = "";
                       vehiclename = "--select--";
                       location = "";
+                      status = '--select--';
+                      categoryvalue = "--select--";
                       searchController.text = "";
                       setState(() {});
                     },
@@ -652,45 +656,54 @@ class _CreateGeofenceScreenState extends State<CreateGeofenceScreen> {
                         ],
                       ),
                     )),
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                        color: MyColors.textBoxBorderColorCode, width: 2),
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    color: MyColors.whiteColorCode,
-                  ),
-                  width: MediaQuery.of(context).size.width,
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton(
-                      value: dropdownvalueprovider,
-                      icon: Padding(
-                        padding: const EdgeInsets.only(right: 18.0),
-                        child: const Icon(
-                          Icons.keyboard_arrow_down,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      items: provideritems.map((String items) {
-                        return DropdownMenuItem(
-                          value: items,
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 18.0),
-                            child: Text(
-                              items,
-                              style: TextStyle(
-                                  color: Colors.black, fontSize: 15.0),
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          dropdownvalueprovider = newValue!;
-                        });
-                      },
+                GestureDetector(
+                  onTap: () {
+                    category = true;
+                    setState(() {});
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                          color: MyColors.textBoxBorderColorCode, width: 2),
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                      color: MyColors.whiteColorCode,
+                    ),
+                    width: MediaQuery.of(context).size.width,
+                    height: 50.0,
+                    child: ListTile(
+                      leading: Text(categoryvalue ?? "--Select--"),
+                      trailing: Icon(Icons.keyboard_arrow_down),
                     ),
                   ),
                 ),
+                category
+                    ? Card(
+                        child: SizedBox(
+                          height: 100.0,
+                          width: MediaQuery.of(context).size.width,
+                          child: ListView.builder(
+                            itemCount: provideritems.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: GestureDetector(
+                                  onTap: () {
+                                    category = false;
+                                    categoryvalue =
+                                        provideritems[index].toString();
+                                    setState(() {});
+                                  },
+                                  child: Text(
+                                    provideritems[index].toString(),
+                                    style: TextStyle(color: Colors.black),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      )
+                    : SizedBox(),
                 Align(
                     alignment: Alignment.centerLeft,
                     child: Padding(
@@ -966,32 +979,53 @@ class _CreateGeofenceScreenState extends State<CreateGeofenceScreen> {
                         ],
                       ),
                     )),
-                Container(
-                  height: 50.0,
-                  width: double.infinity,
-                  margin: EdgeInsets.only(left: 10.0, right: 10.0),
-                  child: DropdownButton(
-                    // Initial Value
-                    value: dropdownvalue,
-
-                    // Down Arrow Icon
-
-                    // Array list of items
-                    items: items.map((String items) {
-                      return DropdownMenuItem(
-                        value: items,
-                        child: Text(items),
-                      );
-                    }).toList(),
-                    // After selecting the desired option,it will
-                    // change button value to selected value
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        dropdownvalue = newValue!;
-                      });
-                    },
+                GestureDetector(
+                  onTap: () {
+                    geostatus = true;
+                    setState(() {});
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                          color: MyColors.textBoxBorderColorCode, width: 2),
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                      color: MyColors.whiteColorCode,
+                    ),
+                    width: MediaQuery.of(context).size.width,
+                    height: 50.0,
+                    child: ListTile(
+                      leading: Text(status ?? "--Select--"),
+                      trailing: Icon(Icons.keyboard_arrow_down),
+                    ),
                   ),
                 ),
+                geostatus
+                    ? Card(
+                        child: SizedBox(
+                          height: 100.0,
+                          width: MediaQuery.of(context).size.width,
+                          child: ListView.builder(
+                            itemCount: items.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: GestureDetector(
+                                  onTap: () {
+                                    geostatus = false;
+                                    status = items[index].toString();
+                                    setState(() {});
+                                  },
+                                  child: Text(
+                                    items[index].toString(),
+                                    style: TextStyle(color: Colors.black),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      )
+                    : SizedBox(),
                 Stack(
                   alignment: Alignment.topCenter,
                   children: [
@@ -1009,7 +1043,7 @@ class _CreateGeofenceScreenState extends State<CreateGeofenceScreen> {
                             myLocationEnabled:
                                 true, //enable Zoom in, out on map
                             myLocationButtonEnabled: true,
-                           
+
                             initialCameraPosition: CameraPosition(
                               //innital position in map
                               target: LatLng(

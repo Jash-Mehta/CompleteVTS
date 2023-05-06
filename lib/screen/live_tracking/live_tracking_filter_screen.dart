@@ -249,14 +249,13 @@ class _LiveTrackingFilterScreenState extends State<LiveTrackingFilterScreen> {
                   "SelectedVehicleList": selectedvehicleSrNolist,
                   "araiNonarai": activeStatus ? "arai" : 'nonarai'
                 });
-              } else {
-                if (state.liveTrackingFilterResponse.message != null) {
-                  Fluttertoast.showToast(
-                    toastLength: Toast.LENGTH_SHORT,
-                    timeInSecForIosWeb: 1,
-                    msg: state.liveTrackingFilterResponse.message!,
-                  );
-                }
+              } else if (state.liveTrackingFilterResponse.succeeded == false) {
+                print("Record Not Found for given input");
+                Fluttertoast.showToast(
+                  toastLength: Toast.LENGTH_SHORT,
+                  timeInSecForIosWeb: 1,
+                  msg: state.liveTrackingFilterResponse.message!,
+                );
               }
             } else if (state is LiveTrackingFilterErrorState) {
               setState(() {

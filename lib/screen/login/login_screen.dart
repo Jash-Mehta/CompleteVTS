@@ -81,6 +81,21 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  decryptionwithAES(String key, String encryptedData) {
+    final cipherKey = Key.fromUtf8(key);
+    final encryptService = Encrypter(AES(cipherKey, mode: AESMode.cbc));
+    final initVector = IV.fromUtf8(key.substring(0, 16));
+    return encryptService.decrypt64(encryptedData, iv: initVector);
+  }
+
+  Encrypted encryptWithAES(String key, String plaintext) {
+    final ciphertext = Key.fromUtf8(key);
+    final encryptService = Encrypter(AES(ciphertext, mode: AESMode.cbc));
+    final initVector = IV.fromUtf8(key.substring(0, 16));
+    Encrypted encrypteddata = encryptService.encrypt(plaintext, iv: initVector);
+    return encrypteddata;
+  }
+
   loginbloc() async {
     if (usernameController.text.isEmpty) {
       Fluttertoast.showToast(
@@ -101,9 +116,6 @@ class _LoginScreenState extends State<LoginScreen> {
         timeInSecForIosWeb: 1,
       );
     } else {
-      // _des();
-      // _encrypt();
-
       if (passwordController.text != string) {
         Fluttertoast.showToast(
           msg: "Please Enter Valid Password",
@@ -111,6 +123,8 @@ class _LoginScreenState extends State<LoginScreen> {
           timeInSecForIosWeb: 1,
         );
       } else {
+        // Encrypted encrypted =
+        //     encryptWithAES(passwordController.text, usernameController.text);
         print("success");
 
         _mainBloc.add(LoginEvents(
@@ -288,7 +302,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 timeInSecForIosWeb: 1,
               );
             }*/
-
             } else if (state is LoginErrorState) {
               setState(() {
                 _isLoading = false;
@@ -537,7 +550,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: MaterialButton(
                         onPressed: () async {
                           print(string);
-                           loginbloc();
+                          loginbloc();
                           // _encrypt();
                           // _encrypt1();
                         },

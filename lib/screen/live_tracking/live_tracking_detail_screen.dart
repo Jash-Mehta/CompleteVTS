@@ -1,5 +1,6 @@
 import 'dart:async';
-
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_vts/bloc/main_bloc.dart';
 import 'package:flutter_vts/bloc/main_event.dart';
@@ -7,6 +8,8 @@ import 'package:flutter_vts/bloc/main_state.dart';
 import 'package:flutter_vts/model/live/live_tracking_response.dart';
 import 'package:flutter_vts/model/vehicle_history/vehicle_history_filter_response.dart';
 import 'package:flutter_vts/screen/master/alert/alert_master_screen.dart';
+import 'package:flutter_session_manager/flutter_session_manager.dart';
+
 import 'package:flutter_vts/screen/notification/notification_screen.dart';
 import 'package:flutter_vts/service/web_service.dart';
 import 'package:flutter_vts/util/MyColor.dart';
@@ -19,6 +22,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+
+import '../../model/live/nextlocation_imei.dart';
+import '../../model/live/start_location_response.dart';
+import '../../model/live/startlocation_imei.dart';
+import '../../util/constant.dart';
 
 class LiveTrackingDetailsScreen extends StatefulWidget {
   int transactionId;
@@ -67,8 +75,12 @@ class _LiveTrackingDetailsScreenState extends State<LiveTrackingDetailsScreen> {
   Map<PolylineId, Polyline> polylines = {};
   PolylinePoints polylinePoints = PolylinePoints();
   Completer<GoogleMapController> googleMapController = Completer();
+  List<StartLocationImei> startLocationResponseime = [];
+  List<NextLocationImei> nextlocationresponseime = [];
   double? livelat;
   double? livlong;
+  double? nextlivelat;
+  double? nextlivelng;
   late bool isPlayClick = false;
   late List<LiveTrackingByIdResponse> liveTrackingByIdRespons = [];
   List<String> speedList = [
@@ -92,8 +104,8 @@ class _LiveTrackingDetailsScreenState extends State<LiveTrackingDetailsScreen> {
     _mainBloc = BlocProvider.of(context);
 
     getdata();
-    timer = Timer.periodic(
-        Duration(seconds: 10), (Timer t) => getlivetackingByIdDetail());
+    // timer = Timer.periodic(
+    //     Duration(seconds: 10), (Timer t) => getlivetackingByIdDetail());
     print("We have call your getdata each and everytime 10 sec ");
   }
 
@@ -101,6 +113,25 @@ class _LiveTrackingDetailsScreenState extends State<LiveTrackingDetailsScreen> {
   void dispose() {
     timer.cancel();
     super.dispose();
+  }
+
+  //! NextLocation Ime Number------------------>
+  getNextlocation(String imei, int transcationID, String prevTime,
+      String prevDate, String prevImei) {
+    timer = Timer.periodic(Duration(seconds: 5), (Timer t) {
+      print("Every 5 second-------");
+      // _mainBloc.add(NextLocationEvents(vendorId: vendorid,branchId: branchid,token: token, araiNonarai: 'nonarai'));
+      _mainBloc.add(NextLocationIMEIEvents(
+          vendorId: vendorid,
+          branchId: branchid,
+          token: token,
+          araiNonarai: 'arai',
+          currentimeiNUmber: imei,
+          prevTransactionId: transcationID,
+          prevDate: prevDate,
+          prevTime: prevTime,
+          prevIMEINo: prevImei));
+    });
   }
 
   @override
@@ -999,6 +1030,45 @@ class _LiveTrackingDetailsScreenState extends State<LiveTrackingDetailsScreen> {
     );
   }
 
+  //! GetDirection for Polyline---------------------
+  getDirections(double? fromlatitude, double? fromlongitude, double? tolatitude,
+      double? tolongitude) async {
+    List<LatLng> polylineCoordinates = [];
+
+    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+      "AIzaSyBnJPusnfAjrL9xofBjC_R5heU4uPZXgDY",
+      PointLatLng(fromlatitude!, fromlongitude!),
+      PointLatLng(tolatitude!, tolongitude!),
+      travelMode: TravelMode.driving,
+    );
+
+    if (result.points.isNotEmpty) {
+      result.points.forEach((PointLatLng point) {
+        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+      });
+    } else if (result.errorMessage != null) {
+      print("Error message: ${result.errorMessage}");
+    } else {
+      print("No route found");
+    }
+    //polulineCoordinates is the List of longitute and latidtude.
+
+    addPolyLine(polylineCoordinates);
+  }
+
+  //! Adding Polyline--------------------------------
+  addPolyLine(List<LatLng> polylineCoordinates) {
+    PolylineId id = PolylineId("poly");
+    Polyline polyline = Polyline(
+      polylineId: id,
+      color: Colors.redAccent,
+      points: polylineCoordinates,
+      width: 5,
+    );
+    polylines[id] = polyline;
+    setState(() {});
+  }
+
   getdata() async {
     sharedPreferences = await SharedPreferences.getInstance();
     if (sharedPreferences.getString("auth_token") != null) {
@@ -1057,7 +1127,20 @@ class _LiveTrackingDetailsScreenState extends State<LiveTrackingDetailsScreen> {
         transactionId: widget.transactionId));
   }
 
+  //! Start Location by IMEI No.---------------------->
+  getstartlocation(String imei) {
+    // timer = Timer.periodic(Duration(seconds: 1), (Timer t) {
+    // _mainBloc.add(StartLocationEvents(vendorId: vendorid,branchId: branchid,token: token, araiNonarai: 'nonarai'));
+    _mainBloc.add(StartLocationIMEIEvents(
+        vendorId: vendorid,
+        branchId: branchid,
+        token: token,
+        araiNonarai: 'arai',
+        imeiNUmber: imei));
+  }
+
   _livetracking() {
+    //! Bloc Listner Startfrom here----------------->
     return BlocListener<MainBloc, MainState>(
       listener: (context, state) {
         if (state is LiveTrackingByIdLoadingState) {
@@ -1071,6 +1154,9 @@ class _LiveTrackingDetailsScreenState extends State<LiveTrackingDetailsScreen> {
               double.parse(state.liveTrackingByIdResponse[0].longitude!));
 
           if (liveTrackingByIdRespons.length != 0) {
+            getstartlocation(state.liveTrackingByIdResponse[0].imei!);
+            // callFirstApiThenSecondApi(
+            //     token, 1, 1, "arai", state.liveTrackingByIdResponse[0].imei!);
             setState(() {
               livelat =
                   double.parse(state.liveTrackingByIdResponse[0].latitude!);
@@ -1091,27 +1177,70 @@ class _LiveTrackingDetailsScreenState extends State<LiveTrackingDetailsScreen> {
           }
         } else if (state is LiveTrackingByIdErrorState) {
           setState(() {});
-        } else if (state is StartLocationLoadingState) {
+        } else if (state is StartLocationIMEILoadingState) {
+          print("Enter in the loading state--------------->");
           setState(() {
             _isLoading = true;
           });
-        } else if (state is StartLocationLoadedState) {
+        } else if (state is StartLocationIMEILoadedState) {
+          print("Your Start location is there---------->");
+          setState(() {
+            _isLoading = false;
+
+            startLocationResponseime = state.startLocationResponse;
+            setState(() {
+              livelat = double.parse(state.startLocationResponse[0].latitude);
+              livlong = double.parse(state.startLocationResponse[0].longitude);
+            });
+            getNextlocation(
+                state.startLocationResponse[0].imei,
+                state.startLocationResponse[0].transactionId,
+                state.startLocationResponse[0].date,
+                state.startLocationResponse[0].previousTime,
+                state.startLocationResponse[0].imei);
+            //  getmarkers(livelat!, livlong!);
+            // showStartLocation=LatLng(double.parse(state.startLocationResponse[0].latitude!),double.parse(state.startLocationResponse[0].longitude!)/*27.7089427, 85.3086209*/);
+          });
+          // BitmapDescriptor.fromAssetImage(
+          //     const ImageConfiguration(devicePixelRatio: 2.0,size: Size(20,20)),
+          //     'assets/stopped_truck.png')
+          //     .then((onValue) {
+          //       setState(() {
+          //         LiveLocationStatusIcon = onValue;
+          //       });
+          // });
+
+          // getStartLocationMakers(state.startLocationResponse[0].latitude!,state.startLocationResponse[0].longitude!);
+        } else if (state is StartLocationIMEIErrorState) {
           setState(() {
             _isLoading = false;
           });
-        } else if (state is StartLocationErrorState) {
-          setState(() {
-            _isLoading = false;
-          });
-        } else if (state is NextLocationLoadingState) {
+        } else if (state is NextLocationIMEILoadingState) {
+          print("Enter in the next loading locationIMEI----------");
           setState(() {
             _isLoading = true;
           });
-        } else if (state is NextLocationLoadedState) {
+        } else if (state is NextLocationIMEILoadedState) {
+          print("Enter in the next loaded locationIMEI----------");
           setState(() {
             _isLoading = false;
+
+            setState(() {
+              nextlivelat =
+                  double.parse(state.startLocationResponse[0].latitude);
+              nextlivelng =
+                  double.parse(state.startLocationResponse[0].longitude);
+            });
+
+            print(livelat.toString() +
+                livlong.toString() +
+                "next location latitude and longitude start from here----------->" +
+                nextlivelat.toString() +
+                nextlivelng.toString());
+            getDirections(livelat, livlong, nextlivelat, nextlivelng);
+            getnextlocMarker(nextlivelat!, nextlivelng!);
           });
-        } else if (state is NextLocationErrorState) {
+        } else if (state is NextLocationIMEIErrorState) {
           setState(() {
             _isLoading = false;
           });
@@ -1144,7 +1273,7 @@ class _LiveTrackingDetailsScreenState extends State<LiveTrackingDetailsScreen> {
     //markers to place on map
 
     setState(() async {
-      if (liveTrackingByIdRespons.length != 0) {
+      if (startLocationResponseime.length != 0) {
         _marker.add(Marker(
           //add second marker
           markerId: MarkerId(showLocation.toString()),
@@ -1152,22 +1281,49 @@ class _LiveTrackingDetailsScreenState extends State<LiveTrackingDetailsScreen> {
               livlong /*27.7099116, 85.3132343*/ /*18.6298, 73.7997*/), //position of marker
           infoWindow: InfoWindow(
             //popup info
-            title: liveTrackingByIdRespons[0].driverName,
-            snippet: liveTrackingByIdRespons[0].vehicleRegNo,
+            title: startLocationResponseime[0].driverName,
+            snippet: startLocationResponseime[0].vehicleRegNo,
           ),
           icon: await BitmapDescriptor.fromAssetImage(
               const ImageConfiguration(
                   devicePixelRatio: 1.0, size: Size(10, 10)),
-              liveTrackingByIdRespons[0].vehicleStatus == 'Stop'
+              startLocationResponseime[0].vehicleStatus == 'Stop'
                   ? 'assets/stop_car.png'
-                  : liveTrackingByIdRespons[0].vehicleStatus == 'Running'
+                  : startLocationResponseime[0].vehicleStatus == 'Running'
                       ? 'assets/running_car.png'
-                      : liveTrackingByIdRespons[0].vehicleStatus == 'Idle'
+                      : startLocationResponseime[0].vehicleStatus == 'Idle'
                           ? 'assets/idle_car.png'
                           : 'assets/inactive_car.png'), //Icon for Marker
         ));
-        mapController.animateCamera(CameraUpdate.newCameraPosition(
-            CameraPosition(target: LatLng(livelat, livlong), zoom: 17)));
+      }
+    });
+    return _marker;
+  }
+
+  Set<Marker> getnextlocMarker(double nextlivelat, double nextlivelong) {
+    setState(() async {
+      if (startLocationResponseime.length != 0) {
+        _marker.add(Marker(
+          //add second marker
+          markerId: MarkerId(showLocation.toString()),
+          position: LatLng(nextlivelat,
+              nextlivelong /*27.7099116, 85.3132343*/ /*18.6298, 73.7997*/), //position of marker
+          infoWindow: InfoWindow(
+            //popup info
+            title: startLocationResponseime[0].driverName,
+            snippet: startLocationResponseime[0].vehicleRegNo,
+          ),
+          icon: await BitmapDescriptor.fromAssetImage(
+              const ImageConfiguration(
+                  devicePixelRatio: 1.0, size: Size(10, 10)),
+              startLocationResponseime[0].vehicleStatus == 'Stop'
+                  ? 'assets/stop_car.png'
+                  : startLocationResponseime[0].vehicleStatus == 'Running'
+                      ? 'assets/running_car.png'
+                      : startLocationResponseime[0].vehicleStatus == 'Idle'
+                          ? 'assets/idle_car.png'
+                          : 'assets/inactive_car.png'), //Icon for Marker
+        ));
       }
     });
     return _marker;

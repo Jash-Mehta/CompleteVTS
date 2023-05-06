@@ -165,7 +165,7 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
               _isLoading = false;
             });
             print("Something went Wrong Filter data");
-             setState(() {
+            setState(() {
               _isLoading = false;
             });
           }
@@ -179,7 +179,7 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
               print("Search data is printed!!");
               setState(() {
                 _isLoading = false;
-                pagenumber++;
+                //pagenumber++;
                 searchvalue = state.travelSummaryResponse.totalRecords!;
               });
               searchdata!.addAll(state.travelSummaryResponse.datewise!);
@@ -384,30 +384,67 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
                                                     // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                     children: [
                                                       Container(
-                                                          padding:
-                                                              EdgeInsets.all(
-                                                                  10),
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            color: MyColors
-                                                                .whiteColorCode,
-                                                            border: Border.all(
-                                                                color: MyColors
-                                                                    .boxBackgroundColorCode),
-                                                            borderRadius:
-                                                                const BorderRadius
-                                                                        .all(
-                                                                    Radius
-                                                                        .circular(
-                                                                            10)),
-                                                          ),
-                                                          child: article
-                                                                      .vehicleStatus ==
-                                                                  "Idle"
-                                                              ? Image.asset(
-                                                                  "assets/idle_car.png")
-                                                              : Image.asset(
-                                                                  "assets/running_car.png")),
+                                                        padding:
+                                                            EdgeInsets.all(10),
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color: MyColors
+                                                              .whiteColorCode,
+                                                          border: Border.all(
+                                                              color: MyColors
+                                                                  .boxBackgroundColorCode),
+                                                          borderRadius:
+                                                              const BorderRadius
+                                                                      .all(
+                                                                  Radius
+                                                                      .circular(
+                                                                          10)),
+                                                        ),
+                                                        child: article
+                                                                    .vehicleStatus ==
+                                                                "Idle"
+                                                            ? Image.asset(
+                                                                "assets/idle_truck.png",
+                                                                height: 45.0,
+                                                                width: 45.0,
+                                                              )
+                                                            : article.vehicleStatus ==
+                                                                    "Inactive"
+                                                                ? Image.asset(
+                                                                    "assets/inactive_truck.png",
+                                                                    height:
+                                                                        45.0,
+                                                                    width: 45.0,
+                                                                  )
+                                                                : article.vehicleStatus ==
+                                                                        "Stop"
+                                                                    ? Image
+                                                                        .asset(
+                                                                        "assets/stopped_truck.png",
+                                                                        height:
+                                                                            45.0,
+                                                                        width:
+                                                                            45.0,
+                                                                      )
+                                                                    : article.vehicleStatus ==
+                                                                            "Overspeed"
+                                                                        ? Image
+                                                                            .asset(
+                                                                            "assets/overspeed_truck.png",
+                                                                            height:
+                                                                                45.0,
+                                                                            width:
+                                                                                45.0,
+                                                                          )
+                                                                        : Image
+                                                                            .asset(
+                                                                            "assets/running_truck.png",
+                                                                            height:
+                                                                                45.0,
+                                                                            width:
+                                                                                45.0,
+                                                                          ),
+                                                      ),
                                                       Expanded(
                                                         child: Padding(
                                                           padding:
@@ -463,13 +500,21 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
                                                                       article
                                                                           .vehicleStatus
                                                                           .toString(),
-                                                                      style: const TextStyle(
-                                                                          color: MyColors
-                                                                              .analyticGreenColorCode,
-                                                                          fontSize:
-                                                                              16),
+                                                                      style: TextStyle(
+                                                                          color: article.vehicleStatus == "Running"
+                                                                              ? Color.fromARGB(255, 74, 172, 79)
+                                                                              : article.vehicleStatus == "Idle"
+                                                                                  ? Color.fromARGB(255, 233, 215, 60)
+                                                                                  : article.vehicleStatus == "Inactive"
+                                                                                      ? Colors.blue
+                                                                                      : article.vehicleStatus == "Stop"
+                                                                                          ? Colors.red
+                                                                                          : article.vehicleStatus == "Overspeed"
+                                                                                              ? Colors.orange
+                                                                                              : Colors.grey,
+                                                                          fontSize: 16),
                                                                     ),
-                                                                  ),
+                                                                  )
                                                                 ],
                                                               ),
                                                               Row(
@@ -713,11 +758,23 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
                                                                               index]
                                                                           .vehicleStatus
                                                                           .toString(),
-                                                                  style: const TextStyle(
-                                                                      color: MyColors
-                                                                          .analyticGreenColorCode,
-                                                                      fontSize:
-                                                                          16),
+                                                                  style: TextStyle(
+                                                                      color: isvalue
+                                                                          ? filterdata![index].vehicleStatus == "Running"
+                                                                              ? Colors.green
+                                                                              : filterdata![index].vehicleStatus == "Idle"
+                                                                                  ? Colors.blue
+                                                                                  : filterdata![index].vehicleStatus == "Stop"
+                                                                                      ? Colors.red
+                                                                                      : traveldata![index].vehicleStatus == "Running"
+                                                                                          ? Colors.green
+                                                                                          : traveldata![index].vehicleStatus == "Idle"
+                                                                                              ? Colors.blue
+                                                                                              : traveldata![index].vehicleStatus == "Stop"
+                                                                                                  ? Colors.red
+                                                                                                  : Colors.orange
+                                                                          : Colors.green,
+                                                                      fontSize: 16),
                                                                 ),
                                                               ),
                                                             ],
