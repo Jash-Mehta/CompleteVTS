@@ -8,10 +8,13 @@ import 'package:flutter_vts/util/custome_dialog.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../model/point_of_interest/dropdown_point_of_interest.dart';
 import '../../../model/point_of_interest/poi_post.dart';
+
 import '../../../model/point_of_interest/poi_type.dart';
+import '../../../model/report/vehicle_vsrno.dart';
 import '../../../model/vehicle/all_vehicle_detail_response.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
@@ -35,6 +38,7 @@ class _CreatePointOfInterestScreenState
   bool poitypeselected = false;
   bool vehicleselect = false;
   bool alertbox = false;
+  List<VehicleVSrNoData>? osvfdata = [];
   var poitypetext, vehiclelisttext, vehicleselectbyid;
   bool containerselected = false;
   TextEditingController _selectcontroller = TextEditingController();
@@ -95,8 +99,7 @@ class _CreatePointOfInterestScreenState
     _mainBloc.add(Poitype(
       token: token,
     ));
-    _mainBloc.add(AllVehicleDetailEvents(
-        token: token, vendorId: 1, branchId: 1, pageNumber: 1, pageSize: 10));
+    _mainBloc.add(VehicleVSrNoEvent(token: token, vendorId: 1, branchId: 1));
   }
 
   //! handle the google permission----------------
@@ -327,14 +330,30 @@ class _CreatePointOfInterestScreenState
           print("Enter in the error state");
         }
         //! VechileId and vechile number in flutter---------------------
-        if (state is AllVehicleDetailLoadingState) {
-        } else if (state is AllVehicleDetailLoadedState) {
-          if (state.allVehicleDetailResponse.data != null) {
-            vehiclelistbyid!.addAll(state.allVehicleDetailResponse.data!);
-          } else {
-            print("Your data is null");
+        if (state is VehicleVSrNoLoadingState) {
+          print("Over speed enter in the loading sate");
+          const Center(
+            child: CircularProgressIndicator(),
+          );
+        } else if (state is VehicleVSrNoLoadedState) {
+          if (state.vehiclevsrnoresponse.data != null) {
+            print("overspeed vehicle filter data is Loaded state");
+            osvfdata!.clear();
+            osvfdata!.addAll(state.vehiclevsrnoresponse.data!);
+
+            // overspeedfilter!.addAll(state.overspeedFilter.data!);
+            osvfdata!.forEach((element) {
+              print("Overspeed vehicle filter element is Printed");
+            });
           }
-        } else if (state is AllVehicleDetailErrorState) {}
+        } else if (state is VehicleVSrNoErorrState) {
+          print("Something went Wrong  data VehicleVSrNoErorrState");
+          Fluttertoast.showToast(
+            msg: state.msg,
+            toastLength: Toast.LENGTH_SHORT,
+            timeInSecForIosWeb: 1,
+          );
+        }
 //! poitypelist------------------------------------
         if (state is POITypeLoadingState) {
         } else if (state is POITypeLoadedState) {
@@ -778,14 +797,13 @@ class _CreatePointOfInterestScreenState
                       ),
                       margin: EdgeInsets.only(left: 3.0, right: 3.0),
                       child: ListView.builder(
-                        itemCount: vehiclelistbyid!.length,
+                        itemCount: osvfdata!.length,
                         itemBuilder: (BuildContext context, int index) {
                           return GestureDetector(
                             onTap: () {
-                              vehiclelisttext =
-                                  vehiclelistbyid![index].vehicleRegNo;
+                              vehiclelisttext = osvfdata![index].vehicleRegNo;
                               vehicleselectbyid =
-                                  vehiclelistbyid![index].vsrNo.toString();
+                                  osvfdata![index].vsrNo.toString();
                               print(vehicleselectbyid);
 
                               containerselected = false;
@@ -796,9 +814,8 @@ class _CreatePointOfInterestScreenState
                                 width: 50.0,
                                 child: Padding(
                                   padding: const EdgeInsets.only(left: 8.0),
-                                  child: Text(vehiclelistbyid![index]
-                                      .vehicleRegNo
-                                      .toString()),
+                                  child: Text(
+                                      osvfdata![index].vehicleRegNo.toString()),
                                 )),
                           );
                         },

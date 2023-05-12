@@ -284,34 +284,7 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
 
     print("branchid ${branchid}   Vendor id   ${vendorid}");
 
-    //print(""+vendorid.toString()+" "+branchid.toString()+" "+userName+" "+vendorName+" "+branchName+" "+userType);
-    print("" +
-        vehicleRegNo.toString() +
-        " " +
-        imeino.toString() +
-        " " +
-        latitude.toString() +
-        " " +
-        longitude.toString() +
-        " " +
-        address.toString() +
-        " " +
-        transDate.toString() +
-        " " +
-        transTime.toString() +
-        " " +
-        speed.toString() +
-        " " +
-        overSpeed.toString() +
-        " " +
-        updatedOn.toString() +
-        " " +
-        distancetravel.toString() +
-        " " +
-        speedLimit.toString() +
-        " " +
-        searchText);
-
+  
     if (token != "" ||
         vehicleRegNo != 0 ||
         imeino != 0 ||

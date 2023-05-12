@@ -96,100 +96,214 @@ class VehicleStatusResponse {
 }
 
 class VehicleStatusDatum {
-  VehicleStatusDatum({
-    this.transactionId,
-    this.vehicleRegNo,
-    this.vehicleStatus,
-    this.imei,
-    this.lat,
-    this.lng,
-    this.speed,
-    this.distancetravel,
-    this.date,
-    this.time,
-    this.noOfSatelite,
-    this.address,
-    this.driverName,
-    this.speedLimit,
-    this.heading,
-    this.ignition,
-    this.mainPowerStatus,
-    this.gpsFix,
-    this.internalBatteryVoltage,
-    this.ac,
-    this.door,
-  });
-
-  dynamic? transactionId;
+  int? transactionId;
   String? vehicleRegNo;
   String? vehicleStatus;
-  String ?imei;
-  String ?lat;
-  String ?lng;
-  String ?speed;
-  String ?distancetravel;
-  dynamic ?date;
-  String ?time;
-  String ?noOfSatelite;
-  String ?address;
-  String ?driverName;
-  int ?speedLimit;
-  String ?heading;
+  String? imei;
+  String? latitude;
+  String? longitude;
+  String? speed;
+  String? distancetravel;
+  String? date;
+  String? time;
+  String? noOfSatelite;
+  String? address;
+  String? driverName;
+  int? speedLimit;
+  String? heading;
   String? ignition;
-  String ?mainPowerStatus;
-  String ?gpsFix;
-  String ?internalBatteryVoltage;
-  String ?ac;
-  String ?door;
+  String? mainPowerStatus;
+  String? gpsFix;
+  String? internalBatteryVoltage;
+  String? ac;
+  String? door;
+  String? licenseExpireDate;
+  String? mobileNumber;
+  Null? alertIndication;
+  String? vehicleType;
+  String? previousTime;
+  dynamic? odometer;
+  Parking? parking;
+  Parking? runningDuration;
+  RunningDistance? runningDistance;
+  List<Alerts>? alerts;
 
-  factory VehicleStatusDatum.fromJson(Map<String, dynamic> json) => VehicleStatusDatum(
-    transactionId: json["transactionId"]==null ?  null : json["transactionId"],
-    vehicleRegNo: json["vehicleRegNo"]==null ?  null : json["vehicleRegNo"],
-    vehicleStatus: json["vehicleStatus"]==null ?  null : json["vehicleStatus"],
-    imei: json["imei"]==null ?  null : json["imei"],
-    lat: json["lat"]==null ?  null : json["lat"],
-    lng: json["lng"]==null ?  null : json["lng"],
-    speed: json["speed"]==null ?  null : json["speed"],
-    distancetravel:json["distancetravel"]==null ?  null :  json["distancetravel"],
-    date: json["date"]==null ?  null : json["date"],
-    time: json["time"]==null ?  null : json["time"],
-    noOfSatelite:json["noOfSatelite"]==null ?  null :  json["noOfSatelite"],
-    address:json["address"]==null ?  null :  json["address"],
-    driverName: json["driverName"]==null ?  null : json["driverName"],
-    speedLimit: json["speedLimit"]==null ?  null : json["speedLimit"],
-    heading:json["heading"]==null ?  null :  json["heading"],
+  VehicleStatusDatum(
+      {this.transactionId,
+        this.vehicleRegNo,
+        this.vehicleStatus,
+        this.imei,
+        this.latitude,
+        this.longitude,
+        this.speed,
+        this.distancetravel,
+        this.date,
+        this.time,
+        this.noOfSatelite,
+        this.address,
+        this.driverName,
+        this.speedLimit,
+        this.heading,
+        this.ignition,
+        this.mainPowerStatus,
+        this.gpsFix,
+        this.internalBatteryVoltage,
+        this.ac,
+        this.door,
+        this.licenseExpireDate,
+        this.mobileNumber,
+        this.alertIndication,
+        this.vehicleType,
+        this.previousTime,
+        this.odometer,
+        this.parking,
+        this.runningDuration,
+        this.runningDistance,
+        this.alerts});
 
-    ignition: json["ignition"]==null ?  null : json["ignition"],
-    mainPowerStatus:json["mainPowerStatus"]==null ?  null :  json["mainPowerStatus"],
-    gpsFix:json["gpsFix"]==null ?  null :  json["gpsFix"],
-    internalBatteryVoltage: json["internalBatteryVoltage"]==null ?  null : json["internalBatteryVoltage"],
-    ac: json["ac"]==null ?  null : json["ac"],
-    door:json["door"]==null ?  null :  json["door"],
-  );
+  VehicleStatusDatum.fromJson(Map<String, dynamic> json) {
+    transactionId = json['transactionId'];
+    vehicleRegNo = json['vehicleRegNo'];
+    vehicleStatus = json['vehicleStatus'];
+    imei = json['imei'];
+    latitude = json['latitude'];
+    longitude = json['longitude'];
+    speed = json['speed'];
+    distancetravel = json['distancetravel'];
+    date = json['date'];
+    time = json['time'];
+    noOfSatelite = json['noOfSatelite'];
+    address = json['address'];
+    driverName = json['driverName'];
+    speedLimit = json['speedLimit'];
+    heading = json['heading'];
+    ignition = json['ignition'];
+    mainPowerStatus = json['mainPowerStatus'];
+    gpsFix = json['gpsFix'];
+    internalBatteryVoltage = json['internalBatteryVoltage'];
+    ac = json['ac'];
+    door = json['door'];
+    licenseExpireDate = json['licenseExpireDate'];
+    mobileNumber = json['mobileNumber'];
+    alertIndication = json['alertIndication'];
+    vehicleType = json['vehicleType'];
+    previousTime = json['previousTime'];
+    odometer = json['odometer'];
+    parking =
+    json['parking'] != null ? new Parking.fromJson(json['parking']) : null;
+    runningDuration = json['runningDuration'] != null
+        ? new Parking.fromJson(json['runningDuration'])
+        : null;
+    runningDistance = json['runningDistance'] != null
+        ? new RunningDistance.fromJson(json['runningDistance'])
+        : null;
+    if (json['alerts'] != null) {
+      alerts = <Alerts>[];
+      json['alerts'].forEach((v) {
+        alerts!.add(new Alerts.fromJson(v));
+      });
+    }
+  }
 
-  Map<String, dynamic> toJson() => {
-    "transactionId": transactionId,
-    "vehicleRegNo": vehicleRegNo,
-    "vehicleStatus": vehicleStatus,
-    "imei": imei,
-    "lat": lat,
-    "lng": lng,
-    "speed": speed,
-    "distancetravel": distancetravel,
-    "date": date,
-    "time": time,
-    "noOfSatelite": noOfSatelite,
-    "address": address,
-    "driverName": driverName,
-    "speedLimit": speedLimit,
-    "heading": heading,
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['transactionId'] = this.transactionId;
+    data['vehicleRegNo'] = this.vehicleRegNo;
+    data['vehicleStatus'] = this.vehicleStatus;
+    data['imei'] = this.imei;
+    data['latitude'] = this.latitude;
+    data['longitude'] = this.longitude;
+    data['speed'] = this.speed;
+    data['distancetravel'] = this.distancetravel;
+    data['date'] = this.date;
+    data['time'] = this.time;
+    data['noOfSatelite'] = this.noOfSatelite;
+    data['address'] = this.address;
+    data['driverName'] = this.driverName;
+    data['speedLimit'] = this.speedLimit;
+    data['heading'] = this.heading;
+    data['ignition'] = this.ignition;
+    data['mainPowerStatus'] = this.mainPowerStatus;
+    data['gpsFix'] = this.gpsFix;
+    data['internalBatteryVoltage'] = this.internalBatteryVoltage;
+    data['ac'] = this.ac;
+    data['door'] = this.door;
+    data['licenseExpireDate'] = this.licenseExpireDate;
+    data['mobileNumber'] = this.mobileNumber;
+    data['alertIndication'] = this.alertIndication;
+    data['vehicleType'] = this.vehicleType;
+    data['previousTime'] = this.previousTime;
+    data['odometer'] = this.odometer;
+    if (this.parking != null) {
+      data['parking'] = this.parking!.toJson();
+    }
+    if (this.runningDuration != null) {
+      data['runningDuration'] = this.runningDuration!.toJson();
+    }
+    if (this.runningDistance != null) {
+      data['runningDistance'] = this.runningDistance!.toJson();
+    }
+    if (this.alerts != null) {
+      data['alerts'] = this.alerts!.map((v) => v.toJson()).toList();
+    }
+    return data;
+  }
+}
 
-    "ignition": ignition,
-    "mainPowerStatus": mainPowerStatus,
-    "gpsFix": gpsFix,
-    "internalBatteryVoltage": internalBatteryVoltage,
-    "ac": ac,
-    "door": door,
-  };
+class Parking {
+  String? atLastStop;
+  String? total;
+
+  Parking({this.atLastStop, this.total});
+
+  Parking.fromJson(Map<String, dynamic> json) {
+    atLastStop = json['atLastStop'];
+    total = json['total'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['atLastStop'] = this.atLastStop;
+    data['total'] = this.total;
+    return data;
+  }
+}
+
+class RunningDistance {
+  String? fromLastStop;
+  String? total;
+
+  RunningDistance({this.fromLastStop, this.total});
+
+  RunningDistance.fromJson(Map<String, dynamic> json) {
+    fromLastStop = json['fromLastStop'];
+    total = json['total'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['fromLastStop'] = this.fromLastStop;
+    data['total'] = this.total;
+    return data;
+  }
+}
+
+class Alerts {
+  String? alertTitle;
+  Null? alertMesaage;
+
+  Alerts({this.alertTitle, this.alertMesaage});
+
+  Alerts.fromJson(Map<String, dynamic> json) {
+    alertTitle = json['alertTitle'];
+    alertMesaage = json['alertMesaage'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['alertTitle'] = this.alertTitle;
+    data['alertMesaage'] = this.alertMesaage;
+    return data;
+  }
 }
 

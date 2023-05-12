@@ -111,7 +111,7 @@ class _GettingRouteDetailState extends State<GettingRouteDetail> {
                       setState(() {
                         coordinatesList.clear();
                       });
-
+                      print(routetoaddress.toString() + "route to addersss");
                       _getRouteDetails(routefromaddress, routetoaddress);
 
                       print("Bloc Listner route select-----------" +
@@ -298,6 +298,7 @@ class _GettingRouteDetailState extends State<GettingRouteDetail> {
 
   Future<void> _getRouteDetails(
       String routefromaddress, String routetoaddress) async {
+  
     List<Location> locations =
         await locationFromAddress(routefromaddress.toString());
     // locations.clear();

@@ -713,16 +713,20 @@ class _RouteDefineScreenState extends State<RouteDefineScreen> {
 
 //! Starting Point Prediction---------------------
   void _onPredictionSelected(String address) async {
-    List<Location> locations = await locationFromAddress(address.toString());
-    // locations.clear();
-    Location location = locations[0];
-    fromlatitude = 0.0;
-    fromlongitude = 0.0;
-    fromlatitude = location.latitude;
-    fromlongitude = location.longitude;
-    setState(() {});
-    print("Latitude: $fromlatitude, Longitude: $fromlongitude");
-    print("Route From Address----------------" + address.toString());
+    try {
+      List<Location> locations = await locationFromAddress(address.toString());
+      // locations.clear();
+      Location location = locations[0];
+      fromlatitude = 0.0;
+      fromlongitude = 0.0;
+      fromlatitude = location.latitude;
+      fromlongitude = location.longitude;
+      setState(() {});
+      print("Latitude: $fromlatitude, Longitude: $fromlongitude");
+      print("Route From Address----------------" + address.toString());
+    } catch (e) {
+      print(e);
+    }
   }
 
   //! End Point Prediction ---------------------------

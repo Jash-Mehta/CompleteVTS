@@ -69,6 +69,7 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
   final Set<Marker> _markers = <Marker>{};
   final List<Marker> _markerlist = [];
   final Set<Marker> _searchmarkerlist = {};
+
   List list = [];
   String selectedVehicle = "";
   String vehicledropdown = "";
@@ -149,6 +150,7 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
 
     setState(() {
       getmarkers(0);
+      
     });
     getdata();
     googlemapImage();
@@ -468,6 +470,7 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
                   zoom: 17)));
         }
       });
+   
     } else {
       setState(() async {
         for (int i = 0; i < startLocationResponse.length; i++) {

@@ -121,7 +121,7 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
         todate: toDateController ?? todate,
         totime: toTimeController ?? searchtotime,
         pagesize: pagesize,
-        pagenumber: pagenumber));
+        pagenumber: 1));
   }
 
   @override
@@ -180,7 +180,7 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
               setState(() {
                 _isLoading = false;
                 //pagenumber++;
-                searchvalue = state.travelSummaryResponse.totalRecords!;
+                //  searchvalue = state.travelSummaryResponse.totalRecords!;
               });
               searchdata!.addAll(state.travelSummaryResponse.datewise!);
             }
@@ -890,7 +890,7 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
           todate: toDateController ?? todate,
           totime: toTimeController ?? searchtotime,
           pagesize: pagesize,
-          pagenumber: pagenumber));
+          pagenumber: 1));
     }
     // traveldata!.forEach((userDetail) {
     //   if (userDetail.vehicleregNo!.contains(text)) searchdata!.add(userDetail);
