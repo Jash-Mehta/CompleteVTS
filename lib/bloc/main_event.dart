@@ -1203,8 +1203,9 @@ class TravelSummarySearchEvent extends MainEvent {
   String todate;
   String totime;
   String searchtext;
-  int pagesize;
   int pagenumber;
+  int pagesize;
+ 
   TravelSummarySearchEvent({
     required this.token,
     required this.vendorid,
@@ -1215,8 +1216,8 @@ class TravelSummarySearchEvent extends MainEvent {
     required this.fromtime,
     required this.todate,
     required this.totime,
-    required this.pagesize,
     required this.pagenumber,
+    required this.pagesize,
   });
 }
 

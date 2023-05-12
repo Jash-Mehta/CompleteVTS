@@ -1249,14 +1249,14 @@ class MainBloc extends Bloc<MainEvent, MainState> {
               event.token,
               event.vendorid,
               event.branchid,
-              event.pagenumber,
-              event.pagesize,
               event.arainonarai,
               event.fromdata,
               event.fromtime,
-              event.searchtext,
+              event.todate,
               event.totime,
-              event.todate);
+              event.searchtext,
+              event.pagenumber,
+              event.pagesize,);
           yield TravelSummarySearchLoadedState(
               travelSummaryResponse: travelsummarysearch);
         } catch (e) {

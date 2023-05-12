@@ -2037,8 +2037,6 @@ class WebService {
       String prevDate,
       String prevTime,
       String prevIMEINo) async {
-  
-
     final response = await http.get(
       Uri.parse(Constant.getNextLocationImeiUrl +
           "" +
@@ -2450,17 +2448,17 @@ class WebService {
 
 //! TravelSummary Search web service-------------------------
   Future<TravelSummarySearch> travelsearch_web(
-    String token,
-    int vendorid,
-    int branchid,
-    int pagenumber,
-    int pagesize,
-    String arinonarai,
-    String fromdate,
-    String fromtime,
-    String searchtext,
-    String totime,
-    String todate,
+  String token,
+  int vendorid,
+  int branchid,
+  String arainonarai,
+  String fromdata,
+  String fromtime,
+  String todate,
+  String totime,
+  String searchtext,
+  int pagenumber,
+  int pagesize,
   ) async {
     var travelsearchurl = Constant.travelSummarySearch +
         "?VendorId=" +
@@ -2468,7 +2466,7 @@ class WebService {
         "&BranchId=" +
         branchid.toString() +
         "&ARAI_NONARAI=arai&FromDate=" +
-        fromdate.toString() +
+        fromdata.toString() +
         "&FromTime=" +
         fromtime.toString() +
         "&ToDate=" +
@@ -2483,22 +2481,23 @@ class WebService {
         pagesize.toString();
     // var travelsearchurl =
     //     "https://vtsgpsapi.m-techinnovations.com/api/TravelSummaryReport/SearchTravelSummaryReport?VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=01-sep-2022&FromTime=10:30&ToDate=30-sep-2022&ToTime=15:30&SearchText=MH12&PageNumber=1&PageSize=10";
+    print("This is travel summary search " + travelsearchurl);
     final response =
         await http.get(Uri.parse(travelsearchurl), headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
       'Authorization': 'Bearer $token',
     });
-    if (response.statusCode == 200) {
-      print("Successfully getting your data 2");
+    // if (response.statusCode == 200) {
+      print("Successfully getting your data");
       var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
 
       var travelsummaryjson = TravelSummarySearch.fromJson(jsonbody);
       print("Json decoded body2_" + travelsummaryjson.toString());
       return travelsummaryjson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
+    // } else {
+    //   print(response.body);
+    //   throw Exception('Failed to load data');
+    // }
   }
 
   //! TravelSummary Filter web service-----------------
@@ -2805,12 +2804,12 @@ class WebService {
       'Authorization': 'Bearer $token',
     });
     // if (response.statusCode == 200) {
-      print("Successfully getting your data");
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
+    print("Successfully getting your data");
+    var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
 
-      var driverwisevehiclejson = DriverWiseVehicleFilter.fromJson(jsonbody);
-      print("Json decoded body_" + driverwisevehiclejson.toString());
-      return driverwisevehiclejson;
+    var driverwisevehiclejson = DriverWiseVehicleFilter.fromJson(jsonbody);
+    print("Json decoded body_" + driverwisevehiclejson.toString());
+    return driverwisevehiclejson;
     // } else {
     //   print(response.body);
     //   throw Exception('Failed to load data');
@@ -2862,12 +2861,12 @@ class WebService {
       'Authorization': 'Bearer $token',
     });
     // if (response.statusCode == 200) {
-      print("Successfully getting your data");
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
+    print("Successfully getting your data");
+    var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
 
-      var driverwisevehiclejson = DateWiseTravelFilterModel.fromJson(jsonbody);
-      print("Json decoded body_" + datewisetravelfilterurl.toString());
-      return driverwisevehiclejson;
+    var driverwisevehiclejson = DateWiseTravelFilterModel.fromJson(jsonbody);
+    print("Json decoded body_" + datewisetravelfilterurl.toString());
+    return driverwisevehiclejson;
     // } else {
     //   print(response.body);
     //   throw Exception('Failed to load data');
@@ -2928,14 +2927,14 @@ class WebService {
       'Authorization': 'Bearer $token',
     });
     // if (response.statusCode == 200) {
-      print("Successfully getting your data");
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
+    print("Successfully getting your data");
+    var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
 
-      var driverwisevehiclejson = FrameGridFilterMode.fromJson(jsonbody);
-      print("Json decoded body_" + framegridreportfilterurl.toString());
-      print("this is packet frame grid filter data" +
-          driverwisevehiclejson.toString());
-      return driverwisevehiclejson;
+    var driverwisevehiclejson = FrameGridFilterMode.fromJson(jsonbody);
+    print("Json decoded body_" + framegridreportfilterurl.toString());
+    print("this is packet frame grid filter data" +
+        driverwisevehiclejson.toString());
+    return driverwisevehiclejson;
     // } else {
     //   print(response.body);
     //   throw Exception('Failed to load data');
@@ -2996,12 +2995,12 @@ class WebService {
       'Authorization': 'Bearer $token',
     });
     // if (response.statusCode == 200) {
-      print("Successfully getting your data");
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
+    print("Successfully getting your data");
+    var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
 
-      var driverwisevehiclejson = FramePacketFilterModel.fromJson(jsonbody);
-      print("Json decoded body_" + framepacketfilterurl.toString());
-      return driverwisevehiclejson;
+    var driverwisevehiclejson = FramePacketFilterModel.fromJson(jsonbody);
+    print("Json decoded body_" + framepacketfilterurl.toString());
+    return driverwisevehiclejson;
     // } else {
     //   print(response.body);
     //   throw Exception('Failed to load data');
@@ -3050,11 +3049,11 @@ class WebService {
       'Authorization': 'Bearer $token',
     });
     // if (response.statusCode == 200) {
-      print("Successfully getting your data");
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
-      var searchtextresponce = VehicleStatusReportFilter.fromJson(jsonbody);
-      print("Json decoded body_" + searchtextresponce.toString());
-      return searchtextresponce;
+    print("Successfully getting your data");
+    var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
+    var searchtextresponce = VehicleStatusReportFilter.fromJson(jsonbody);
+    print("Json decoded body_" + searchtextresponce.toString());
+    return searchtextresponce;
     // } else {
     //   print(response.body);
     //   throw Exception('Failed to load data');
@@ -3309,12 +3308,12 @@ class WebService {
       'Authorization': 'Bearer $token',
     });
     // if (response.statusCode == 200) {
-      print("Successfully getting your data");
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
+    print("Successfully getting your data");
+    var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
 
-      var vehiclewisetravelhistoryjson =
-          VehicleWiseFilterModel.fromJson(jsonbody);
-      return vehiclewisetravelhistoryjson;
+    var vehiclewisetravelhistoryjson =
+        VehicleWiseFilterModel.fromJson(jsonbody);
+    return vehiclewisetravelhistoryjson;
     // } else {
     //   print(response.body);
     //   throw Exception('Failed to load data');
@@ -3364,12 +3363,12 @@ class WebService {
       'Authorization': 'Bearer $token',
     });
     // if (response.statusCode == 200) {
-      print("Successfully getting your data");
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
+    print("Successfully getting your data");
+    var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
 
-      var vehiclewisetravelhistoryjson =
-          VehicleWiseTimeWiseFilterModel.fromJson(jsonbody);
-      return vehiclewisetravelhistoryjson;
+    var vehiclewisetravelhistoryjson =
+        VehicleWiseTimeWiseFilterModel.fromJson(jsonbody);
+    return vehiclewisetravelhistoryjson;
     // } else {
     //   print(response.body);
     //   throw Exception('Failed to load data');
@@ -3577,11 +3576,10 @@ class WebService {
       'Authorization': 'Bearer $token',
     });
     // if (response.statusCode == 200) {
-      print("Successfully getting your data");
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
+    print("Successfully getting your data");
+    var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
 
-      var vehiclewisetravelhistoryjson =
-          DateAndTimeWiseFilter.fromJson(jsonbody);
+    var vehiclewisetravelhistoryjson = DateAndTimeWiseFilter.fromJson(jsonbody);
     return vehiclewisetravelhistoryjson;
     // } else {
     //   print(response.body);
@@ -3730,13 +3728,13 @@ class WebService {
       'Authorization': 'Bearer $token',
     });
     // if (response.statusCode == 200) {
-      print("Successfully getting your data");
-      print("This is overspeed filter -------- " + response.body);
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
+    print("Successfully getting your data");
+    print("This is overspeed filter -------- " + response.body);
+    var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
 
-      var overspeedurljson = OverSpeedFilter.fromJson(jsonbody);
-      print("Json decoded body_" + overspeedurl.toString());
-      return overspeedurljson;
+    var overspeedurljson = OverSpeedFilter.fromJson(jsonbody);
+    print("Json decoded body_" + overspeedurl.toString());
+    return overspeedurljson;
     // } else {
     //   print(response.body);
     //   throw Exception('Failed to load data');
@@ -4296,12 +4294,12 @@ class WebService {
       'Authorization': 'Bearer $token',
     });
     // if (response.statusCode == 200) {
-      print("Successfully getting your data");
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
+    print("Successfully getting your data");
+    var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
 
-      var ddevicemasterjson = DeviceMasterFilterModel.fromJson(jsonbody);
-      print("Json decoded body_" + devicemasterurl.toString());
-      return ddevicemasterjson;
+    var ddevicemasterjson = DeviceMasterFilterModel.fromJson(jsonbody);
+    print("Json decoded body_" + devicemasterurl.toString());
+    return ddevicemasterjson;
     // } else {
     //   print(response.body);
     //   throw Exception('Failed to load data');
@@ -4635,12 +4633,12 @@ class WebService {
       'Authorization': 'Bearer $token',
     });
     // if (response.statusCode == 200) {
-      print("Successfully getting your data" + response.body);
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
+    print("Successfully getting your data" + response.body);
+    var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
 
-      var ddevicemasterjson = VehicleReportFilter.fromJson(jsonbody);
-      print("Json decoded body_" + vehiclereporturl.toString());
-      return ddevicemasterjson;
+    var ddevicemasterjson = VehicleReportFilter.fromJson(jsonbody);
+    print("Json decoded body_" + vehiclereporturl.toString());
+    return ddevicemasterjson;
     // } else {
     //   print(response.body);
     //   throw Exception('Failed to load data');
@@ -4694,12 +4692,12 @@ class WebService {
       'Authorization': 'Bearer $token',
     });
     // if (response.statusCode == 200) {
-      print("Successfully getting your data" + response.body);
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
+    print("Successfully getting your data" + response.body);
+    var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
 
-      var ddevicemasterjson = VehicleSummaryFilterModel.fromJson(jsonbody);
-      print("Json decoded body_" + vehiclereporturl.toString());
-      return ddevicemasterjson;
+    var ddevicemasterjson = VehicleSummaryFilterModel.fromJson(jsonbody);
+    print("Json decoded body_" + vehiclereporturl.toString());
+    return ddevicemasterjson;
     // } else {
     //   print(response.body);
     //   throw Exception('Failed to load data');
@@ -4752,12 +4750,12 @@ class WebService {
       'Authorization': 'Bearer $token',
     });
     // if (response.statusCode == 200) {
-      print("Successfully getting your data" + response.body);
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
+    print("Successfully getting your data" + response.body);
+    var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
 
-      var ddevicemasterjson = VehicleGroupFilterModel.fromJson(jsonbody);
-      print("Json decoded body_" + vehiclereporturl.toString());
-      return ddevicemasterjson;
+    var ddevicemasterjson = VehicleGroupFilterModel.fromJson(jsonbody);
+    print("Json decoded body_" + vehiclereporturl.toString());
+    return ddevicemasterjson;
     // } else {
     //   print(response.body);
     //   throw Exception('Failed to load data');
@@ -5215,12 +5213,12 @@ class WebService {
       'Authorization': 'Bearer $token',
     });
     // if (response.statusCode == 200) {
-      print("Successfully getting your data");
-      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
+    print("Successfully getting your data");
+    var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
 
-      var ddevicemasterjson = DriverMasterFilter.fromJson(jsonbody);
-      print("Json decoded body_" + drivermasterurl.toString());
-      return ddevicemasterjson;
+    var ddevicemasterjson = DriverMasterFilter.fromJson(jsonbody);
+    print("Json decoded body_" + drivermasterurl.toString());
+    return ddevicemasterjson;
     // } else {
     //   print(response.body);
     //   throw Exception('Failed to load data');
