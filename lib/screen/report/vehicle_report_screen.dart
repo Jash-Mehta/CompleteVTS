@@ -53,6 +53,8 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
   late int branchid = 1, vendorid = 1;
   List<AllVehicleDetailResponse>? data = [];
   List<VehicleInfo> pdfdatalist = [];
+  List<VehicleFilterData> pdffilterlist = [];
+  List<SearchingVehItemInfo> pdfsearchlist = [];
   List<VehicleFilterData>? filterData = [];
   List<VehicleVSrNoData>? datewisedrivercode = [];
   // List<AllVehicleDetailResponse>? searchData = [];
@@ -151,6 +153,7 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
             onTap: () {
               setState(() {
                 isfilter = true;
+                osvfvehnolisttiletext = "";
                 isfilter
                     ? _mainBloc.add(VehicleVSrNoEvent(
                         token: token, vendorId: 1, branchId: 1))
@@ -392,7 +395,7 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
                                         //     todateInput.text = "";
                                         //     fromTimeInput.text = "";
                                         //     fromdateInput.text = "";
-                                        osvfvehnolisttiletext = "-select-";
+                                        osvfvehnolisttiletext = "";
                                         setState(() {});
                                         setState(() {});
                                       },
@@ -422,7 +425,7 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
                                         onPressed: () {
                                           print("Apply button clicked ");
                                           searhcontroller.text = "";
-                                          if (dwdcdeviceno != null) {
+                                          if (dwdcdeviceno != null && osvfvehnolisttiletext != "") {
                                             _mainBloc
                                                 .add(VehicleReportFilterEvent(
                                               token: token,
@@ -633,7 +636,9 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
                                           width: 2)),
                                   child: ListTile(
                                     leading: Text(
-                                      osvfvehnolisttiletext ?? "-select-",
+                                      osvfvehnolisttiletext == ""
+                                          ? "-select-"
+                                          : osvfvehnolisttiletext,
                                       style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w400),
@@ -795,6 +800,10 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
                               onTap: () async {
                                 pdfdatalist.clear();
                                 pdfdatalist.addAll(allVehicleDetaildatalist!);
+                                pdffilterlist.clear();
+                                pdffilterlist.addAll(filterData!);
+                                pdfsearchlist.clear();
+                                pdfsearchlist.addAll(searchVehStrdata!);
                                 setState(() {});
 
                                 var status = await Permission.storage.status;
@@ -802,7 +811,7 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
                                     .request()
                                     .isGranted) {
                                   final pdfFile =
-                                      await PdfInvoiceApi.generate(pdfdatalist);
+                                      await PdfInvoiceApi.generate(pdfdatalist,pdffilterlist,applyclicked,pdfsearchlist,isSearch);
                                   PdfApi.openFile(pdfFile);
                                 } else {
                                   print("Request is not accepted");
@@ -860,9 +869,10 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
                               : isSelected
                                   ? Text(
                                       searchVehStrdata!.isEmpty
-                                      ? ""
-                                      : searchVehStrdata!.length.toString() +
-                                          " Search Records found",
+                                          ? ""
+                                          : searchVehStrdata!.length
+                                                  .toString() +
+                                              " Search Records found",
                                       style: TextStyle(
                                           fontSize: 18,
                                           fontWeight: FontWeight.bold))
@@ -1789,7 +1799,7 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
 }
 
 class PdfInvoiceApi {
-  static Future<File> generate(List<VehicleInfo> pdflist) async {
+  static Future<File> generate(List<VehicleInfo> pdflist,  List<VehicleFilterData> pdffilterlist, bool applyclicked, List<SearchingVehItemInfo> pdfsearchlist, bool issearch ) async {
     final pdf = pw.Document();
     double fontsize = 8.0;
     DateTime current_date = DateTime.now();
@@ -1921,7 +1931,7 @@ class PdfInvoiceApi {
           //     child:
           pw.ListView.builder(
               itemBuilder: (pw.Context context, int index) {
-                var article = pdflist[index];
+                // var article = pdflist[index];
                 var sr = index + 1;
                 return pw.Table(
                     border:
@@ -1942,7 +1952,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 20,
-                            child: pw.Text(article.vehicleRegNo.toString(),
+                            child: pw.Text(applyclicked ?  pdffilterlist[index].vehicleRegNo.toString() : issearch ? pdfsearchlist[index].vehicleRegNo.toString() : pdflist[index].vehicleRegNo.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -1951,7 +1961,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 20,
-                            child: pw.Text(article.vehicleName.toString(),
+                            child: pw.Text(applyclicked ?  pdffilterlist[index].vehicleName.toString() : issearch ? pdfsearchlist[index].vehicleName.toString() : pdflist[index].vehicleName.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -1960,7 +1970,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 20,
-                            child: pw.Text(article.fuelType.toString(),
+                            child: pw.Text(applyclicked ?  pdffilterlist[index].fuelType.toString() : issearch ? pdfsearchlist[index].fuelType.toString() : pdflist[index].fuelType.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -1969,7 +1979,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 20,
-                            child: pw.Text(article.speedLimit.toString(),
+                            child: pw.Text(applyclicked ?  pdffilterlist[index].speedLimit.toString() : issearch ? pdfsearchlist[index].speedLimit.toString() : pdflist[index].speedLimit.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -1978,7 +1988,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 20,
-                            child: pw.Text(article.vehicleType.toString(),
+                            child: pw.Text(applyclicked ?  pdffilterlist[index].vehicleType.toString() : issearch ? pdfsearchlist[index].vehicleType.toString() : pdflist[index].vehicleType.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -1987,20 +1997,20 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 20,
-                            child: pw.Text(article.currentOdometer.toString(),
+                            child: pw.Text(applyclicked ?  pdffilterlist[index].currentOdometer.toString() : issearch ? pdfsearchlist[index].currentOdometer.toString() : pdflist[index].currentOdometer.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
                       ])
                     ]);
               },
-              itemCount: pdflist.length)
+              itemCount: applyclicked ? pdffilterlist.length : issearch ? pdfsearchlist.length : pdflist.length)
           // ),
         ];
       },
     ));
 
-    return PdfApi.saveDocument(name: 'VehicleReport.pdf', pdf: pdf);
+    return PdfApi.saveDocument(name:applyclicked ? 'VehicleFilterReport.pdf': issearch ? 'VehicleSearchReport.pdf': 'VehicleReport.pdf', pdf: pdf);
   }
 }
 

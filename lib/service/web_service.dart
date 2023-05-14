@@ -4,6 +4,8 @@ import 'package:flutter_vts/bloc/main_event.dart';
 import 'package:flutter_vts/model/alert/add_alert_master_requesy.dart';
 import 'package:flutter_vts/model/alert/add_alert_master_response.dart';
 import 'package:flutter_vts/model/alert/all_alert_master_response.dart';
+
+
 import 'package:flutter_vts/model/alert/search_alert_master_screen.dart';
 import 'package:flutter_vts/model/alert_notification/alert_notification_response.dart';
 import 'package:flutter_vts/model/alert_notification/date_wise_search_alert_notification_response.dart';
@@ -135,6 +137,7 @@ import '../model/report/vehicle_wise_travel_filter.dart';
 import '../model/route_define/route_define_post.dart';
 import '../model/searchString.dart';
 import '../model/travel_summary/travel_summary.dart';
+import '../model/vehicle_history/get_veh_speed_response.dart';
 import '../model/vehicle_master/search_vehicle_report_data_response.dart';
 import '../model/vehicle_master/vehicle_master_filter.dart';
 import '../model/vehicle_master/vehicle_report_detail.dart';
@@ -2488,11 +2491,11 @@ class WebService {
       'Authorization': 'Bearer $token',
     });
     // if (response.statusCode == 200) {
-      print("Successfully getting your data");
+      print("Successfully getting your data 2");
       var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
 
       var travelsummaryjson = TravelSummarySearch.fromJson(jsonbody);
-      print("Json decoded body2_" + travelsummaryjson.toString());
+      print("Json decoded body2_" + jsonbody.toString());
       return travelsummaryjson;
     // } else {
     //   print(response.body);
@@ -5137,6 +5140,57 @@ class WebService {
       print(response.body);
       throw Exception('Failed to load data');
     }
+  }
+  //! vehicle history---------------->
+   Future<GetVehSpeedResponse> getvehspeedDetail(
+    String token,
+    int vendorId,
+    int branchid,
+    String arai,
+    String fromdate,
+    String fromTime,
+    String toDate,
+    String toTime,
+    String vehicleStatusList,
+    String vehicleList,
+    int pagenumber,
+    int pagesize,
+  ) async {
+    String speedurl = Constant.speedurl +
+        vendorId.toString() +
+        "&BranchId=" +
+        branchid.toString() +
+        "&ARAI_NONARAI=" +
+        arai.toString() +
+        "&FromDate=" +
+        fromdate.toString() +
+        "&FromTime=" +
+        fromTime.toString() +
+        "&ToDate=" +
+        toDate.toString() +
+        "&ToTime=" +
+        toTime.toString() +
+        "&VehicleStatusList=" +
+        "$vehicleStatusList" +
+        "&VehicleList=" +
+        "$vehicleList" +
+        "&PageNumber=" +
+        pagenumber.toString() +
+        "&PageSize=" +
+        pagesize.toString();
+    print("Speed URL is---------------$speedurl");
+    final response = await http.get(
+      Uri.parse(speedurl),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': "Bearer ${token}",
+      },
+    );
+    print("Respnse body of speed details is----------${response.body}");
+    var jsonBody = GetVehSpeedResponse.fromJson(json.decode(response.body));
+    print(
+        "json responce body of speed details is----------${jsonBody.data!.length}");
+    return jsonBody;
   }
 
   //!Get Geofence------------------------->

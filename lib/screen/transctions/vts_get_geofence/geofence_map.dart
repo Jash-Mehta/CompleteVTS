@@ -3,11 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_vts/bloc/main_bloc.dart';
 import 'package:flutter_vts/bloc/main_state.dart';
 import 'package:flutter_vts/screen/transctions/vts_get_geofence/getting_routedetail.dart';
 import 'dart:math';
 import '../../../bloc/main_event.dart';
+import '../../../model/live/live_tracking_response.dart';
+import '../../../model/report/vehicle_vsrno.dart';
 import '../../../model/vehicle/all_vehicle_detail_response.dart';
 import 'package:google_maps_webservice/directions.dart' as stepdirection;
 import 'package:google_maps_webservice/places.dart' as places;
@@ -39,12 +42,15 @@ PolylinePoints polylinePoints = PolylinePoints();
 Set<Marker> markers = Set(); //markers for google map
 Map<PolylineId, Polyline> polylines = {}; //polylines to show direction
 List<Map<String, double>> midpointlist = [];
+List<VehicleVSrNoData>? osvfdata = [];
 late MainBloc _mainBloc;
 List<VechileDetailsbyID>? vehiclelistbyid = [];
 bool containerselected = false;
+List<SearchLiveTrackingResponse> searchliveTrackingResponse = [];
 double distance = 0.0;
 var textselected;
 var time;
+var hour, min;
 double straightDistance = 0.0;
 late places.GoogleMapsPlaces _places;
 List<String> stepsList = [];
@@ -120,7 +126,55 @@ class _VTSGeofenceMapState extends State<VTSGeofenceMap> {
     _mainBloc = BlocProvider.of(context);
     getdata();
     setState(() {});
+
     super.initState();
+    getmarker(0);
+  }
+
+  getmarker(int flag) {
+    if (flag == 1) {
+      setState(() async {
+        for (int i = 0; i < searchliveTrackingResponse.length; i++) {
+          // Uint8List markerIconrunning =
+          //       await _getBytesFromAsset("assets/running_car.png", 85);
+          //        Uint8List markerIconstop =
+          //       await _getBytesFromAsset("assets/stop_car.png", 85);
+          //       Uint8List markerIconincative =
+          //       await _getBytesFromAsset("assets/inactive_car.png", 85);
+          markers.add(Marker(
+            //add second marker
+            markerId: MarkerId(showLocation.toString()),
+            position: LatLng(
+                double.parse(searchliveTrackingResponse[i].latitude!),
+                double.parse(searchliveTrackingResponse[i]
+                    .longitude!)), //position of marker
+            infoWindow: InfoWindow(
+                //popup info
+                title: searchliveTrackingResponse[i].driverName,
+                snippet: searchliveTrackingResponse[i].vehicleRegNo,
+                onTap: () {
+                  print("marker click");
+                }),
+            icon: await BitmapDescriptor.fromAssetImage(
+                const ImageConfiguration(
+                    devicePixelRatio: 1.0, size: Size(10, 10)),
+                searchliveTrackingResponse[i].vehicleStatus == 'Stop'
+                    ? 'assets/stop_car.png'
+                    : searchliveTrackingResponse[i].vehicleStatus == 'Running'
+                        ? 'assets/running_car.png'
+                        : searchliveTrackingResponse[i].vehicleStatus == 'Idle'
+                            ? 'assets/idle_car.png'
+                            : 'assets/inactive_car.png'), //Icon for Marker
+          ));
+          mapController?.animateCamera(CameraUpdate.newCameraPosition(
+              CameraPosition(
+                  target: LatLng(
+                      double.parse(searchliveTrackingResponse[i].latitude!),
+                      double.parse(searchliveTrackingResponse[i].longitude!)),
+                  zoom: 17)));
+        }
+      });
+    }
   }
 
   bool steps = false;
@@ -134,25 +188,45 @@ class _VTSGeofenceMapState extends State<VTSGeofenceMap> {
       token = sharedPreferences.getString("auth_token")!;
     }
     if (token != "") {
-      _mainBloc.add(AllVehicleDetailEvents(
-          token: token, vendorId: 1, branchId: 1, pageNumber: 1, pageSize: 10));
+      _mainBloc.add(VehicleVSrNoEvent(token: token, vendorId: 1, branchId: 1));
     }
   }
 
 //! Adding steps------------------
   List<Map<String, dynamic>> stepsList = [];
-
+  List<stepdirection.Waypoint> waypoints = midpointlist
+      .map((point) => stepdirection.Waypoint(
+            value: "${point['latitude']},${point['longitude']}",
+          ))
+      .toList();
   getsteps() async {
     final googledirections = stepdirection.GoogleMapsDirections(
         apiKey: 'AIzaSyBnJPusnfAjrL9xofBjC_R5heU4uPZXgDY');
     final response = await googledirections.directionsWithLocation(
         stepdirection.Location(lat: fromlatitude!, lng: fromlongitude!),
         stepdirection.Location(lat: tolatitude!, lng: tolongitude!),
-        travelMode: stepdirection.TravelMode.driving);
+        travelMode: stepdirection.TravelMode.driving,
+        waypoints: waypoints);
 
     if (response.isOkay) {
-      final steps = response.routes.first.legs.first.steps;
+      final steps = response.routes.first.legs.expand((leg) => leg.steps);
+//double totalDistance = response.routes.first.legs.fold(0, (sum, leg) => sum! + (leg.distance.value as int).toInt()) / 1000;
+      double totalDistance = response.routes.first.legs.fold<double>(
+          0, (sum, leg) => sum + (leg.distance.value ?? 0) / 1000);
+      int totalTimeInSeconds = response.routes.first.legs
+          .fold(0, (sum, leg) => sum + (leg.duration.value as int));
 
+      setState(() {
+        // distance = totalDistance / 1000; // convert to kilometers
+        time = totalTimeInSeconds ~/ 60;
+        hour = time ~/ 60;
+        min = time % 60;
+        print("here is your steps and time of the Api---------->" +
+            waypoints.toString() +
+            "-------------->" +
+            min.toString());
+      });
+      // convert to minutes
       steps.forEach((step) {
         String instruction =
             step.htmlInstructions.replaceAll(RegExp(r'<[^>]*>'), '');
@@ -193,6 +267,8 @@ class _VTSGeofenceMapState extends State<VTSGeofenceMap> {
     );
 
     if (result.points.isNotEmpty) {
+      getsteps();
+      //setState(() {});
       result.points.forEach((PointLatLng point) {
         polylineCoordinates.add(LatLng(point.latitude, point.longitude));
       });
@@ -213,17 +289,24 @@ class _VTSGeofenceMapState extends State<VTSGeofenceMap> {
         return 12742 * asin(sqrt(a));
       }
 
+      List<Map<String, dynamic>> stepsList = [];
+      List<stepdirection.Waypoint> waypoints = midpointlist
+          .map((point) => stepdirection.Waypoint(
+                value: "${point['latitude']},${point['longitude']}",
+              ))
+          .toList();
+
       totalDistance += calculateDistance(
           polylineCoordinates[i].latitude,
           polylineCoordinates[i].longitude,
           polylineCoordinates[i + 1].latitude,
           polylineCoordinates[i + 1].longitude);
     }
-    print(totalDistance);
+    print("Total distance to calculate--------->" + totalDistance.toString());
 
     setState(() {
       distance = totalDistance;
-      time = distance ~/ 80;
+      time = distance ~/ 60;
     });
     addPolyLine(polylineCoordinates);
   }
@@ -264,14 +347,55 @@ class _VTSGeofenceMapState extends State<VTSGeofenceMap> {
       body: BlocListener<MainBloc, MainState>(
         listener: (context, state) {
           //! VechileId and vechile number in flutter---------------------
-          if (state is AllVehicleDetailLoadingState) {
-          } else if (state is AllVehicleDetailLoadedState) {
-            if (state.allVehicleDetailResponse.data != null) {
-              vehiclelistbyid!.addAll(state.allVehicleDetailResponse.data!);
-            } else {
-              print("Your data is null");
+          if (state is VehicleVSrNoLoadingState) {
+            print("Over speed enter in the loading sate");
+            const Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (state is VehicleVSrNoLoadedState) {
+            if (state.vehiclevsrnoresponse.data != null) {
+              print("overspeed vehicle filter data is Loaded state");
+              osvfdata!.clear();
+              osvfdata!.addAll(state.vehiclevsrnoresponse.data!);
+
+              // overspeedfilter!.addAll(state.overspeedFilter.data!);
+              osvfdata!.forEach((element) {
+                print("Overspeed vehicle filter element is Printed");
+              });
             }
-          } else if (state is AllVehicleDetailErrorState) {}
+          } else if (state is VehicleVSrNoErorrState) {
+            print("Something went Wrong  data VehicleVSrNoErorrState");
+            Fluttertoast.showToast(
+              msg: state.msg,
+              toastLength: Toast.LENGTH_SHORT,
+              timeInSecForIosWeb: 1,
+            );
+          } else if (state is SearchLiveTrackingLoadingState) {
+            setState(() {});
+          } else if (state is SearchLiveTrackingLoadedState) {
+            print("Enter in the search loaded state--------->");
+
+            setState(() {
+              searchliveTrackingResponse = state.searchliveTrackingResponse;
+
+              // searchLiveTrackingLocation=LatLng(double.parse(state.searchliveTrackingResponse[0].latitude!), double.parse(state.searchliveTrackingResponse[0].longitude!));
+
+              // _markerlist.clear();
+            });
+            getmarker(1);
+            // print("Your Start location is there---------->" +
+            //     state.searchliveTrackingResponse[0].latitude.toString());
+          } else if (state is SearchLiveTrackingErrorState) {
+            setState(() {
+              markers.clear();
+            });
+
+            Fluttertoast.showToast(
+              toastLength: Toast.LENGTH_SHORT,
+              timeInSecForIosWeb: 1,
+              msg: "Record not found for given input ...!",
+            );
+          }
         },
         child: SafeArea(
           child: Stack(children: [
@@ -338,13 +462,21 @@ class _VTSGeofenceMapState extends State<VTSGeofenceMap> {
                     decoration: BoxDecoration(color: Colors.white),
                     margin: EdgeInsets.only(left: 80.0, right: 30.0, top: 50.0),
                     child: ListView.builder(
-                      itemCount: vehiclelistbyid!.length,
+                      itemCount: osvfdata!.length,
                       itemBuilder: (BuildContext context, int index) {
                         return GestureDetector(
                           onTap: () {
                             containerselected = false;
                             textselected =
-                                vehiclelistbyid![index].vehicleRegNo.toString();
+                                osvfdata![index].vehicleRegNo.toString();
+                            _mainBloc.add(SearchLiveTrackingEvents(
+                                token: token,
+                                vendorId: 1,
+                                branchId: 1,
+                                araiNonarai: "arai",
+                                trackingStatus: "TOTAL" /*radioItemHolder1*/,
+                                searchText:
+                                    osvfdata![index].vehicleRegNo.toString()));
                             setState(() {});
                           },
                           child: SizedBox(
@@ -352,9 +484,8 @@ class _VTSGeofenceMapState extends State<VTSGeofenceMap> {
                               width: 50.0,
                               child: Padding(
                                 padding: const EdgeInsets.only(left: 8.0),
-                                child: Text(vehiclelistbyid![index]
-                                    .vehicleRegNo
-                                    .toString()),
+                                child: Text(
+                                    osvfdata![index].vehicleRegNo.toString()),
                               )),
                         );
                       },
@@ -378,9 +509,12 @@ class _VTSGeofenceMapState extends State<VTSGeofenceMap> {
                                     " km" +
                                     " "
                                         "Duration:- " +
-                                    time.toString() +
-                                    "hrs",
-                                style: TextStyle(
+                                    hour.toString() +
+                                    " hrs" +
+                                    " " +
+                                    min.toString() +
+                                    "min",
+                                style: const TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.w400)),
                           ),
                         ),
@@ -393,28 +527,31 @@ class _VTSGeofenceMapState extends State<VTSGeofenceMap> {
                                     border: Border.all(
                                         color: Color.fromARGB(
                                             255, 207, 205, 205))),
-                                child: Row(
-                                  children: [
-                                    Padding(
-                                      padding: EdgeInsets.only(left: 10.0),
-                                      child: Image.asset(
-                                        stepsList[index]["icon"],
-                                        height: 20.0,
-                                        width: 20.0,
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: Row(
+                                    children: [
+                                      Padding(
+                                        padding: EdgeInsets.only(left: 10.0),
+                                        child: Image.asset(
+                                          stepsList[index]["icon"],
+                                          height: 20.0,
+                                          width: 20.0,
+                                        ),
                                       ),
-                                    ),
-                                    SizedBox(width: 10),
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Container(
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width /
-                                              1.2,
-                                          child: Text(
-                                              stepsList[index]["instruction"])),
-                                    ),
-                                  ],
+                                      SizedBox(width: 10),
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Container(
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width /
+                                                1.2,
+                                            child: Text(stepsList[index]
+                                                ["instruction"])),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               );
                             },
@@ -430,37 +567,42 @@ class _VTSGeofenceMapState extends State<VTSGeofenceMap> {
                     child: Card(
                       child: Container(
                           padding: EdgeInsets.all(20),
-                          child: Column(
-                            children: [
-                              Text(
-                                  "Diatance: " +
-                                      distance.toStringAsFixed(2) +
-                                      " KM" +
-                                      " "
-                                          "Duration:- " +
-                                      time.toString() +
-                                      "hrs",
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w400)),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  ElevatedButton(
-                                      onPressed: () {}, child: Text("Track")),
-                                  ElevatedButton(
-                                      onPressed: () {
-                                        getsteps();
-                                        steps = true;
-                                        setState(() {});
+                          child: SingleChildScrollView(
+                            child: Column(
+                              children: [
+                                Text(
+                                    "Diatance: " +
+                                        distance.toStringAsFixed(2) +
+                                        " km" +
+                                        " "
+                                            "Duration:- " +
+                                        hour.toString() +
+                                        " hrs" +
+                                        " " +
+                                        min.toString() +
+                                        "min",
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w400)),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    ElevatedButton(
+                                        onPressed: () {}, child: Text("Track")),
+                                    ElevatedButton(
+                                        onPressed: () {
+                                          getsteps();
+                                          steps = true;
+                                          setState(() {});
 
-                                        // setState(() {});
-                                      },
-                                      child: Text("Step")),
-                                ],
-                              )
-                            ],
+                                          // setState(() {});
+                                        },
+                                        child: Text("Step")),
+                                  ],
+                                )
+                              ],
+                            ),
                           )),
                     ))
           ]),

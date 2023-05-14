@@ -118,7 +118,7 @@ class _LiveTrackingDetailsScreenState extends State<LiveTrackingDetailsScreen> {
   //! NextLocation Ime Number------------------>
   getNextlocation(String imei, int transcationID, String prevTime,
       String prevDate, String prevImei) {
-    timer = Timer.periodic(Duration(seconds: 5), (Timer t) {
+    timer = Timer.periodic(Duration(seconds: 10), (Timer t) {
       print("Every 5 second-------");
       // _mainBloc.add(NextLocationEvents(vendorId: vendorid,branchId: branchid,token: token, araiNonarai: 'nonarai'));
       _mainBloc.add(NextLocationIMEIEvents(
@@ -1034,7 +1034,10 @@ class _LiveTrackingDetailsScreenState extends State<LiveTrackingDetailsScreen> {
   getDirections(double? fromlatitude, double? fromlongitude, double? tolatitude,
       double? tolongitude) async {
     List<LatLng> polylineCoordinates = [];
-
+    print("Here is your polylines lat and long------>" +
+        fromlatitude.toString() +
+        "------->" +
+        tolatitude.toString());
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
       "AIzaSyBnJPusnfAjrL9xofBjC_R5heU4uPZXgDY",
       PointLatLng(fromlatitude!, fromlongitude!),
@@ -1045,6 +1048,7 @@ class _LiveTrackingDetailsScreenState extends State<LiveTrackingDetailsScreen> {
     if (result.points.isNotEmpty) {
       result.points.forEach((PointLatLng point) {
         polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+        setState(() {});
       });
     } else if (result.errorMessage != null) {
       print("Error message: ${result.errorMessage}");
@@ -1167,7 +1171,6 @@ class _LiveTrackingDetailsScreenState extends State<LiveTrackingDetailsScreen> {
                   CameraPosition(
                       target: LatLng(livelat!, livlong!), zoom: 17)));
             });
-            getmarkers(livelat!, livlong!);
           } else {
             Fluttertoast.showToast(
               toastLength: Toast.LENGTH_SHORT,
@@ -1231,14 +1234,18 @@ class _LiveTrackingDetailsScreenState extends State<LiveTrackingDetailsScreen> {
               nextlivelng =
                   double.parse(state.startLocationResponse[0].longitude);
             });
+            mapController.animateCamera(CameraUpdate.newCameraPosition(
+                CameraPosition(
+                    target: LatLng(nextlivelat!, nextlivelng!), zoom: 17)));
 
             print(livelat.toString() +
                 livlong.toString() +
                 "next location latitude and longitude start from here----------->" +
                 nextlivelat.toString() +
                 nextlivelng.toString());
-            getDirections(livelat, livlong, nextlivelat, nextlivelng);
-            getnextlocMarker(nextlivelat!, nextlivelng!);
+            getDirections(livelat!, livlong!, nextlivelat!, nextlivelng!);
+            getmarkers(livelat!, livelat!, nextlivelat!, nextlivelng!);
+            setState(() {});
           });
         } else if (state is NextLocationIMEIErrorState) {
           setState(() {
@@ -1253,6 +1260,7 @@ class _LiveTrackingDetailsScreenState extends State<LiveTrackingDetailsScreen> {
           initialCameraPosition:
               CameraPosition(target: LatLng(18.6298, 73.7997)),
           markers: _marker,
+          polylines: Set<Polyline>.of(polylines.values),
           /*{
                 Marker(
                   markerId: MarkerId('current'),
@@ -1269,63 +1277,35 @@ class _LiveTrackingDetailsScreenState extends State<LiveTrackingDetailsScreen> {
     );
   }
 
-  Set<Marker> getmarkers(double livelat, double livlong) {
+  Set<Marker> getmarkers(
+      double livelat, double livlong, double nextlivelat, nextlivelong) {
     //markers to place on map
 
-    setState(() async {
-      if (startLocationResponseime.length != 0) {
-        _marker.add(Marker(
-          //add second marker
-          markerId: MarkerId(showLocation.toString()),
-          position: LatLng(livelat,
-              livlong /*27.7099116, 85.3132343*/ /*18.6298, 73.7997*/), //position of marker
-          infoWindow: InfoWindow(
-            //popup info
-            title: startLocationResponseime[0].driverName,
-            snippet: startLocationResponseime[0].vehicleRegNo,
-          ),
-          icon: await BitmapDescriptor.fromAssetImage(
-              const ImageConfiguration(
-                  devicePixelRatio: 1.0, size: Size(10, 10)),
-              startLocationResponseime[0].vehicleStatus == 'Stop'
-                  ? 'assets/stop_car.png'
-                  : startLocationResponseime[0].vehicleStatus == 'Running'
-                      ? 'assets/running_car.png'
-                      : startLocationResponseime[0].vehicleStatus == 'Idle'
-                          ? 'assets/idle_car.png'
-                          : 'assets/inactive_car.png'), //Icon for Marker
-        ));
-      }
-    });
-    return _marker;
-  }
+    _marker.add(Marker(
+        //add second marker
+        markerId: MarkerId(showLocation.toString()),
+        position: LatLng(livelat,
+            livlong /*27.7099116, 85.3132343*/ /*18.6298, 73.7997*/), //position of marker
+        infoWindow: InfoWindow(
+          //popup info
+          title: startLocationResponseime[0].driverName,
+          snippet: startLocationResponseime[0].vehicleRegNo,
+        ),
+        icon: BitmapDescriptor.defaultMarker));
 
-  Set<Marker> getnextlocMarker(double nextlivelat, double nextlivelong) {
-    setState(() async {
-      if (startLocationResponseime.length != 0) {
-        _marker.add(Marker(
-          //add second marker
-          markerId: MarkerId(showLocation.toString()),
-          position: LatLng(nextlivelat,
-              nextlivelong /*27.7099116, 85.3132343*/ /*18.6298, 73.7997*/), //position of marker
-          infoWindow: InfoWindow(
-            //popup info
-            title: startLocationResponseime[0].driverName,
-            snippet: startLocationResponseime[0].vehicleRegNo,
-          ),
-          icon: await BitmapDescriptor.fromAssetImage(
-              const ImageConfiguration(
-                  devicePixelRatio: 1.0, size: Size(10, 10)),
-              startLocationResponseime[0].vehicleStatus == 'Stop'
-                  ? 'assets/stop_car.png'
-                  : startLocationResponseime[0].vehicleStatus == 'Running'
-                      ? 'assets/running_car.png'
-                      : startLocationResponseime[0].vehicleStatus == 'Idle'
-                          ? 'assets/idle_car.png'
-                          : 'assets/inactive_car.png'), //Icon for Marker
-        ));
-      }
-    });
+    _marker.add(Marker(
+      //add second marker
+      markerId: MarkerId(showLocation.toString()),
+      position: LatLng(nextlivelat,
+          nextlivelong /*27.7099116, 85.3132343*/ /*18.6298, 73.7997*/), //position of marker
+      infoWindow: InfoWindow(
+        //popup info
+        title: startLocationResponseime[0].driverName,
+        snippet: startLocationResponseime[0].vehicleRegNo,
+      ),
+      icon: BitmapDescriptor.defaultMarker, //Icon for Marker
+    ));
+
     return _marker;
   }
 }

@@ -59,7 +59,8 @@ class _DateAndTimeWiseDistanceScreenState
   int branchid = 1;
   String arai = "arai";
   List<DateAndTimewiseData> pdfdatalist = [];
-  List<DateAndTimewiseFilterData> filterpdf = [];
+  List<DateAndTimewiseFilterData> pdffilterlist = [];
+  List<DateAndTimeWiseSearchData> pdfsearchlist = [];
   List<DateAndTimewiseData>? data = [];
   List<DateAndTimeWiseSearchData>? searchData = [];
   List<DateAndTimewiseFilterData>? filterData = [];
@@ -182,7 +183,6 @@ class _DateAndTimeWiseDistanceScreenState
         pagesize: pageSize));
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -194,6 +194,11 @@ class _DateAndTimeWiseDistanceScreenState
           GestureDetector(
             onTap: () {
               isfilter = true;
+              todateInput.text = "";
+              fromdateInput.text = "";
+              fromTimeInput.text = "";
+              toTimeInput.text = "";
+              osvfvehnolisttiletext = "-Select-";
               setState(() {
                 isfilter
                     ? _mainBloc.add(VehicleVSrNoEvent(
@@ -480,7 +485,7 @@ class _DateAndTimeWiseDistanceScreenState
                                             todateInput.text = "";
                                             fromTimeInput.text = "";
                                             fromdateInput.text = "";
-                                            osvfvehnolisttiletext = "-select-";
+                                            osvfvehnolisttiletext = "";
                                             setState(() {});
                                           },
                                         ),
@@ -513,7 +518,13 @@ class _DateAndTimeWiseDistanceScreenState
                                                   fromDateController != null &&
                                                   toTimeController != null &&
                                                   fromTimeController != null &&
-                                                  osvfvehno != null) {
+                                                  osvfvehno != "" &&
+                                                  fromdateInput
+                                                      .text.isNotEmpty &&
+                                                  todateInput.text.isNotEmpty &&
+                                                  fromTimeInput
+                                                      .text.isNotEmpty &&
+                                                  toTimeInput.text.isNotEmpty) {
                                                 _mainBloc.add(
                                                     DateAndTimeWiseFilterEvents(
                                                   token: token,
@@ -1560,14 +1571,17 @@ class _DateAndTimeWiseDistanceScreenState
                               onTap: () async {
                                 pdfdatalist.clear();
                                 pdfdatalist.addAll(data!);
-                                filterData!.addAll(filterData!);
+                                pdffilterlist.clear();
+                                pdffilterlist.addAll(filterData!);
+                                pdfsearchlist.clear();
+                                pdfsearchlist.addAll(searchData!);                                
                                 setState(() {});
                                 var status = await Permission.storage.status;
                                 if (await Permission.storage
                                     .request()
                                     .isGranted) {
-                                  final pdfFile = await PdfInvoiceApi.generate(
-                                      pdfdatalist, filterpdf, applyclicked);
+                                  final pdfFile = 
+                                      await PdfInvoiceApi.generate(pdfdatalist, pdffilterlist, applyclicked, pdfsearchlist, isSearch);
                                   PdfApi.openFile(pdfFile);
                                 } else {
                                   print("Request is not accepted");
@@ -1646,65 +1660,70 @@ class _DateAndTimeWiseDistanceScreenState
                                             fontWeight: FontWeight.bold),
                                       );
                                     }),
-                         applyclicked ? Container(
-                            margin: EdgeInsets.only(top: 10, bottom: 20),
-                            padding: EdgeInsets.all(15),
-                            decoration: BoxDecoration(
-                                color: MyColors.bluereportColorCode,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10))),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Text("From Date  -  To Date",
-                                        style: TextStyle(fontSize: 18)),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Text(
-                                        fromDateController != null
-                                            ? fromDateController + "  -  "
-                                            : "01-sep-2022" + "  -  ",
-                                        style: TextStyle(fontSize: 18)),
-                                    Text(
-                                        toDateController != null
-                                            ? toDateController
-                                            : "30-sep-2022" + "  -  ",
-                                        style: TextStyle(fontSize: 18)),
-                                  ],
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(top: 10),
-                                  child: Row(
-                                    // mainAxisAlignment: MainAxisAlignment.start,
-                                    // crossAxisAlignment: CrossAxisAlignment.start,
+                          applyclicked
+                              ? Container(
+                                  margin: EdgeInsets.only(top: 10, bottom: 20),
+                                  padding: EdgeInsets.all(15),
+                                  decoration: BoxDecoration(
+                                      color: MyColors.bluereportColorCode,
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(10))),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      Expanded(
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                      Row(
+                                        children: [
+                                          Text("From Date  -  To Date",
+                                              style: TextStyle(fontSize: 18)),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Text(
+                                              fromDateController != null
+                                                  ? fromDateController + "  -  "
+                                                  : "01-sep-2022" + "  -  ",
+                                              style: TextStyle(fontSize: 18)),
+                                          Text(
+                                              toDateController != null
+                                                  ? toDateController
+                                                  : "30-sep-2022" + "  -  ",
+                                              style: TextStyle(fontSize: 18)),
+                                        ],
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.only(top: 10),
+                                        child: Row(
+                                          // mainAxisAlignment: MainAxisAlignment.start,
+                                          // crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            Text(
-                                              "VehicleRegNo",
-                                              style: TextStyle(fontSize: 18),
+                                            Expanded(
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    "VehicleRegNo",
+                                                    style:
+                                                        TextStyle(fontSize: 18),
+                                                  ),
+                                                  Text(osvfvehnolisttiletext,
+                                                      style: TextStyle(
+                                                          fontSize: 18)),
+                                                ],
+                                              ),
                                             ),
-                                            Text(osvfvehnolisttiletext,
-                                                style: TextStyle(fontSize: 18)),
                                           ],
                                         ),
                                       ),
                                     ],
                                   ),
-                                ),
-                              ],
-                            ),
-                          ) :SizedBox(),
+                                )
+                              : SizedBox(),
                           applyclicked
                               ? filterData!.isEmpty
                                   ? Center(
@@ -2735,8 +2754,8 @@ class _DateAndTimeWiseDistanceScreenState
 }
 
 class PdfInvoiceApi {
-  static Future<File> generate(List<DateAndTimewiseData> pdflist,
-      List<DateAndTimewiseFilterData> filterpdflist, bool iscllicked) async {
+      
+  static Future<File> generate(List<DateAndTimewiseData> pdflist, List<DateAndTimewiseFilterData> filterpdflist, bool iscllicked, List<DateAndTimeWiseSearchData> searchpdf, bool issearch) async {
     final pdf = pw.Document();
     double fontsize = 8.0;
 
@@ -2904,7 +2923,7 @@ class PdfInvoiceApi {
                             child: pw.Text(
                                 iscllicked
                                     ? filterpdflist[index].imeino.toString()
-                                    : pdflist[index].imeino.toString(),
+                                    :issearch ?searchpdf[index].imeino.toString() : pdflist[index].imeino.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2916,7 +2935,7 @@ class PdfInvoiceApi {
                             child: pw.Text(
                                 iscllicked
                                     ? filterpdflist[index].transTime.toString()
-                                    : pdflist[index].transTime.toString(),
+                                    :issearch ?searchpdf[index].transTime.toString() : pdflist[index].transTime.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2928,7 +2947,7 @@ class PdfInvoiceApi {
                             child: pw.Text(
                                 iscllicked
                                     ? filterpdflist[index].speed.toString()
-                                    : pdflist[index].speed.toString(),
+                                    :issearch ?searchpdf[index].speed.toString() : pdflist[index].speed.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2942,7 +2961,7 @@ class PdfInvoiceApi {
                                     ? filterpdflist[index]
                                         .distancetravel
                                         .toString()
-                                    : pdflist[index].distancetravel.toString(),
+                                    :issearch ?searchpdf[index].distancetravel.toString() : pdflist[index].distancetravel.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2954,7 +2973,7 @@ class PdfInvoiceApi {
                             child: pw.Text(
                                 iscllicked
                                     ? filterpdflist[index].latitude.toString()
-                                    : pdflist[index].latitude.toString(),
+                                    :issearch ?searchpdf[index].latitude.toString() : pdflist[index].latitude.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2966,7 +2985,7 @@ class PdfInvoiceApi {
                             child: pw.Text(
                                 iscllicked
                                     ? filterpdflist[index].longitude.toString()
-                                    : pdflist[index].longitude.toString(),
+                                    :issearch ?searchpdf[index].longitude.toString() : pdflist[index].longitude.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2982,7 +3001,7 @@ class PdfInvoiceApi {
                       ])
                     ]);
               },
-              itemCount: iscllicked ? filterpdflist.length : pdflist.length),
+              itemCount: iscllicked ? filterpdflist.length : issearch ? searchpdf.length :pdflist.length),
           // ),
           // pw.SizedBox(height: 15),
           // pw.Row(
@@ -3015,7 +3034,7 @@ class PdfInvoiceApi {
       },
     ));
 
-    return PdfApi.saveDocument(name: 'DTwisereport.pdf', pdf: pdf);
+    return PdfApi.saveDocument(name: iscllicked ? 'DTwisefilterreport.pdf' : issearch ? 'DTwisesearchreport.pdf' : 'DTwisereport.pdf', pdf: pdf);
   }
 }
 

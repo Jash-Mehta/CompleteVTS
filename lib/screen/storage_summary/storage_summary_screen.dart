@@ -184,6 +184,7 @@ class _StorageSummaryScreenState extends State<StorageSummaryScreen> {
               pagenumber++;
               setState(() {
                 _isLoading = false;
+                searchdata!.clear();
                 searchvalue = state.travelSummaryResponse.totalRecords!;
               });
               searchdata!.addAll(state.travelSummaryResponse.datewise!);
@@ -400,11 +401,45 @@ class _StorageSummaryScreenState extends State<StorageSummaryScreen> {
                                                                 Radius.circular(
                                                                     10)),
                                                       ),
-                                                      child: Image.asset(
-                                                        "assets/driving_pin.png",
-                                                        width: 40,
-                                                        height: 40,
-                                                      ),
+                                                       child: searchdata![index]
+                                                            .vehicleStatus ==
+                                                        "Idle"
+                                                    ? Image.asset(
+                                                        "assets/idle_truck.png",
+                                                        height: 45.0,
+                                                        width: 45.0,
+                                                      )
+                                                    : searchdata![index]
+                                                                .vehicleStatus ==
+                                                            "Inactive"
+                                                        ? Image.asset(
+                                                            "assets/inactive_truck.png",
+                                                            height: 45.0,
+                                                            width: 45.0,
+                                                          )
+                                                        : searchdata![index]
+                                                                    .vehicleStatus ==
+                                                                "Stop"
+                                                            ? Image.asset(
+                                                                "assets/stopped_truck.png",
+                                                                height: 45.0,
+                                                                width: 45.0,
+                                                              )
+                                                            : searchdata![index]
+                                                                        .vehicleStatus ==
+                                                                    "Overspeed"
+                                                                ? Image.asset(
+                                                                    "assets/overspeed_truck.png",
+                                                                    height:
+                                                                        45.0,
+                                                                    width: 45.0,
+                                                                  )
+                                                                : Image.asset(
+                                                                    "assets/running_truck.png",
+                                                                    height:
+                                                                        45.0,
+                                                                    width: 45.0,
+                                                                  ),
                                                     ),
                                                     Expanded(
                                                       child: Padding(
@@ -638,22 +673,12 @@ class _StorageSummaryScreenState extends State<StorageSummaryScreen> {
                                           ),
                                         );
                                       }))
-                      : traveldata!.length == 0
-                          ? Center(
-                              child: Text("No data Found"),
-                            )
-                          : _isLoading
-                              ? Center(
-                                  child: Text("Please wait for data"),
-                                )
-                              : BlocBuilder<MainBloc, MainState>(
+                      : applyclicked ?BlocBuilder<MainBloc, MainState>(
                                   builder: (context, state) {
                                     return ListView.builder(
                                         controller: notificationController,
                                         shrinkWrap: true,
-                                        itemCount: isvalue
-                                            ? filterdata!.length
-                                            : traveldata!.length,
+                                        itemCount:  filterdata!.length,
                                         itemBuilder: (context, index) {
                                           return Card(
                                             shape: RoundedRectangleBorder(
@@ -709,11 +734,45 @@ class _StorageSummaryScreenState extends State<StorageSummaryScreen> {
                                                                       .circular(
                                                                           10)),
                                                         ),
-                                                        child: Image.asset(
-                                                          "assets/driving_pin.png",
-                                                          width: 40,
-                                                          height: 40,
-                                                        ),
+                                                        child: filterdata![index]
+                                                            .vehicleStatus ==
+                                                        "Idle"
+                                                    ? Image.asset(
+                                                        "assets/idle_truck.png",
+                                                        height: 45.0,
+                                                        width: 45.0,
+                                                      )
+                                                    : filterdata![index]
+                                                                .vehicleStatus ==
+                                                            "Inactive"
+                                                        ? Image.asset(
+                                                            "assets/inactive_truck.png",
+                                                            height: 45.0,
+                                                            width: 45.0,
+                                                          )
+                                                        : filterdata![index]
+                                                                    .vehicleStatus ==
+                                                                "Stop"
+                                                            ? Image.asset(
+                                                                "assets/stopped_truck.png",
+                                                                height: 45.0,
+                                                                width: 45.0,
+                                                              )
+                                                            : filterdata![index]
+                                                                        .vehicleStatus ==
+                                                                    "Overspeed"
+                                                                ? Image.asset(
+                                                                    "assets/overspeed_truck.png",
+                                                                    height:
+                                                                        45.0,
+                                                                    width: 45.0,
+                                                                  )
+                                                                : Image.asset(
+                                                                    "assets/running_truck.png",
+                                                                    height:
+                                                                        45.0,
+                                                                    width: 45.0,
+                                                                  ),
                                                       ),
                                                       Expanded(
                                                         child: Padding(
@@ -730,12 +789,7 @@ class _StorageSummaryScreenState extends State<StorageSummaryScreen> {
                                                                     .start,
                                                             children: [
                                                               Text(
-                                                                isvalue
-                                                                    ? filterdata![
-                                                                            index]
-                                                                        .vehicleregNo
-                                                                        .toString()
-                                                                    : traveldata![
+                                                                 filterdata![
                                                                             index]
                                                                         .vehicleregNo
                                                                         .toString(),
@@ -755,66 +809,31 @@ class _StorageSummaryScreenState extends State<StorageSummaryScreen> {
                                                                   //   size: 7,
                                                                   // ),
                                                                   Padding(
-                                                                    padding: const EdgeInsets
-                                                                            .only(
-                                                                        left:
-                                                                            4.0,
-                                                                        top: 6,
-                                                                        bottom:
-                                                                            6),
-                                                                    child: isvalue ? Text( filterdata![index]
-                                                                              .vehicleStatus
-                                                                              .toString()
-                                                                          ,
-                                                                      style: TextStyle(
-                                                                        color: filterdata![index]
-                                                                              .vehicleStatus
-                                                                              .toString() == "Running"
-                                                                            ? Color.fromARGB(255, 74, 172, 79)
-                                                                            : filterdata![index]
-                                                                              .vehicleStatus
-                                                                              .toString() == "Idle"
-                                                                                ? Color.fromARGB(255, 233, 215, 60)
-                                                                                : filterdata![index]
-                                                                              .vehicleStatus
-                                                                              .toString() == "Inactive"
-                                                                                    ? Colors.blue
-                                                                                    : filterdata![index]
-                                                                              .vehicleStatus
-                                                                              .toString() == "Stop"
-                                                                                        ? Colors.red
-                                                                                        : filterdata![index]
-                                                                              .vehicleStatus
-                                                                              .toString() == "Overspeed"
-                                                                                            ? Colors.orange
-                                                                                            : Colors.grey,
-                                                                        fontSize: 16),
-                                                                    ) : Text(  traveldata![index]
-                                                                              .vehicleStatus
-                                                                              .toString(), style: TextStyle(
-                                                                        color: traveldata![index]
-                                                                              .vehicleStatus
-                                                                              .toString() == "Running"
-                                                                            ? Color.fromARGB(255, 74, 172, 79)
-                                                                            : traveldata![index]
-                                                                              .vehicleStatus
-                                                                              .toString() == "Idle"
-                                                                                ? Color.fromARGB(255, 233, 215, 60)
-                                                                                : traveldata![index]
-                                                                              .vehicleStatus
-                                                                              .toString() == "Inactive"
-                                                                                    ? Colors.blue
-                                                                                    : traveldata![index]
-                                                                              .vehicleStatus
-                                                                              .toString() == "Stop"
-                                                                                        ? Colors.red
-                                                                                        : traveldata![index]
-                                                                              .vehicleStatus
-                                                                              .toString() == "Overspeed"
-                                                                                            ? Colors.orange
-                                                                                            : Colors.grey,
-                                                                        fontSize: 16),)
-                                                                  ),
+                                                                      padding: const EdgeInsets
+                                                                              .only(
+                                                                          left:
+                                                                              4.0,
+                                                                          top:
+                                                                              6,
+                                                                          bottom:
+                                                                              6),
+                                                                      child:  Text(
+                                                                              filterdata![index].vehicleStatus.toString(),
+                                                                              style: TextStyle(
+                                                                                  color: filterdata![index].vehicleStatus.toString() == "Running"
+                                                                                      ? Color.fromARGB(255, 74, 172, 79)
+                                                                                      : filterdata![index].vehicleStatus.toString() == "Idle"
+                                                                                          ? Color.fromARGB(255, 233, 215, 60)
+                                                                                          : filterdata![index].vehicleStatus.toString() == "Inactive"
+                                                                                              ? Colors.blue
+                                                                                              : filterdata![index].vehicleStatus.toString() == "Stop"
+                                                                                                  ? Colors.red
+                                                                                                  : filterdata![index].vehicleStatus.toString() == "Overspeed"
+                                                                                                      ? Colors.orange
+                                                                                                      : Colors.grey,
+                                                                                  fontSize: 16),
+                                                                            )
+                                                                          ),
                                                                 ],
                                                               ),
                                                               Row(
@@ -838,11 +857,7 @@ class _StorageSummaryScreenState extends State<StorageSummaryScreen> {
                                                                               Radius.circular(10)),
                                                                     ),
                                                                     child: Text(
-                                                                      isvalue
-                                                                          ? filterdata![index]
-                                                                              .tDate
-                                                                              .toString()
-                                                                          : traveldata![index]
+                                                                     filterdata![index]
                                                                               .tDate
                                                                               .toString(),
                                                                     ),
@@ -882,7 +897,7 @@ class _StorageSummaryScreenState extends State<StorageSummaryScreen> {
                                                                           const Text(
                                                                               "Arrival Time"),
                                                                           Text(
-                                                                              isvalue ? filterdata![index].vehicleStatusTime.toString() : traveldata![index].vehicleStatusTime.toString(),
+                                                                               filterdata![index].vehicleStatusTime.toString(),
                                                                               style: const TextStyle(fontWeight: FontWeight.bold)),
                                                                         ],
                                                                       ),
@@ -896,7 +911,7 @@ class _StorageSummaryScreenState extends State<StorageSummaryScreen> {
                                                                           const Text(
                                                                               "Depature Time"),
                                                                           Text(
-                                                                              isvalue ? filterdata![index].vehicleStatusTime.toString() : traveldata![index].vehicleStatusTime.toString(),
+                                                                               filterdata![index].vehicleStatusTime.toString() ,
                                                                               style: const TextStyle(fontWeight: FontWeight.bold)),
                                                                         ],
                                                                       ),
@@ -938,11 +953,7 @@ class _StorageSummaryScreenState extends State<StorageSummaryScreen> {
                                                                       "Distance"),
                                                                 ),
                                                                 Text(
-                                                                    isvalue
-                                                                        ? filterdata![index]
-                                                                            .distanceTravel
-                                                                            .toString()
-                                                                        : traveldata![index]
+                                                                     filterdata![index]
                                                                             .distanceTravel
                                                                             .toString(),
                                                                     style: const TextStyle(
@@ -965,11 +976,7 @@ class _StorageSummaryScreenState extends State<StorageSummaryScreen> {
                                                                               MyColors.analyticActiveColorCode)),
                                                                 ),
                                                                 Text(
-                                                                    isvalue
-                                                                        ? filterdata![index]
-                                                                            .avgSpeed
-                                                                            .toString()
-                                                                        : traveldata![index]
+                                                                    filterdata![index]
                                                                             .avgSpeed
                                                                             .toString(),
                                                                     style: const TextStyle(
@@ -992,11 +999,358 @@ class _StorageSummaryScreenState extends State<StorageSummaryScreen> {
                                                                               MyColors.maxspeedcolorCode)),
                                                                 ),
                                                                 Text(
-                                                                    isvalue
-                                                                        ? filterdata![index]
+                                                                    filterdata![index]
                                                                             .maxSpeed
-                                                                            .toString()
-                                                                        : traveldata![index]
+                                                                            .toString(),
+                                                                    style: const TextStyle(
+                                                                        color: MyColors
+                                                                            .analyticGreenColorCode))
+                                                              ]),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                            ),
+                                          );
+                                        });
+                                  },
+                                )   :traveldata!.length == 0
+                          ? Center(
+                              child: Text("No data Found"),
+                            )
+                          : _isLoading
+                              ? Center(
+                                  child: Text("Please wait for data"),
+                                )
+                              : BlocBuilder<MainBloc, MainState>(
+                                  builder: (context, state) {
+                                    return ListView.builder(
+                                        controller: notificationController,
+                                        shrinkWrap: true,
+                                        itemCount:  traveldata!.length,
+                                        itemBuilder: (context, index) {
+                                          return Card(
+                                            shape: RoundedRectangleBorder(
+                                              side: const BorderSide(
+                                                  width: 1,
+                                                  color: MyColors
+                                                      .textBoxBorderColorCode),
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0),
+                                            ),
+                                            child: Container(
+                                              padding: const EdgeInsets.only(
+                                                  top: 10,
+                                                  left: 14,
+                                                  right: 14,
+                                                  bottom: 10),
+                                              width: MediaQuery.of(context)
+                                                  .size
+                                                  .width,
+                                              decoration: const BoxDecoration(
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(10)),
+                                              ),
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.start,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                    children: [
+                                                      Container(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(10),
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color: MyColors
+                                                              .whiteColorCode,
+                                                          border: Border.all(
+                                                              color: MyColors
+                                                                  .boxBackgroundColorCode),
+                                                          borderRadius:
+                                                              const BorderRadius
+                                                                      .all(
+                                                                  Radius
+                                                                      .circular(
+                                                                          10)),
+                                                        ),
+                                                        child: traveldata![index]
+                                                            .vehicleStatus ==
+                                                        "Idle"
+                                                    ? Image.asset(
+                                                        "assets/idle_truck.png",
+                                                        height: 45.0,
+                                                        width: 45.0,
+                                                      )
+                                                    : traveldata![index]
+                                                                .vehicleStatus ==
+                                                            "Inactive"
+                                                        ? Image.asset(
+                                                            "assets/inactive_truck.png",
+                                                            height: 45.0,
+                                                            width: 45.0,
+                                                          )
+                                                        : traveldata![index]
+                                                                    .vehicleStatus ==
+                                                                "Stop"
+                                                            ? Image.asset(
+                                                                "assets/stopped_truck.png",
+                                                                height: 45.0,
+                                                                width: 45.0,
+                                                              )
+                                                            : traveldata![index]
+                                                                        .vehicleStatus ==
+                                                                    "Overspeed"
+                                                                ? Image.asset(
+                                                                    "assets/overspeed_truck.png",
+                                                                    height:
+                                                                        45.0,
+                                                                    width: 45.0,
+                                                                  )
+                                                                : Image.asset(
+                                                                    "assets/running_truck.png",
+                                                                    height:
+                                                                        45.0,
+                                                                    width: 45.0,
+                                                                  ),
+                                                      ),
+                                                      Expanded(
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .only(
+                                                                  left: 10.0),
+                                                          child: Column(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .start,
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Text(
+                                                                 traveldata![
+                                                                            index]
+                                                                        .vehicleregNo
+                                                                        .toString(),
+                                                                style: const TextStyle(
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    fontSize:
+                                                                        20),
+                                                              ),
+                                                              Row(
+                                                                children: [
+                                                                  // const Icon(
+                                                                  //   Icons
+                                                                  //       .circle,
+                                                                  //   color: Colors.black,
+                                                                  //   size: 7,
+                                                                  // ),
+                                                                  Padding(
+                                                                      padding: const EdgeInsets
+                                                                              .only(
+                                                                          left:
+                                                                              4.0,
+                                                                          top:
+                                                                              6,
+                                                                          bottom:
+                                                                              6),
+                                                                      child:  Text(
+                                                                              traveldata![index].vehicleStatus.toString(),
+                                                                              style: TextStyle(
+                                                                                  color: traveldata![index].vehicleStatus.toString() == "Running"
+                                                                                      ? Color.fromARGB(255, 74, 172, 79)
+                                                                                      : traveldata![index].vehicleStatus.toString() == "Idle"
+                                                                                          ? Color.fromARGB(255, 233, 215, 60)
+                                                                                          : traveldata![index].vehicleStatus.toString() == "Inactive"
+                                                                                              ? Colors.blue
+                                                                                              : traveldata![index].vehicleStatus.toString() == "Stop"
+                                                                                                  ? Colors.red
+                                                                                                  : traveldata![index].vehicleStatus.toString() == "Overspeed"
+                                                                                                      ? Colors.orange
+                                                                                                      : Colors.grey,
+                                                                                  fontSize: 16),
+                                                                            )
+                                                                          ),
+                                                                ],
+                                                              ),
+                                                              Row(
+                                                                children: [
+                                                                  Container(
+                                                                    padding: const EdgeInsets
+                                                                            .only(
+                                                                        left:
+                                                                            6.0,
+                                                                        right:
+                                                                            6,
+                                                                        top: 6,
+                                                                        bottom:
+                                                                            6),
+                                                                    decoration:
+                                                                        const BoxDecoration(
+                                                                      color: MyColors
+                                                                          .textBoxColorCode,
+                                                                      borderRadius:
+                                                                          BorderRadius.all(
+                                                                              Radius.circular(10)),
+                                                                    ),
+                                                                    child: Text(
+                                                                     traveldata![index]
+                                                                              .tDate
+                                                                              .toString(),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                              Container(
+                                                                margin:
+                                                                    const EdgeInsets
+                                                                            .only(
+                                                                        top: 6),
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .only(
+                                                                        left:
+                                                                            4.0,
+                                                                        right:
+                                                                            4,
+                                                                        top: 4,
+                                                                        bottom:
+                                                                            4),
+                                                                decoration:
+                                                                    const BoxDecoration(
+                                                                  color: MyColors
+                                                                      .lightblueColorCode,
+                                                                  borderRadius:
+                                                                      BorderRadius.all(
+                                                                          Radius.circular(
+                                                                              4)),
+                                                                ),
+                                                                child: Row(
+                                                                  children: [
+                                                                    Expanded(
+                                                                      child:
+                                                                          Column(
+                                                                        children: [
+                                                                          const Text(
+                                                                              "Arrival Time"),
+                                                                          Text(
+                                                                               traveldata![index].vehicleStatusTime.toString(),
+                                                                              style: const TextStyle(fontWeight: FontWeight.bold)),
+                                                                        ],
+                                                                      ),
+                                                                    ),
+                                                                    const Icon(Icons
+                                                                        .compare_arrows),
+                                                                    Expanded(
+                                                                      child:
+                                                                          Column(
+                                                                        children: [
+                                                                          const Text(
+                                                                              "Depature Time"),
+                                                                          Text(
+                                                                               traveldata![index].vehicleStatusTime.toString() ,
+                                                                              style: const TextStyle(fontWeight: FontWeight.bold)),
+                                                                        ],
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  const Padding(
+                                                    padding: EdgeInsets.only(
+                                                        top: 8.0),
+                                                    child: Divider(
+                                                      height: 5,
+                                                      color: MyColors
+                                                          .greyColorCode,
+                                                    ),
+                                                  ),
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            top: 10.0,
+                                                            right: 10),
+                                                    child: Row(
+                                                      children: [
+                                                        Expanded(
+                                                          child: Column(
+                                                              children: [
+                                                                Container(
+                                                                  padding: const EdgeInsets
+                                                                          .only(
+                                                                      bottom:
+                                                                          6),
+                                                                  child: Text(
+                                                                      "Distance"),
+                                                                ),
+                                                                Text(
+                                                                     traveldata![index]
+                                                                            .distanceTravel
+                                                                            .toString(),
+                                                                    style: const TextStyle(
+                                                                        color: MyColors
+                                                                            .analyticGreenColorCode))
+                                                              ]),
+                                                        ),
+                                                        Expanded(
+                                                          child: Column(
+                                                              children: [
+                                                                Container(
+                                                                  padding: const EdgeInsets
+                                                                          .only(
+                                                                      bottom:
+                                                                          6),
+                                                                  child: const Text(
+                                                                      "Avg Speed",
+                                                                      style: TextStyle(
+                                                                          color:
+                                                                              MyColors.analyticActiveColorCode)),
+                                                                ),
+                                                                Text(
+                                                                    traveldata![index]
+                                                                            .avgSpeed
+                                                                            .toString(),
+                                                                    style: const TextStyle(
+                                                                        color: MyColors
+                                                                            .analyticActiveColorCode))
+                                                              ]),
+                                                        ),
+                                                        Expanded(
+                                                          child: Column(
+                                                              children: [
+                                                                Container(
+                                                                  padding: const EdgeInsets
+                                                                          .only(
+                                                                      bottom:
+                                                                          6),
+                                                                  child: const Text(
+                                                                      "Max Speed",
+                                                                      style: TextStyle(
+                                                                          color:
+                                                                              MyColors.maxspeedcolorCode)),
+                                                                ),
+                                                                Text(
+                                                                    traveldata![index]
                                                                             .maxSpeed
                                                                             .toString(),
                                                                     style: const TextStyle(

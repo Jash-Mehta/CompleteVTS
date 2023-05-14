@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_vts/bloc/main_bloc.dart';
@@ -23,6 +22,8 @@ import 'package:jiffy/jiffy.dart';
 import 'package:snippet_coder_utils/FormHelper.dart';
 import 'package:http/http.dart' as http;
 
+import '../live_tracking/live_tracking_detail_screen.dart';
+import 'map_veh_history_by_id.dart';
 
 class VehicleStatusScreen extends StatefulWidget {
   // const VehicleStatusScreen({Key? key}) : super(key: key);
@@ -33,27 +34,25 @@ class VehicleStatusScreen extends StatefulWidget {
 }
 
 class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
-
   ScrollController notificationController = new ScrollController();
   TextEditingController _fromdatecontroller = new TextEditingController();
   TextEditingController _fromTimecontroller = new TextEditingController();
   TextEditingController _todatecontroller = new TextEditingController();
   TextEditingController _toTimecontroller = new TextEditingController();
-  TextEditingController searchController=new TextEditingController();
-
+  TextEditingController searchController = new TextEditingController();
 
   DateTime selectedDate = DateTime.now();
   DateTime selectedToDate = DateTime.now();
   TimeOfDay selectedTime = TimeOfDay.now();
   TimeOfDay selectedToTime = TimeOfDay.now();
   DateTime currentdate = DateTime.now();
-  late String date='',todate='',fromTime='',toTime='';
+  late String date = '', todate = '', fromTime = '', toTime = '';
   var filterVehicleStatusResult;
-  late int selectedVendorid=0,selectedbranchid=0;
+  late int selectedVendorid = 0, selectedbranchid = 0;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   List<String> items = ["aaa", "bb", "cc", "dd", "ee"];
-  final controller=ScrollController();
+  final controller = ScrollController();
 
   bool isSelected = false;
   String radiolist = "radio";
@@ -67,33 +66,35 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
   late String vendorName = "", branchName = "", userType = "";
   late int branchid = 0, vendorid = 0;
   // List<String> list=[];
-  List list =[];
+  List list = [];
   late bool isSearch = false;
   late bool isSearchClick = false;
 
-  List<VehicleFillSrNoResponse> vehicleSrNolist=[];
+  List<VehicleFillSrNoResponse> vehicleSrNolist = [];
   String selectedVehicle = "";
   String vehicledropdown = "";
-  String selectedvehicleno="";
-  int pageNumber=1;
-  int FilterPageNumber=0,searchFilterPageNumber=1,searchPageNumber=1;
+  String selectedvehicleno = "";
+  int pageNumber = 1;
+  int FilterPageNumber = 0, searchFilterPageNumber = 1, searchPageNumber = 1;
 
-
-  List<VehicleStatusDatum>? data=[];
-  List<VehicleHistoryFilterDatum>? vehiclehistoryfilterdata=[];
+  List<VehicleStatusDatum>? data = [];
+  List<VehicleHistoryFilterDatum>? vehiclehistoryfilterdata = [];
   late bool isFilterAlertSearch = false;
   late bool searchFilter = false;
-  late String searchText='';
-  List<String> selectedvehicleStatuslist=[];
-  List<int> selectedvehicleSrNolist=[];
-  int totalVehicleHistoryRecords=0;
-  String totalVehicleHistoryFilterRecords="0";
-
-  late double nextLatitude;
-  late double nextLogitude;
-
-  String selectedfromdate="";
-  String selectedTodate="";
+  late String searchText = '';
+  List<String> selectedvehicleStatuslist = [];
+  List<int> selectedvehicleSrNolist = [];
+  int totalVehicleHistoryRecords = 0;
+  String totalVehicleHistoryFilterRecords = "0";
+  double _originLatitude = 18.522024549551766;
+// Starting point longitude
+  double _originLongitude = 73.85738994124968;
+// Destination latitude
+  double _destLatitude = 18.522024549551766;
+// Destination Longitude
+  double _destLongitude = 73.85738994124968;
+  String selectedfromdate = "";
+  String selectedTodate = "";
 
   @override
   void initState() {
@@ -103,35 +104,66 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
 
     setState(() {
       todate = Jiffy(currentdate).format('d-MMMM-yyyy');
-      date=Jiffy(currentdate).format('d-MMMM-yyyy');
-      fromTime=currentdate.hour.toString()+":"+currentdate.minute.toString()+":"+currentdate.second.toString();
-      toTime=currentdate.hour.toString()+":"+currentdate.minute.toString()+":"+currentdate.second.toString();
-
+      date = Jiffy(currentdate).format('d-MMMM-yyyy');
+      fromTime = currentdate.hour.toString() +
+          ":" +
+          currentdate.minute.toString() +
+          ":" +
+          currentdate.second.toString();
+      toTime = currentdate.hour.toString() +
+          ":" +
+          currentdate.minute.toString() +
+          ":" +
+          currentdate.second.toString();
     });
     controller.addListener(() {
-      if(controller.position.maxScrollExtent==controller.offset){
-        if(FilterPageNumber==0){
+      if (controller.position.maxScrollExtent == controller.offset) {
+        if (FilterPageNumber == 0) {
           setState(() {
             print("Scroll ${pageNumber}");
             getVehicleStatus();
           });
-        }else{
+        } else {
           print("filter scroll");
           getVehicleHistoryFilter();
         }
-
-
       }
     });
     getdata();
   }
 
-
-  getVehicleHistoryFilter(){
-    if(searchFilter){
-      _mainBloc.add(VehicleHistorySearchFilterEvents(token:token,vendorId:selectedVendorid, branchId: selectedbranchid, araiNoarai: 'arai',fromDate:date,formTime:fromTime,toDate:todate,toTime:toTime ,vehicleStatusList:selectedvehicleStatuslist,searchText:searchText,pageNumber:FilterPageNumber ,pageSize:10, vehicleList: selectedvehicleSrNolist, ));
-    }else{
-      _mainBloc.add(VehicleHistoryFilterEvents(token:token,vendorId:selectedVendorid, branchId: selectedbranchid, araiNoarai: 'nonarai',fromDate:date,formTime:fromTime,toDate:todate,toTime:toTime ,vehicleStatusList:selectedvehicleStatuslist,pageNumber:FilterPageNumber ,pageSize:10, vehicleList: selectedvehicleSrNolist, ));
+  getVehicleHistoryFilter() {
+    if (searchFilter) {
+      _mainBloc.add(VehicleHistorySearchFilterEvents(
+        token: token,
+        vendorId: selectedVendorid,
+        branchId: selectedbranchid,
+        araiNoarai: 'arai',
+        fromDate: date,
+        formTime: fromTime,
+        toDate: todate,
+        toTime: toTime,
+        vehicleStatusList: selectedvehicleStatuslist,
+        searchText: searchText,
+        pageNumber: FilterPageNumber,
+        pageSize: 10,
+        vehicleList: selectedvehicleSrNolist,
+      ));
+    } else {
+      _mainBloc.add(VehicleHistoryFilterEvents(
+        token: token,
+        vendorId: selectedVendorid,
+        branchId: selectedbranchid,
+        araiNoarai: 'nonarai',
+        fromDate: date,
+        formTime: fromTime,
+        toDate: todate,
+        toTime: toTime,
+        vehicleStatusList: selectedvehicleStatuslist,
+        pageNumber: FilterPageNumber,
+        pageSize: 10,
+        vehicleList: selectedvehicleSrNolist,
+      ));
     }
   }
 
@@ -180,21 +212,31 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
         branchid != 0 ||
         vendorName != "" ||
         branchName != "") {
-
       // print("")
       getvehiclelist();
     }
   }
 
-  getVehicleStatus(){
-    _mainBloc.add(VehicleSatusEvents(token: token,vendorId: vendorid,branchId: branchid,araiNoarai: "nonarai",fromDate: date,toDate: todate,formTime: fromTime,toTime: toTime,vehicleRegno: selectedvehicleno,pageNumber: pageNumber,pageSize: 10));
+  getVehicleStatus() {
+    _mainBloc.add(VehicleSatusEvents(
+        token: token,
+        vendorId: vendorid,
+        branchId: branchid,
+        araiNoarai: "nonarai",
+        fromDate: date,
+        toDate: todate,
+        formTime: fromTime,
+        toTime: toTime,
+        vehicleRegno: selectedvehicleno,
+        pageNumber: pageNumber,
+        pageSize: 10));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: MenuDrawer()/*.getMenuDrawer(context)*/,
-      appBar:AppBar(
+      drawer: MenuDrawer() /*.getMenuDrawer(context)*/,
+      appBar: AppBar(
         title: /*isSearchClick ? Container(
           height: 40,
           decoration: BoxDecoration(
@@ -270,24 +312,48 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
               }
             },
           ),
-        ) :*/Text("VEHICLES STATUS"),
+        ) :*/
+            Text("VEHICLES STATUS"),
         actions: [
           GestureDetector(
-            onTap: (){
+            onTap: () {
               setState(() {
-                selectedfromdate=selectedDate.year.toString()+"/"+selectedDate.month.toString()+"/"+selectedDate.day.toString();
-                selectedTodate=selectedToDate.year.toString()+"/"+selectedToDate.month.toString()+"/"+selectedToDate.day.toString();
-
+                selectedfromdate = selectedDate.year.toString() +
+                    "/" +
+                    selectedDate.month.toString() +
+                    "/" +
+                    selectedDate.day.toString();
+                selectedTodate = selectedToDate.year.toString() +
+                    "/" +
+                    selectedToDate.month.toString() +
+                    "/" +
+                    selectedToDate.day.toString();
               });
 
               _validationfiltervehicle();
-
             },
             child: Container(
               margin: EdgeInsets.only(right: 10),
-              child:Image.asset("assets/filter.png",height: 40,width: 40,) ,
+              child: Image.asset(
+                "assets/filter.png",
+                height: 40,
+                width: 40,
+              ),
             ),
           ),
+          // isSearchClick ? Container() :data!.length==0 ? Container() :IconButton(
+          //     onPressed: (){
+          //       setState(() {
+          //         isSearchClick=true;
+          //       });
+          //     },
+          //     icon: Icon(Icons.search,size: 30,color:MyColors.whiteColorCode ,)
+          // ),
+          // IconButton(
+          //     onPressed: (){
+          //     },
+          //     icon: Icon(Icons.help_outline,size: 30,color:MyColors.whiteColorCode ,)
+          // )
         ],
       ),
       // CustomAppBar().getCustomAppBar("VEHICLE STATUS", _scaffoldKey,0,context),
@@ -296,7 +362,7 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
   }
 
   _vehicleStatus() {
-    return  LoadingOverlay(
+    return LoadingOverlay(
       isLoading: _isLoading,
       opacity: 0.5,
       color: Colors.white,
@@ -305,53 +371,56 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
         valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
       ),
       child: BlocListener<MainBloc, MainState>(
-        listener: (context,state){
+        listener: (context, state) {
           if (state is VehicleStatusLoadingState) {
             setState(() {
               _isLoading = true;
             });
-          }else if (state is VehicleStatusLoadedState) {
+          } else if (state is VehicleStatusLoadedState) {
             setState(() {
               // data!.clear();
               _isLoading = false;
-              if(state.vehicleStatusResponse.totalRecords!=null){
-
-                totalVehicleHistoryRecords=state.vehicleStatusResponse.totalRecords!;
+              if (state.vehicleStatusResponse.totalRecords != null) {
+                totalVehicleHistoryRecords =
+                    state.vehicleStatusResponse.totalRecords!;
               }
             });
+            if (state.vehicleStatusResponse.data != null) {
+              print("here is your data class---------->" + data.toString());
+              data!.addAll(state.vehicleStatusResponse.data!);
+            }
 
-            if(state.vehicleStatusResponse.succeeded!=null){
-              if(!state.vehicleStatusResponse.succeeded){
+            if (state.vehicleStatusResponse.succeeded != null) {
+              if (!state.vehicleStatusResponse.succeeded) {
                 Fluttertoast.showToast(
-                  msg:state.vehicleStatusResponse.message!,
+                  msg: state.vehicleStatusResponse.message!,
                   toastLength: Toast.LENGTH_SHORT,
                   timeInSecForIosWeb: 1,
                 );
               }
             }
 
-            if(state.vehicleStatusResponse.data!=null){
-              if(state.vehicleStatusResponse.data!.length==0){
-                setState(() {
-                  pageNumber=1;
-                  data!.clear();
-                  isSearch=false;
-                  isSearchClick=false;
-                });
-                Fluttertoast.showToast(
-                  msg: "Search result not found",
-                  toastLength: Toast.LENGTH_SHORT,
-                  timeInSecForIosWeb: 1,
-                );
-              }else{
-                setState(() {
-                  data!.addAll(state.vehicleStatusResponse.data!);
-                  pageNumber++;
-                });
-              }
-            }
+            // if (state.vehicleStatusResponse.data != null) {
+            //   if (state.vehicleStatusResponse.data!.length == 0) {
+            //     setState(() {
+            //       pageNumber = 1;
+            //       data!.clear();
+            //       isSearch = false;
+            //       isSearchClick = false;
+            //     });
+            //     Fluttertoast.showToast(
+            //       msg: "Search result not found",
+            //       toastLength: Toast.LENGTH_SHORT,
+            //       timeInSecForIosWeb: 1,
+            //     );
+            //   } else {
+            //     setState(() {
 
-          }else if (state is VehicleStatusErrorState) {
+            //       pageNumber++;
+            //     });
+            //   }
+            // }
+          } else if (state is VehicleStatusErrorState) {
             setState(() {
               _isLoading = false;
             });
@@ -360,46 +429,47 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
               toastLength: Toast.LENGTH_SHORT,
               timeInSecForIosWeb: 1,
             );
-          }  if (state is VehicleHistoryFilterLoadingState) {
+          }
+          if (state is VehicleHistoryFilterLoadingState) {
             setState(() {
               _isLoading = true;
             });
-          }else if (state is VehicleHistoryFilterLoadedState) {
+          } else if (state is VehicleHistoryFilterLoadedState) {
             setState(() {
               _isLoading = false;
-              totalVehicleHistoryFilterRecords=state.vehicleHistoryFilterResponse.totalRecords.toString();
+              totalVehicleHistoryFilterRecords =
+                  state.vehicleHistoryFilterResponse.totalRecords.toString();
             });
-            if(state.vehicleHistoryFilterResponse.data!=null){
-              if(state.vehicleHistoryFilterResponse.data!.length!=0){
+            if (state.vehicleHistoryFilterResponse.data != null) {
+              if (state.vehicleHistoryFilterResponse.data!.length != 0) {
                 FilterPageNumber++;
               }
             }
-            if(state.vehicleHistoryFilterResponse.succeeded!){
-              vehiclehistoryfilterdata!.addAll(state.vehicleHistoryFilterResponse.data!);
-            }else{
-
-            }
-
-          }else if (state is VehicleHistoryFilterErrorState) {
+            if (state.vehicleHistoryFilterResponse.succeeded!) {
+              vehiclehistoryfilterdata!
+                  .addAll(state.vehicleHistoryFilterResponse.data!);
+            } else {}
+          } else if (state is VehicleHistoryFilterErrorState) {
             setState(() {
               _isLoading = false;
             });
-          }else if (state is VehicleHistorySearchFilterLoadingState) {
+          } else if (state is VehicleHistorySearchFilterLoadingState) {
             setState(() {
               _isLoading = true;
             });
-          }else if (state is VehicleHistorySearchFilterLoadedState) {
+          } else if (state is VehicleHistorySearchFilterLoadedState) {
             setState(() {
               _isLoading = false;
-              if(state.vehicleHistoryFilterResponse.data!=null){
-                if(state.vehicleHistoryFilterResponse.data!.length!=0){
+              if (state.vehicleHistoryFilterResponse.data != null) {
+                if (state.vehicleHistoryFilterResponse.data!.length != 0) {
                   FilterPageNumber++;
                 }
               }
-              if(state.vehicleHistoryFilterResponse.succeeded!){
-                vehiclehistoryfilterdata!.addAll(state.vehicleHistoryFilterResponse.data!);
-              }else{
-                if(state.vehicleHistoryFilterResponse.message!=null){
+              if (state.vehicleHistoryFilterResponse.succeeded!) {
+                vehiclehistoryfilterdata!
+                    .addAll(state.vehicleHistoryFilterResponse.data!);
+              } else {
+                if (state.vehicleHistoryFilterResponse.message != null) {
                   // Fluttertoast.showToast(
                   //   toastLength: Toast.LENGTH_SHORT,
                   //   timeInSecForIosWeb: 1,
@@ -408,43 +478,40 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
                 }
               }
             });
-
-          }else if (state is VehicleHistorySearchFilterErrorState) {
+          } else if (state is VehicleHistorySearchFilterErrorState) {
             setState(() {
               _isLoading = false;
             });
-          }else if (state is VehicleHistoryByIdDetailLoadingState) {
+          } else if (state is VehicleHistoryByIdDetailLoadingState) {
             setState(() {
               _isLoading = true;
             });
-          }else if (state is VehicleHistoryByIdDetailLoadedState) {
+          } else if (state is VehicleHistoryByIdDetailLoadedState) {
             setState(() {
               _isLoading = false;
             });
-            if(state.vehicleHistoryByIdDetailResponse.length==0){
 
-            }else{
+            // if(state.vehicleHistoryByIdDetailResponse.length==0){
+            //
+            // }else{
 
-              // if(totalVehicleHistoryRecords==totalVehicleHistoryRecords.)
-
-              if(data!.length-1>vehicleHistoryPosition){
-                print("list loaded");
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => BlocProvider(
-                            create: (context) {
-                              return MainBloc(webService: WebService());
-                            },
-                            child: VehicleStatusDetailsScreen(vehicleHistoryByIdDetailResponse:state.vehicleHistoryByIdDetailResponse,latitude: data![vehicleHistoryPosition+1].lat!,longitude: data![vehicleHistoryPosition+1].lng!,))));
-              }else{
-                print("list not loaded");
-
-              }
-
-            }
-
-          }else if (state is VehicleHistoryByIdDetailErrorState) {
+            // if(totalVehicleHistoryRecords==totalVehicleHistoryRecords.)
+            //
+            // if(data!.length-1>vehicleHistoryPosition){
+            //   print("list loaded");
+            //   Navigator.push(
+            //       context,
+            //       MaterialPageRoute(
+            //           builder: (_) => BlocProvider(
+            //               create: (context) {
+            //                 return MainBloc(webService: WebService());
+            //               },
+            //               child: VehicleStatusDetailsScreen(vehicleHistoryByIdDetailResponse:state.vehicleHistoryByIdDetailResponse,latitude: data![vehicleHistoryPosition+1].latitude!,longitude: data![vehicleHistoryPosition+1].longitude!,))));
+            // }else{
+            //   print("list not loaded");
+            //
+            // }
+          } else if (state is VehicleHistoryByIdDetailErrorState) {
             setState(() {
               _isLoading = false;
             });
@@ -455,11 +522,13 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
           child: Column(
             children: [
               Container(
-                padding: EdgeInsets.only(left: 10, right: 10, top: 10, bottom: 10),
+                padding:
+                    EdgeInsets.only(left: 10, right: 10, top: 10, bottom: 10),
                 decoration: BoxDecoration(
                     color: MyColors.lightgreyColorCode,
                     boxShadow: [
-                      BoxShadow(blurRadius: 10, color: MyColors.shadowGreyColorCode)
+                      BoxShadow(
+                          blurRadius: 10, color: MyColors.shadowGreyColorCode)
                     ]),
                 // width: MediaQuery.of(context).size.width,
                 child: Row(
@@ -468,8 +537,12 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
                     Expanded(
                       child: Column(
                         children: [
-                          Text(_fromdatecontroller.text.isEmpty ? date : _fromdatecontroller.text),
-                          Text(_fromTimecontroller.text.isEmpty ? fromTime: _fromTimecontroller.text),
+                          Text(_fromdatecontroller.text.isEmpty
+                              ? date
+                              : _fromdatecontroller.text),
+                          Text(_fromTimecontroller.text.isEmpty
+                              ? fromTime
+                              : _fromTimecontroller.text),
                         ],
                       ),
                     ),
@@ -477,8 +550,12 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
                     Expanded(
                       child: Column(
                         children: [
-                          Text(_todatecontroller.text.isEmpty ? todate :_todatecontroller.text),
-                          Text(_toTimecontroller.text.isEmpty ? toTime:_toTimecontroller.text),
+                          Text(_todatecontroller.text.isEmpty
+                              ? todate
+                              : _todatecontroller.text),
+                          Text(_toTimecontroller.text.isEmpty
+                              ? toTime
+                              : _toTimecontroller.text),
                         ],
                       ),
                     ),
@@ -493,7 +570,8 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
                               left: 15, right: 15, top: 10, bottom: 10),
                           decoration: BoxDecoration(
                               color: MyColors.greyColorCode,
-                              borderRadius: BorderRadius.all(Radius.circular(20))),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(20))),
                           child: Text(
                             "Change",
                             style: TextStyle(
@@ -520,10 +598,12 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
                         Expanded(
                           child: Container(
                             decoration: BoxDecoration(
-                              border: Border.all(color: MyColors.textBoxBorderColorCode,width: 2),
-                              borderRadius: BorderRadius.all(Radius.circular(10)),
-                              color:MyColors.whiteColorCode,
-
+                              border: Border.all(
+                                  color: MyColors.textBoxBorderColorCode,
+                                  width: 2),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)),
+                              color: MyColors.whiteColorCode,
                             ),
                             width: MediaQuery.of(context).size.width,
                             child: Row(
@@ -534,55 +614,62 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
                                   child: FormHelper.dropDownWidget(
                                     context,
                                     // "Select product",
-                                    selectedVehicle=='' ?  "Select" :selectedVehicle,
+                                    selectedVehicle == ''
+                                        ? "Select"
+                                        : selectedVehicle,
                                     this.vehicledropdown,
                                     this.list,
-                                        (onChangeVal){
+                                    (onChangeVal) {
                                       setState(() {
-                                        this.vehicledropdown=onChangeVal;
+                                        this.vehicledropdown = onChangeVal;
                                         // vehicleid=int.parse(onChangeVal);
-                                        print("Selected Product : $onChangeVal");
-                                        for(int i=0;i<list.length;i++){
-                                          if(onChangeVal==list[i]['vsrNo'].toString()){
+                                        print(
+                                            "Selected Product : $onChangeVal");
+                                        for (int i = 0; i < list.length; i++) {
+                                          if (onChangeVal ==
+                                              list[i]['vsrNo'].toString()) {
                                             print(list[i]['vehicleRegNo']);
-                                            selectedvehicleno=list[i]['vehicleRegNo'];
-                                            if(selectedvehicleno!=""){
+                                            selectedvehicleno =
+                                                list[i]['vehicleRegNo'];
+                                            if (selectedvehicleno != "") {
                                               // getVehicleStatus();
                                             }
-
                                           }
                                         }
                                       });
-
                                     },
-                                        (onValidateval){
-                                      if(onValidateval==null){
+                                    (onValidateval) {
+                                      if (onValidateval == null) {
                                         return "Please select country";
                                       }
                                       return null;
                                     },
-                                    borderColor:MyColors.whiteColorCode,
+                                    borderColor: MyColors.whiteColorCode,
                                     borderFocusColor: MyColors.whiteColorCode,
                                     borderRadius: 10,
                                     optionValue: "vsrNo",
                                     optionLabel: "vehicleRegNo",
                                     // paddingLeft:20
-
                                   ),
                                 ),
                                 GestureDetector(
-                                    onTap: (){
+                                    onTap: () {
                                       print("click");
                                       setState(() {
-                                        selectedVehicle="";
-                                        vehicledropdown="";
-                                        selectedvehicleno="";
+                                        selectedVehicle = "";
+                                        vehicledropdown = "";
+                                        selectedvehicleno = "";
                                       });
                                     },
                                     child: Padding(
-                                      padding: const EdgeInsets.only(right: 6.0),
-                                      child: Icon(Icons.close,color: MyColors.blackColorCode,size: 20,),
-                                    )/*Container(
+                                      padding:
+                                          const EdgeInsets.only(right: 6.0),
+                                      child: Icon(
+                                        Icons.close,
+                                        color: MyColors.blackColorCode,
+                                        size: 20,
+                                      ),
+                                    ) /*Container(
                                       // alignment: Alignment.center,
                                       // decoration: BoxDecoration(
                                       //   shape: BoxShape.circle,
@@ -594,27 +681,24 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
                                         child: Icon(Icons.close,color: MyColors.blackColorCode,size: 20,),
                                       ),
                                     ),*/
-                                )
-
+                                    )
                               ],
                             ),
                           ),
                         ),
-
                         GestureDetector(
-                          onTap: (){
-                            // setState(() {
-                            //   pageNumber=1;
-                            //   isFilterAlertSearch=false;
-                            //   FilterPageNumber=0;
-                            //   data!.clear();
-                            //   totalVehicleHistoryFilterRecords="0";
-                            // });
-
+                          onTap: () {
                             setState(() {
-                              selectedfromdate=selectedDate.year.toString()+"/"+selectedDate.month.toString()+"/"+selectedDate.day.toString();
-                              selectedTodate=selectedToDate.year.toString()+"/"+selectedToDate.month.toString()+"/"+selectedToDate.day.toString();
-
+                              selectedfromdate = selectedDate.year.toString() +
+                                  "/" +
+                                  selectedDate.month.toString() +
+                                  "/" +
+                                  selectedDate.day.toString();
+                              selectedTodate = selectedToDate.year.toString() +
+                                  "/" +
+                                  selectedToDate.month.toString() +
+                                  "/" +
+                                  selectedToDate.day.toString();
                             });
 
                             // if(selectedfromdate==selectedTodate){
@@ -625,526 +709,1082 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
                             // }
 
                             validation();
-
                           },
                           child: Container(
-                            padding: EdgeInsets.only(left: 15,right: 15,top: 10,bottom: 10),
+                            padding: EdgeInsets.only(
+                                left: 15, right: 15, top: 10, bottom: 10),
                             decoration: BoxDecoration(
-                              border: Border.all(color: MyColors.textBoxBorderColorCode,width: 2),
-                              borderRadius: BorderRadius.all(Radius.circular(10)),
-                              color:MyColors.appDefaultColorCode,
+                              border: Border.all(
+                                  color: MyColors.textBoxBorderColorCode,
+                                  width: 2),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)),
+                              color: MyColors.appDefaultColorCode,
                             ),
-                            child: Icon(Icons.send,color: MyColors.whiteColorCode,),
+                            child: Icon(
+                              Icons.send,
+                              color: MyColors.whiteColorCode,
+                            ),
                           ),
                         )
                       ],
                     ),
                     Container(
-                        margin: EdgeInsets.only(top: 10,bottom: 6),
+                        margin: EdgeInsets.only(top: 10, bottom: 6),
                         alignment: Alignment.centerLeft,
-                        child: Text(!isFilterAlertSearch ? data!.length!=0 ?  "Showing 1 to ${data!.length} Out of ${totalVehicleHistoryRecords}" : "0 RECORDS" : vehiclehistoryfilterdata!.length!=0 ?  "Showing 1 to ${vehiclehistoryfilterdata!.length}  Out of ${totalVehicleHistoryFilterRecords}" :"0 RECORDS",style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),)
-                    ),
-
-                    isFilterAlertSearch ? ListView.builder(
-                        controller: notificationController,
-                        shrinkWrap: true,
-                        itemCount: vehiclehistoryfilterdata!.length,
-                        itemBuilder: (context, index) {
-                          return GestureDetector(
-                            onTap: (){
-                              _mainBloc.add(VehicleHistoryByIdDetailEvents(token:token,vendorId:vendorid, branchId: branchid, araiNoarai: 'nonarai',fromDate:date,formTime:fromTime,toDate:todate,toTime:toTime ,vehicleHistoryId:vehiclehistoryfilterdata![index].transactionId));
-                            },
-                            child: Card(
-                              shape: RoundedRectangleBorder(
-                                side: BorderSide(
-                                    width: 1, color: MyColors.textBoxBorderColorCode),
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                              child: Container(
-                                padding: EdgeInsets.only(
-                                    top: 10, left: 14, right: 14, bottom: 10),
-                                width: MediaQuery.of(context).size.width,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                                ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.start,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        child: Text(
+                          !isFilterAlertSearch
+                              ? data!.length != 0
+                                  ? "Showing 1 to ${data!.length} Out of ${totalVehicleHistoryRecords}"
+                                  : "0 RECORDS"
+                              : vehiclehistoryfilterdata!.length != 0
+                                  ? "Showing 1 to ${vehiclehistoryfilterdata!.length}  Out of ${totalVehicleHistoryFilterRecords}"
+                                  : "0 RECORDS",
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        )),
+                    isFilterAlertSearch
+                        ? ListView.builder(
+                            controller: notificationController,
+                            shrinkWrap: true,
+                            itemCount: vehiclehistoryfilterdata!.length,
+                            itemBuilder: (context, index) {
+                              return GestureDetector(
+                                onTap: () {
+                                  _mainBloc.add(VehicleHistoryByIdDetailEvents(
+                                      token: token,
+                                      vendorId: vendorid,
+                                      branchId: branchid,
+                                      araiNoarai: 'arai',
+                                      fromDate: date,
+                                      formTime: fromTime,
+                                      toDate: todate,
+                                      toTime: toTime,
+                                      vehicleHistoryId:
+                                          vehiclehistoryfilterdata![index]
+                                              .transactionId));
+                                },
+                                child: Card(
+                                  shape: RoundedRectangleBorder(
+                                    side: BorderSide(
+                                        width: 1,
+                                        color: MyColors.textBoxBorderColorCode),
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  ),
+                                  child: Container(
+                                    padding: EdgeInsets.only(
+                                        top: 10,
+                                        left: 14,
+                                        right: 14,
+                                        bottom: 10),
+                                    width: MediaQuery.of(context).size.width,
+                                    decoration: BoxDecoration(
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(10)),
+                                    ),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        Container(
-                                          padding: EdgeInsets.all(10),
-                                          decoration: BoxDecoration(
-                                            color:MyColors.whiteColorCode,
-                                            border: Border.all(color: MyColors.boxBackgroundColorCode),
-                                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                                          ),
-                                          child:  Image.asset(
-                                            vehiclehistoryfilterdata![index].vehicleStatus=="Stopped" ? "assets/stopped_truck.png" :vehiclehistoryfilterdata![index].vehicleStatus=="Nodata" ? "assets/no_data_truck.png" : vehiclehistoryfilterdata![index].vehicleStatus=="Overspeed" ? "assets/overspeed_truck.png":vehiclehistoryfilterdata![index].vehicleStatus=="Running" ? "assets/running_truck.png" :vehiclehistoryfilterdata![index].vehicleStatus=="Idle" ? "assets/idle_truck.png" :vehiclehistoryfilterdata![index].vehicleStatus=="Inactive" ? "assets/inactive_truck.png" :vehiclehistoryfilterdata![index].vehicleStatus=="Total" ? "assets/idle_truck.png" :"assets/idle_truck.png",
-                                            // "assets/driving_pin.png",
-                                            width: 40,
-                                            height: 40,
-                                          ) ,
-                                        ),
-                                        Expanded(
-                                          child: Padding(
-                                            padding:  EdgeInsets.only(left: 10.0),
-                                            child: Column(
-                                              mainAxisAlignment: MainAxisAlignment.start,
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Text(vehiclehistoryfilterdata![index].vehicleRegNo!,style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),
-                                                Row(
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Container(
+                                              padding: EdgeInsets.all(10),
+                                              decoration: BoxDecoration(
+                                                color: MyColors.whiteColorCode,
+                                                border: Border.all(
+                                                    color: MyColors
+                                                        .boxBackgroundColorCode),
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(10)),
+                                              ),
+                                              child: Image.asset(
+                                                vehiclehistoryfilterdata![index]
+                                                            .vehicleStatus ==
+                                                        "Stopped"
+                                                    ? "assets/stopped_truck.png"
+                                                    : vehiclehistoryfilterdata![
+                                                                    index]
+                                                                .vehicleStatus ==
+                                                            "Nodata"
+                                                        ? "assets/no_data_truck.png"
+                                                        : vehiclehistoryfilterdata![
+                                                                        index]
+                                                                    .vehicleStatus ==
+                                                                "Overspeed"
+                                                            ? "assets/overspeed_truck.png"
+                                                            : vehiclehistoryfilterdata![
+                                                                            index]
+                                                                        .vehicleStatus ==
+                                                                    "Running"
+                                                                ? "assets/running_truck.png"
+                                                                : vehiclehistoryfilterdata![index]
+                                                                            .vehicleStatus ==
+                                                                        "Idle"
+                                                                    ? "assets/idle_truck.png"
+                                                                    : vehiclehistoryfilterdata![index].vehicleStatus ==
+                                                                            "Inactive"
+                                                                        ? "assets/inactive_truck.png"
+                                                                        : vehiclehistoryfilterdata![index].vehicleStatus ==
+                                                                                "Total"
+                                                                            ? "assets/idle_truck.png"
+                                                                            : "assets/idle_truck.png",
+                                                // "assets/driving_pin.png",
+                                                width: 40,
+                                                height: 40,
+                                              ),
+                                            ),
+                                            Expanded(
+                                              child: Padding(
+                                                padding:
+                                                    EdgeInsets.only(left: 10.0),
+                                                child: Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
                                                   children: [
-                                                    Icon(Icons.circle, color:
-                                                    // MyColors.greenColorCode,
-                                                    vehiclehistoryfilterdata![index].vehicleStatus=="Stopped" ? MyColors.analyticStoppedColorCode :vehiclehistoryfilterdata![index].vehicleStatus=="Nodata" ? MyColors.analyticnodataColorCode : vehiclehistoryfilterdata![index].vehicleStatus=="Overspeed" ? MyColors.analyticoverSpeedlColorCode:vehiclehistoryfilterdata![index].vehicleStatus=="Running" ? MyColors.analyticGreenColorCode :vehiclehistoryfilterdata![index].vehicleStatus=="Idle" ? MyColors.analyticIdelColorCode :vehiclehistoryfilterdata![index].vehicleStatus=="Inactive" ? MyColors.analyticActiveColorCode :vehiclehistoryfilterdata![index].vehicleStatus=="Total" ? MyColors.yellowColorCode :MyColors.blackColorCode,
-                                                      size: 7,),
+                                                    Text(
+                                                      vehiclehistoryfilterdata![
+                                                              index]
+                                                          .vehicleRegNo!,
+                                                      style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 20),
+                                                    ),
+                                                    Row(
+                                                      children: [
+                                                        Icon(
+                                                          Icons.circle,
+                                                          color:
+                                                              // MyColors.greenColorCode,
+                                                              vehiclehistoryfilterdata![
+                                                                              index]
+                                                                          .vehicleStatus ==
+                                                                      "Stopped"
+                                                                  ? MyColors
+                                                                      .analyticStoppedColorCode
+                                                                  : vehiclehistoryfilterdata![index]
+                                                                              .vehicleStatus ==
+                                                                          "Nodata"
+                                                                      ? MyColors
+                                                                          .analyticnodataColorCode
+                                                                      : vehiclehistoryfilterdata![index].vehicleStatus ==
+                                                                              "Overspeed"
+                                                                          ? MyColors
+                                                                              .analyticoverSpeedlColorCode
+                                                                          : vehiclehistoryfilterdata![index].vehicleStatus == "Running"
+                                                                              ? MyColors.analyticGreenColorCode
+                                                                              : vehiclehistoryfilterdata![index].vehicleStatus == "Idle"
+                                                                                  ? MyColors.analyticIdelColorCode
+                                                                                  : vehiclehistoryfilterdata![index].vehicleStatus == "Inactive"
+                                                                                      ? MyColors.analyticActiveColorCode
+                                                                                      : vehiclehistoryfilterdata![index].vehicleStatus == "Total"
+                                                                                          ? MyColors.yellowColorCode
+                                                                                          : MyColors.blackColorCode,
+                                                          size: 7,
+                                                        ),
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .only(
+                                                                  left: 4.0,
+                                                                  top: 6,
+                                                                  bottom: 6),
+                                                          child: Text(
+                                                            vehiclehistoryfilterdata![
+                                                                    index]
+                                                                .vehicleStatus!,
+                                                            style: TextStyle(
+                                                                color:
+                                                                    // MyColors.greenColorCode
+                                                                    vehiclehistoryfilterdata![index].vehicleStatus ==
+                                                                            "Stopped"
+                                                                        ? MyColors
+                                                                            .analyticStoppedColorCode
+                                                                        : vehiclehistoryfilterdata![index].vehicleStatus ==
+                                                                                "Nodata"
+                                                                            ? MyColors.analyticnodataColorCode
+                                                                            : vehiclehistoryfilterdata![index].vehicleStatus == "Overspeed"
+                                                                                ? MyColors.analyticoverSpeedlColorCode
+                                                                                : vehiclehistoryfilterdata![index].vehicleStatus == "Running"
+                                                                                    ? MyColors.analyticGreenColorCode
+                                                                                    : vehiclehistoryfilterdata![index].vehicleStatus == "Idle"
+                                                                                        ? MyColors.analyticIdelColorCode
+                                                                                        : vehiclehistoryfilterdata![index].vehicleStatus == "Inactive"
+                                                                                            ? MyColors.analyticActiveColorCode
+                                                                                            : vehiclehistoryfilterdata![index].vehicleStatus == "Total"
+                                                                                                ? MyColors.yellowColorCode
+                                                                                                : MyColors.blackColorCode),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    Row(
+                                                      children: [
+                                                        Expanded(
+                                                          flex: 3,
+                                                          child: Container(
+                                                            padding:
+                                                                EdgeInsets.only(
+                                                                    left: 4.0,
+                                                                    right: 4,
+                                                                    top: 4,
+                                                                    bottom: 4),
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              color: MyColors
+                                                                  .textBoxColorCode,
+                                                              borderRadius: BorderRadius
+                                                                  .all(Radius
+                                                                      .circular(
+                                                                          10)),
+                                                            ),
+                                                            child: Text(vehiclehistoryfilterdata![
+                                                                        index]
+                                                                    .date
+                                                                    .toString() +
+                                                                " | " +
+                                                                vehiclehistoryfilterdata![
+                                                                        index]
+                                                                    .time
+                                                                    .toString()),
+                                                          ),
+                                                        ),
+                                                        Expanded(
+                                                          flex: 2,
+                                                          child: Container(
+                                                            // padding: const EdgeInsets.all(7.0),
+                                                            padding:
+                                                                EdgeInsets.only(
+                                                                    left: 4.0,
+                                                                    right: 2,
+                                                                    top: 2,
+                                                                    bottom: 2),
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              color: MyColors
+                                                                  .lightblueColorCode,
+                                                              borderRadius: BorderRadius
+                                                                  .all(Radius
+                                                                      .circular(
+                                                                          10)),
+                                                            ),
+                                                            child: Text(
+                                                              "Speed : ${vehiclehistoryfilterdata![index].speed} km/h",
+                                                              style: TextStyle(
+                                                                  color: MyColors
+                                                                      .linearGradient2ColorCode),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
                                                     Padding(
-                                                      padding: const EdgeInsets.only(left: 4.0,top: 6,bottom: 6),
-                                                      child: Text(vehiclehistoryfilterdata![index].vehicleStatus!,style: TextStyle(color:
-                                                      // MyColors.greenColorCode
-                                                      vehiclehistoryfilterdata![index].vehicleStatus=="Stopped" ? MyColors.analyticStoppedColorCode :vehiclehistoryfilterdata![index].vehicleStatus=="Nodata" ? MyColors.analyticnodataColorCode : vehiclehistoryfilterdata![index].vehicleStatus=="Overspeed" ? MyColors.analyticoverSpeedlColorCode:vehiclehistoryfilterdata![index].vehicleStatus=="Running" ? MyColors.analyticGreenColorCode :vehiclehistoryfilterdata![index].vehicleStatus=="Idle" ? MyColors.analyticIdelColorCode :vehiclehistoryfilterdata![index].vehicleStatus=="Inactive" ? MyColors.analyticActiveColorCode :vehiclehistoryfilterdata![index].vehicleStatus=="Total" ? MyColors.yellowColorCode :MyColors.blackColorCode
-                                                      ),),
-                                                    ),
-                                                  ],
-                                                ),
-                                                Row(
-                                                  children: [
-                                                    Expanded(
-                                                      flex:3,
-                                                      child:Container(
-                                                        padding:  EdgeInsets.only(left: 4.0,right: 4,top: 4,bottom: 4),
-
-                                                        decoration: BoxDecoration(
-                                                          color:MyColors.textBoxColorCode,
-                                                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                                                        ),
-                                                        child:Text(vehiclehistoryfilterdata![index].date.toString()+" | "+vehiclehistoryfilterdata![index].time.toString()) ,
-                                                      ) ,
-                                                    ),
-
-                                                    Expanded(
-                                                      flex:2,
-                                                      child: Container(
-                                                        // padding: const EdgeInsets.all(7.0),
-                                                        padding:  EdgeInsets.only(left: 4.0,right: 2,top: 2,bottom: 2),
-                                                        decoration: BoxDecoration(
-                                                          color:MyColors.lightblueColorCode,
-                                                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                                                        ),
-                                                        child:Text("Speed : ${vehiclehistoryfilterdata![index].speed} km/h",style: TextStyle(color: MyColors.linearGradient2ColorCode),) ,
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              top: 6.0,
+                                                              bottom: 6),
+                                                      child: Text(
+                                                        vehiclehistoryfilterdata![
+                                                                index]
+                                                            .driverName!,
+                                                        style: TextStyle(
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            fontSize: 20),
                                                       ),
                                                     ),
                                                   ],
                                                 ),
-                                                Padding(
-                                                  padding: const EdgeInsets.only(top:6.0,bottom: 6),
-                                                  child: Text(vehiclehistoryfilterdata![index].driverName!,style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),
-                                                ),
-
-
-                                              ],
+                                              ),
                                             ),
+                                          ],
+                                        ),
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(top: 8.0),
+                                          child: Divider(
+                                            height: 5,
+                                            color: MyColors.greyColorCode,
                                           ),
                                         ),
-                                      ],
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(top:8.0),
-                                      child: Divider(
-                                        height:5,
-                                        color: MyColors.greyColorCode,
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(top:10.0,right:10),
-                                      child: Row(
-                                        children: [
-                                          Expanded(
-                                            child: Column(
-                                                children:[
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                              top: 10.0, right: 10),
+                                          child: Row(
+                                            children: [
+                                              Expanded(
+                                                child: Column(children: [
                                                   Container(
-                                                    margin: EdgeInsets.only(bottom: 6),
-                                                    width:39,
-                                                    height:38,
+                                                    margin: EdgeInsets.only(
+                                                        bottom: 6),
+                                                    width: 39,
+                                                    height: 38,
                                                     decoration: BoxDecoration(
                                                         shape: BoxShape.circle,
-                                                        border: Border.all(color: MyColors.boxBackgroundColorCode),
-                                                        color:  MyColors.whiteColorCode
-                                                    ),
+                                                        border: Border.all(
+                                                            color: MyColors
+                                                                .boxBackgroundColorCode),
+                                                        color: MyColors
+                                                            .whiteColorCode),
                                                     child: Icon(
                                                       Icons.power_settings_new,
                                                       size: 20,
-                                                      color:vehiclehistoryfilterdata![index].ignition=="OFF" ? MyColors.text4ColorCode : MyColors.analyticGreenColorCode,
+                                                      color: vehiclehistoryfilterdata![
+                                                                      index]
+                                                                  .ignition ==
+                                                              "OFF"
+                                                          ? MyColors
+                                                              .text4ColorCode
+                                                          : MyColors
+                                                              .analyticGreenColorCode,
                                                     ),
                                                   ),
-                                                  Text("IGN",style: TextStyle(
-                                                      color: vehiclehistoryfilterdata![index].ignition=="OFF" ? MyColors.text4ColorCode :MyColors.analyticGreenColorCode
-                                                  ))
-                                                ]
-                                            ),
-                                          ),
-                                          Expanded(
-                                            child: Column(
-                                              children: [
-                                                Container(
-                                                  margin: EdgeInsets.only(bottom: 6),
-
-                                                  width:39,
-                                                  height:38,
-                                                  decoration: BoxDecoration(
-                                                      shape: BoxShape.circle,
-                                                      border: Border.all(color: MyColors.boxBackgroundColorCode),
-                                                      color:  MyColors.whiteColorCode
-                                                  ),
-                                                  child: Icon(
-                                                    Icons.battery_charging_full_outlined,
-                                                    size: 20,
-                                                    color:vehiclehistoryfilterdata![index].mainPowerStatus=="0" ? MyColors.text4ColorCode : MyColors.analyticGreenColorCode,
-                                                  ),
-                                                ),
-                                                Text("PWR",style: TextStyle(color: vehiclehistoryfilterdata![index].mainPowerStatus=="0" ? MyColors.text4ColorCode :MyColors.analyticGreenColorCode))
-
-                                              ],
-                                            ),
-                                          ),
-                                          Expanded(
-                                            child: Column(
-                                              children: [
-                                                Container(
-                                                  margin: EdgeInsets.only(bottom: 6),
-                                                  width:39,
-                                                  height:38,
-                                                  decoration: BoxDecoration(
-                                                      shape: BoxShape.circle,
-                                                      border: Border.all(color: MyColors.boxBackgroundColorCode),
-                                                      color:  MyColors.whiteColorCode
-                                                  ),
-                                                  child: Icon(
-                                                    Icons.ac_unit,
-                                                    size: 20,
-                                                    color: vehiclehistoryfilterdata![index].ac=="OFF" ? MyColors.text4ColorCode :MyColors.text4ColorCode,
-                                                  ),
-                                                ),
-                                                Text("AC",style: TextStyle(color:  vehiclehistoryfilterdata![index].ac=="OFF" ? MyColors.text4ColorCode :MyColors.analyticGreenColorCode))
-
-                                              ],
-                                            ),
-                                          ),
-                                          Expanded(
-                                            child: Column(
-                                              children: [
-                                                Container(
-                                                  margin: EdgeInsets.only(bottom: 6),
-                                                  width:39,
-                                                  height:38,
-                                                  decoration: BoxDecoration(
-                                                      shape: BoxShape.circle,
-                                                      border: Border.all(color: MyColors.boxBackgroundColorCode),
-                                                      color:  MyColors.whiteColorCode
-                                                  ),
-                                                  child: Icon(
-                                                    Icons.outdoor_grill,
-                                                    size: 20,
-                                                    color: vehiclehistoryfilterdata![index].door=="OFF" ? MyColors.text4ColorCode :MyColors.analyticGreenColorCode,
-                                                  ),
-                                                ),
-                                                Text("Door",style: TextStyle(color:  vehiclehistoryfilterdata![index].door=="OFF" ? MyColors.text4ColorCode :MyColors.analyticGreenColorCode))
-
-                                              ],
-                                            ),
-                                          ),
-                                          Expanded(
-                                            child: Column(
-                                              children: [
-                                                Container(
-                                                  margin: EdgeInsets.only(bottom: 6),
-                                                  width:39,
-                                                  height:38,
-                                                  decoration: BoxDecoration(
-                                                      shape: BoxShape.circle,
-                                                      border: Border.all(color: MyColors.boxBackgroundColorCode),
-                                                      color:  MyColors.whiteColorCode
-                                                  ),
-                                                  child: Icon(
-                                                    Icons.wifi,
-                                                    size: 20,
-                                                    color:vehiclehistoryfilterdata![index].gpsFix=="OFF" ? MyColors.text4ColorCode : MyColors.analyticGreenColorCode,
-                                                  ),
-                                                ),
-                                                Text("GPS",style: TextStyle(color:  vehiclehistoryfilterdata![index].gpsFix=="OFF" ? MyColors.text4ColorCode :MyColors.analyticGreenColorCode))
-
-                                              ],
-                                            ),
-
-                                          ),
-                                        ],
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
-                          );
-                        }):
-                    data!.length==0 ? Container() : ListView.builder(
-                        controller: notificationController,
-                        shrinkWrap: true,
-                        itemCount: data!.length,
-                        itemBuilder: (context, index) {
-                          return GestureDetector(
-                            onTap: (){
-                              print("click");
-
-                              setState(() {
-                                vehicleHistoryPosition=index;
-                                print(vehicleHistoryPosition);
-                                print(vehicleHistoryPosition+1);
-
-                              });
-                              _mainBloc.add(VehicleHistoryByIdDetailEvents(token:token,vendorId:vendorid, branchId: branchid, araiNoarai: 'nonarai',fromDate:date,formTime:fromTime,toDate:todate,toTime:toTime ,vehicleHistoryId:data![index].transactionId));
-                            },
-                            child: Card(
-                              shape: RoundedRectangleBorder(
-                                side: BorderSide(
-                                    width: 1, color: MyColors.textBoxBorderColorCode),
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                              child: Container(
-                                padding: EdgeInsets.only(
-                                    top: 10, left: 14, right: 14, bottom: 10),
-                                width: MediaQuery.of(context).size.width,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                                ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.start,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Container(
-                                          padding: EdgeInsets.all(10),
-                                          decoration: BoxDecoration(
-                                            color:MyColors.whiteColorCode,
-                                            border: Border.all(color: MyColors.boxBackgroundColorCode),
-                                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                                          ),
-                                          child:  Image.asset(
-                                            data![index].vehicleStatus=="Stopped" ? "assets/stopped_truck.png" :data![index].vehicleStatus=="Nodata" ? "assets/no_data_truck.png" : data![index].vehicleStatus=="Overspeed" ? "assets/overspeed_truck.png":data![index].vehicleStatus=="Running" ? "assets/running_truck.png" :data![index].vehicleStatus=="Idle" ? "assets/idle_truck.png" :data![index].vehicleStatus=="Inactive" ? "assets/inactive_truck.png" :data![index].vehicleStatus=="Total" ? "assets/idle_truck.png" :"assets/idle_truck.png",
-                                            // "assets/driving_pin.png",
-                                            width: 40,
-                                            height: 40,
-                                          ) ,
-                                        ),
-                                        Expanded(
-                                          child: Padding(
-                                            padding: const EdgeInsets.only(left: 10.0),
-                                            child: Column(
-                                              mainAxisAlignment: MainAxisAlignment.start,
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Text(data![index].vehicleRegNo!,style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),
-                                                Row(
+                                                  Text("IGN",
+                                                      style: TextStyle(
+                                                          color: vehiclehistoryfilterdata![
+                                                                          index]
+                                                                      .ignition ==
+                                                                  "OFF"
+                                                              ? MyColors
+                                                                  .text4ColorCode
+                                                              : MyColors
+                                                                  .analyticGreenColorCode))
+                                                ]),
+                                              ),
+                                              Expanded(
+                                                child: Column(
                                                   children: [
-                                                    Icon(Icons.circle, color:
-                                                    // MyColors.greenColorCode,
-                                                    data![index].vehicleStatus=="Stopped" ? MyColors.analyticStoppedColorCode :data![index].vehicleStatus=="Nodata" ? MyColors.analyticnodataColorCode : data![index].vehicleStatus=="Overspeed" ? MyColors.analyticoverSpeedlColorCode:data![index].vehicleStatus=="Running" ? MyColors.analyticGreenColorCode :data![index].vehicleStatus=="Idle" ? MyColors.analyticIdelColorCode :data![index].vehicleStatus=="Inactive" ? MyColors.analyticActiveColorCode :data![index].vehicleStatus=="Total" ? MyColors.yellowColorCode :MyColors.blackColorCode,
-                                                      size: 7,),
-                                                    Padding(
-                                                      padding: const EdgeInsets.only(left: 4.0,top: 6,bottom: 6),
-                                                      child: Text(data![index].vehicleStatus!,style: TextStyle(color:
-                                                      // MyColors.greenColorCode
-                                                      data![index].vehicleStatus=="Stopped" ? MyColors.analyticStoppedColorCode :data![index].vehicleStatus=="Nodata" ? MyColors.analyticnodataColorCode : data![index].vehicleStatus=="Overspeed" ? MyColors.analyticoverSpeedlColorCode:data![index].vehicleStatus=="Running" ? MyColors.analyticGreenColorCode :data![index].vehicleStatus=="Idle" ? MyColors.analyticIdelColorCode :data![index].vehicleStatus=="Inactive" ? MyColors.analyticActiveColorCode :data![index].vehicleStatus=="Total" ? MyColors.yellowColorCode :MyColors.blackColorCode
-                                                      ),),
-                                                    ),
-                                                  ],
-                                                ),
-                                                Row(
-                                                  children: [
-                                                    Expanded(
-                                                      flex:3,
-                                                      child:Container(
-                                                        padding: const EdgeInsets.only(left: 4.0,right: 4,top: 4,bottom: 4),
-
-                                                        decoration: BoxDecoration(
-                                                          color:MyColors.textBoxColorCode,
-                                                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                                                        ),
-                                                        child:Text(data![index].date+" | "+data![index].time) ,
-                                                      ) ,
-                                                    ),
-
-                                                    Expanded(
-                                                      flex:2,
-                                                      child: Container(
-                                                        // padding: const EdgeInsets.all(7.0),
-                                                        padding: const EdgeInsets.only(left: 4.0,right: 2,top: 2,bottom: 2),
-                                                        decoration: BoxDecoration(
-                                                          color:MyColors.lightblueColorCode,
-                                                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                                                        ),
-                                                        child:Text("Speed : ${data![index].speed} km/h",style: TextStyle(color: MyColors.linearGradient2ColorCode),) ,
+                                                    Container(
+                                                      margin: EdgeInsets.only(
+                                                          bottom: 6),
+                                                      width: 39,
+                                                      height: 38,
+                                                      decoration: BoxDecoration(
+                                                          shape:
+                                                              BoxShape.circle,
+                                                          border: Border.all(
+                                                              color: MyColors
+                                                                  .boxBackgroundColorCode),
+                                                          color: MyColors
+                                                              .whiteColorCode),
+                                                      child: Icon(
+                                                        Icons
+                                                            .battery_charging_full_outlined,
+                                                        size: 20,
+                                                        color: vehiclehistoryfilterdata![
+                                                                        index]
+                                                                    .mainPowerStatus ==
+                                                                "0"
+                                                            ? MyColors
+                                                                .text4ColorCode
+                                                            : MyColors
+                                                                .analyticGreenColorCode,
                                                       ),
                                                     ),
+                                                    Text("PWR",
+                                                        style: TextStyle(
+                                                            color: vehiclehistoryfilterdata![
+                                                                            index]
+                                                                        .mainPowerStatus ==
+                                                                    "0"
+                                                                ? MyColors
+                                                                    .text4ColorCode
+                                                                : MyColors
+                                                                    .analyticGreenColorCode))
                                                   ],
                                                 ),
-                                                Padding(
-                                                  padding: const EdgeInsets.only(top:6.0,bottom: 6),
-                                                  child: Text(data![index].driverName!,style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),
+                                              ),
+                                              Expanded(
+                                                child: Column(
+                                                  children: [
+                                                    Container(
+                                                      margin: EdgeInsets.only(
+                                                          bottom: 6),
+                                                      width: 39,
+                                                      height: 38,
+                                                      decoration: BoxDecoration(
+                                                          shape:
+                                                              BoxShape.circle,
+                                                          border: Border.all(
+                                                              color: MyColors
+                                                                  .boxBackgroundColorCode),
+                                                          color: MyColors
+                                                              .whiteColorCode),
+                                                      child: Icon(
+                                                        Icons.ac_unit,
+                                                        size: 20,
+                                                        color: vehiclehistoryfilterdata![
+                                                                        index]
+                                                                    .ac ==
+                                                                "OFF"
+                                                            ? MyColors
+                                                                .text4ColorCode
+                                                            : MyColors
+                                                                .text4ColorCode,
+                                                      ),
+                                                    ),
+                                                    Text("AC",
+                                                        style: TextStyle(
+                                                            color: vehiclehistoryfilterdata![
+                                                                            index]
+                                                                        .ac ==
+                                                                    "OFF"
+                                                                ? MyColors
+                                                                    .text4ColorCode
+                                                                : MyColors
+                                                                    .analyticGreenColorCode))
+                                                  ],
                                                 ),
-
-
-                                              ],
-                                            ),
+                                              ),
+                                              Expanded(
+                                                child: Column(
+                                                  children: [
+                                                    Container(
+                                                      margin: EdgeInsets.only(
+                                                          bottom: 6),
+                                                      width: 39,
+                                                      height: 38,
+                                                      decoration: BoxDecoration(
+                                                          shape:
+                                                              BoxShape.circle,
+                                                          border: Border.all(
+                                                              color: MyColors
+                                                                  .boxBackgroundColorCode),
+                                                          color: MyColors
+                                                              .whiteColorCode),
+                                                      child: Icon(
+                                                        Icons.outdoor_grill,
+                                                        size: 20,
+                                                        color: vehiclehistoryfilterdata![
+                                                                        index]
+                                                                    .door ==
+                                                                "OFF"
+                                                            ? MyColors
+                                                                .text4ColorCode
+                                                            : MyColors
+                                                                .analyticGreenColorCode,
+                                                      ),
+                                                    ),
+                                                    Text("Door",
+                                                        style: TextStyle(
+                                                            color: vehiclehistoryfilterdata![
+                                                                            index]
+                                                                        .door ==
+                                                                    "OFF"
+                                                                ? MyColors
+                                                                    .text4ColorCode
+                                                                : MyColors
+                                                                    .analyticGreenColorCode))
+                                                  ],
+                                                ),
+                                              ),
+                                              Expanded(
+                                                child: Column(
+                                                  children: [
+                                                    Container(
+                                                      margin: EdgeInsets.only(
+                                                          bottom: 6),
+                                                      width: 39,
+                                                      height: 38,
+                                                      decoration: BoxDecoration(
+                                                          shape:
+                                                              BoxShape.circle,
+                                                          border: Border.all(
+                                                              color: MyColors
+                                                                  .boxBackgroundColorCode),
+                                                          color: MyColors
+                                                              .whiteColorCode),
+                                                      child: Icon(
+                                                        Icons.wifi,
+                                                        size: 20,
+                                                        color: vehiclehistoryfilterdata![
+                                                                        index]
+                                                                    .gpsFix ==
+                                                                "OFF"
+                                                            ? MyColors
+                                                                .text4ColorCode
+                                                            : MyColors
+                                                                .analyticGreenColorCode,
+                                                      ),
+                                                    ),
+                                                    Text("GPS",
+                                                        style: TextStyle(
+                                                            color: vehiclehistoryfilterdata![
+                                                                            index]
+                                                                        .gpsFix ==
+                                                                    "OFF"
+                                                                ? MyColors
+                                                                    .text4ColorCode
+                                                                : MyColors
+                                                                    .analyticGreenColorCode))
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
                                           ),
-                                        ),
+                                        )
                                       ],
                                     ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(top:8.0),
-                                      child: Divider(
-                                        height:5,
-                                        color: MyColors.greyColorCode,
+                                  ),
+                                ),
+                              );
+                            })
+                        : data!.length == 0
+                            ? Container()
+                            : ListView.builder(
+                                controller: notificationController,
+                                shrinkWrap: true,
+                                itemCount: data!.length,
+                                itemBuilder: (context, index) {
+                                  return GestureDetector(
+                                    onTap: () {
+                                      print("click");
+
+                                      setState(() {
+                                        vehicleHistoryPosition = index;
+                                        //  print(
+                                        //    "vehicleHistoryPosition----------------${data!.elementAt(index).la}");
+                                        print(vehicleHistoryPosition + 1);
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (_) => BlocProvider(
+                                                    create: (context) {
+                                                      return MainBloc(
+                                                          webService:
+                                                              WebService());
+                                                    },
+                                                    child:
+                                                        MapLiveTrackingDetailsScreen(
+                                                      araiNonarai: 'arai',
+                                                      transactionId:2074,
+                                                         
+                                                      fromlongitude:
+                                                          double.parse(
+                                                              data![index]
+                                                                  .latitude!),
+                                                      fromlatitude:
+                                                          double.parse(
+                                                              data![index]
+                                                                  .longitude!),
+                                                      tolatitude: double.parse(
+                                                          data!
+                                                              .elementAt(index)
+                                                              .latitude!),
+                                                      tolongitude: double.parse(
+                                                          data!
+                                                              .elementAt(index)
+                                                              .longitude!),
+                                                    )
+
+                                                    // VehicleStatusDetailsINFOScreen(
+                                                    //   fromlongitude:double.parse(data![vehicleHistoryPosition + 1].latitude!) ,
+                                                    //   fromlatitude: double.parse( data![vehicleHistoryPosition + 1].longitude!),
+                                                    //   tolatitude: double.parse(data!.elementAt(index).latitude!),
+                                                    //   tolongitude: double.parse(data!.elementAt(index).longitude!),
+                                                    // )
+                                                    // VehicleStatusDetailsScreen(vehicleHistoryByIdDetailResponse:  data!,
+                                                    //     latitude: data![vehicleHistoryPosition + 1].latitude!,
+                                                    //     longitude: data![vehicleHistoryPosition + 1].longitude!,
+                                                    // )
+
+                                                    )));
+                                      });
+                                      _mainBloc.add(
+                                          VehicleHistoryByIdDetailEvents(
+                                              token: token,
+                                              vendorId: vendorid,
+                                              branchId: branchid,
+                                              araiNoarai: 'nonarai',
+                                              fromDate: date,
+                                              formTime: fromTime,
+                                              toDate: todate,
+                                              toTime: toTime,
+                                              vehicleHistoryId:
+                                                  data![index].transactionId!));
+                                    },
+                                    child: Card(
+                                      shape: RoundedRectangleBorder(
+                                        side: BorderSide(
+                                            width: 1,
+                                            color: MyColors
+                                                .textBoxBorderColorCode),
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                      ),
+                                      child: Container(
+                                        padding: EdgeInsets.only(
+                                            top: 10,
+                                            left: 14,
+                                            right: 14,
+                                            bottom: 10),
+                                        width:
+                                            MediaQuery.of(context).size.width,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(10)),
+                                        ),
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                Container(
+                                                  padding: EdgeInsets.all(10),
+                                                  decoration: BoxDecoration(
+                                                    color:
+                                                        MyColors.whiteColorCode,
+                                                    border: Border.all(
+                                                        color: MyColors
+                                                            .boxBackgroundColorCode),
+                                                    borderRadius:
+                                                        BorderRadius.all(
+                                                            Radius.circular(
+                                                                10)),
+                                                  ),
+                                                  child: Image.asset(
+                                                    data![index].vehicleStatus ==
+                                                            "Stopped"
+                                                        ? "assets/stopped_truck.png"
+                                                        : data![index]
+                                                                    .vehicleStatus ==
+                                                                "Nodata"
+                                                            ? "assets/no_data_truck.png"
+                                                            : data![index]
+                                                                        .vehicleStatus ==
+                                                                    "Overspeed"
+                                                                ? "assets/overspeed_truck.png"
+                                                                : data![index]
+                                                                            .vehicleStatus ==
+                                                                        "Running"
+                                                                    ? "assets/running_truck.png"
+                                                                    : data![index].vehicleStatus ==
+                                                                            "Idle"
+                                                                        ? "assets/idle_truck.png"
+                                                                        : data![index].vehicleStatus ==
+                                                                                "Inactive"
+                                                                            ? "assets/inactive_truck.png"
+                                                                            : data![index].vehicleStatus == "Total"
+                                                                                ? "assets/idle_truck.png"
+                                                                                : "assets/idle_truck.png",
+                                                    // "assets/driving_pin.png",
+                                                    width: 40,
+                                                    height: 40,
+                                                  ),
+                                                ),
+                                                Expanded(
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            left: 10.0),
+                                                    child: Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .start,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Text(
+                                                          data![index]
+                                                              .vehicleRegNo!,
+                                                          style: TextStyle(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              fontSize: 20),
+                                                        ),
+                                                        Row(
+                                                          children: [
+                                                            Icon(
+                                                              Icons.circle,
+                                                              color:
+                                                                  // MyColors.greenColorCode,
+                                                                  data![index].vehicleStatus ==
+                                                                          "Stopped"
+                                                                      ? MyColors
+                                                                          .analyticStoppedColorCode
+                                                                      : data![index].vehicleStatus ==
+                                                                              "Nodata"
+                                                                          ? MyColors
+                                                                              .analyticnodataColorCode
+                                                                          : data![index].vehicleStatus == "Overspeed"
+                                                                              ? MyColors.analyticoverSpeedlColorCode
+                                                                              : data![index].vehicleStatus == "Running"
+                                                                                  ? MyColors.analyticGreenColorCode
+                                                                                  : data![index].vehicleStatus == "Idle"
+                                                                                      ? MyColors.analyticIdelColorCode
+                                                                                      : data![index].vehicleStatus == "Inactive"
+                                                                                          ? MyColors.analyticActiveColorCode
+                                                                                          : data![index].vehicleStatus == "Total"
+                                                                                              ? MyColors.yellowColorCode
+                                                                                              : MyColors.blackColorCode,
+                                                              size: 7,
+                                                            ),
+                                                            Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                          .only(
+                                                                      left: 4.0,
+                                                                      top: 6,
+                                                                      bottom:
+                                                                          6),
+                                                              child: Text(
+                                                                data![index]
+                                                                    .vehicleStatus!,
+                                                                style: TextStyle(
+                                                                    color:
+                                                                        // MyColors.greenColorCode
+                                                                        data![index].vehicleStatus == "Stopped"
+                                                                            ? MyColors.analyticStoppedColorCode
+                                                                            : data![index].vehicleStatus == "Nodata"
+                                                                                ? MyColors.analyticnodataColorCode
+                                                                                : data![index].vehicleStatus == "Overspeed"
+                                                                                    ? MyColors.analyticoverSpeedlColorCode
+                                                                                    : data![index].vehicleStatus == "Running"
+                                                                                        ? MyColors.analyticGreenColorCode
+                                                                                        : data![index].vehicleStatus == "Idle"
+                                                                                            ? MyColors.analyticIdelColorCode
+                                                                                            : data![index].vehicleStatus == "Inactive"
+                                                                                                ? MyColors.analyticActiveColorCode
+                                                                                                : data![index].vehicleStatus == "Total"
+                                                                                                    ? MyColors.yellowColorCode
+                                                                                                    : MyColors.blackColorCode),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        Row(
+                                                          children: [
+                                                            Expanded(
+                                                              flex: 3,
+                                                              child: Container(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .only(
+                                                                        left:
+                                                                            4.0,
+                                                                        right:
+                                                                            4,
+                                                                        top: 4,
+                                                                        bottom:
+                                                                            4),
+                                                                decoration:
+                                                                    BoxDecoration(
+                                                                  color: MyColors
+                                                                      .textBoxColorCode,
+                                                                  borderRadius:
+                                                                      BorderRadius.all(
+                                                                          Radius.circular(
+                                                                              10)),
+                                                                ),
+                                                                child: Text(data![
+                                                                            index]
+                                                                        .date! +
+                                                                    " | " +
+                                                                    data![index]
+                                                                        .time!),
+                                                              ),
+                                                            ),
+                                                            Expanded(
+                                                              flex: 2,
+                                                              child: Container(
+                                                                // padding: const EdgeInsets.all(7.0),
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .only(
+                                                                        left:
+                                                                            4.0,
+                                                                        right:
+                                                                            2,
+                                                                        top: 2,
+                                                                        bottom:
+                                                                            2),
+                                                                decoration:
+                                                                    BoxDecoration(
+                                                                  color: MyColors
+                                                                      .lightblueColorCode,
+                                                                  borderRadius:
+                                                                      BorderRadius.all(
+                                                                          Radius.circular(
+                                                                              10)),
+                                                                ),
+                                                                child: Text(
+                                                                  "Speed : ${data![index].speed} km/h",
+                                                                  style: TextStyle(
+                                                                      color: MyColors
+                                                                          .linearGradient2ColorCode),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .only(
+                                                                  top: 6.0,
+                                                                  bottom: 6),
+                                                          child: Text(
+                                                            data![index]
+                                                                .driverName!,
+                                                            style: TextStyle(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                fontSize: 20),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  top: 8.0),
+                                              child: Divider(
+                                                height: 5,
+                                                color: MyColors.greyColorCode,
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  top: 10.0, right: 10),
+                                              child: Row(
+                                                children: [
+                                                  Expanded(
+                                                    child: Column(children: [
+                                                      Container(
+                                                        margin: EdgeInsets.only(
+                                                            bottom: 6),
+                                                        width: 39,
+                                                        height: 38,
+                                                        decoration: BoxDecoration(
+                                                            shape:
+                                                                BoxShape.circle,
+                                                            border: Border.all(
+                                                                color: MyColors
+                                                                    .boxBackgroundColorCode),
+                                                            color: MyColors
+                                                                .whiteColorCode),
+                                                        child: Icon(
+                                                          Icons
+                                                              .power_settings_new,
+                                                          size: 20,
+                                                          color: data![index]
+                                                                      .ignition ==
+                                                                  "OFF"
+                                                              ? MyColors
+                                                                  .text4ColorCode
+                                                              : MyColors
+                                                                  .analyticGreenColorCode,
+                                                        ),
+                                                      ),
+                                                      Text("IGN",
+                                                          style: TextStyle(
+                                                              color: data![index]
+                                                                          .ignition ==
+                                                                      "OFF"
+                                                                  ? MyColors
+                                                                      .text4ColorCode
+                                                                  : MyColors
+                                                                      .analyticGreenColorCode))
+                                                    ]),
+                                                  ),
+                                                  Expanded(
+                                                    child: Column(
+                                                      children: [
+                                                        Container(
+                                                          margin:
+                                                              EdgeInsets.only(
+                                                                  bottom: 6),
+                                                          width: 39,
+                                                          height: 38,
+                                                          decoration: BoxDecoration(
+                                                              shape: BoxShape
+                                                                  .circle,
+                                                              border: Border.all(
+                                                                  color: MyColors
+                                                                      .boxBackgroundColorCode),
+                                                              color: MyColors
+                                                                  .whiteColorCode),
+                                                          child: Icon(
+                                                            Icons
+                                                                .battery_charging_full_outlined,
+                                                            size: 20,
+                                                            color: data![index]
+                                                                        .mainPowerStatus ==
+                                                                    "0"
+                                                                ? MyColors
+                                                                    .text4ColorCode
+                                                                : MyColors
+                                                                    .analyticGreenColorCode,
+                                                          ),
+                                                        ),
+                                                        Text("PWR",
+                                                            style: TextStyle(
+                                                                color: data![index]
+                                                                            .mainPowerStatus ==
+                                                                        "0"
+                                                                    ? MyColors
+                                                                        .text4ColorCode
+                                                                    : MyColors
+                                                                        .analyticGreenColorCode))
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  Expanded(
+                                                    child: Column(
+                                                      children: [
+                                                        Container(
+                                                          margin:
+                                                              EdgeInsets.only(
+                                                                  bottom: 6),
+                                                          width: 39,
+                                                          height: 38,
+                                                          decoration: BoxDecoration(
+                                                              shape: BoxShape
+                                                                  .circle,
+                                                              border: Border.all(
+                                                                  color: MyColors
+                                                                      .boxBackgroundColorCode),
+                                                              color: MyColors
+                                                                  .whiteColorCode),
+                                                          child: Icon(
+                                                            Icons.ac_unit,
+                                                            size: 20,
+                                                            color: data![index]
+                                                                        .ac ==
+                                                                    "OFF"
+                                                                ? MyColors
+                                                                    .text4ColorCode
+                                                                : MyColors
+                                                                    .text4ColorCode,
+                                                          ),
+                                                        ),
+                                                        Text("AC",
+                                                            style: TextStyle(
+                                                                color: data![index]
+                                                                            .ac ==
+                                                                        "OFF"
+                                                                    ? MyColors
+                                                                        .text4ColorCode
+                                                                    : MyColors
+                                                                        .analyticGreenColorCode))
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  Expanded(
+                                                    child: Column(
+                                                      children: [
+                                                        Container(
+                                                          margin:
+                                                              EdgeInsets.only(
+                                                                  bottom: 6),
+                                                          width: 39,
+                                                          height: 38,
+                                                          decoration: BoxDecoration(
+                                                              shape: BoxShape
+                                                                  .circle,
+                                                              border: Border.all(
+                                                                  color: MyColors
+                                                                      .boxBackgroundColorCode),
+                                                              color: MyColors
+                                                                  .whiteColorCode),
+                                                          child: Icon(
+                                                            Icons.outdoor_grill,
+                                                            size: 20,
+                                                            color: data![index]
+                                                                        .door ==
+                                                                    "OFF"
+                                                                ? MyColors
+                                                                    .text4ColorCode
+                                                                : MyColors
+                                                                    .analyticGreenColorCode,
+                                                          ),
+                                                        ),
+                                                        Text("Door",
+                                                            style: TextStyle(
+                                                                color: data![index]
+                                                                            .door ==
+                                                                        "OFF"
+                                                                    ? MyColors
+                                                                        .text4ColorCode
+                                                                    : MyColors
+                                                                        .analyticGreenColorCode))
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  Expanded(
+                                                    child: Column(
+                                                      children: [
+                                                        Container(
+                                                          margin:
+                                                              EdgeInsets.only(
+                                                                  bottom: 6),
+                                                          width: 39,
+                                                          height: 38,
+                                                          decoration: BoxDecoration(
+                                                              shape: BoxShape
+                                                                  .circle,
+                                                              border: Border.all(
+                                                                  color: MyColors
+                                                                      .boxBackgroundColorCode),
+                                                              color: MyColors
+                                                                  .whiteColorCode),
+                                                          child: Icon(
+                                                            Icons.wifi,
+                                                            size: 20,
+                                                            color: data![index]
+                                                                        .gpsFix ==
+                                                                    "OFF"
+                                                                ? MyColors
+                                                                    .text4ColorCode
+                                                                : MyColors
+                                                                    .analyticGreenColorCode,
+                                                          ),
+                                                        ),
+                                                        Text("GPS",
+                                                            style: TextStyle(
+                                                                color: data![index]
+                                                                            .gpsFix ==
+                                                                        "OFF"
+                                                                    ? MyColors
+                                                                        .text4ColorCode
+                                                                    : MyColors
+                                                                        .analyticGreenColorCode))
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            )
+                                          ],
+                                        ),
                                       ),
                                     ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(top:10.0,right:10),
-                                      child: Row(
-                                        children: [
-                                          Expanded(
-                                            child: Column(
-                                                children:[
-                                                  Container(
-                                                    margin: EdgeInsets.only(bottom: 6),
-                                                    width:39,
-                                                    height:38,
-                                                    decoration: BoxDecoration(
-                                                        shape: BoxShape.circle,
-                                                        border: Border.all(color: MyColors.boxBackgroundColorCode),
-                                                        color:  MyColors.whiteColorCode
-                                                    ),
-                                                    child: Icon(
-                                                      Icons.power_settings_new,
-                                                      size: 20,
-                                                      color:data![index].ignition=="OFF" ? MyColors.text4ColorCode : MyColors.analyticGreenColorCode,
-                                                    ),
-                                                  ),
-                                                  Text("IGN",style: TextStyle(color: data![index].ignition=="OFF" ? MyColors.text4ColorCode :MyColors.analyticGreenColorCode))
-                                                ]
-                                            ),
-                                          ),
-                                          Expanded(
-                                            child: Column(
-                                              children: [
-                                                Container(
-                                                  margin: EdgeInsets.only(bottom: 6),
-
-                                                  width:39,
-                                                  height:38,
-                                                  decoration: BoxDecoration(
-                                                      shape: BoxShape.circle,
-                                                      border: Border.all(color: MyColors.boxBackgroundColorCode),
-                                                      color:  MyColors.whiteColorCode
-                                                  ),
-                                                  child: Icon(
-                                                    Icons.battery_charging_full_outlined,
-                                                    size: 20,
-                                                    color:data![index].mainPowerStatus=="0" ? MyColors.text4ColorCode : MyColors.analyticGreenColorCode,
-                                                  ),
-                                                ),
-                                                Text("PWR",style: TextStyle(color: data![index].mainPowerStatus=="0" ? MyColors.text4ColorCode :MyColors.analyticGreenColorCode))
-
-                                              ],
-                                            ),
-                                          ),
-                                          Expanded(
-                                            child: Column(
-                                              children: [
-                                                Container(
-                                                  margin: EdgeInsets.only(bottom: 6),
-                                                  width:39,
-                                                  height:38,
-                                                  decoration: BoxDecoration(
-                                                      shape: BoxShape.circle,
-                                                      border: Border.all(color: MyColors.boxBackgroundColorCode),
-                                                      color:  MyColors.whiteColorCode
-                                                  ),
-                                                  child: Icon(
-                                                    Icons.ac_unit,
-                                                    size: 20,
-                                                    color: data![index].ac=="OFF" ? MyColors.text4ColorCode :MyColors.text4ColorCode,
-                                                  ),
-                                                ),
-                                                Text("AC",style: TextStyle(color:  data![index].ac=="OFF" ? MyColors.text4ColorCode :MyColors.analyticGreenColorCode))
-
-                                              ],
-                                            ),
-                                          ),
-                                          Expanded(
-                                            child: Column(
-                                              children: [
-                                                Container(
-                                                  margin: EdgeInsets.only(bottom: 6),
-                                                  width:39,
-                                                  height:38,
-                                                  decoration: BoxDecoration(
-                                                      shape: BoxShape.circle,
-                                                      border: Border.all(color: MyColors.boxBackgroundColorCode),
-                                                      color:  MyColors.whiteColorCode
-                                                  ),
-                                                  child: Icon(
-                                                    Icons.outdoor_grill,
-                                                    size: 20,
-                                                    color: data![index].door=="OFF" ? MyColors.text4ColorCode :MyColors.analyticGreenColorCode,
-                                                  ),
-                                                ),
-                                                Text("Door",style: TextStyle(color:  data![index].door=="OFF" ? MyColors.text4ColorCode :MyColors.analyticGreenColorCode))
-
-                                              ],
-                                            ),
-                                          ),
-                                          Expanded(
-                                            child: Column(
-                                              children: [
-                                                Container(
-                                                  margin: EdgeInsets.only(bottom: 6),
-                                                  width:39,
-                                                  height:38,
-                                                  decoration: BoxDecoration(
-                                                      shape: BoxShape.circle,
-                                                      border: Border.all(color: MyColors.boxBackgroundColorCode),
-                                                      color:  MyColors.whiteColorCode
-                                                  ),
-                                                  child: Icon(
-                                                    Icons.wifi,
-                                                    size: 20,
-                                                    color:data![index].gpsFix=="OFF" ? MyColors.text4ColorCode : MyColors.analyticGreenColorCode,
-                                                  ),
-                                                ),
-                                                Text("GPS",style: TextStyle(color:  data![index].gpsFix=="OFF" ? MyColors.text4ColorCode :MyColors.analyticGreenColorCode))
-
-                                              ],
-                                            ),
-
-                                          ),
-                                        ],
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
-                          );
-                          /*Card(
+                                  );
+                                  /*Card(
                             shape: RoundedRectangleBorder(
                               side: BorderSide(
                                   width: 1, color: MyColors.textBoxBorderColorCode),
@@ -1341,7 +1981,7 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
                               ),
                             ),
                           );*/
-                        })
+                                })
                   ],
                 ),
               ),
@@ -1351,7 +1991,6 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
       ),
     );
   }
-
 
   changeDatepopUp(BuildContext context) {
     showDialog(
@@ -1385,42 +2024,42 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
                           child: TextField(
                             controller: _fromdatecontroller,
                             enabled: true, // to trigger disabledBorder
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               filled: true,
                               fillColor: MyColors.whiteColorCode,
                               focusedBorder: OutlineInputBorder(
                                 borderRadius:
-                                BorderRadius.all(Radius.circular(4)),
+                                    BorderRadius.all(Radius.circular(4)),
                                 borderSide: BorderSide(
                                     width: 1, color: MyColors.buttonColorCode),
                               ),
                               disabledBorder: OutlineInputBorder(
                                 borderRadius:
-                                BorderRadius.all(Radius.circular(4)),
+                                    BorderRadius.all(Radius.circular(4)),
                                 borderSide:
-                                BorderSide(width: 1, color: Colors.orange),
+                                    BorderSide(width: 1, color: Colors.orange),
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius:
-                                BorderRadius.all(Radius.circular(4)),
+                                    BorderRadius.all(Radius.circular(4)),
                                 borderSide: BorderSide(
                                     width: 1, color: MyColors.textColorCode),
                               ),
                               border: OutlineInputBorder(
                                   borderRadius:
-                                  BorderRadius.all(Radius.circular(4)),
+                                      BorderRadius.all(Radius.circular(4)),
                                   borderSide: BorderSide(
                                     width: 1,
                                   )),
                               errorBorder: OutlineInputBorder(
                                   borderRadius:
-                                  BorderRadius.all(Radius.circular(4)),
+                                      BorderRadius.all(Radius.circular(4)),
                                   borderSide: BorderSide(
                                       width: 1,
                                       color: MyColors.textBoxBorderColorCode)),
                               focusedErrorBorder: OutlineInputBorder(
                                   borderRadius:
-                                  BorderRadius.all(Radius.circular(4)),
+                                      BorderRadius.all(Radius.circular(4)),
                                   borderSide: BorderSide(
                                       width: 2,
                                       color: MyColors.buttonColorCode)),
@@ -1435,9 +2074,12 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
                                   color: MyColors.searchTextColorCode),
                               errorText: "",
                             ),
+                            // controller: _passwordController,
+                            // onChanged: _authenticationFormBloc.onPasswordChanged,
                             obscureText: false,
-                            onTap: (){
-                              FocusScope.of(context).requestFocus(new FocusNode());
+                            onTap: () {
+                              FocusScope.of(context)
+                                  .requestFocus(new FocusNode());
                               _selectDate(context);
                             },
                           ),
@@ -1454,39 +2096,39 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
                                 fillColor: MyColors.whiteColorCode,
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius:
-                                  BorderRadius.all(Radius.circular(4)),
+                                      BorderRadius.all(Radius.circular(4)),
                                   borderSide: BorderSide(
                                       width: 1,
                                       color: MyColors.buttonColorCode),
                                 ),
                                 disabledBorder: OutlineInputBorder(
                                   borderRadius:
-                                  BorderRadius.all(Radius.circular(4)),
+                                      BorderRadius.all(Radius.circular(4)),
                                   borderSide: BorderSide(
                                       width: 1, color: Colors.orange),
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius:
-                                  BorderRadius.all(Radius.circular(4)),
+                                      BorderRadius.all(Radius.circular(4)),
                                   borderSide: BorderSide(
                                       width: 1, color: MyColors.textColorCode),
                                 ),
                                 border: OutlineInputBorder(
                                     borderRadius:
-                                    BorderRadius.all(Radius.circular(4)),
+                                        BorderRadius.all(Radius.circular(4)),
                                     borderSide: BorderSide(
                                       width: 1,
                                     )),
                                 errorBorder: OutlineInputBorder(
                                     borderRadius:
-                                    BorderRadius.all(Radius.circular(4)),
+                                        BorderRadius.all(Radius.circular(4)),
                                     borderSide: BorderSide(
                                         width: 1,
                                         color:
-                                        MyColors.textBoxBorderColorCode)),
+                                            MyColors.textBoxBorderColorCode)),
                                 focusedErrorBorder: OutlineInputBorder(
                                     borderRadius:
-                                    BorderRadius.all(Radius.circular(4)),
+                                        BorderRadius.all(Radius.circular(4)),
                                     borderSide: BorderSide(
                                         width: 2,
                                         color: MyColors.buttonColorCode)),
@@ -1501,9 +2143,12 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
                                     color: MyColors.searchTextColorCode),
                                 errorText: "",
                               ),
+                              // controller: _passwordController,
+                              // onChanged: _authenticationFormBloc.onPasswordChanged,
                               obscureText: false,
-                              onTap: (){
-                                FocusScope.of(context).requestFocus(new FocusNode());
+                              onTap: () {
+                                FocusScope.of(context)
+                                    .requestFocus(new FocusNode());
                                 _selectTime(context);
                               },
                             ),
@@ -1532,37 +2177,37 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
                               fillColor: MyColors.whiteColorCode,
                               focusedBorder: OutlineInputBorder(
                                 borderRadius:
-                                BorderRadius.all(Radius.circular(4)),
+                                    BorderRadius.all(Radius.circular(4)),
                                 borderSide: BorderSide(
                                     width: 1, color: MyColors.buttonColorCode),
                               ),
                               disabledBorder: OutlineInputBorder(
                                 borderRadius:
-                                BorderRadius.all(Radius.circular(4)),
+                                    BorderRadius.all(Radius.circular(4)),
                                 borderSide:
-                                BorderSide(width: 1, color: Colors.orange),
+                                    BorderSide(width: 1, color: Colors.orange),
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius:
-                                BorderRadius.all(Radius.circular(4)),
+                                    BorderRadius.all(Radius.circular(4)),
                                 borderSide: BorderSide(
                                     width: 1, color: MyColors.textColorCode),
                               ),
                               border: OutlineInputBorder(
                                   borderRadius:
-                                  BorderRadius.all(Radius.circular(4)),
+                                      BorderRadius.all(Radius.circular(4)),
                                   borderSide: BorderSide(
                                     width: 1,
                                   )),
                               errorBorder: OutlineInputBorder(
                                   borderRadius:
-                                  BorderRadius.all(Radius.circular(4)),
+                                      BorderRadius.all(Radius.circular(4)),
                                   borderSide: BorderSide(
                                       width: 1,
                                       color: MyColors.textBoxBorderColorCode)),
                               focusedErrorBorder: OutlineInputBorder(
                                   borderRadius:
-                                  BorderRadius.all(Radius.circular(4)),
+                                      BorderRadius.all(Radius.circular(4)),
                                   borderSide: BorderSide(
                                       width: 2,
                                       color: MyColors.buttonColorCode)),
@@ -1580,8 +2225,9 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
                             // controller: _passwordController,
                             // onChanged: _authenticationFormBloc.onPasswordChanged,
                             obscureText: false,
-                            onTap: (){
-                              FocusScope.of(context).requestFocus(new FocusNode());
+                            onTap: () {
+                              FocusScope.of(context)
+                                  .requestFocus(new FocusNode());
                               _toDate(context);
                             },
                           ),
@@ -1598,39 +2244,39 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
                                 fillColor: MyColors.whiteColorCode,
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius:
-                                  BorderRadius.all(Radius.circular(4)),
+                                      BorderRadius.all(Radius.circular(4)),
                                   borderSide: BorderSide(
                                       width: 1,
                                       color: MyColors.buttonColorCode),
                                 ),
                                 disabledBorder: OutlineInputBorder(
                                   borderRadius:
-                                  BorderRadius.all(Radius.circular(4)),
+                                      BorderRadius.all(Radius.circular(4)),
                                   borderSide: BorderSide(
                                       width: 1, color: Colors.orange),
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius:
-                                  BorderRadius.all(Radius.circular(4)),
+                                      BorderRadius.all(Radius.circular(4)),
                                   borderSide: BorderSide(
                                       width: 1, color: MyColors.textColorCode),
                                 ),
                                 border: OutlineInputBorder(
                                     borderRadius:
-                                    BorderRadius.all(Radius.circular(4)),
+                                        BorderRadius.all(Radius.circular(4)),
                                     borderSide: BorderSide(
                                       width: 1,
                                     )),
                                 errorBorder: OutlineInputBorder(
                                     borderRadius:
-                                    BorderRadius.all(Radius.circular(4)),
+                                        BorderRadius.all(Radius.circular(4)),
                                     borderSide: BorderSide(
                                         width: 1,
                                         color:
-                                        MyColors.textBoxBorderColorCode)),
+                                            MyColors.textBoxBorderColorCode)),
                                 focusedErrorBorder: OutlineInputBorder(
                                     borderRadius:
-                                    BorderRadius.all(Radius.circular(4)),
+                                        BorderRadius.all(Radius.circular(4)),
                                     borderSide: BorderSide(
                                         width: 2,
                                         color: MyColors.buttonColorCode)),
@@ -1646,8 +2292,9 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
                                 errorText: "",
                               ),
                               obscureText: false,
-                              onTap: (){
-                                FocusScope.of(context).requestFocus(new FocusNode());
+                              onTap: () {
+                                FocusScope.of(context)
+                                    .requestFocus(new FocusNode());
                                 _selectToTime(context);
                               },
                             ),
@@ -1660,11 +2307,15 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
                         Expanded(
                           flex: 1,
                           child: GestureDetector(
-                            onTap: (){
-                              _fromdatecontroller.text="";
-                              _toTimecontroller.text="";
-                              _fromTimecontroller.text="";
-                              _todatecontroller.text="";
+                            onTap: () {
+                              // _fromdatecontroller.clear();
+                              // _toTimecontroller.clear();
+                              // _fromTimecontroller.clear();
+                              // _todatecontroller.clear();
+                              _fromdatecontroller.text = "";
+                              _toTimecontroller.text = "";
+                              _fromTimecontroller.text = "";
+                              _todatecontroller.text = "";
                               setState(() {
                                 // searchDateWiseData!.clear();
                                 // isDateWiseSearch=false;
@@ -1689,7 +2340,7 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
                         Expanded(
                           flex: 1,
                           child: GestureDetector(
-                            onTap: (){
+                            onTap: () {
                               Navigator.pop(context);
                             },
                             child: Column(
@@ -1722,7 +2373,7 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
                             },
                             shape: RoundedRectangleBorder(
                                 borderRadius:
-                                BorderRadius.all(Radius.circular(10))),
+                                    BorderRadius.all(Radius.circular(10))),
                             child: Padding(
                               padding: const EdgeInsets.only(
                                   left: 8.0, right: 8, top: 8, bottom: 8),
@@ -1748,9 +2399,13 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
 
   Future<String> getvehiclelist() async {
     setState(() {
-      _isLoading=true;
+      _isLoading = true;
     });
-    String url=Constant.vehicleFillSrnoUrl+""+vendorid.toString()+"/"+branchid.toString();
+    String url = Constant.vehicleFillSrnoUrl +
+        "" +
+        vendorid.toString() +
+        "/" +
+        branchid.toString();
 
     print(url);
     final response = await http.get(
@@ -1766,9 +2421,9 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
     // vehicleSrNolist=vehicleFillSrNoResponseFromJson(response.body);
 
     setState(() {
-      vehicledropdown=resBody['data'][0]['vehicleRegNo'];
-      list=resBody['data'];
-      _isLoading=false;
+      vehicledropdown = resBody['data'][0]['vehicleRegNo'];
+      list = resBody['data'];
+      _isLoading = false;
     });
     /* for(int i=0;i<vehicleSrNolist.length;i++){
       list.add(vehicleSrNolist[i].vehicleRegNo!);
@@ -1776,48 +2431,49 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
     print("list legth 1 ${list.length}");
     print("list legth ${resBody['data'][0]['vehicleRegNo']}");
 
-
     return "Success";
   }
 
-  _validation(){
-    if(_fromdatecontroller.text.isEmpty){
+  _validation() {
+    if (_fromdatecontroller.text.isEmpty) {
       Fluttertoast.showToast(
         msg: "Please Select From Date",
         toastLength: Toast.LENGTH_SHORT,
         timeInSecForIosWeb: 1,
       );
-    }else if(_fromTimecontroller.text.isEmpty){
+    } else if (_fromTimecontroller.text.isEmpty) {
       Fluttertoast.showToast(
         msg: "Please Select From Time",
         toastLength: Toast.LENGTH_SHORT,
         timeInSecForIosWeb: 1,
       );
-    }else if(_todatecontroller.text.isEmpty){
+    } else if (_todatecontroller.text.isEmpty) {
       Fluttertoast.showToast(
         msg: "Please Select To Date",
         toastLength: Toast.LENGTH_SHORT,
         timeInSecForIosWeb: 1,
       );
-    }else if(_toTimecontroller.text.isEmpty){
+    } else if (_toTimecontroller.text.isEmpty) {
       Fluttertoast.showToast(
         msg: "Please Select To Time",
         toastLength: Toast.LENGTH_SHORT,
         timeInSecForIosWeb: 1,
       );
-    }else if(selectedDate.compareTo(selectedToDate)==1){
+    } else if (selectedDate.compareTo(selectedToDate) == 1) {
       Fluttertoast.showToast(
-        msg: "Please check Start & End date! Start date should be less than to End date...!",
+        msg:
+            "Please check Start & End date! Start date should be less than to End date...!",
         toastLength: Toast.LENGTH_SHORT,
         timeInSecForIosWeb: 1,
       );
-    }else if(selectedDate.month!=selectedToDate.month){
+    } else if (selectedDate.month != selectedToDate.month) {
       Fluttertoast.showToast(
-        msg: "Please check Start & End date! Start date and end date Month Will be Same...!",
+        msg:
+            "Please check Start & End date! Start date and end date Month Will be Same...!",
         toastLength: Toast.LENGTH_SHORT,
         timeInSecForIosWeb: 1,
       );
-    }else{
+    } else {
       /*  Fluttertoast.showToast(
         msg: "Success",
         toastLength: Toast.LENGTH_SHORT,
@@ -1826,11 +2482,10 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
       Navigator.pop(context);
 
       // _getdatewisealertnotification();
-
     }
   }
 
-  validation(){
+  validation() {
     /*if(_fromdatecontroller.text.isEmpty){
       Fluttertoast.showToast(
         msg: "Please Select From Date...!",
@@ -1861,42 +2516,46 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
       toastLength: Toast.LENGTH_SHORT,
       timeInSecForIosWeb: 1,
       );
-    }else*/ if(selectedDate.compareTo(selectedToDate)==1){
+    }else*/
+    if (selectedDate.compareTo(selectedToDate) == 1) {
       Fluttertoast.showToast(
-        msg: "Please check Start & End date! Start date should be less than to End date...!",
+        msg:
+            "Please check Start & End date! Start date should be less than to End date...!",
         toastLength: Toast.LENGTH_SHORT,
         timeInSecForIosWeb: 1,
       );
-    }else if(selectedDate.month!=selectedToDate.month){
+    } else if (selectedDate.month != selectedToDate.month) {
       Fluttertoast.showToast(
-        msg: "Please check Start & End date! Start date and end date Month Will be Same...!",
+        msg:
+            "Please check Start & End date! Start date and end date Month Will be Same...!",
         toastLength: Toast.LENGTH_SHORT,
         timeInSecForIosWeb: 1,
       );
-    }else if(selectedvehicleno==""){
+    } else if (selectedvehicleno == "") {
       Fluttertoast.showToast(
         msg: "Please Select Vehicle Number...!",
         toastLength: Toast.LENGTH_SHORT,
         timeInSecForIosWeb: 1,
       );
-    }else /* if(fromTime==toTime){
+    } else /* if(fromTime==toTime){
       Fluttertoast.showToast(
         msg: "Please check Start & End Time! Start Time should be less than to End Time...!",
         toastLength: Toast.LENGTH_SHORT,
         timeInSecForIosWeb: 1,
       );
-    }*/ if(selectedfromdate==selectedTodate){
-      if(fromTime==toTime){
+    }*/
+    if (selectedfromdate == selectedTodate) {
+      if (fromTime == toTime) {
         Fluttertoast.showToast(
-          msg: "Please check Start & End Time! Start Time should be less than to End Time...!",
+          msg:
+              "Please check Start & End Time! Start Time should be less than to End Time...!",
           toastLength: Toast.LENGTH_SHORT,
           timeInSecForIosWeb: 1,
         );
-      }else{
+      } else {
         getVehicleStatus();
-
       }
-    } else{
+    } else {
       /*  Fluttertoast.showToast(
         msg: "Success",
         toastLength: Toast.LENGTH_SHORT,
@@ -1914,18 +2573,22 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
         // firstDate: DateTime.now(),
         firstDate: DateTime(2015, 8),
         // firstDate: DateTime.now().subtract(Duration(days: 1)),
-        lastDate: DateTime.now()
-    );
+        lastDate: DateTime.now());
     if (picked != null /*&& picked != selectedDate*/) {
       setState(() {
         selectedDate = picked;
-        _fromdatecontroller.text=selectedDate.day.toString()+"/"+selectedDate.month.toString()+"/"+selectedDate.year.toString();
+        _fromdatecontroller.text = selectedDate.day.toString() +
+            "/" +
+            selectedDate.month.toString() +
+            "/" +
+            selectedDate.year.toString();
         // date=selectedDate.year.toString()+"-"+selectedDate.month.toString()+"-"+selectedDate.day.toString();
         date = Jiffy(selectedDate).format('d-MMMM-yyyy');
         print(date);
       });
     }
   }
+
   Future<void> _toDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
         context: context,
@@ -1933,12 +2596,15 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
         // firstDate: DateTime.now(),
         firstDate: DateTime(2015, 8),
         // firstDate: DateTime.now().subtract(Duration(days: 1)),
-        lastDate: DateTime.now()
-    );
-    if (picked != null/* && picked != selectedToDate*/) {
+        lastDate: DateTime.now());
+    if (picked != null /* && picked != selectedToDate*/) {
       setState(() {
         selectedToDate = picked;
-        _todatecontroller.text=selectedToDate.day.toString()+"/"+selectedToDate.month.toString()+"/"+selectedToDate.year.toString();
+        _todatecontroller.text = selectedToDate.day.toString() +
+            "/" +
+            selectedToDate.month.toString() +
+            "/" +
+            selectedToDate.year.toString();
         // todate=selectedDate.year.toString()+"-"+selectedDate.month.toString()+"-"+selectedDate.day.toString();
         todate = Jiffy(selectedToDate).format('d-MMMM-yyyy');
         print(todate);
@@ -1946,117 +2612,133 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
     }
   }
 
-  Future<void>   _selectTime(BuildContext context) async {
-    TimeOfDay? timeOfDay=await showTimePicker(
+  Future<void> _selectTime(BuildContext context) async {
+    TimeOfDay? timeOfDay = await showTimePicker(
       context: context,
       initialTime: selectedTime,
       initialEntryMode: TimePickerEntryMode.dial,
     );
 
-    if(timeOfDay != null/* && timeOfDay != selectedTime*/)
-    {
+    if (timeOfDay != null /* && timeOfDay != selectedTime*/) {
       setState(() {
         selectedTime = timeOfDay;
-        _fromTimecontroller.text=selectedTime.hour.toString()+":"+selectedTime.minute.toString();
-        fromTime=selectedTime.hour.toString()+":"+selectedTime.minute.toString();
+        _fromTimecontroller.text =
+            selectedTime.hour.toString() + ":" + selectedTime.minute.toString();
+        fromTime =
+            selectedTime.hour.toString() + ":" + selectedTime.minute.toString();
         print(selectedTime);
-
       });
     }
   }
 
-  Future<void>   _selectToTime(BuildContext context) async {
-    TimeOfDay? timeOfDay=await showTimePicker(
+  Future<void> _selectToTime(BuildContext context) async {
+    TimeOfDay? timeOfDay = await showTimePicker(
       context: context,
       initialTime: selectedToTime,
       initialEntryMode: TimePickerEntryMode.dial,
     );
 
-    if(timeOfDay != null/* && timeOfDay != selectedToTime*/)
-    {
+    if (timeOfDay != null /* && timeOfDay != selectedToTime*/) {
       setState(() {
         selectedToTime = timeOfDay;
-        _toTimecontroller.text=selectedToTime.hour.toString()+":"+selectedToTime.minute.toString();
+        _toTimecontroller.text = selectedToTime.hour.toString() +
+            ":" +
+            selectedToTime.minute.toString();
         print(selectedToTime);
-        toTime=selectedToTime.hour.toString()+":"+selectedToTime.minute.toString();
+        toTime = selectedToTime.hour.toString() +
+            ":" +
+            selectedToTime.minute.toString();
       });
     }
   }
-
 
   void _filterAlertList() async {
     filterVehicleStatusResult = await Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (_) =>
-                BlocProvider(
-                    create: (context) {
-                      return MainBloc(
-                          webService: WebService());
-                    },
-                    child: VehicleStatusFilterScreen(fromdate: date, fromTime: fromTime, todate: todate, toTime: toTime,))
-        )
-    );
+            builder: (_) => BlocProvider(
+                create: (context) {
+                  return MainBloc(webService: WebService());
+                },
+                child: VehicleStatusFilterScreen(
+                  fromdate: date,
+                  fromTime: fromTime,
+                  todate: todate,
+                  toTime: toTime,
+                ))));
 
-    if (filterVehicleStatusResult != null && filterVehicleStatusResult.containsKey('VehicleHistoryFilterList')) {
+    if (filterVehicleStatusResult != null &&
+        filterVehicleStatusResult.containsKey('VehicleHistoryFilterList')) {
       setState(() {
-        vehiclehistoryfilterdata=filterVehicleStatusResult["VehicleHistoryFilterList"];
-        print("Vehicle Status list : ${filterVehicleStatusResult["VehicleHistoryFilterList"]}");
-        if(vehiclehistoryfilterdata!.length!=0){
-          isFilterAlertSearch=true;
-        }else{
-          isFilterAlertSearch=false;
+        vehiclehistoryfilterdata =
+            filterVehicleStatusResult["VehicleHistoryFilterList"];
+        print(
+            "Vehicle Status list : ${filterVehicleStatusResult["VehicleHistoryFilterList"]}");
+        if (vehiclehistoryfilterdata!.length != 0) {
+          isFilterAlertSearch = true;
+        } else {
+          isFilterAlertSearch = false;
         }
       });
     }
     //
-    if (filterVehicleStatusResult != null && filterVehicleStatusResult.containsKey('FilterAlert')) {
+    if (filterVehicleStatusResult != null &&
+        filterVehicleStatusResult.containsKey('FilterAlert')) {
       setState(() {
         print(filterVehicleStatusResult["FilterAlert"]);
         selectedvehicleStatuslist.clear();
         vehiclehistoryfilterdata!.clear();
-        FilterPageNumber=0;
-        isFilterAlertSearch=false;
+        FilterPageNumber = 0;
+        isFilterAlertSearch = false;
       });
     }
 
-    if (filterVehicleStatusResult != null && filterVehicleStatusResult.containsKey('SearchFilter')) {
-      searchFilter=filterVehicleStatusResult["SearchFilter"];
+    if (filterVehicleStatusResult != null &&
+        filterVehicleStatusResult.containsKey('SearchFilter')) {
+      searchFilter = filterVehicleStatusResult["SearchFilter"];
     }
 
-    if (filterVehicleStatusResult != null && filterVehicleStatusResult.containsKey('SearchText')) {
-      searchText=filterVehicleStatusResult["SearchText"];
+    if (filterVehicleStatusResult != null &&
+        filterVehicleStatusResult.containsKey('SearchText')) {
+      searchText = filterVehicleStatusResult["SearchText"];
     }
     //
-    if (filterVehicleStatusResult != null && filterVehicleStatusResult.containsKey('FilterPageNumber')) {
+    if (filterVehicleStatusResult != null &&
+        filterVehicleStatusResult.containsKey('FilterPageNumber')) {
       setState(() {
-        FilterPageNumber=filterVehicleStatusResult["FilterPageNumber"];
+        FilterPageNumber = filterVehicleStatusResult["FilterPageNumber"];
       });
     }
 
-    if (filterVehicleStatusResult != null && filterVehicleStatusResult.containsKey('SelectedVehicleStatusList')) {
-      selectedvehicleStatuslist=filterVehicleStatusResult["SelectedVehicleStatusList"];
+    if (filterVehicleStatusResult != null &&
+        filterVehicleStatusResult.containsKey('SelectedVehicleStatusList')) {
+      selectedvehicleStatuslist =
+          filterVehicleStatusResult["SelectedVehicleStatusList"];
     }
 
-    if (filterVehicleStatusResult != null && filterVehicleStatusResult.containsKey('SelectedVendorId')) {
-      selectedVendorid=filterVehicleStatusResult["SelectedVendorId"];
+    if (filterVehicleStatusResult != null &&
+        filterVehicleStatusResult.containsKey('SelectedVendorId')) {
+      selectedVendorid = filterVehicleStatusResult["SelectedVendorId"];
     }
-    if (filterVehicleStatusResult != null && filterVehicleStatusResult.containsKey('SelectedBranchId')) {
-      selectedbranchid=filterVehicleStatusResult["SelectedBranchId"];
+    if (filterVehicleStatusResult != null &&
+        filterVehicleStatusResult.containsKey('SelectedBranchId')) {
+      selectedbranchid = filterVehicleStatusResult["SelectedBranchId"];
     }
-    if (filterVehicleStatusResult != null && filterVehicleStatusResult.containsKey('SelectedVehicleList')) {
-      selectedvehicleSrNolist=filterVehicleStatusResult["SelectedVehicleList"];
+    if (filterVehicleStatusResult != null &&
+        filterVehicleStatusResult.containsKey('SelectedVehicleList')) {
+      selectedvehicleSrNolist =
+          filterVehicleStatusResult["SelectedVehicleList"];
     }
-    if (filterVehicleStatusResult != null && filterVehicleStatusResult.containsKey('TotalFilterRecord')) {
+    if (filterVehicleStatusResult != null &&
+        filterVehicleStatusResult.containsKey('TotalFilterRecord')) {
       setState(() {
-        totalVehicleHistoryFilterRecords=filterVehicleStatusResult["TotalFilterRecord"];
-
+        totalVehicleHistoryFilterRecords =
+            filterVehicleStatusResult["TotalFilterRecord"];
       });
     }
-
   }
 
-  _validationfiltervehicle() async{
+  _validationfiltervehicle() async {
     // print(date+"  "+todate);
     // print(fromTime+"  "+toTime);
 
@@ -2072,36 +2754,33 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
         toastLength: Toast.LENGTH_SHORT,
         timeInSecForIosWeb: 1,
       );
-    }*//*else if(selectedDate.compareTo(selectedToDate)==1){
+    }*/ /*else if(selectedDate.compareTo(selectedToDate)==1){
       Fluttertoast.showToast(
         msg: "Please check Start & End date! Start date should be less than to End date...!",
         toastLength: Toast.LENGTH_SHORT,
         timeInSecForIosWeb: 1,
       );
     }*/
-    /*else if(date==todate*//*selectedDate.month!=selectedToDate.month*//*){
+    /*else if(date==todate*/ /*selectedDate.month!=selectedToDate.month*/ /*){
       Fluttertoast.showToast(
         msg: "Please check Start & End date! Start date should be less than to End date...!",
         toastLength: Toast.LENGTH_SHORT,
         timeInSecForIosWeb: 1,
       );
-    }*/if(selectedfromdate==selectedTodate){
-      if(fromTime==toTime){
+    }*/
+    if (selectedfromdate == selectedTodate) {
+      if (fromTime == toTime) {
         Fluttertoast.showToast(
-          msg: "Please check Start & End Time! Start Time should be less than to End Time...!",
+          msg:
+              "Please check Start & End Time! Start Time should be less than to End Time...!",
           toastLength: Toast.LENGTH_SHORT,
           timeInSecForIosWeb: 1,
         );
-      }else{
+      } else {
         _filterAlertList();
-
       }
-    } else{
+    } else {
       _filterAlertList();
     }
-
   }
-
-
-
 }

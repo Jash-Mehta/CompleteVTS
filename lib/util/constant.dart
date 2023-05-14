@@ -321,5 +321,8 @@ class Constant {
       baseUrl + 'PointOfInterestCreate/GETPOITypeDetails';
   static String routesdetailbyname =
       baseUrl + 'RouteDefine/GetRoutesDetailsByRouteName';
+       static String speedurl =
+      baseUrl + 'VTSHistory/ApplyVehicleHistoryAPI?VendorId=';
+
 
 }

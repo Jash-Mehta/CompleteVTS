@@ -59,7 +59,7 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
   String searchtext = "MH12";
   String fromtime = "06:30";
   String totime = "18:00";
-  String searchtotime = "15:30";
+  String searchtotime = "18:30";
   String vehiclelist = "86,76";
   String searchfromtime = "10:30";
   List<DatewiseStatusWiseTravelSummaryData>? traveldata = [];
@@ -115,20 +115,20 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
         vendorid: vendorid));
   }
 
-  // getsearch() {
-  //   _mainBloc.add(TravelSummarySearchEvent(
-  //       token: token,
-  //       vendorid: vendorid,
-  //       branchid: branchid,
-  //       arainonarai: arainonari,
-  //       searchtext: searhcontroller.text,
-  //       fromdata: fromDateController ?? fromdate,
-  //       fromtime: fromTimeController ?? fromtime,
-  //       todate: toDateController ?? todate,
-  //       totime: toTimeController ?? searchtotime,
-  //       pagesize: pagesize,
-  //       pagenumber: pagenumber));
-  // }
+  getsearch() {
+    _mainBloc.add(TravelSummarySearchEvent(
+        token: token,
+        vendorid: vendorid,
+        branchid: branchid,
+        arainonarai: arainonari,
+        searchtext: searhcontroller.text,
+        fromdata: fromDateController ?? fromdate,
+        fromtime: fromTimeController ?? fromtime,
+        todate: toDateController ?? todate,
+        totime: toTimeController ?? searchtotime,
+        pagesize: pagesize,
+        pagenumber: pagenumber));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -185,6 +185,7 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
               setState(() {
                 _isLoading = false;
                 //pagenumber++;
+                searchdata!.clear();
                 value = state.travelSummaryResponse.totalRecords!;
               });
               searchdata!.addAll(state.travelSummaryResponse.datewise!);
@@ -281,13 +282,15 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
                         searchStrClass: searchClass,
                         controller: searhcontroller,
                         onChanged: onSearchTextChanged),
-                        applyclicked ? BlocBuilder<MainBloc, MainState>(
+                    applyclicked
+                        ? BlocBuilder<MainBloc, MainState>(
                             builder: (context, state) {
                               return ListView.builder(
                                 controller: vendorRecordController,
                                 shrinkWrap: true,
-                                itemCount:  filterdata!.length,
+                                itemCount: filterdata!.length,
                                 itemBuilder: (context, index) {
+                                  // print("Filter data is printed");
                                   return Card(
                                     shape: RoundedRectangleBorder(
                                       side: const BorderSide(
@@ -386,8 +389,8 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
                                                     children: [
                                                       Text(
                                                         filterdata![index]
-                                                                .vehicleregNo
-                                                                .toString(),
+                                                            .vehicleregNo
+                                                            .toString(),
                                                         style: const TextStyle(
                                                             fontWeight:
                                                                 FontWeight.bold,
@@ -395,8 +398,8 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
                                                       ),
                                                       Text(
                                                         filterdata![index]
-                                                                .imei
-                                                                .toString(),
+                                                            .imei
+                                                            .toString(),
                                                         style: const TextStyle(
                                                             fontSize: 16,
                                                             color: MyColors
@@ -418,22 +421,20 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
                                                                     top: 6,
                                                                     bottom: 6),
                                                             child: Text(
-                                                              filterdata![
-                                                                          index]
-                                                                      .vehicleStatus
-                                                                      .toString(),
+                                                              filterdata![index]
+                                                                  .vehicleStatus
+                                                                  .toString(),
                                                               style: TextStyle(
-                                                                  color: filterdata![index].vehicleStatus ==
-                                                                              "Running"
-                                                                          ? Colors
-                                                                              .green
-                                                                          : traveldata![index].vehicleStatus == "Running"
-                                                                                      ? Colors.green
-                                                                                      : filterdata![index].vehicleStatus == "Idle"
-                                                                                          ? Colors.blue
-                                                                                          : filterdata![index].vehicleStatus == "Stop"
-                                                                                              ? Colors.red
-                                                                                              : Colors.orange,
+                                                                  color: filterdata![index]
+                                                                              .vehicleStatus ==
+                                                                          "Running"
+                                                                      ? Colors
+                                                                          .green
+                                                                      : filterdata![index].vehicleStatus == "Idle"
+                                                                              ? Colors.blue
+                                                                              : filterdata![index].vehicleStatus == "Stop"
+                                                                                  ? Colors.red
+                                                                                  : Colors.orange,
                                                                   fontSize: 16),
                                                             ),
                                                           ),
@@ -441,6 +442,33 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
                                                       ),
                                                       Row(
                                                         children: [
+                                                          Container(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                        .only(
+                                                                    left: 8.0,
+                                                                    right: 8,
+                                                                    top: 8,
+                                                                    bottom: 8),
+                                                            decoration:
+                                                                const BoxDecoration(
+                                                              color: MyColors
+                                                                  .textBoxColorCode,
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .all(Radius
+                                                                          .circular(
+                                                                              8)),
+                                                            ),
+                                                            child: Text(
+                                                                filterdata![
+                                                                        index]
+                                                                    .tDate
+                                                                    .toString()),
+                                                          ),
+                                                          const SizedBox(
+                                                            width: 2.0,
+                                                          ),
                                                           Container(
                                                             padding:
                                                                 const EdgeInsets
@@ -460,258 +488,9 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
                                                                               8)),
                                                             ),
                                                             child: Text(filterdata![
-                                                                        index]
-                                                                    .tDate
-                                                                    .toString()
-                                                                ),
-                                                          ),
-                                                          const SizedBox(
-                                                            width: 2.0,
-                                                          ),
-                                                          Container(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                        .only(
-                                                                    left: 8.0,
-                                                                    right: 8,
-                                                                    top: 8,
-                                                                    bottom: 8),
-                                                            decoration:
-                                                                const BoxDecoration(
-                                                              color: MyColors
-                                                                  .textBoxColorCode,
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .all(Radius
-                                                                          .circular(
-                                                                              8)),
-                                                            ),
-                                                            child: Text( filterdata![
-                                                                        index]
-                                                                    .vehicleStatusTime
-                                                                    .toString()
-                                                                ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                },
-                              );
-                            },
-                          ) :
-                     !isSearch ? BlocBuilder<MainBloc, MainState>(
-                            builder: (context, state) {
-                              return ListView.builder(
-                                controller: vendorRecordController,
-                                shrinkWrap: true,
-                                itemCount:  traveldata!.length,
-                                itemBuilder: (context, index) {
-                                  return Card(
-                                    shape: RoundedRectangleBorder(
-                                      side: const BorderSide(
-                                          width: 1,
-                                          color:
-                                              MyColors.textBoxBorderColorCode),
-                                      borderRadius: BorderRadius.circular(10.0),
-                                    ),
-                                    child: Container(
-                                      padding: const EdgeInsets.only(
-                                          top: 10,
-                                          left: 14,
-                                          right: 14,
-                                          bottom: 10),
-                                      width: MediaQuery.of(context).size.width,
-                                      decoration: const BoxDecoration(
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(10)),
-                                      ),
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Container(
-                                                padding: EdgeInsets.all(10),
-                                                decoration: BoxDecoration(
-                                                  color:
-                                                      MyColors.whiteColorCode,
-                                                  border: Border.all(
-                                                      color: MyColors
-                                                          .boxBackgroundColorCode),
-                                                  borderRadius:
-                                                      const BorderRadius.all(
-                                                          Radius.circular(10)),
-                                                ),
-                                                child: traveldata![index]
-                                                            .vehicleStatus ==
-                                                        "Idle"
-                                                    ? Image.asset(
-                                                        "assets/idle_truck.png",
-                                                        height: 45.0,
-                                                        width: 45.0,
-                                                      )
-                                                    : traveldata![index]
-                                                                .vehicleStatus ==
-                                                            "Inactive"
-                                                        ? Image.asset(
-                                                            "assets/inactive_truck.png",
-                                                            height: 45.0,
-                                                            width: 45.0,
-                                                          )
-                                                        : traveldata![index]
-                                                                    .vehicleStatus ==
-                                                                "Stop"
-                                                            ? Image.asset(
-                                                                "assets/stopped_truck.png",
-                                                                height: 45.0,
-                                                                width: 45.0,
-                                                              )
-                                                            : traveldata![index]
-                                                                        .vehicleStatus ==
-                                                                    "Overspeed"
-                                                                ? Image.asset(
-                                                                    "assets/overspeed_truck.png",
-                                                                    height:
-                                                                        45.0,
-                                                                    width: 45.0,
-                                                                  )
-                                                                : Image.asset(
-                                                                    "assets/running_truck.png",
-                                                                    height:
-                                                                        45.0,
-                                                                    width: 45.0,
-                                                                  ),
-                                              ),
-                                              Expanded(
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          left: 10.0),
-                                                  child: Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.start,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Text(
-                                                         traveldata![index]
-                                                                .vehicleregNo
-                                                                .toString(),
-                                                        style: const TextStyle(
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                            fontSize: 20),
-                                                      ),
-                                                      Text(
-                                                       traveldata![index]
-                                                                .imei
-                                                                .toString(),
-                                                        style: const TextStyle(
-                                                            fontSize: 16,
-                                                            color: MyColors
-                                                                .analyticGreenColorCode),
-                                                      ),
-                                                      Row(
-                                                        children: [
-                                                          const Icon(
-                                                            Icons.circle,
-                                                            color: MyColors
-                                                                .analyticGreenColorCode,
-                                                            size: 7,
-                                                          ),
-                                                          Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                        .only(
-                                                                    left: 4.0,
-                                                                    top: 6,
-                                                                    bottom: 6),
-                                                            child: Text(
-                                                              traveldata![
-                                                                          index]
-                                                                      .vehicleStatus
-                                                                      .toString(),
-                                                              style: TextStyle(
-                                                                  color:  traveldata![index].vehicleStatus == "Running"
-                                                                                      ? Colors.green
-                                                                                      : traveldata![index].vehicleStatus == "Idle"
-                                                                                          ? Colors.amber
-                                                                                          : traveldata![index].vehicleStatus == "Stop"
-                                                                                              ? Colors.red : traveldata![index].vehicleStatus == "Inactive"
-                                                                                              ? Colors.blue
-                                                                      : Colors.amber,
-                                                                  fontSize: 16),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      Row(
-                                                        children: [
-                                                          Container(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                        .only(
-                                                                    left: 8.0,
-                                                                    right: 8,
-                                                                    top: 8,
-                                                                    bottom: 8),
-                                                            decoration:
-                                                                const BoxDecoration(
-                                                              color: MyColors
-                                                                  .textBoxColorCode,
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .all(Radius
-                                                                          .circular(
-                                                                              8)),
-                                                            ),
-                                                            child: Text( traveldata![
-                                                                        index]
-                                                                    .tDate
-                                                                    .toString()),
-                                                          ),
-                                                          const SizedBox(
-                                                            width: 2.0,
-                                                          ),
-                                                          Container(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                        .only(
-                                                                    left: 8.0,
-                                                                    right: 8,
-                                                                    top: 8,
-                                                                    bottom: 8),
-                                                            decoration:
-                                                                const BoxDecoration(
-                                                              color: MyColors
-                                                                  .textBoxColorCode,
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .all(Radius
-                                                                          .circular(
-                                                                              8)),
-                                                            ),
-                                                            child: Text(traveldata![
-                                                                        index]
-                                                                    .vehicleStatusTime
-                                                                    .toString()),
+                                                                    index]
+                                                                .vehicleStatusTime
+                                                                .toString()),
                                                           ),
                                                         ],
                                                       ),
@@ -729,250 +508,510 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
                               );
                             },
                           )
-                        : searchdata!.isEmpty
-                            ? Center(
-                                child: Text(
-                                "No data found",
-                                style: TextStyle(
-                                    fontSize: 24, fontWeight: FontWeight.w500),
-                              ))
-                            : _isLoading
-                                ? Center(child: Text("Wait data is Loading.."))
-                                : BlocBuilder<MainBloc, MainState>(
-                                    builder: (context, state) {
-                                    return ListView.builder(
-                                      controller: vendorRecordController,
-                                      itemCount: searchdata!.length,
-                                      shrinkWrap: true,
-                                      physics: const ScrollPhysics(),
-                                      itemBuilder:
-                                          (BuildContext context, int index) {
-                                        print(
-                                            "This is search list ------------------>");
-                                        var article = searchdata![index];
-                                        return Card(
-                                          shape: RoundedRectangleBorder(
-                                            side: const BorderSide(
-                                                width: 1,
-                                                color: MyColors
-                                                    .textBoxBorderColorCode),
-                                            borderRadius:
-                                                BorderRadius.circular(10.0),
+                        : !isSearch
+                            ? BlocBuilder<MainBloc, MainState>(
+                                builder: (context, state) {
+                                  return ListView.builder(
+                                    controller: vendorRecordController,
+                                    shrinkWrap: true,
+                                    itemCount: traveldata!.length,
+                                    itemBuilder: (context, index) {
+                                      print("Get data is printed");
+                                      return Card(
+                                        shape: RoundedRectangleBorder(
+                                          side: const BorderSide(
+                                              width: 1,
+                                              color: MyColors
+                                                  .textBoxBorderColorCode),
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                        ),
+                                        child: Container(
+                                          padding: const EdgeInsets.only(
+                                              top: 10,
+                                              left: 14,
+                                              right: 14,
+                                              bottom: 10),
+                                          width:
+                                              MediaQuery.of(context).size.width,
+                                          decoration: const BoxDecoration(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(10)),
                                           ),
-                                          child: Container(
-                                            padding: const EdgeInsets.only(
-                                                top: 10,
-                                                left: 14,
-                                                right: 14,
-                                                bottom: 10),
-                                            width: MediaQuery.of(context)
-                                                .size
-                                                .width,
-                                            decoration: const BoxDecoration(
-                                              borderRadius: BorderRadius.all(
-                                                  Radius.circular(10)),
-                                            ),
-                                            child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Row(
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Container(
+                                                    padding: EdgeInsets.all(10),
+                                                    decoration: BoxDecoration(
+                                                      color: MyColors
+                                                          .whiteColorCode,
+                                                      border: Border.all(
+                                                          color: MyColors
+                                                              .boxBackgroundColorCode),
+                                                      borderRadius:
+                                                          const BorderRadius
+                                                                  .all(
+                                                              Radius.circular(
+                                                                  10)),
+                                                    ),
+                                                    child: traveldata![index]
+                                                                .vehicleStatus ==
+                                                            "Idle"
+                                                        ? Image.asset(
+                                                            "assets/idle_truck.png",
+                                                            height: 45.0,
+                                                            width: 45.0,
+                                                          )
+                                                        : traveldata![index]
+                                                                    .vehicleStatus ==
+                                                                "Inactive"
+                                                            ? Image.asset(
+                                                                "assets/inactive_truck.png",
+                                                                height: 45.0,
+                                                                width: 45.0,
+                                                              )
+                                                            : traveldata![index]
+                                                                        .vehicleStatus ==
+                                                                    "Stop"
+                                                                ? Image.asset(
+                                                                    "assets/stopped_truck.png",
+                                                                    height:
+                                                                        45.0,
+                                                                    width: 45.0,
+                                                                  )
+                                                                : traveldata![index]
+                                                                            .vehicleStatus ==
+                                                                        "Overspeed"
+                                                                    ? Image
+                                                                        .asset(
+                                                                        "assets/overspeed_truck.png",
+                                                                        height:
+                                                                            45.0,
+                                                                        width:
+                                                                            45.0,
+                                                                      )
+                                                                    : Image
+                                                                        .asset(
+                                                                        "assets/running_truck.png",
+                                                                        height:
+                                                                            45.0,
+                                                                        width:
+                                                                            45.0,
+                                                                      ),
+                                                  ),
+                                                  Expanded(
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              left: 10.0),
+                                                      child: Column(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .start,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Text(
+                                                            traveldata![index]
+                                                                .vehicleregNo
+                                                                .toString(),
+                                                            style: const TextStyle(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                fontSize: 20),
+                                                          ),
+                                                          Text(
+                                                            traveldata![index]
+                                                                .imei
+                                                                .toString(),
+                                                            style: const TextStyle(
+                                                                fontSize: 16,
+                                                                color: MyColors
+                                                                    .analyticGreenColorCode),
+                                                          ),
+                                                          Row(
+                                                            children: [
+                                                              const Icon(
+                                                                Icons.circle,
+                                                                color: MyColors
+                                                                    .analyticGreenColorCode,
+                                                                size: 7,
+                                                              ),
+                                                              Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .only(
+                                                                        left:
+                                                                            4.0,
+                                                                        top: 6,
+                                                                        bottom:
+                                                                            6),
+                                                                child: Text(
+                                                                  traveldata![
+                                                                          index]
+                                                                      .vehicleStatus
+                                                                      .toString(),
+                                                                  style: TextStyle(
+                                                                      color: traveldata![index].vehicleStatus == "Running"
+                                                                          ? Colors.green
+                                                                          : traveldata![index].vehicleStatus == "Idle"
+                                                                              ? Colors.amber
+                                                                              : traveldata![index].vehicleStatus == "Stop"
+                                                                                  ? Colors.red
+                                                                                  : traveldata![index].vehicleStatus == "Inactive"
+                                                                                      ? Colors.blue
+                                                                                      : Colors.amber,
+                                                                      fontSize: 16),
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          Row(
+                                                            children: [
+                                                              Container(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .only(
+                                                                        left:
+                                                                            8.0,
+                                                                        right:
+                                                                            8,
+                                                                        top: 8,
+                                                                        bottom:
+                                                                            8),
+                                                                decoration:
+                                                                    const BoxDecoration(
+                                                                  color: MyColors
+                                                                      .textBoxColorCode,
+                                                                  borderRadius:
+                                                                      BorderRadius.all(
+                                                                          Radius.circular(
+                                                                              8)),
+                                                                ),
+                                                                child: Text(
+                                                                    traveldata![
+                                                                            index]
+                                                                        .tDate
+                                                                        .toString()),
+                                                              ),
+                                                              const SizedBox(
+                                                                width: 2.0,
+                                                              ),
+                                                              Container(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .only(
+                                                                        left:
+                                                                            8.0,
+                                                                        right:
+                                                                            8,
+                                                                        top: 8,
+                                                                        bottom:
+                                                                            8),
+                                                                decoration:
+                                                                    const BoxDecoration(
+                                                                  color: MyColors
+                                                                      .textBoxColorCode,
+                                                                  borderRadius:
+                                                                      BorderRadius.all(
+                                                                          Radius.circular(
+                                                                              8)),
+                                                                ),
+                                                                child: Text(traveldata![
+                                                                        index]
+                                                                    .vehicleStatusTime
+                                                                    .toString()),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                              )
+                            : searchdata!.isEmpty
+                                ? Center(
+                                    child: Text(
+                                    "No data found",
+                                    style: TextStyle(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.w500),
+                                  ))
+                                : _isLoading
+                                    ? Center(
+                                        child: Text("Wait data is Loading.."))
+                                    : BlocBuilder<MainBloc, MainState>(
+                                        builder: (context, state) {
+                                        return ListView.builder(
+                                          controller: vendorRecordController,
+                                          itemCount: searchdata!.length,
+                                          shrinkWrap: true,
+                                          physics: const ScrollPhysics(),
+                                          itemBuilder: (BuildContext context,
+                                              int index) {
+                                            print(
+                                                "This is search list ------------------>");
+                                            var article = searchdata![index];
+                                            return Card(
+                                              shape: RoundedRectangleBorder(
+                                                side: const BorderSide(
+                                                    width: 1,
+                                                    color: MyColors
+                                                        .textBoxBorderColorCode),
+                                                borderRadius:
+                                                    BorderRadius.circular(10.0),
+                                              ),
+                                              child: Container(
+                                                padding: const EdgeInsets.only(
+                                                    top: 10,
+                                                    left: 14,
+                                                    right: 14,
+                                                    bottom: 10),
+                                                width: MediaQuery.of(context)
+                                                    .size
+                                                    .width,
+                                                decoration: const BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.all(
+                                                          Radius.circular(10)),
+                                                ),
+                                                child: Column(
                                                   mainAxisAlignment:
                                                       MainAxisAlignment.start,
                                                   crossAxisAlignment:
                                                       CrossAxisAlignment.start,
-                                                  // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                   children: [
-                                                    Container(
-                                                      padding:
-                                                          EdgeInsets.all(10),
-                                                      decoration: BoxDecoration(
-                                                        color: MyColors
-                                                            .whiteColorCode,
-                                                        border: Border.all(
+                                                    Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .start,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                      children: [
+                                                        Container(
+                                                          padding:
+                                                              EdgeInsets.all(
+                                                                  10),
+                                                          decoration:
+                                                              BoxDecoration(
                                                             color: MyColors
-                                                                .boxBackgroundColorCode),
-                                                        borderRadius:
-                                                            const BorderRadius
-                                                                    .all(
-                                                                Radius.circular(
-                                                                    10)),
-                                                      ),
-                                                      child: article
-                                                                  .vehicleStatus ==
-                                                              "Idle"
-                                                          ? Image.asset(
-                                                              "assets/idle_truck.png",
-                                                              height: 45.0,
-                                                              width: 45.0,
-                                                            )
-                                                          : article.vehicleStatus ==
-                                                                  "Inactive"
-                                                              ? Image.asset(
-                                                                  "assets/inactive_truck.png",
-                                                                  height: 45.0,
-                                                                  width: 45.0,
-                                                                )
-                                                              : article.vehicleStatus ==
-                                                                      "Stop"
+                                                                .whiteColorCode,
+                                                            border: Border.all(
+                                                                color: MyColors
+                                                                    .boxBackgroundColorCode),
+                                                            borderRadius:
+                                                                const BorderRadius
+                                                                        .all(
+                                                                    Radius
+                                                                        .circular(
+                                                                            10)),
+                                                          ),
+                                                          child:
+                                                              article
+                                                                          .vehicleStatus ==
+                                                                      "Idle"
                                                                   ? Image.asset(
-                                                                      "assets/stopped_truck.png",
-                                                                      height:
-                                                                          45.0,
-                                                                      width:
-                                                                          45.0,
+                                                                      "assets/idle_truck.png",
+                                                                      height: 45.0,
+                                                                      width: 45.0,
                                                                     )
                                                                   : article.vehicleStatus ==
-                                                                          "Overspeed"
-                                                                      ? Image
-                                                                          .asset(
-                                                                          "assets/overspeed_truck.png",
+                                                                          "Inactive"
+                                                                      ? Image.asset(
+                                                                          "assets/inactive_truck.png",
                                                                           height:
                                                                               45.0,
                                                                           width:
                                                                               45.0,
                                                                         )
-                                                                      : Image
-                                                                          .asset(
-                                                                          "assets/running_truck.png",
-                                                                          height:
-                                                                              45.0,
-                                                                          width:
-                                                                              45.0,
-                                                                        ),
-                                                    ),
-                                                    Expanded(
-                                                      child: Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                    .only(
-                                                                left: 10.0),
-                                                        child: Column(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .start,
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            Text(
-                                                              article
-                                                                  .vehicleregNo
-                                                                  .toString(),
-                                                              style: const TextStyle(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  fontSize: 20),
-                                                            ),
-                                                            Text(
-                                                              article.imei
-                                                                  .toString(),
-                                                              style: const TextStyle(
-                                                                  fontSize: 16,
-                                                                  color: MyColors
-                                                                      .analyticGreenColorCode),
-                                                            ),
-                                                            Row(
+                                                                      : article.vehicleStatus ==
+                                                                              "Stop"
+                                                                          ? Image
+                                                                              .asset(
+                                                                              "assets/stopped_truck.png",
+                                                                              height:
+                                                                                  45.0,
+                                                                              width:
+                                                                                  45.0,
+                                                                            )
+                                                                          : article.vehicleStatus ==
+                                                                                  "Overspeed"
+                                                                              ? Image
+                                                                                  .asset(
+                                                                                  "assets/overspeed_truck.png",
+                                                                                  height: 45.0,
+                                                                                  width: 45.0,
+                                                                                )
+                                                                              :
+                                                              Image.asset(
+                                                            "assets/running_truck.png",
+                                                            height: 45.0,
+                                                            width: 45.0,
+                                                          ),
+                                                        ),
+                                                        Expanded(
+                                                          child: Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                        .only(
+                                                                    left: 10.0),
+                                                            child: Column(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .start,
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .start,
                                                               children: [
-                                                                const Icon(
-                                                                  Icons.circle,
-                                                                  color: MyColors
-                                                                      .analyticGreenColorCode,
-                                                                  size: 7,
+                                                                Text(
+                                                                  article
+                                                                      .vehicleregNo
+                                                                      .toString(),
+                                                                  style: const TextStyle(
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold,
+                                                                      fontSize:
+                                                                          20),
                                                                 ),
-                                                                Padding(
-                                                                  padding: const EdgeInsets
-                                                                          .only(
-                                                                      left: 4.0,
-                                                                      top: 6,
-                                                                      bottom:
-                                                                          6),
-                                                                  child: Text(
-                                                                    article
-                                                                        .vehicleStatus
-                                                                        .toString(),
-                                                                    style: TextStyle(
-                                                                        color: article.vehicleStatus == "Running"
-                                                                            ? Color.fromARGB(255, 74, 172, 79)
-                                                                            : article.vehicleStatus == "Idle"
-                                                                                ? Color.fromARGB(255, 233, 215, 60)
-                                                                                : article.vehicleStatus == "Inactive"
-                                                                                    ? Colors.blue
-                                                                                    : article.vehicleStatus == "Stop"
-                                                                                        ? Colors.red
-                                                                                        : article.vehicleStatus == "Overspeed"
-                                                                                            ? Colors.orange
-                                                                                            : Colors.grey,
-                                                                        fontSize: 16),
-                                                                  ),
-                                                                )
-                                                              ],
-                                                            ),
-                                                            Row(
-                                                              children: [
-                                                                Container(
-                                                                  padding: const EdgeInsets
-                                                                          .only(
-                                                                      left: 8.0,
-                                                                      right: 8,
-                                                                      top: 8,
-                                                                      bottom:
-                                                                          8),
-                                                                  decoration:
-                                                                      const BoxDecoration(
-                                                                    color: MyColors
-                                                                        .textBoxColorCode,
-                                                                    borderRadius:
-                                                                        BorderRadius.all(
-                                                                            Radius.circular(8)),
-                                                                  ),
-                                                                  child: Text(
-                                                                      article
+                                                                Text(
+                                                                  article.imei
+                                                                      .toString(),
+                                                                  style: const TextStyle(
+                                                                      fontSize:
+                                                                          16,
+                                                                      color: MyColors
+                                                                          .analyticGreenColorCode),
+                                                                ),
+                                                                Row(
+                                                                  children: [
+                                                                    const Icon(
+                                                                      Icons
+                                                                          .circle,
+                                                                      color: MyColors
+                                                                          .analyticGreenColorCode,
+                                                                      size: 7,
+                                                                    ),
+                                                                    Padding(
+                                                                      padding: const EdgeInsets
+                                                                              .only(
+                                                                          left:
+                                                                              4.0,
+                                                                          top:
+                                                                              6,
+                                                                          bottom:
+                                                                              6),
+                                                                      child:
+                                                                          Text(
+                                                                        article
+                                                                            .vehicleStatus
+                                                                            .toString(),
+                                                                        style: TextStyle(
+                                                                            // color: Colors.green,
+                                                                            color: article.vehicleStatus == "Running"
+                                                                                ? Color.fromARGB(255, 74, 172, 79)
+                                                                                : article.vehicleStatus == "Idle"
+                                                                                    ? Color.fromARGB(255, 233, 215, 60)
+                                                                                    : article.vehicleStatus == "Inactive"
+                                                                                        ? Colors.blue
+                                                                                        : article.vehicleStatus == "Stop"
+                                                                                            ? Colors.red
+                                                                                            : article.vehicleStatus == "Overspeed"
+                                                                                                ? Colors.orange
+                                                                                                : Colors.grey,
+                                                                            fontSize: 16),
+                                                                      ),
+                                                                    )
+                                                                  ],
+                                                                ),
+                                                                Row(
+                                                                  children: [
+                                                                    Container(
+                                                                      padding: const EdgeInsets
+                                                                              .only(
+                                                                          left:
+                                                                              8.0,
+                                                                          right:
+                                                                              8,
+                                                                          top:
+                                                                              8,
+                                                                          bottom:
+                                                                              8),
+                                                                      decoration:
+                                                                          const BoxDecoration(
+                                                                        color: MyColors
+                                                                            .textBoxColorCode,
+                                                                        borderRadius:
+                                                                            BorderRadius.all(Radius.circular(8)),
+                                                                      ),
+                                                                      child: Text(article
                                                                           .tDate
                                                                           .toString()),
-                                                                ),
-                                                                const SizedBox(
-                                                                  width: 2.0,
-                                                                ),
-                                                                Container(
-                                                                  padding: const EdgeInsets
-                                                                          .only(
-                                                                      left: 8.0,
-                                                                      right: 8,
-                                                                      top: 8,
-                                                                      bottom:
-                                                                          8),
-                                                                  decoration:
-                                                                      const BoxDecoration(
-                                                                    color: MyColors
-                                                                        .textBoxColorCode,
-                                                                    borderRadius:
-                                                                        BorderRadius.all(
-                                                                            Radius.circular(8)),
-                                                                  ),
-                                                                  child: Text(article
-                                                                      .vehicleStatusTime
-                                                                      .toString()),
+                                                                    ),
+                                                                    const SizedBox(
+                                                                      width:
+                                                                          2.0,
+                                                                    ),
+                                                                    Container(
+                                                                      padding: const EdgeInsets
+                                                                              .only(
+                                                                          left:
+                                                                              8.0,
+                                                                          right:
+                                                                              8,
+                                                                          top:
+                                                                              8,
+                                                                          bottom:
+                                                                              8),
+                                                                      decoration:
+                                                                          const BoxDecoration(
+                                                                        color: MyColors
+                                                                            .textBoxColorCode,
+                                                                        borderRadius:
+                                                                            BorderRadius.all(Radius.circular(8)),
+                                                                      ),
+                                                                      child: Text(article
+                                                                          .vehicleStatusTime
+                                                                          .toString()),
+                                                                    ),
+                                                                  ],
                                                                 ),
                                                               ],
                                                             ),
-                                                          ],
+                                                          ),
                                                         ),
-                                                      ),
+                                                      ],
                                                     ),
                                                   ],
                                                 ),
-                                              ],
-                                            ),
-                                          ),
+                                              ),
+                                            );
+                                          },
                                         );
-                                      },
-                                    );
-                                  })
-                        
+                                      })
                   ],
                 ),
               ),
@@ -1017,25 +1056,25 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
       });
       return;
     } else {
-      if (text.isNotEmpty || text.length > 0) {
-        setState(() {
-          isSearch = true;
-          searchClass.searchStr = text;
-        });
-        _mainBloc.add(TravelSummarySearchEvent(
-            token: token,
-            vendorid: vendorid,
-            branchid: branchid,
-            arainonarai: arainonari,
-            searchtext: searchClass.searchStr,
-            fromdata: fromDateController ?? fromdate,
-            fromtime: fromTimeController ?? fromtime,
-            todate: toDateController ?? todate,
-            totime: toTimeController ?? searchtotime,
-            pagesize: pagesize,
-            pagenumber: 1));
-      }
+      setState(() {
+        isSearch = true;
+      });
+      _mainBloc.add(TravelSummarySearchEvent(
+          token: token,
+          vendorid: vendorid,
+          branchid: branchid,
+          arainonarai: arainonari,
+          searchtext: searhcontroller.text,
+          fromdata: fromDateController ?? fromdate,
+          fromtime: fromTimeController ?? fromtime,
+          todate: toDateController ?? todate,
+          totime: toTimeController ?? searchtotime,
+          pagesize: pagesize,
+          pagenumber: 1));
     }
+    // traveldata!.forEach((userDetail) {
+    //   if (userDetail.vehicleregNo!.contains(text)) searchdata!.add(userDetail);
+    // });
   }
 
   changeDatepopUp(BuildContext context) {

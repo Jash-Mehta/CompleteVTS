@@ -2519,6 +2519,34 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         } catch (e) {
           yield RouteDefinePostErrorState(msg: e.toString());
         }
+      }//Main Bloc
+
+ //  ------------------- // Get veh speed data--------------
+
+      else if (event is GetVehSpeedDataEvent) {
+        try {
+          yield GetVehSpeedLoadingState();
+          var getvehspeedDetailres =
+          await webService.getvehspeedDetail(
+            event.token,
+            event.vendorId,
+            event.branchid,
+            event.araino,
+            event.fromdate,
+            event.fromTime,
+            event.toDate,
+            event.toTime,
+            event.vehicleStatusList,
+            event.vehicleList,
+            event.pagenumber,
+            event.pagesize,
+          );
+          print("Enter in main bloc of speed data-----------${getvehspeedDetailres.data!.length}");
+          yield GetVehSpeedLoadedState(
+              getVehSpeedResponse: getvehspeedDetailres);
+        } catch (e) {
+          print(e.toString());
+        }
       }
     }
   }

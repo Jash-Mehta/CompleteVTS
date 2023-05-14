@@ -140,18 +140,7 @@ class _VehicleStatusDetailsScreenState
 
     print("branchid ${branchid}   Vendor id   ${vendorid}");
 
-    print("" +
-        vendorid.toString() +
-        " " +
-        branchid.toString() +
-        " " +
-        userName +
-        " " +
-        vendorName +
-        " " +
-        branchName +
-        " " +
-        userType);
+   
 
     if (token != "" ||
         vendorid != 0 ||

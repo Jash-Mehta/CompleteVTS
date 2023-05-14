@@ -138,6 +138,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
   late int totalgeofenceCreateRecords = 0, deleteposition = 0;
   List<DatewiseFramePacketGridViewData> pdfdatalist = [];
   List<FrameGridFilterData> pdffilterdatalist = [];
+  List<DatewiseFramePacketGridViewItem> pdfsearchdatalist = [];
   List<DatewiseFramePacketGridViewData>? framepacketgriddata = [];
   List<FrameGridFilterData>? framefiltergriddata = [];
   List<DatewiseFramePacketGridViewItem>? searchdatalist = [];
@@ -214,6 +215,12 @@ class _FramePacketGridState extends State<FramePacketGrid> {
             onTap: () {
               setState(() {
                 isfilter = true;
+                todateInput.text = "";
+                fromdateInput.text = "";
+                fromTimeInput.text = "";
+                toTimrInput.text = "";
+                fpgdclisttiletext = "";
+                fpgolisttiletext = "";
                 isfilter
                     ? _mainBloc.add(VehicleVSrNoEvent(
                         token: token, vendorId: 1, branchId: 1))
@@ -379,8 +386,8 @@ class _FramePacketGridState extends State<FramePacketGrid> {
               framefiltergriddata!.addAll(state.framegridFilterresponse.data!);
             } else {
               setState(() {
-              _isLoading = false;
-            });
+                _isLoading = false;
+              });
             }
           } else if (state is FrameGridFilterErorrState) {
             print("Frame grid filter error");
@@ -426,9 +433,9 @@ class _FramePacketGridState extends State<FramePacketGrid> {
             if (state.searchFramePacketgrid.data != null) {
               searchdatalist!.addAll(state.searchFramePacketgrid.data!);
             } else {
-               setState(() {
-              _isLoading = false;
-            });
+              setState(() {
+                _isLoading = false;
+              });
             }
             // if(state.search_overspeed_response.data!=null){
             //   searchData!.addAll(state.search_overspeed_response.data!);
@@ -483,8 +490,8 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                         todateInput.text = "";
                                         fromTimeInput.text = "";
                                         fromdateInput.text = "";
-                                        fpgolisttiletext = "-select-";
-                                        fpgdclisttiletext = "-select-";
+                                        fpgolisttiletext = "";
+                                        fpgdclisttiletext = "";
                                         setState(() {});
                                       },
                                     ),
@@ -518,7 +525,11 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                               toTimeController != null &&
                                               fromTimeController != null &&
                                               fpgdcvehicleno != null &&
-                                              fpgovehicleno != null) {
+                                              fpgovehicleno != null &&
+                                              fromdateInput.text.isNotEmpty &&
+                                              todateInput.text.isNotEmpty &&
+                                              fromTimeInput.text.isNotEmpty &&
+                                              toTimrInput.text.isNotEmpty) {
                                             _mainBloc.add(FrameGridFilterEvent(
                                                 token: token,
                                                 vendorId: vendorid,
@@ -712,7 +723,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                           width: 2)),
                                   child: ListTile(
                                     leading: Text(
-                                      fpgdclisttiletext == null
+                                      fpgdclisttiletext == ""
                                           ? "-select-"
                                           : fpgdclisttiletext,
                                       style: TextStyle(
@@ -823,7 +834,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                           width: 2)),
                                   child: ListTile(
                                     leading: Text(
-                                      fpgolisttiletext == null
+                                      fpgolisttiletext == ""
                                           ? "-select-"
                                           : fpgolisttiletext,
                                       style: TextStyle(
@@ -1542,10 +1553,11 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                             GestureDetector(
                               onTap: () async {
                                 pdfdatalist.clear();
-                                applyclicked
-                                    ? pdffilterdatalist
-                                        .addAll(framefiltergriddata!)
-                                    : pdfdatalist.addAll(framepacketgriddata!);
+                                pdfdatalist.addAll(framepacketgriddata!);
+                                pdffilterdatalist.clear();
+                                pdffilterdatalist.addAll(framefiltergriddata!);
+                                pdfsearchdatalist.clear();
+                                pdfsearchdatalist.addAll(searchdatalist!);
                                 setState(() {});
                                 var status = await Permission.storage.status;
                                 if (await Permission.storage
@@ -1554,7 +1566,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                   final pdfFile = await PdfInvoiceApi.generate(
                                       pdfdatalist,
                                       applyclicked,
-                                      pdffilterdatalist);
+                                      pdffilterdatalist, pdfsearchdatalist, isSearch);
                                   PdfApi.openFile(pdfFile);
                                 } else {
                                   print("Request is not accepted");
@@ -1635,12 +1647,13 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                       Row(
                                         children: [
                                           Text("From Date  ",
+                                              style: TextStyle(fontSize: 18)),
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                left: 10.0),
+                                            child: Text(" -  To Date",
                                                 style: TextStyle(fontSize: 18)),
-                                                 Padding(
-                                                   padding: const EdgeInsets.only(left: 10.0),
-                                                   child: Text(" -  To Date",
-                                                style: TextStyle(fontSize: 18)),
-                                                 ),
+                                          ),
                                         ],
                                       ),
                                       Row(
@@ -3586,23 +3599,23 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                             });
                                       }))
                                   : searchdatalist!.isEmpty
+                                      ? Center(
+                                          child: Text(
+                                          "No data found",
+                                          style: TextStyle(
+                                              fontSize: 24,
+                                              fontWeight: FontWeight.w500),
+                                        ))
+                                      : _isLoading
                                           ? Center(
                                               child: Text(
-                                              "No data found",
-                                              style: TextStyle(
-                                                  fontSize: 24,
-                                                  fontWeight: FontWeight.w500),
-                                            ))
-                                          : _isLoading
-                                              ? Center(
-                                                  child: Text(
-                                                      "Wait data is Loading.."))
-                                              :Padding(
+                                                  "Wait data is Loading.."))
+                                          : Padding(
                                               padding: const EdgeInsets.only(
                                                   top: 20.0),
-                                              child: BlocBuilder<MainBloc,
-                                                      MainState>(
-                                                  builder: (context, state) {
+                                              child:
+                                                  BlocBuilder<MainBloc, MainState>(
+                                                      builder: (context, state) {
                                                 return ListView.builder(
                                                     shrinkWrap: true,
                                                     controller:
@@ -4405,7 +4418,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
 
 class PdfInvoiceApi {
   static Future<File> generate(List<DatewiseFramePacketGridViewData> pdflist,
-      bool pdfstatus, List<FrameGridFilterData> pdffilterlist) async {
+      bool applyclicked, List<FrameGridFilterData> pdffilterlist,  List<DatewiseFramePacketGridViewItem> pdfsearch, bool issearch) async {
     final pdf = pw.Document();
     double fontsize = 8.0;
 
@@ -4541,7 +4554,7 @@ class PdfInvoiceApi {
           //     child:
           pw.ListView.builder(
               itemBuilder: (pw.Context context, int index) {
-                var article = pdflist[index];
+                // var article = pdflist[index];
                 var sr = index + 1;
                 return pw.Table(
                     border:
@@ -4562,7 +4575,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(article.header.toString(),
+                            child: pw.Text(applyclicked ? pdffilterlist[index].header.toString() : issearch ? pdfsearch[index].header.toString() :  pdflist[index].header.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -4571,7 +4584,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(article.imei.toString(),
+                            child: pw.Text(applyclicked ? pdffilterlist[index].imei.toString() : issearch ? pdfsearch[index].imei.toString() :  pdflist[index].imei.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -4580,7 +4593,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(article.vehicleRegNo.toString(),
+                            child: pw.Text(applyclicked ? pdffilterlist[index].vehicleRegNo.toString() : issearch ? pdfsearch[index].vehicleRegNo.toString() :  pdflist[index].vehicleRegNo.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -4589,7 +4602,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(article.latitude.toString(),
+                            child: pw.Text(applyclicked ? "-" : issearch ? "-" :  pdflist[index].latitude.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -4598,7 +4611,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(article.longitude.toString(),
+                            child: pw.Text(applyclicked ? "-" : issearch ? "-" :  pdflist[index].header.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -4614,7 +4627,7 @@ class PdfInvoiceApi {
                       ])
                     ]);
               },
-              itemCount: pdfstatus ? pdffilterlist.length : pdflist.length),
+              itemCount: applyclicked ? pdffilterlist.length : issearch ? pdfsearch.length : pdflist.length),
           // ),
           // pw.SizedBox(height: 15),
           // pw.Row(
@@ -4647,7 +4660,7 @@ class PdfInvoiceApi {
       },
     ));
 
-    return PdfApi.saveDocument(name: 'FramePacketgridreport.pdf', pdf: pdf);
+    return PdfApi.saveDocument(name: applyclicked ? 'FramePacketgridFilterreport.pdf' : issearch ? 'FramePacketgridSearchreport.pdf' : 'FramePacketgridreport.pdf', pdf: pdf);
   }
 }
 

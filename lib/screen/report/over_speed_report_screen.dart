@@ -61,11 +61,7 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
   String branchName = "", userType = "";
   int imeino = 862430050555255;
   int pagesize = 10;
-  var fromDateController,
-      toDateController,
-      fromTimeController,
-      toTimeController,
-      vehiclenumber;
+  var fromDateController, toDateController, vehiclenumber;
   int vendorid = 1;
   int branchid = 1;
   TextEditingController fromdateInput = TextEditingController();
@@ -87,6 +83,8 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
   List<OverSpeedFilterDetail>? overspeedfilter = [];
   List<OverSpeeddDetailItem>? searchData = [];
   List<OverSpeeddDetail> pdfdatalist = [];
+  List<OverSpeedFilterDetail> pdffilterlist = [];
+  List<OverSpeeddDetailItem> pdfsearchlist = [];
   bool isfilter = false;
   var vendoritems = [
     'M-Tech',
@@ -156,6 +154,11 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
             onTap: () {
               setState(() {
                 isfilter = true;
+                // toDateController = "";
+                // fromDateController = "";
+                todateInput.text = "";
+                fromdateInput.text = "";
+                osvfvehnolisttiletext = "-Select-";
                 ispopup = true;
                 isfilter
                     ? _mainBloc.add(VehicleVSrNoEvent(
@@ -283,34 +286,6 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
     }
 
     print("branchid ${branchid}   Vendor id   ${vendorid}");
-
-    //print(""+vendorid.toString()+" "+branchid.toString()+" "+userName+" "+vendorName+" "+branchName+" "+userType);
-    print("" +
-        vehicleRegNo.toString() +
-        " " +
-        imeino.toString() +
-        " " +
-        latitude.toString() +
-        " " +
-        longitude.toString() +
-        " " +
-        address.toString() +
-        " " +
-        transDate.toString() +
-        " " +
-        transTime.toString() +
-        " " +
-        speed.toString() +
-        " " +
-        overSpeed.toString() +
-        " " +
-        updatedOn.toString() +
-        " " +
-        distancetravel.toString() +
-        " " +
-        speedLimit.toString() +
-        " " +
-        searchText);
 
     if (token != "" ||
         vehicleRegNo != 0 ||
@@ -516,11 +491,9 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                             fontSize: 18),
                                       ),
                                       onPressed: () {
-                                        toTimrInput.text = "";
                                         todateInput.text = "";
-                                        fromTimeInput.text = "";
                                         fromdateInput.text = "";
-                                        osvfvehnolisttiletext = "-Select-";
+                                        osvfvehnolisttiletext = "";
                                         setState(() {});
                                       },
                                     ),
@@ -548,7 +521,7 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                           searchController.text = "";
                                           if (toDateController != null &&
                                               fromDateController != null &&
-                                              osvfvehnolisttiletext != null) {
+                                              osvfvehnolisttiletext != null && fromdateInput.text.isNotEmpty && todateInput.text.isNotEmpty) {
                                             _mainBloc.add(OverSpeedFilterEvents(
                                               token: token,
                                               vendorid: vendorid,
@@ -575,7 +548,6 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                               toastLength: Toast.LENGTH_SHORT,
                                               timeInSecForIosWeb: 1,
                                             );
-                                            // Text("Enter required fields");
                                           }
                                         })),
                               ),
@@ -764,7 +736,7 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                           width: 2)),
                                   child: ListTile(
                                     leading: Text(
-                                      osvfvehnolisttiletext == null
+                                      osvfvehnolisttiletext == ""
                                           ? "-Select-"
                                           : osvfvehnolisttiletext,
                                       style: TextStyle(
@@ -1177,6 +1149,10 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                               onTap: () async {
                                 pdfdatalist.clear();
                                 pdfdatalist.addAll(overspeedlist!);
+                                pdffilterlist.clear();
+                                pdffilterlist.addAll(overspeedfilter!);
+                                pdfsearchlist.clear();
+                                pdfsearchlist.addAll(searchData!);
                                 setState(() {});
 
                                 var status = await Permission.storage.status;
@@ -1184,7 +1160,7 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                     .request()
                                     .isGranted) {
                                   final pdfFile =
-                                      await PdfInvoiceApi.generate(pdfdatalist);
+                                      await PdfInvoiceApi.generate(pdfdatalist,pdffilterlist,applyclicked,pdfsearchlist,isSelected);
                                   PdfApi.openFile(pdfFile);
                                 } else {
                                   print("Request is not accepted");
@@ -1286,7 +1262,8 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                                         style: TextStyle(
                                                             fontSize: 18),
                                                       ),
-                                                      Text(osvfvehnolisttiletext,
+                                                      Text(
+                                                          osvfvehnolisttiletext,
                                                           style: TextStyle(
                                                               fontSize: 18)),
                                                     ],
@@ -2420,7 +2397,7 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
 }
 
 class PdfInvoiceApi {
-  static Future<File> generate(List<OverSpeeddDetail> pdflist) async {
+  static Future<File> generate(List<OverSpeeddDetail> pdflist, List<OverSpeedFilterDetail> pdffilter, bool applyclicked, List<OverSpeeddDetailItem> pdfsearch, bool issearch) async {
     final pdf = pw.Document();
     double fontsize = 8.0;
     DateTime current_date = DateTime.now();
@@ -2572,7 +2549,7 @@ class PdfInvoiceApi {
           ),
           pw.ListView.builder(
               itemBuilder: (pw.Context context, int index) {
-                var article = pdflist[index];
+                // var article = pdflist[index];
                 var sr = index + 1;
                 return pw.Table(
                     border:
@@ -2593,7 +2570,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(article.imeino.toString(),
+                            child: pw.Text(applyclicked ? pdffilter[index].imeino.toString() : issearch ? pdfsearch[index].imeino.toString() : pdflist[index].imeino.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2602,7 +2579,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(article.transTime.toString(),
+                            child: pw.Text(applyclicked ? pdffilter[index].transTime.toString() : issearch ? pdfsearch[index].transTime.toString() : pdflist[index].transTime.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2611,7 +2588,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(article.speed.toString(),
+                            child: pw.Text(applyclicked ? pdffilter[index].speed.toString() : issearch ? pdfsearch[index].speed.toString() : pdflist[index].speed.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2620,7 +2597,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(article.overSpeed.toString(),
+                            child: pw.Text(applyclicked ? pdffilter[index].overSpeed.toString() : issearch ? pdfsearch[index].overSpeed.toString() : pdflist[index].overSpeed.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2629,7 +2606,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(article.distancetravel.toString(),
+                            child: pw.Text(applyclicked ? pdffilter[index].distancetravel.toString() : issearch ? pdfsearch[index].distancetravel.toString() : pdflist[index].distancetravel.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2638,7 +2615,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(article.latitude.toString(),
+                            child: pw.Text(applyclicked ? pdffilter[index].latitude.toString() : issearch ? pdfsearch[index].latitude.toString() : pdflist[index].latitude.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2647,7 +2624,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(article.longitude.toString(),
+                            child: pw.Text(applyclicked ? pdffilter[index].longitude.toString() : issearch ? pdfsearch[index].longitude.toString() : pdflist[index].longitude.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2663,13 +2640,13 @@ class PdfInvoiceApi {
                       ])
                     ]);
               },
-              itemCount: pdflist.length)
+              itemCount: applyclicked ? pdffilter.length : issearch ? pdfsearch.length : pdflist.length)
           // ),
         ];
       },
     ));
 
-    return PdfApi.saveDocument(name: 'OverSpeedReport.pdf', pdf: pdf);
+    return PdfApi.saveDocument(name:applyclicked ? 'OverSpeedFilterReport.pdf': issearch ? 'OverSpeedSearchReport.pdf': 'OverSpeedReport.pdf', pdf: pdf);
   }
 }
 

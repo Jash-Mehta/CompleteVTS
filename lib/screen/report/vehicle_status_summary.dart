@@ -86,6 +86,8 @@ class _VehicleStatusSummaryState extends State<VehicleStatusSummary> {
 
   late bool isdmdc = false;
   List<StatusSummaryData> pdfdatalist = [];
+  List<VehicleSummaryFilterData> pdffilterlist = [];
+  List<DatewiseStatusWiseTravelSummaryDatum> pdfsearchlist = [];
   List<StatusSummaryData>? data = [];
   List<DatewiseStatusWiseTravelSummaryDatum>? searchData = [];
   List<VehicleSummaryFilterData>? filterData = [];
@@ -207,6 +209,11 @@ class _VehicleStatusSummaryState extends State<VehicleStatusSummary> {
             onTap: () {
               setState(() {
                 isfilter = true;
+                toTimrInput.text = "";
+                todateInput.text = "";
+                fromTimeInput.text = "";
+                fromdateInput.text = "";
+                vsrdcvsrnolisttiletext = "";
                 isfilter
                     ? _mainBloc.add(VehicleVSrNoEvent(
                         token: token, vendorId: 1, branchId: 1))
@@ -362,10 +369,10 @@ class _VehicleStatusSummaryState extends State<VehicleStatusSummary> {
                 value = state.vehiclesummaryFilterresponse.totalRecords!;
               });
               filterData!.addAll(state.vehiclesummaryFilterresponse.data!);
-            }else{
-               setState(() {
-              _isLoading = false;
-            });
+            } else {
+              setState(() {
+                _isLoading = false;
+              });
             }
           } else if (state is VehicleSummaryFilterErorrState) {
             print("Vehicle Status Group filter Error");
@@ -388,10 +395,10 @@ class _VehicleStatusSummaryState extends State<VehicleStatusSummary> {
                 value = state.searchVehicleStatusGroupResponse.totalRecords!;
               });
               searchData!.addAll(state.searchVehicleStatusGroupResponse.data!);
-            }else{
-               setState(() {
-              _isLoading = false;
-            });
+            } else {
+              setState(() {
+                _isLoading = false;
+              });
             }
           } else if (state is SearchVehicleStatusSummaryErrorState) {
             setState(() {
@@ -443,7 +450,7 @@ class _VehicleStatusSummaryState extends State<VehicleStatusSummary> {
                                         todateInput.text = "";
                                         fromTimeInput.text = "";
                                         fromdateInput.text = "";
-                                        vsrdcvsrnolisttiletext = "-select-";
+                                        vsrdcvsrnolisttiletext = "";
                                         setState(() {});
                                       },
                                     ),
@@ -475,7 +482,11 @@ class _VehicleStatusSummaryState extends State<VehicleStatusSummary> {
                                               fromTimeController != null &&
                                               toDateController != null &&
                                               toTimeController != null &&
-                                              vsrdcvehicleno != null) {
+                                              vsrdcvehicleno != null &&
+                                              fromdateInput.text.isNotEmpty &&
+                                              todateInput.text.isNotEmpty &&
+                                              fromTimeInput.text.isNotEmpty &&
+                                              toTimrInput.text.isNotEmpty) {
                                             _mainBloc
                                                 .add(vehicleSummaryFilterEvent(
                                               token: token,
@@ -692,7 +703,7 @@ class _VehicleStatusSummaryState extends State<VehicleStatusSummary> {
                                           width: 2)),
                                   child: ListTile(
                                     leading: Text(
-                                      vsrdcvsrnolisttiletext == null
+                                      vsrdcvsrnolisttiletext == ""
                                           ? "-select-"
                                           : vsrdcvsrnolisttiletext,
                                       style: TextStyle(
@@ -1409,6 +1420,10 @@ class _VehicleStatusSummaryState extends State<VehicleStatusSummary> {
                               onTap: () async {
                                 pdfdatalist.clear();
                                 pdfdatalist.addAll(data!);
+                                pdffilterlist.clear();
+                                pdffilterlist.addAll(filterData!);
+                                pdfsearchlist.clear();
+                                pdfsearchlist.addAll(searchData!);
                                 setState(() {});
 
                                 var status = await Permission.storage.status;
@@ -1416,7 +1431,7 @@ class _VehicleStatusSummaryState extends State<VehicleStatusSummary> {
                                     .request()
                                     .isGranted) {
                                   final pdfFile =
-                                      await PdfInvoiceApi.generate(pdfdatalist);
+                                      await PdfInvoiceApi.generate(pdfdatalist,pdffilterlist,applyclicked,pdfsearchlist,isSearch);
                                   PdfApi.openFile(pdfFile);
                                 } else {
                                   print("Request is not accepted");
@@ -1511,12 +1526,13 @@ class _VehicleStatusSummaryState extends State<VehicleStatusSummary> {
                                       Row(
                                         children: [
                                           Text("From Date  ",
+                                              style: TextStyle(fontSize: 18)),
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                left: 10.0),
+                                            child: Text(" -  To Date",
                                                 style: TextStyle(fontSize: 18)),
-                                                 Padding(
-                                                   padding: const EdgeInsets.only(left: 10.0),
-                                                   child: Text(" -  To Date",
-                                                style: TextStyle(fontSize: 18)),
-                                                 ),
+                                          ),
                                         ],
                                       ),
                                       Row(
@@ -2136,25 +2152,25 @@ class _VehicleStatusSummaryState extends State<VehicleStatusSummary> {
                                             });
                                       }))
                                   : searchData!.isEmpty
-                                  ? Center(
-                                      child: Text(
-                                      "No data found",
-                                      style: TextStyle(
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.w500),
-                                    ))
-                                  : _isLoading
                                       ? Center(
-                                          child: Text("Wait data is Loading.."))
-                                      :Padding(
+                                          child: Text(
+                                          "No data found",
+                                          style: TextStyle(
+                                              fontSize: 24,
+                                              fontWeight: FontWeight.w500),
+                                        ))
+                                      : _isLoading
+                                          ? Center(
+                                              child: Text(
+                                                  "Wait data is Loading.."))
+                                          : Padding(
                                               padding: const EdgeInsets.only(
                                                   top: 20.0),
                                               child:
                                                   // (searchData!.length != 0 ||
                                                   //         searchData!.isNotEmpty)
                                                   //     ?
-                                                  BlocBuilder<MainBloc,
-                                                          MainState>(
+                                                  BlocBuilder<MainBloc, MainState>(
                                                       builder:
                                                           (context, state) {
                                                 return ListView.builder(
@@ -2437,7 +2453,7 @@ class _VehicleStatusSummaryState extends State<VehicleStatusSummary> {
 }
 
 class PdfInvoiceApi {
-  static Future<File> generate(List<StatusSummaryData> pdflist) async {
+  static Future<File> generate(List<StatusSummaryData> pdflist, List<VehicleSummaryFilterData> pdffilter, bool applyclicked, List<DatewiseStatusWiseTravelSummaryDatum> pdfsearch, bool issearch) async {
     final pdf = pw.Document();
     double fontsize = 8.0;
     DateTime current_date = DateTime.now();
@@ -2561,7 +2577,7 @@ class PdfInvoiceApi {
           //     child:
           pw.ListView.builder(
               itemBuilder: (pw.Context context, int index) {
-                var article = pdflist[index];
+                // var article = pdflist[index];
                 var sr = index + 1;
                 return pw.Table(
                     border:
@@ -2582,7 +2598,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(article.tDate.toString(),
+                            child: pw.Text(applyclicked ?  pdflist[index].tDate.toString() : issearch ? pdflist[index].tDate.toString() : pdflist[index].tDate.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2591,7 +2607,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(article.imei.toString(),
+                            child: pw.Text(applyclicked ?  pdflist[index].imei.toString() : issearch ? pdflist[index].imei.toString() : pdflist[index].imei.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2600,7 +2616,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(article.vehicleregNo.toString(),
+                            child: pw.Text(applyclicked ?  pdflist[index].vehicleregNo.toString() : issearch ? pdflist[index].vehicleregNo.toString() : pdflist[index].vehicleregNo.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2609,7 +2625,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(article.vehicleStatus.toString(),
+                            child: pw.Text(applyclicked ? pdffilter[index].vehicleStatus.toString() : issearch ? pdfsearch[index].vehicleStatus.toString() : pdflist[index].vehicleStatus.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2618,7 +2634,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(article.vehicleStatusTime.toString(),
+                            child: pw.Text(applyclicked ?  pdflist[index].vehicleStatusTime.toString() : issearch ? pdflist[index].vehicleStatusTime.toString() : pdflist[index].vehicleStatusTime.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2634,7 +2650,11 @@ class PdfInvoiceApi {
                       ])
                     ]);
               },
-              itemCount: pdflist.length),
+              itemCount:applyclicked
+                  ? pdffilter.length
+                  : issearch
+                      ? pdfsearch.length
+                      : pdflist.length),
           // ),
           // pw.SizedBox(height: 15),
           // pw.Row(
@@ -2668,7 +2688,11 @@ class PdfInvoiceApi {
     ));
 
     return PdfApi.saveDocument(
-        name: 'vehiclestatussummaryreport.pdf', pdf: pdf);
+        name:applyclicked
+            ? 'vehiclesummaryFilterReport.pdf'
+            : issearch
+                ? 'vehiclesummarysSearchReport.pdf'
+                :  'vehiclestatussummaryreport.pdf', pdf: pdf);
   }
 }
 

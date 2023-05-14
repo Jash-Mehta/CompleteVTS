@@ -30,12 +30,12 @@ class AllVehicleDetailResponse {
   String ?lastPage;
   int ?totalPages;
   int? totalRecords;
-  dynamic ?nextPage;
+  dynamic nextPage;
   String? previousPage;
   List<VechileDetailsbyID> ?data;
   bool ?succeeded;
-  dynamic ?errors;
-  dynamic ? message;
+  dynamic errors;
+  dynamic  message;
 
   factory AllVehicleDetailResponse.fromJson(Map<String, dynamic> json) => AllVehicleDetailResponse(
     pageNumber: json["pageNumber"]==null ? null : json["pageNumber"],

@@ -2534,3 +2534,33 @@ class RouteDefinePostEvents extends MainEvent {
     required this.midwaypoint,
   });
 }
+//Event
+
+class  GetVehSpeedDataEvent extends MainEvent {
+  String token;
+  int vendorId;
+  int branchid;
+  String araino;
+  String fromdate;
+  String fromTime;
+  String toDate;
+  String toTime;
+  String vehicleStatusList;
+  String vehicleList;
+  int pagenumber;
+  int pagesize;
+  GetVehSpeedDataEvent({
+    required this.token,
+    required this.vendorId,
+    required this.branchid,
+    required this.araino,
+    required this.fromdate,
+    required this.fromTime,
+    required this.toDate,
+    required this.toTime,
+    required this.vehicleStatusList,
+    required this.vehicleList,
+    required this.pagenumber,
+    required this.pagesize,
+  });
+}

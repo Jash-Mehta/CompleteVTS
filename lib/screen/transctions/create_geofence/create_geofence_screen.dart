@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_vts/bloc/main_bloc.dart';
 import 'package:flutter_vts/bloc/main_event.dart';
+import 'package:flutter_vts/model/report/vehicle_vsrno.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter_vts/bloc/main_state.dart';
 import 'package:flutter_vts/model/alert/add_alert_master_requesy.dart';
 import 'package:flutter_vts/model/alert/vehicle_fill_srno_response.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_vts/model/geofence/search_geofence_create_response.dart';
 import 'package:flutter_vts/util/MyColor.dart';
 import 'package:flutter_vts/util/constant.dart';
@@ -68,6 +70,7 @@ class _CreateGeofenceScreenState extends State<CreateGeofenceScreen> {
   late String vendorName = "", branchName = "", userType = "";
   late int branchid = 1, vendorid = 1;
   late String token = "";
+  List<VehicleVSrNoData>? osvfdata = [];
   late bool _isLoading = false;
   List categoryDataList = [];
   List<String> list = [];
@@ -209,8 +212,7 @@ class _CreateGeofenceScreenState extends State<CreateGeofenceScreen> {
       _branchNamecontroller.text = branchName;
     }
     if (token != "") {
-      _mainBloc.add(AllVehicleDetailEvents(
-          token: token, vendorId: 1, branchId: 1, pageNumber: 1, pageSize: 10));
+      _mainBloc.add(VehicleVSrNoEvent(token: token, vendorId: 1, branchId: 1));
     }
   }
 
@@ -355,14 +357,30 @@ class _CreateGeofenceScreenState extends State<CreateGeofenceScreen> {
       child: BlocListener<MainBloc, MainState>(
         listener: (context, state) {
           //! VechileId and vechile number in flutter---------------------
-          if (state is AllVehicleDetailLoadingState) {
-          } else if (state is AllVehicleDetailLoadedState) {
-            if (state.allVehicleDetailResponse.data != null) {
-              vehiclelistbyid!.addAll(state.allVehicleDetailResponse.data!);
-            } else {
-              print("Your data is null");
+          if (state is VehicleVSrNoLoadingState) {
+            print("Over speed enter in the loading sate");
+            const Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (state is VehicleVSrNoLoadedState) {
+            if (state.vehiclevsrnoresponse.data != null) {
+              print("overspeed vehicle filter data is Loaded state");
+              osvfdata!.clear();
+              osvfdata!.addAll(state.vehiclevsrnoresponse.data!);
+
+              // overspeedfilter!.addAll(state.overspeedFilter.data!);
+              osvfdata!.forEach((element) {
+                print("Overspeed vehicle filter element is Printed");
+              });
             }
-          } else if (state is AllVehicleDetailErrorState) {}
+          } else if (state is VehicleVSrNoErorrState) {
+            print("Something went Wrong  data VehicleVSrNoErorrState");
+            Fluttertoast.showToast(
+              msg: state.msg,
+              toastLength: Toast.LENGTH_SHORT,
+              timeInSecForIosWeb: 1,
+            );
+          }
           //! AddGeofence Create--------
           if (state is AddGeofenceLoadingState) {
             setState(() {
@@ -888,15 +906,15 @@ class _CreateGeofenceScreenState extends State<CreateGeofenceScreen> {
                           width: double.infinity,
                           margin: EdgeInsets.only(left: 20.0, right: 20.0),
                           child: ListView.builder(
-                            itemCount: vehiclelistbyid!.length,
+                            itemCount: osvfdata!.length,
                             itemBuilder: (BuildContext context, int index) {
                               return Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: GestureDetector(
                                     onTap: () {
                                       iscontainerselected = false;
-                                      vehicleid = vehiclelistbyid![index].vsrNo;
-                                      vehiclename = vehiclelistbyid![index]
+                                      vehicleid = osvfdata![index].vsrNo;
+                                      vehiclename = osvfdata![index]
                                           .vehicleRegNo
                                           .toString();
                                       setState(() {});
@@ -904,7 +922,7 @@ class _CreateGeofenceScreenState extends State<CreateGeofenceScreen> {
                                     child: SizedBox(
                                       height: 40.0,
                                       width: 50.0,
-                                      child: Text(vehiclelistbyid![index]
+                                      child: Text(osvfdata![index]
                                           .vehicleRegNo
                                           .toString()),
                                     ),

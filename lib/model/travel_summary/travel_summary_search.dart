@@ -7,7 +7,6 @@ class TravelSummarySearch {
   int? totalRecords;
   String? nextPage;
   String? previousPage;
-  List<Data>? data;
   List<DatewiseStatusWiseTravelSearch>? datewise;
   bool? succeeded;
   String? errors;
@@ -21,7 +20,6 @@ class TravelSummarySearch {
       this.totalRecords,
       this.nextPage,
       this.previousPage,
-      this.data,
       this.succeeded,
       this.errors,
       this.message});
@@ -35,12 +33,12 @@ class TravelSummarySearch {
     totalRecords = json['totalRecords'];
     nextPage = json['nextPage'];
     previousPage = json['previousPage'];
-    if (json['data'] != null) {
-      data = <Data>[];
-      json['data'].forEach((v) {
-        data!.add(new Data.fromJson(v));
-      });
-    }
+    // if (json['data'] != null) {
+    //   data = <Data>[];
+    //   json['data'].forEach((v) {
+    //     data!.add(new Data.fromJson(v));
+    //   });
+    // }
     if (json['data'] != null) {
       datewise = <DatewiseStatusWiseTravelSearch>[];
       json['data'].forEach((v) {
@@ -66,9 +64,9 @@ class TravelSummarySearch {
     data['totalRecords'] = this.totalRecords;
     data['nextPage'] = this.nextPage;
     data['previousPage'] = this.previousPage;
-    if (this.data != null) {
-      data['data'] = this.data!.map((v) => v.toJson()).toList();
-    }
+    // if (this.data != null) {
+    //   data['data'] = this.data!.map((v) => v.toJson()).toList();
+    // }
     data['succeeded'] = this.succeeded;
     data['errors'] = this.errors;
     data['message'] = this.message;
