@@ -23,14 +23,14 @@ class StorageSummaryScreen extends StatefulWidget {
 
 class _StorageSummaryScreenState extends State<StorageSummaryScreen> {
   ScrollController notificationController = new ScrollController();
-   TextEditingController searhcontroller = new TextEditingController();
+  TextEditingController searhcontroller = new TextEditingController();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   var fromDateController,
       toDateController,
       fromTimeController,
       toTimeController,
       vehiclenumber;
-      String fromdate = "01-sep-2022";
+  String fromdate = "01-sep-2022";
   String arainonari = "arai";
   String todate = "30-sep-2022";
   String searchtext = "MH12";
@@ -52,6 +52,7 @@ class _StorageSummaryScreenState extends State<StorageSummaryScreen> {
   bool isSelected = false;
   String radiolist = "radio";
   bool isvalue = false;
+  bool applyclicked = false;
   int vendorid = 1;
   int branchid = 1;
   int pagenumber = 1;
@@ -61,7 +62,7 @@ class _StorageSummaryScreenState extends State<StorageSummaryScreen> {
   List<DatewiseStatusWiseTravelSummaryData>? traveldata = [];
   List<DatewiseStatusWiseTravelSearch>? searchdata = [];
   List<DatewiseStatusWiseTravelFilter>? filterdata = [];
-   @override
+  @override
   void initState() {
     super.initState();
 
@@ -75,13 +76,14 @@ class _StorageSummaryScreenState extends State<StorageSummaryScreen> {
         setState(() {
           print("Scroll ${pagenumber}");
           getallbranch();
-          isSelected ? getsearch() : null ;
+          // isSelected ? getsearch() : null ;
         });
       }
     });
     _mainBloc = BlocProvider.of(context);
   }
- getsearch() {
+
+  getsearch() {
     _mainBloc.add(TravelSummarySearchEvent(
         token: token,
         vendorid: vendorid,
@@ -95,6 +97,7 @@ class _StorageSummaryScreenState extends State<StorageSummaryScreen> {
         pagesize: pagesize,
         pagenumber: pagenumber));
   }
+
   getdata() async {
     sharedPreferences = await SharedPreferences.getInstance();
     if (sharedPreferences.getString("auth_token") != null) {
@@ -144,8 +147,7 @@ class _StorageSummaryScreenState extends State<StorageSummaryScreen> {
       ),
       child: BlocListener<MainBloc, MainState>(
         listener: (context, state) {
-          
-         //! FilterEvent TravelSummarydata fetching Start from here----------------
+          //! FilterEvent TravelSummarydata fetching Start from here----------------
           if (state is TravelSummaryFilterLoadingState) {
             setState(() {
               _isLoading = true;
@@ -154,16 +156,22 @@ class _StorageSummaryScreenState extends State<StorageSummaryScreen> {
             if (state.travelSummaryFilterResponse.datewise != null) {
               print("Filter data is printed!!");
               setState(() {
-                isData = false;
+                _isLoading = false;
                 // pagenumber++;
                 filterdata!.clear();
                 filterdata!.addAll(state.travelSummaryFilterResponse.datewise!);
               });
             } else {
               print("Something went worong in Filter data");
+              setState(() {
+                _isLoading = false;
+              });
             }
           } else if (state is TravelSummaryFilterErrorState) {
             print("Something went Wrong Filter data");
+            setState(() {
+              _isLoading = false;
+            });
           }
           //! SearchEvent TravelSummarydata fetching Start from here----------------
           if (state is TravelSummarySearchLoadingState) {
@@ -173,14 +181,18 @@ class _StorageSummaryScreenState extends State<StorageSummaryScreen> {
           } else if (state is TravelSummarySearchLoadedState) {
             if (state.travelSummaryResponse.datewise != null) {
               print("Search data is printed!!");
+              pagenumber++;
               setState(() {
                 _isLoading = false;
-                pagenumber++;
+                searchdata!.clear();
                 searchvalue = state.travelSummaryResponse.totalRecords!;
               });
               searchdata!.addAll(state.travelSummaryResponse.datewise!);
             } else {
               print("Something is going wrong in Search data");
+              setState(() {
+                _isLoading = false;
+              });
             }
           } else if (state is TravelSummaryErrorState) {
             print("Something went Wrong search data");
@@ -194,19 +206,17 @@ class _StorageSummaryScreenState extends State<StorageSummaryScreen> {
               _isLoading = true;
             });
           } else if (state is TravelSummaryReportLoadedState) {
-            setState(() {
-              if (state.TravelSummaryResponse.datewise != null) {
-                print("All travel Summary data is printed!!");
-                setState(() {
-                  _isLoading = false;
-                  pagenumber++;
-                  value = state.TravelSummaryResponse.totalRecords!;
-                });
-                traveldata!.addAll(state.TravelSummaryResponse.datewise!);
-              } else {
-                print("Something is going wrong");
-              }
-            });
+            // setState(() {
+            if (state.TravelSummaryResponse.datewise != null) {
+              print("All travel Summary data is printed!!");
+              pagenumber++;
+              setState(() {
+                _isLoading = false;
+                value = state.TravelSummaryResponse.totalRecords!;
+              });
+              traveldata!.addAll(state.TravelSummaryResponse.datewise!);
+            }
+            // });
           } else if (state is TravelSummaryErrorState) {
             print("Something went Wrong");
             setState(() {
@@ -232,8 +242,10 @@ class _StorageSummaryScreenState extends State<StorageSummaryScreen> {
                   children: [
                     Column(
                       children: [
-                        Text(isvalue ? fromDateController.toString() : fromdate),
-                        Text(isvalue ? fromTimeController.toString() : fromtime),
+                        Text(
+                            isvalue ? fromDateController.toString() : fromdate),
+                        Text(
+                            isvalue ? fromTimeController.toString() : fromtime),
                       ],
                     ),
                     const Text("-"),
@@ -252,7 +264,8 @@ class _StorageSummaryScreenState extends State<StorageSummaryScreen> {
                             left: 20, right: 20, top: 10, bottom: 10),
                         decoration: const BoxDecoration(
                             color: MyColors.greyColorCode,
-                            borderRadius: BorderRadius.all(Radius.circular(20))),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(20))),
                         child: const Text(
                           "Change",
                           style: TextStyle(
@@ -260,7 +273,7 @@ class _StorageSummaryScreenState extends State<StorageSummaryScreen> {
                         ),
                       ),
                     )
-    
+
                     // Text("10 NOTIFICATIONS",style: TextStyle(fontSize: 18),),
                     // Text("CLEAR ALL",style: TextStyle(decoration: TextDecoration.underline,color: MyColors.appDefaultColorCode,fontSize: 18),),
                   ],
@@ -270,17 +283,17 @@ class _StorageSummaryScreenState extends State<StorageSummaryScreen> {
                 padding: const EdgeInsets.only(
                     top: 10.0, left: 15, right: 15, bottom: 10),
                 child: Column(children: [
-                   TextField(
-                           controller: searhcontroller,
-                      onChanged: onSearchTextChanged,
+                  TextField(
+                    controller: searhcontroller,
+                    onChanged: onSearchTextChanged,
                     enabled: true, // to trigger disabledBorder
                     decoration: const InputDecoration(
                       filled: true,
                       fillColor: MyColors.whiteColorCode,
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(4)),
-                        borderSide:
-                            BorderSide(width: 1, color: MyColors.buttonColorCode),
+                        borderSide: BorderSide(
+                            width: 1, color: MyColors.buttonColorCode),
                       ),
                       disabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(4)),
@@ -299,7 +312,8 @@ class _StorageSummaryScreenState extends State<StorageSummaryScreen> {
                       errorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(4)),
                           borderSide: BorderSide(
-                              width: 1, color: MyColors.textBoxBorderColorCode)),
+                              width: 1,
+                              color: MyColors.textBoxBorderColorCode)),
                       focusedErrorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(4)),
                           borderSide: BorderSide(
@@ -321,646 +335,1049 @@ class _StorageSummaryScreenState extends State<StorageSummaryScreen> {
                   isSelected
                       ? searchdata!.isEmpty
                           ? Center(
-                                child: Text("No data Found"),
-                              )
-                            : _isLoading
-                                ? Center(
-                                    child: Text("Please wait for data"),
-                                  )
-                          : SizedBox(
-                              height: MediaQuery.of(context).size.height * 0.7,
-                              width: 350.0,
-                              child: ListView.builder(
-                                  controller: notificationController,
-                                  shrinkWrap: true,
-                                  itemCount: searchdata!.length,
-                                  itemBuilder: (context, index) {
-                                    return Card(
-                                      shape: RoundedRectangleBorder(
-                                        side: const BorderSide(
-                                            width: 1,
-                                            color:
-                                                MyColors.textBoxBorderColorCode),
-                                        borderRadius: BorderRadius.circular(10.0),
-                                      ),
-                                      child: Container(
-                                        padding: const EdgeInsets.only(
-                                            top: 10,
-                                            left: 14,
-                                            right: 14,
-                                            bottom: 10),
-                                        width: MediaQuery.of(context).size.width,
-                                        decoration: const BoxDecoration(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(10)),
-                                        ),
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
+                              child: Text("No data Found"),
+                            )
+                          : _isLoading
+                              ? Center(
+                                  child: Text("Please wait for data"),
+                                )
+                              : SizedBox(
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.7,
+                                  width: 350.0,
+                                  child: ListView.builder(
+                                      controller: notificationController,
+                                      shrinkWrap: true,
+                                      itemCount: searchdata!.length,
+                                      itemBuilder: (context, index) {
+                                        return Card(
+                                          shape: RoundedRectangleBorder(
+                                            side: const BorderSide(
+                                                width: 1,
+                                                color: MyColors
+                                                    .textBoxBorderColorCode),
+                                            borderRadius:
+                                                BorderRadius.circular(10.0),
+                                          ),
+                                          child: Container(
+                                            padding: const EdgeInsets.only(
+                                                top: 10,
+                                                left: 14,
+                                                right: 14,
+                                                bottom: 10),
+                                            width: MediaQuery.of(context)
+                                                .size
+                                                .width,
+                                            decoration: const BoxDecoration(
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(10)),
+                                            ),
+                                            child: Column(
                                               mainAxisAlignment:
                                                   MainAxisAlignment.start,
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
-                                              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                               children: [
-                                                Container(
-                                                  padding:
-                                                      const EdgeInsets.all(10),
-                                                  decoration: BoxDecoration(
-                                                    color:
-                                                        MyColors.whiteColorCode,
-                                                    border: Border.all(
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  children: [
+                                                    Container(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              10),
+                                                      decoration: BoxDecoration(
                                                         color: MyColors
-                                                            .boxBackgroundColorCode),
-                                                    borderRadius:
-                                                        const BorderRadius.all(
-                                                            Radius.circular(10)),
-                                                  ),
-                                                  child: Image.asset(
-                                                    "assets/driving_pin.png",
-                                                    width: 40,
-                                                    height: 40,
-                                                  ),
-                                                ),
-                                                Expanded(
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                            left: 10.0),
-                                                    child: Column(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment.start,
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Text(
-                                                          searchdata![index]
-                                                              .vehicleregNo
-                                                              .toString(),
-                                                          style: const TextStyle(
-                                                              fontWeight:
-                                                                  FontWeight.bold,
-                                                              fontSize: 20),
-                                                        ),
-                                                        Row(
+                                                            .whiteColorCode,
+                                                        border: Border.all(
+                                                            color: MyColors
+                                                                .boxBackgroundColorCode),
+                                                        borderRadius:
+                                                            const BorderRadius
+                                                                    .all(
+                                                                Radius.circular(
+                                                                    10)),
+                                                      ),
+                                                       child: searchdata![index]
+                                                            .vehicleStatus ==
+                                                        "Idle"
+                                                    ? Image.asset(
+                                                        "assets/idle_truck.png",
+                                                        height: 45.0,
+                                                        width: 45.0,
+                                                      )
+                                                    : searchdata![index]
+                                                                .vehicleStatus ==
+                                                            "Inactive"
+                                                        ? Image.asset(
+                                                            "assets/inactive_truck.png",
+                                                            height: 45.0,
+                                                            width: 45.0,
+                                                          )
+                                                        : searchdata![index]
+                                                                    .vehicleStatus ==
+                                                                "Stop"
+                                                            ? Image.asset(
+                                                                "assets/stopped_truck.png",
+                                                                height: 45.0,
+                                                                width: 45.0,
+                                                              )
+                                                            : searchdata![index]
+                                                                        .vehicleStatus ==
+                                                                    "Overspeed"
+                                                                ? Image.asset(
+                                                                    "assets/overspeed_truck.png",
+                                                                    height:
+                                                                        45.0,
+                                                                    width: 45.0,
+                                                                  )
+                                                                : Image.asset(
+                                                                    "assets/running_truck.png",
+                                                                    height:
+                                                                        45.0,
+                                                                    width: 45.0,
+                                                                  ),
+                                                    ),
+                                                    Expanded(
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .only(
+                                                                left: 10.0),
+                                                        child: Column(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .start,
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
                                                           children: [
-                                                            const Icon(
-                                                              Icons.circle,
-                                                              color: MyColors
-                                                                  .analyticGreenColorCode,
-                                                              size: 7,
+                                                            Text(
+                                                              searchdata![index]
+                                                                  .vehicleregNo
+                                                                  .toString(),
+                                                              style: const TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  fontSize: 20),
                                                             ),
-                                                            Padding(
-                                                              padding:
-                                                                  const EdgeInsets
+                                                            Row(
+                                                              children: [
+                                                                const Icon(
+                                                                  Icons.circle,
+                                                                  color: MyColors
+                                                                      .analyticGreenColorCode,
+                                                                  size: 7,
+                                                                ),
+                                                                Padding(
+                                                                  padding: const EdgeInsets
                                                                           .only(
                                                                       left: 4.0,
                                                                       top: 6,
-                                                                      bottom: 6),
-                                                              child: Text(
-                                                                searchdata![index]
-                                                                    .vehicleStatus
-                                                                    .toString(),
-                                                                style: const TextStyle(
-                                                                    color: MyColors
-                                                                        .analyticGreenColorCode),
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                        Row(
-                                                          children: [
-                                                            Container(
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                          .only(
-                                                                      left: 6.0,
-                                                                      right: 6,
-                                                                      top: 6,
-                                                                      bottom: 6),
-                                                              decoration:
-                                                                  const BoxDecoration(
-                                                                color: MyColors
-                                                                    .textBoxColorCode,
-                                                                borderRadius: BorderRadius
-                                                                    .all(Radius
-                                                                        .circular(
-                                                                            10)),
-                                                              ),
-                                                              child: Text(
-                                                                searchdata![index]
-                                                                    .tDate
-                                                                    .toString(),
-                                                              ),
-                                                            )
-                                                          ],
-                                                        ),
-                                                        Container(
-                                                          margin: const EdgeInsets
-                                                              .only(top: 6),
-                                                          padding:
-                                                              const EdgeInsets
-                                                                      .only(
-                                                                  left: 4.0,
-                                                                  right: 4,
-                                                                  top: 4,
-                                                                  bottom: 4),
-                                                          decoration:
-                                                              const BoxDecoration(
-                                                            color: MyColors
-                                                                .lightblueColorCode,
-                                                            borderRadius:
-                                                                BorderRadius.all(
-                                                                    Radius
-                                                                        .circular(
-                                                                            4)),
-                                                          ),
-                                                          child: Row(
-                                                            children: [
-                                                              Expanded(
-                                                                child: Column(
-                                                                  children: [
-                                                                    const Text(
-                                                                        "Arrival Time"),
-                                                                    Text(
-                                                                        searchdata![
-                                                                                index]
-                                                                            .vehicleStatusTime
-                                                                            .toString(),
-                                                                        style: const TextStyle(
-                                                                            fontWeight:
-                                                                                FontWeight.bold)),
-                                                                                
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                              const Icon(Icons
-                                                                  .compare_arrows),
-                                                              Expanded(
-                                                                child: Column(
-                                                                  children: [
-                                                                    const Text(
-                                                                        "Depature Time"),
-                                                                    Text(
-                                                                        searchdata![
-                                                                                index]
-                                                                            .vehicleStatusTime
-                                                                            .toString(),
-                                                                        style: const TextStyle(
-                                                                            fontWeight:
-                                                                                FontWeight.bold)),
-                                                                                
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            
-                                            const Padding(
-                                              padding: EdgeInsets.only(top: 8.0),
-                                              child: Divider(
-                                                height: 5,
-                                                color: MyColors.greyColorCode,
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                  top: 10.0, right: 10),
-                                              child: Row(
-                                                children: [
-                                                  Expanded(
-                                                    child: Column(children: [
-                                                      Container(
-                                                        padding:
-                                                            const EdgeInsets.only(
-                                                                bottom: 6),
-                                                        child: Text("Distance"),
-                                                      ),
-                                                      Text(
-                                                          searchdata![index]
-                                                              .distanceTravel
-                                                              .toString(),
-                                                          style: const TextStyle(
-                                                              color: MyColors
-                                                                  .analyticGreenColorCode))
-                                                    ]),
-                                                  ),
-                                                  Expanded(
-                                                    child: Column(children: [
-                                                      Container(
-                                                        padding:
-                                                            const EdgeInsets.only(
-                                                                bottom: 6),
-                                                        child: const Text(
-                                                            "Avg Speed",
-                                                            style: TextStyle(
-                                                                color: MyColors
-                                                                    .analyticActiveColorCode)),
-                                                      ),
-                                                      Text(
-                                                          searchdata![index]
-                                                              .avgSpeed
-                                                              .toString(),
-                                                          style: const TextStyle(
-                                                              color: MyColors
-                                                                  .analyticActiveColorCode))
-                                                    ]),
-                                                  ),
-                                                  Expanded(
-                                                    child: Column(children: [
-                                                      Container(
-                                                        padding:
-                                                            const EdgeInsets.only(
-                                                                bottom: 6),
-                                                        child: const Text(
-                                                            "Max Speed",
-                                                            style: TextStyle(
-                                                                color: MyColors
-                                                                    .maxspeedcolorCode)),
-                                                      ),
-                                                      Text(
-                                                          searchdata![index]
-                                                              .maxSpeed
-                                                              .toString(),
-                                                          style: const TextStyle(
-                                                              color: MyColors
-                                                                  .analyticGreenColorCode))
-                                                    ]),
-                                                  ),
-                                                ],
-                                              ),
-                                            )
-                                          ],
-                                        ),
-                                      ),
-                                    );
-                                  }))
-                      : traveldata!.length == 0
-                          ? Center(
-                                child: Text("No data Found"),
-                              )
-                            : _isLoading
-                                ? Center(
-                                    child: Text("Please wait for data"),
-                                  )
-                          : BlocBuilder<MainBloc, MainState>(
-                              builder: (context, state) {
-                                return ListView.builder(
-                                    controller: notificationController,
-                                    shrinkWrap: true,
-                                    itemCount: isvalue
-                                        ? filterdata!.length
-                                        : traveldata!.length,
-                                    itemBuilder: (context, index) {
-                                      return Card(
-                                        shape: RoundedRectangleBorder(
-                                          side: const BorderSide(
-                                              width: 1,
-                                              color: MyColors
-                                                  .textBoxBorderColorCode),
-                                          borderRadius:
-                                              BorderRadius.circular(10.0),
-                                        ),
-                                        child: Container(
-                                          padding: const EdgeInsets.only(
-                                              top: 10,
-                                              left: 14,
-                                              right: 14,
-                                              bottom: 10),
-                                          width:
-                                              MediaQuery.of(context).size.width,
-                                          decoration: const BoxDecoration(
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(10)),
-                                          ),
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                children: [
-                                                  Container(
-                                                    padding:
-                                                        const EdgeInsets.all(10),
-                                                    decoration: BoxDecoration(
-                                                      color:
-                                                          MyColors.whiteColorCode,
-                                                      border: Border.all(
-                                                          color: MyColors
-                                                              .boxBackgroundColorCode),
-                                                      borderRadius:
-                                                          const BorderRadius.all(
-                                                              Radius.circular(
-                                                                  10)),
-                                                    ),
-                                                    child: Image.asset(
-                                                      "assets/driving_pin.png",
-                                                      width: 40,
-                                                      height: 40,
-                                                    ),
-                                                  ),
-                                                  Expanded(
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              left: 10.0),
-                                                      child: Column(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .start,
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Text(
-                                                            isvalue
-                                                                ? filterdata![
-                                                                        index]
-                                                                    .vehicleregNo
-                                                                    .toString()
-                                                                : traveldata![
-                                                                        index]
-                                                                    .vehicleregNo
-                                                                    .toString(),
-                                                            style:
-                                                                const TextStyle(
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                    fontSize: 20),
-                                                          ),
-                                                          Row(
-                                                            children: [
-                                                              const Icon(
-                                                                Icons.circle,
-                                                                color: MyColors
-                                                                    .analyticGreenColorCode,
-                                                                size: 7,
-                                                              ),
-                                                              Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                            .only(
-                                                                        left: 4.0,
-                                                                        top: 6,
-                                                                        bottom:
-                                                                            6),
-                                                                child: Text(
-                                                                  isvalue
-                                                                      ? filterdata![
-                                                                              index]
-                                                                          .vehicleStatus
-                                                                          .toString()
-                                                                      : traveldata![
-                                                                              index]
-                                                                          .vehicleStatus
-                                                                          .toString(),
-                                                                  style: const TextStyle(
-                                                                      color: MyColors
-                                                                          .analyticGreenColorCode),
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                          Row(
-                                                            children: [
-                                                              Container(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                            .only(
-                                                                        left: 6.0,
-                                                                        right: 6,
-                                                                        top: 6,
-                                                                        bottom:
-                                                                            6),
-                                                                decoration:
-                                                                    const BoxDecoration(
-                                                                  color: MyColors
-                                                                      .textBoxColorCode,
-                                                                  borderRadius: BorderRadius
-                                                                      .all(Radius
-                                                                          .circular(
-                                                                              10)),
-                                                                ),
-                                                                child: Text(
-                                                                  isvalue
-                                                                      ? filterdata![
-                                                                              index]
-                                                                          .tDate
-                                                                          .toString()
-                                                                      : traveldata![
-                                                                              index]
-                                                                          .tDate
-                                                                          .toString(),
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                          Container(
-                                                            margin:
-                                                                const EdgeInsets
-                                                                    .only(top: 6),
-                                                            padding:
-                                                                const EdgeInsets
-                                                                        .only(
-                                                                    left: 4.0,
-                                                                    right: 4,
-                                                                    top: 4,
-                                                                    bottom: 4),
-                                                            decoration:
-                                                                const BoxDecoration(
-                                                              color: MyColors
-                                                                  .lightblueColorCode,
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .all(Radius
-                                                                          .circular(
-                                                                              4)),
-                                                            ),
-                                                            child: Row(
-                                                              children: [
-                                                                Expanded(
-                                                                  child: Column(
-                                                                    children: [
-                                                                      const Text(
-                                                                          "Arrival Time"),
-                                                                      Text(
-                                                                          isvalue
-                                                                              ? filterdata![index]
-                                                                                  .vehicleStatusTime
-                                                                                  .toString()
-                                                                              : traveldata![index]
-                                                                                  .vehicleStatusTime
-                                                                                  .toString(),
-                                                                          style: const TextStyle(
-                                                                              fontWeight:
-                                                                                  FontWeight.bold)),
-                                                                    ],
-                                                                  ),
-                                                                ),
-                                                                const Icon(Icons
-                                                                    .compare_arrows),
-                                                                Expanded(
-                                                                  child: Column(
-                                                                    children: [
-                                                                      const Text(
-                                                                          "Depature Time"),
-                                                                      Text(
-                                                                          isvalue
-                                                                              ? filterdata![index]
-                                                                                  .vehicleStatusTime
-                                                                                  .toString()
-                                                                              : traveldata![index]
-                                                                                  .vehicleStatusTime
-                                                                                  .toString(),
-                                                                          style: const TextStyle(
-                                                                              fontWeight:
-                                                                                  FontWeight.bold)),
-                                                                    ],
+                                                                      bottom:
+                                                                          6),
+                                                                  child: Text(
+                                                                    searchdata![
+                                                                            index]
+                                                                        .vehicleStatus
+                                                                        .toString(),
+                                                                    style: const TextStyle(
+                                                                        color: MyColors
+                                                                            .analyticGreenColorCode),
                                                                   ),
                                                                 ),
                                                               ],
                                                             ),
-                                                          ),
-                                                        ],
+                                                            Row(
+                                                              children: [
+                                                                Container(
+                                                                  padding: const EdgeInsets
+                                                                          .only(
+                                                                      left: 6.0,
+                                                                      right: 6,
+                                                                      top: 6,
+                                                                      bottom:
+                                                                          6),
+                                                                  decoration:
+                                                                      const BoxDecoration(
+                                                                    color: MyColors
+                                                                        .textBoxColorCode,
+                                                                    borderRadius:
+                                                                        BorderRadius.all(
+                                                                            Radius.circular(10)),
+                                                                  ),
+                                                                  child: Text(
+                                                                    searchdata![
+                                                                            index]
+                                                                        .tDate
+                                                                        .toString(),
+                                                                  ),
+                                                                )
+                                                              ],
+                                                            ),
+                                                            Container(
+                                                              margin:
+                                                                  const EdgeInsets
+                                                                          .only(
+                                                                      top: 6),
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                          .only(
+                                                                      left: 4.0,
+                                                                      right: 4,
+                                                                      top: 4,
+                                                                      bottom:
+                                                                          4),
+                                                              decoration:
+                                                                  const BoxDecoration(
+                                                                color: MyColors
+                                                                    .lightblueColorCode,
+                                                                borderRadius: BorderRadius
+                                                                    .all(Radius
+                                                                        .circular(
+                                                                            4)),
+                                                              ),
+                                                              child: Row(
+                                                                children: [
+                                                                  Expanded(
+                                                                    child:
+                                                                        Column(
+                                                                      children: [
+                                                                        const Text(
+                                                                            "Arrival Time"),
+                                                                        Text(
+                                                                            searchdata![index]
+                                                                                .vehicleStatusTime
+                                                                                .toString(),
+                                                                            style:
+                                                                                const TextStyle(fontWeight: FontWeight.bold)),
+                                                                      ],
+                                                                    ),
+                                                                  ),
+                                                                  const Icon(Icons
+                                                                      .compare_arrows),
+                                                                  Expanded(
+                                                                    child:
+                                                                        Column(
+                                                                      children: [
+                                                                        const Text(
+                                                                            "Depature Time"),
+                                                                        Text(
+                                                                            searchdata![index]
+                                                                                .vehicleStatusTime
+                                                                                .toString(),
+                                                                            style:
+                                                                                const TextStyle(fontWeight: FontWeight.bold)),
+                                                                      ],
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
                                                       ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                              const Padding(
-                                                padding:
-                                                    EdgeInsets.only(top: 8.0),
-                                                child: Divider(
-                                                  height: 5,
-                                                  color: MyColors.greyColorCode,
-                                                ),
-                                              ),
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                    top: 10.0, right: 10),
-                                                child: Row(
-                                                  children: [
-                                                    Expanded(
-                                                      child: Column(children: [
-                                                        Container(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                      .only(
-                                                                  bottom: 6),
-                                                          child: Text("Distance"),
-                                                        ),
-                                                        Text(
-                                                            isvalue
-                                                                ? filterdata![
-                                                                        index]
-                                                                    .distanceTravel
-                                                                    .toString()
-                                                                : traveldata![
-                                                                        index]
-                                                                    .distanceTravel
-                                                                    .toString(),
-                                                            style: const TextStyle(
-                                                                color: MyColors
-                                                                    .analyticGreenColorCode))
-                                                      ]),
-                                                    ),
-                                                    Expanded(
-                                                      child: Column(children: [
-                                                        Container(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                      .only(
-                                                                  bottom: 6),
-                                                          child: const Text(
-                                                              "Avg Speed",
-                                                              style: TextStyle(
-                                                                  color: MyColors
-                                                                      .analyticActiveColorCode)),
-                                                        ),
-                                                        Text(
-                                                            isvalue
-                                                                ? filterdata![
-                                                                        index]
-                                                                    .avgSpeed
-                                                                    .toString()
-                                                                : traveldata![
-                                                                        index]
-                                                                    .avgSpeed
-                                                                    .toString(),
-                                                            style: const TextStyle(
-                                                                color: MyColors
-                                                                    .analyticActiveColorCode))
-                                                      ]),
-                                                    ),
-                                                    Expanded(
-                                                      child: Column(children: [
-                                                        Container(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                      .only(
-                                                                  bottom: 6),
-                                                          child: const Text(
-                                                              "Max Speed",
-                                                              style: TextStyle(
-                                                                  color: MyColors
-                                                                      .maxspeedcolorCode)),
-                                                        ),
-                                                        Text(
-                                                            isvalue
-                                                                ? filterdata![
-                                                                        index]
-                                                                    .maxSpeed
-                                                                    .toString()
-                                                                : traveldata![
-                                                                        index]
-                                                                    .maxSpeed
-                                                                    .toString(),
-                                                            style: const TextStyle(
-                                                                color: MyColors
-                                                                    .analyticGreenColorCode))
-                                                      ]),
                                                     ),
                                                   ],
                                                 ),
-                                              )
-                                            ],
+                                                const Padding(
+                                                  padding:
+                                                      EdgeInsets.only(top: 8.0),
+                                                  child: Divider(
+                                                    height: 5,
+                                                    color:
+                                                        MyColors.greyColorCode,
+                                                  ),
+                                                ),
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          top: 10.0, right: 10),
+                                                  child: Row(
+                                                    children: [
+                                                      Expanded(
+                                                        child:
+                                                            Column(children: [
+                                                          Container(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                        .only(
+                                                                    bottom: 6),
+                                                            child: Text(
+                                                                "Distance"),
+                                                          ),
+                                                          Text(
+                                                              searchdata![index]
+                                                                  .distanceTravel
+                                                                  .toString(),
+                                                              style: const TextStyle(
+                                                                  color: MyColors
+                                                                      .analyticGreenColorCode))
+                                                        ]),
+                                                      ),
+                                                      Expanded(
+                                                        child:
+                                                            Column(children: [
+                                                          Container(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                        .only(
+                                                                    bottom: 6),
+                                                            child: const Text(
+                                                                "Avg Speed",
+                                                                style: TextStyle(
+                                                                    color: MyColors
+                                                                        .analyticActiveColorCode)),
+                                                          ),
+                                                          Text(
+                                                              searchdata![index]
+                                                                  .avgSpeed
+                                                                  .toString(),
+                                                              style: const TextStyle(
+                                                                  color: MyColors
+                                                                      .analyticActiveColorCode))
+                                                        ]),
+                                                      ),
+                                                      Expanded(
+                                                        child:
+                                                            Column(children: [
+                                                          Container(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                        .only(
+                                                                    bottom: 6),
+                                                            child: const Text(
+                                                                "Max Speed",
+                                                                style: TextStyle(
+                                                                    color: MyColors
+                                                                        .maxspeedcolorCode)),
+                                                          ),
+                                                          Text(
+                                                              searchdata![index]
+                                                                  .maxSpeed
+                                                                  .toString(),
+                                                              style: const TextStyle(
+                                                                  color: MyColors
+                                                                      .analyticGreenColorCode))
+                                                        ]),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                )
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                      );
-                                    });
-                              },
+                                        );
+                                      }))
+                      : applyclicked ?BlocBuilder<MainBloc, MainState>(
+                                  builder: (context, state) {
+                                    return ListView.builder(
+                                        controller: notificationController,
+                                        shrinkWrap: true,
+                                        itemCount:  filterdata!.length,
+                                        itemBuilder: (context, index) {
+                                          return Card(
+                                            shape: RoundedRectangleBorder(
+                                              side: const BorderSide(
+                                                  width: 1,
+                                                  color: MyColors
+                                                      .textBoxBorderColorCode),
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0),
+                                            ),
+                                            child: Container(
+                                              padding: const EdgeInsets.only(
+                                                  top: 10,
+                                                  left: 14,
+                                                  right: 14,
+                                                  bottom: 10),
+                                              width: MediaQuery.of(context)
+                                                  .size
+                                                  .width,
+                                              decoration: const BoxDecoration(
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(10)),
+                                              ),
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.start,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                    children: [
+                                                      Container(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(10),
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color: MyColors
+                                                              .whiteColorCode,
+                                                          border: Border.all(
+                                                              color: MyColors
+                                                                  .boxBackgroundColorCode),
+                                                          borderRadius:
+                                                              const BorderRadius
+                                                                      .all(
+                                                                  Radius
+                                                                      .circular(
+                                                                          10)),
+                                                        ),
+                                                        child: filterdata![index]
+                                                            .vehicleStatus ==
+                                                        "Idle"
+                                                    ? Image.asset(
+                                                        "assets/idle_truck.png",
+                                                        height: 45.0,
+                                                        width: 45.0,
+                                                      )
+                                                    : filterdata![index]
+                                                                .vehicleStatus ==
+                                                            "Inactive"
+                                                        ? Image.asset(
+                                                            "assets/inactive_truck.png",
+                                                            height: 45.0,
+                                                            width: 45.0,
+                                                          )
+                                                        : filterdata![index]
+                                                                    .vehicleStatus ==
+                                                                "Stop"
+                                                            ? Image.asset(
+                                                                "assets/stopped_truck.png",
+                                                                height: 45.0,
+                                                                width: 45.0,
+                                                              )
+                                                            : filterdata![index]
+                                                                        .vehicleStatus ==
+                                                                    "Overspeed"
+                                                                ? Image.asset(
+                                                                    "assets/overspeed_truck.png",
+                                                                    height:
+                                                                        45.0,
+                                                                    width: 45.0,
+                                                                  )
+                                                                : Image.asset(
+                                                                    "assets/running_truck.png",
+                                                                    height:
+                                                                        45.0,
+                                                                    width: 45.0,
+                                                                  ),
+                                                      ),
+                                                      Expanded(
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .only(
+                                                                  left: 10.0),
+                                                          child: Column(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .start,
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Text(
+                                                                 filterdata![
+                                                                            index]
+                                                                        .vehicleregNo
+                                                                        .toString(),
+                                                                style: const TextStyle(
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    fontSize:
+                                                                        20),
+                                                              ),
+                                                              Row(
+                                                                children: [
+                                                                  // const Icon(
+                                                                  //   Icons
+                                                                  //       .circle,
+                                                                  //   color: Colors.black,
+                                                                  //   size: 7,
+                                                                  // ),
+                                                                  Padding(
+                                                                      padding: const EdgeInsets
+                                                                              .only(
+                                                                          left:
+                                                                              4.0,
+                                                                          top:
+                                                                              6,
+                                                                          bottom:
+                                                                              6),
+                                                                      child:  Text(
+                                                                              filterdata![index].vehicleStatus.toString(),
+                                                                              style: TextStyle(
+                                                                                  color: filterdata![index].vehicleStatus.toString() == "Running"
+                                                                                      ? Color.fromARGB(255, 74, 172, 79)
+                                                                                      : filterdata![index].vehicleStatus.toString() == "Idle"
+                                                                                          ? Color.fromARGB(255, 233, 215, 60)
+                                                                                          : filterdata![index].vehicleStatus.toString() == "Inactive"
+                                                                                              ? Colors.blue
+                                                                                              : filterdata![index].vehicleStatus.toString() == "Stop"
+                                                                                                  ? Colors.red
+                                                                                                  : filterdata![index].vehicleStatus.toString() == "Overspeed"
+                                                                                                      ? Colors.orange
+                                                                                                      : Colors.grey,
+                                                                                  fontSize: 16),
+                                                                            )
+                                                                          ),
+                                                                ],
+                                                              ),
+                                                              Row(
+                                                                children: [
+                                                                  Container(
+                                                                    padding: const EdgeInsets
+                                                                            .only(
+                                                                        left:
+                                                                            6.0,
+                                                                        right:
+                                                                            6,
+                                                                        top: 6,
+                                                                        bottom:
+                                                                            6),
+                                                                    decoration:
+                                                                        const BoxDecoration(
+                                                                      color: MyColors
+                                                                          .textBoxColorCode,
+                                                                      borderRadius:
+                                                                          BorderRadius.all(
+                                                                              Radius.circular(10)),
+                                                                    ),
+                                                                    child: Text(
+                                                                     filterdata![index]
+                                                                              .tDate
+                                                                              .toString(),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                              Container(
+                                                                margin:
+                                                                    const EdgeInsets
+                                                                            .only(
+                                                                        top: 6),
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .only(
+                                                                        left:
+                                                                            4.0,
+                                                                        right:
+                                                                            4,
+                                                                        top: 4,
+                                                                        bottom:
+                                                                            4),
+                                                                decoration:
+                                                                    const BoxDecoration(
+                                                                  color: MyColors
+                                                                      .lightblueColorCode,
+                                                                  borderRadius:
+                                                                      BorderRadius.all(
+                                                                          Radius.circular(
+                                                                              4)),
+                                                                ),
+                                                                child: Row(
+                                                                  children: [
+                                                                    Expanded(
+                                                                      child:
+                                                                          Column(
+                                                                        children: [
+                                                                          const Text(
+                                                                              "Arrival Time"),
+                                                                          Text(
+                                                                               filterdata![index].vehicleStatusTime.toString(),
+                                                                              style: const TextStyle(fontWeight: FontWeight.bold)),
+                                                                        ],
+                                                                      ),
+                                                                    ),
+                                                                    const Icon(Icons
+                                                                        .compare_arrows),
+                                                                    Expanded(
+                                                                      child:
+                                                                          Column(
+                                                                        children: [
+                                                                          const Text(
+                                                                              "Depature Time"),
+                                                                          Text(
+                                                                               filterdata![index].vehicleStatusTime.toString() ,
+                                                                              style: const TextStyle(fontWeight: FontWeight.bold)),
+                                                                        ],
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  const Padding(
+                                                    padding: EdgeInsets.only(
+                                                        top: 8.0),
+                                                    child: Divider(
+                                                      height: 5,
+                                                      color: MyColors
+                                                          .greyColorCode,
+                                                    ),
+                                                  ),
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            top: 10.0,
+                                                            right: 10),
+                                                    child: Row(
+                                                      children: [
+                                                        Expanded(
+                                                          child: Column(
+                                                              children: [
+                                                                Container(
+                                                                  padding: const EdgeInsets
+                                                                          .only(
+                                                                      bottom:
+                                                                          6),
+                                                                  child: Text(
+                                                                      "Distance"),
+                                                                ),
+                                                                Text(
+                                                                     filterdata![index]
+                                                                            .distanceTravel
+                                                                            .toString(),
+                                                                    style: const TextStyle(
+                                                                        color: MyColors
+                                                                            .analyticGreenColorCode))
+                                                              ]),
+                                                        ),
+                                                        Expanded(
+                                                          child: Column(
+                                                              children: [
+                                                                Container(
+                                                                  padding: const EdgeInsets
+                                                                          .only(
+                                                                      bottom:
+                                                                          6),
+                                                                  child: const Text(
+                                                                      "Avg Speed",
+                                                                      style: TextStyle(
+                                                                          color:
+                                                                              MyColors.analyticActiveColorCode)),
+                                                                ),
+                                                                Text(
+                                                                    filterdata![index]
+                                                                            .avgSpeed
+                                                                            .toString(),
+                                                                    style: const TextStyle(
+                                                                        color: MyColors
+                                                                            .analyticActiveColorCode))
+                                                              ]),
+                                                        ),
+                                                        Expanded(
+                                                          child: Column(
+                                                              children: [
+                                                                Container(
+                                                                  padding: const EdgeInsets
+                                                                          .only(
+                                                                      bottom:
+                                                                          6),
+                                                                  child: const Text(
+                                                                      "Max Speed",
+                                                                      style: TextStyle(
+                                                                          color:
+                                                                              MyColors.maxspeedcolorCode)),
+                                                                ),
+                                                                Text(
+                                                                    filterdata![index]
+                                                                            .maxSpeed
+                                                                            .toString(),
+                                                                    style: const TextStyle(
+                                                                        color: MyColors
+                                                                            .analyticGreenColorCode))
+                                                              ]),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                            ),
+                                          );
+                                        });
+                                  },
+                                )   :traveldata!.length == 0
+                          ? Center(
+                              child: Text("No data Found"),
                             )
+                          : _isLoading
+                              ? Center(
+                                  child: Text("Please wait for data"),
+                                )
+                              : BlocBuilder<MainBloc, MainState>(
+                                  builder: (context, state) {
+                                    return ListView.builder(
+                                        controller: notificationController,
+                                        shrinkWrap: true,
+                                        itemCount:  traveldata!.length,
+                                        itemBuilder: (context, index) {
+                                          return Card(
+                                            shape: RoundedRectangleBorder(
+                                              side: const BorderSide(
+                                                  width: 1,
+                                                  color: MyColors
+                                                      .textBoxBorderColorCode),
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0),
+                                            ),
+                                            child: Container(
+                                              padding: const EdgeInsets.only(
+                                                  top: 10,
+                                                  left: 14,
+                                                  right: 14,
+                                                  bottom: 10),
+                                              width: MediaQuery.of(context)
+                                                  .size
+                                                  .width,
+                                              decoration: const BoxDecoration(
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(10)),
+                                              ),
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.start,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                    children: [
+                                                      Container(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(10),
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color: MyColors
+                                                              .whiteColorCode,
+                                                          border: Border.all(
+                                                              color: MyColors
+                                                                  .boxBackgroundColorCode),
+                                                          borderRadius:
+                                                              const BorderRadius
+                                                                      .all(
+                                                                  Radius
+                                                                      .circular(
+                                                                          10)),
+                                                        ),
+                                                        child: traveldata![index]
+                                                            .vehicleStatus ==
+                                                        "Idle"
+                                                    ? Image.asset(
+                                                        "assets/idle_truck.png",
+                                                        height: 45.0,
+                                                        width: 45.0,
+                                                      )
+                                                    : traveldata![index]
+                                                                .vehicleStatus ==
+                                                            "Inactive"
+                                                        ? Image.asset(
+                                                            "assets/inactive_truck.png",
+                                                            height: 45.0,
+                                                            width: 45.0,
+                                                          )
+                                                        : traveldata![index]
+                                                                    .vehicleStatus ==
+                                                                "Stop"
+                                                            ? Image.asset(
+                                                                "assets/stopped_truck.png",
+                                                                height: 45.0,
+                                                                width: 45.0,
+                                                              )
+                                                            : traveldata![index]
+                                                                        .vehicleStatus ==
+                                                                    "Overspeed"
+                                                                ? Image.asset(
+                                                                    "assets/overspeed_truck.png",
+                                                                    height:
+                                                                        45.0,
+                                                                    width: 45.0,
+                                                                  )
+                                                                : Image.asset(
+                                                                    "assets/running_truck.png",
+                                                                    height:
+                                                                        45.0,
+                                                                    width: 45.0,
+                                                                  ),
+                                                      ),
+                                                      Expanded(
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .only(
+                                                                  left: 10.0),
+                                                          child: Column(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .start,
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Text(
+                                                                 traveldata![
+                                                                            index]
+                                                                        .vehicleregNo
+                                                                        .toString(),
+                                                                style: const TextStyle(
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    fontSize:
+                                                                        20),
+                                                              ),
+                                                              Row(
+                                                                children: [
+                                                                  // const Icon(
+                                                                  //   Icons
+                                                                  //       .circle,
+                                                                  //   color: Colors.black,
+                                                                  //   size: 7,
+                                                                  // ),
+                                                                  Padding(
+                                                                      padding: const EdgeInsets
+                                                                              .only(
+                                                                          left:
+                                                                              4.0,
+                                                                          top:
+                                                                              6,
+                                                                          bottom:
+                                                                              6),
+                                                                      child:  Text(
+                                                                              traveldata![index].vehicleStatus.toString(),
+                                                                              style: TextStyle(
+                                                                                  color: traveldata![index].vehicleStatus.toString() == "Running"
+                                                                                      ? Color.fromARGB(255, 74, 172, 79)
+                                                                                      : traveldata![index].vehicleStatus.toString() == "Idle"
+                                                                                          ? Color.fromARGB(255, 233, 215, 60)
+                                                                                          : traveldata![index].vehicleStatus.toString() == "Inactive"
+                                                                                              ? Colors.blue
+                                                                                              : traveldata![index].vehicleStatus.toString() == "Stop"
+                                                                                                  ? Colors.red
+                                                                                                  : traveldata![index].vehicleStatus.toString() == "Overspeed"
+                                                                                                      ? Colors.orange
+                                                                                                      : Colors.grey,
+                                                                                  fontSize: 16),
+                                                                            )
+                                                                          ),
+                                                                ],
+                                                              ),
+                                                              Row(
+                                                                children: [
+                                                                  Container(
+                                                                    padding: const EdgeInsets
+                                                                            .only(
+                                                                        left:
+                                                                            6.0,
+                                                                        right:
+                                                                            6,
+                                                                        top: 6,
+                                                                        bottom:
+                                                                            6),
+                                                                    decoration:
+                                                                        const BoxDecoration(
+                                                                      color: MyColors
+                                                                          .textBoxColorCode,
+                                                                      borderRadius:
+                                                                          BorderRadius.all(
+                                                                              Radius.circular(10)),
+                                                                    ),
+                                                                    child: Text(
+                                                                     traveldata![index]
+                                                                              .tDate
+                                                                              .toString(),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                              Container(
+                                                                margin:
+                                                                    const EdgeInsets
+                                                                            .only(
+                                                                        top: 6),
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .only(
+                                                                        left:
+                                                                            4.0,
+                                                                        right:
+                                                                            4,
+                                                                        top: 4,
+                                                                        bottom:
+                                                                            4),
+                                                                decoration:
+                                                                    const BoxDecoration(
+                                                                  color: MyColors
+                                                                      .lightblueColorCode,
+                                                                  borderRadius:
+                                                                      BorderRadius.all(
+                                                                          Radius.circular(
+                                                                              4)),
+                                                                ),
+                                                                child: Row(
+                                                                  children: [
+                                                                    Expanded(
+                                                                      child:
+                                                                          Column(
+                                                                        children: [
+                                                                          const Text(
+                                                                              "Arrival Time"),
+                                                                          Text(
+                                                                               traveldata![index].vehicleStatusTime.toString(),
+                                                                              style: const TextStyle(fontWeight: FontWeight.bold)),
+                                                                        ],
+                                                                      ),
+                                                                    ),
+                                                                    const Icon(Icons
+                                                                        .compare_arrows),
+                                                                    Expanded(
+                                                                      child:
+                                                                          Column(
+                                                                        children: [
+                                                                          const Text(
+                                                                              "Depature Time"),
+                                                                          Text(
+                                                                               traveldata![index].vehicleStatusTime.toString() ,
+                                                                              style: const TextStyle(fontWeight: FontWeight.bold)),
+                                                                        ],
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  const Padding(
+                                                    padding: EdgeInsets.only(
+                                                        top: 8.0),
+                                                    child: Divider(
+                                                      height: 5,
+                                                      color: MyColors
+                                                          .greyColorCode,
+                                                    ),
+                                                  ),
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            top: 10.0,
+                                                            right: 10),
+                                                    child: Row(
+                                                      children: [
+                                                        Expanded(
+                                                          child: Column(
+                                                              children: [
+                                                                Container(
+                                                                  padding: const EdgeInsets
+                                                                          .only(
+                                                                      bottom:
+                                                                          6),
+                                                                  child: Text(
+                                                                      "Distance"),
+                                                                ),
+                                                                Text(
+                                                                     traveldata![index]
+                                                                            .distanceTravel
+                                                                            .toString(),
+                                                                    style: const TextStyle(
+                                                                        color: MyColors
+                                                                            .analyticGreenColorCode))
+                                                              ]),
+                                                        ),
+                                                        Expanded(
+                                                          child: Column(
+                                                              children: [
+                                                                Container(
+                                                                  padding: const EdgeInsets
+                                                                          .only(
+                                                                      bottom:
+                                                                          6),
+                                                                  child: const Text(
+                                                                      "Avg Speed",
+                                                                      style: TextStyle(
+                                                                          color:
+                                                                              MyColors.analyticActiveColorCode)),
+                                                                ),
+                                                                Text(
+                                                                    traveldata![index]
+                                                                            .avgSpeed
+                                                                            .toString(),
+                                                                    style: const TextStyle(
+                                                                        color: MyColors
+                                                                            .analyticActiveColorCode))
+                                                              ]),
+                                                        ),
+                                                        Expanded(
+                                                          child: Column(
+                                                              children: [
+                                                                Container(
+                                                                  padding: const EdgeInsets
+                                                                          .only(
+                                                                      bottom:
+                                                                          6),
+                                                                  child: const Text(
+                                                                      "Max Speed",
+                                                                      style: TextStyle(
+                                                                          color:
+                                                                              MyColors.maxspeedcolorCode)),
+                                                                ),
+                                                                Text(
+                                                                    traveldata![index]
+                                                                            .maxSpeed
+                                                                            .toString(),
+                                                                    style: const TextStyle(
+                                                                        color: MyColors
+                                                                            .analyticGreenColorCode))
+                                                              ]),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                            ),
+                                          );
+                                        });
+                                  },
+                                )
                 ]),
               ),
             ],
           ),
         ),
-        
       ),
     );
-    
   }
-    onSearchTextChanged(String text) async {
+
+  onSearchTextChanged(String text) async {
     if (text.isEmpty) {
       setState(() {
         isSelected = false;
@@ -1468,6 +1885,7 @@ class _StorageSummaryScreenState extends State<StorageSummaryScreen> {
                               setState(() {
                                 isvalue = true;
                                 isData = true;
+                                applyclicked = true;
                               });
                               Navigator.of(context).pop();
                             },

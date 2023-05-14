@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_vts/bloc/main_bloc.dart';
 import 'package:flutter_vts/model/login/login_response.dart';
+import 'package:flutter_vts/screen/Settings%20screen/setting_screen.dart';
 import 'package:flutter_vts/screen/change_password/change_password_screen.dart';
 import 'package:flutter_vts/screen/distance_summary/distance_summary_screen.dart';
 import 'package:flutter_vts/screen/live_tracking_screen.dart';
@@ -349,9 +350,17 @@ class _MenuDrawerState extends State<MenuDrawer> {
                      ),
                    ),*/
               const Divider(height: 0.5),
-              GestureDetector(
+             GestureDetector(
                 onTap: () {
                   Navigator.of(context).pop();
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => BlocProvider(
+                              create: (context) {
+                                return MainBloc(webService: WebService());
+                              },
+                              child: SettingScreen())));
                 },
                 child: ListTile(
                   leading: Image.asset(

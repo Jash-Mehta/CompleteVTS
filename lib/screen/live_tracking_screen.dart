@@ -357,6 +357,42 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
             mapController?.animateCamera(CameraUpdate.newCameraPosition(
                 CameraPosition(target: LatLng(lat, lng), zoom: 17)));
           }
+          //! Over speed radibutton-------------------->
+          else if(radioItemHolder1=="OVERSPEED"){
+             Uint8List markerIcon =
+                await _getBytesFromAsset("assets/overspeed_truck.png", 85);
+                  _markerlist.add(
+              Marker(
+                icon: BitmapDescriptor.fromBytes(markerIcon),
+                markerId: MarkerId(LatLng(lat, lng).toString()),
+                position: LatLng(lat, lng),
+                infoWindow: InfoWindow(
+                    title: location.vehicleRegNo,
+                    snippet: location.driverName,
+                    onTap: () {
+                    
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => BlocProvider(
+                                  create: (context) {
+                                    return MainBloc(webService: WebService());
+                                  },
+                                  child: LiveTrackingDetailsScreen(
+                                    transactionId: location.transactionId,
+                                    araiNonarai:
+                                        'arai' /*liveTrackingDetails![i].transactionId*/,
+                                  ))));
+                    }),
+                //   infoWindow: InfoWindow(
+                //       //popup info
+              ),
+            );
+            setState(() {});
+            mapController?.animateCamera(CameraUpdate.newCameraPosition(
+                CameraPosition(target: LatLng(lat, lng), zoom: 17)));
+
+          }
         }
       });
       //! FLAG = 2 is for filter response--------------------

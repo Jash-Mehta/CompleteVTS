@@ -56,6 +56,8 @@ class _VehicleWiseTimeWiseTravelState extends State<VehicleWiseTimeWiseTravel> {
   late String token = "";
   int imeno = 867322033819244;
   List<VehicleWiseTimeWiseData> pdfdatalist = [];
+  List<VehihcleWiseTimeWiseFilterData> pdffilterlist = [];
+  List<VehicleWiseTimeWiseSearchData> pdfsearchlist = [];
   List<VehicleWiseTimeWiseData>? vehicledata = [];
   List<VehihcleWiseTimeWiseFilterData>? filterdata = [];
   List<VehicleWiseTimeWiseSearchData>? searchdata = [];
@@ -228,6 +230,11 @@ class _VehicleWiseTimeWiseTravelState extends State<VehicleWiseTimeWiseTravel> {
             onTap: () {
               setState(() {
                 isfilter = true;
+                toTimrInput.text = "";
+                todateInput.text = "";
+                fromTimeInput.text = "";
+                fromdateInput.text = "";
+                vtwdvehiclenolisttiletext = "";
                 isfilter
                     ? _mainBloc.add(VehicleVSrNoEvent(
                         token: token, vendorId: 1, branchId: 1))
@@ -376,10 +383,10 @@ class _VehicleWiseTimeWiseTravelState extends State<VehicleWiseTimeWiseTravel> {
                 value = state.vehiclewisetimewisefilterResponse.totalRecords!;
               });
               filterdata!.addAll(state.vehiclewisetimewisefilterResponse.data!);
-            }else{
-               setState(() {
-              _isLoading = false;
-            });
+            } else {
+              setState(() {
+                _isLoading = false;
+              });
             }
           } else if (state is VehicleWiseTimeWiseFilterErrorState) {
             print("Vehicle wise time wise Filter data error state");
@@ -426,17 +433,17 @@ class _VehicleWiseTimeWiseTravelState extends State<VehicleWiseTimeWiseTravel> {
             //   searchdata!.clear();
             // });
             // searchdata!.addAll(state.vehiclewisetimewisesearchResponse.data!);
-             if (state.vehiclewisetimewisesearchResponse.data != null) {
+            if (state.vehiclewisetimewisesearchResponse.data != null) {
               setState(() {
                 _isLoading = false;
                 searchdata!.clear();
                 value = state.vehiclewisetimewisesearchResponse.totalRecords!;
               });
               searchdata!.addAll(state.vehiclewisetimewisesearchResponse.data!);
-            }else{
-               setState(() {
-              _isLoading = false;
-            });
+            } else {
+              setState(() {
+                _isLoading = false;
+              });
             }
           } else if (state is VehicleWiseTimeWiseSearchErrorState) {
             print("Search Vehicle Wise Time Wise error state");
@@ -490,7 +497,7 @@ class _VehicleWiseTimeWiseTravelState extends State<VehicleWiseTimeWiseTravel> {
                                         todateInput.text = "";
                                         fromTimeInput.text = "";
                                         fromdateInput.text = "";
-                                        vtwdvehiclenolisttiletext = "-select-";
+                                        vtwdvehiclenolisttiletext = "";
                                         setState(() {});
                                       },
                                     ),
@@ -523,7 +530,11 @@ class _VehicleWiseTimeWiseTravelState extends State<VehicleWiseTimeWiseTravel> {
                                               fromTimeController != null &&
                                               toDateController != null &&
                                               toTimeController != null &&
-                                              vtwdvehicleno != null) {
+                                              vtwdvehicleno != null &&
+                                              fromdateInput.text.isNotEmpty &&
+                                              todateInput.text.isNotEmpty &&
+                                              fromTimeInput.text.isNotEmpty &&
+                                              toTimrInput.text.isNotEmpty) {
                                             _mainBloc.add(
                                                 VehicleWiseTimeWiseFilterEvents(
                                                     token: token,
@@ -716,7 +727,7 @@ class _VehicleWiseTimeWiseTravelState extends State<VehicleWiseTimeWiseTravel> {
                                           width: 2)),
                                   child: ListTile(
                                     leading: Text(
-                                      vtwdvehiclenolisttiletext == null
+                                      vtwdvehiclenolisttiletext == ""
                                           ? "-select-"
                                           : vtwdvehiclenolisttiletext,
                                       style: TextStyle(
@@ -1435,6 +1446,10 @@ class _VehicleWiseTimeWiseTravelState extends State<VehicleWiseTimeWiseTravel> {
                               onTap: () async {
                                 pdfdatalist.clear();
                                 pdfdatalist.addAll(vehicledata!);
+                                pdffilterlist.clear();
+                                pdffilterlist.addAll(filterdata!);
+                                pdfsearchlist.clear();
+                                pdfsearchlist.addAll(searchdata!);
                                 setState(() {});
 
                                 var status = await Permission.storage.status;
@@ -1442,7 +1457,7 @@ class _VehicleWiseTimeWiseTravelState extends State<VehicleWiseTimeWiseTravel> {
                                     .request()
                                     .isGranted) {
                                   final pdfFile =
-                                      await PdfInvoiceApi.generate(pdfdatalist);
+                                      await PdfInvoiceApi.generate(pdfdatalist,pdffilterlist,applyclicked,pdfsearchlist,isSearch);
                                   PdfApi.openFile(pdfFile);
                                 } else {
                                   print("Request is not accepted");
@@ -1539,13 +1554,14 @@ class _VehicleWiseTimeWiseTravelState extends State<VehicleWiseTimeWiseTravel> {
                                     children: [
                                       Row(
                                         children: [
-                                         Text("From Date  ",
+                                          Text("From Date  ",
+                                              style: TextStyle(fontSize: 18)),
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                left: 10.0),
+                                            child: Text(" -  To Date",
                                                 style: TextStyle(fontSize: 18)),
-                                                 Padding(
-                                                   padding: const EdgeInsets.only(left: 10.0),
-                                                   child: Text(" -  To Date",
-                                                style: TextStyle(fontSize: 18)),
-                                                 ),
+                                          ),
                                         ],
                                       ),
                                       Row(
@@ -1580,7 +1596,8 @@ class _VehicleWiseTimeWiseTravelState extends State<VehicleWiseTimeWiseTravel> {
                                                     style:
                                                         TextStyle(fontSize: 18),
                                                   ),
-                                                  Text(vtwdvehiclenolisttiletext,
+                                                  Text(
+                                                      vtwdvehiclenolisttiletext,
                                                       style: TextStyle(
                                                           fontSize: 18)),
                                                 ],
@@ -2458,7 +2475,7 @@ class _VehicleWiseTimeWiseTravelState extends State<VehicleWiseTimeWiseTravel> {
 }
 
 class PdfInvoiceApi {
-  static Future<File> generate(List<VehicleWiseTimeWiseData> pdflist) async {
+  static Future<File> generate(List<VehicleWiseTimeWiseData> pdflist, List<VehihcleWiseTimeWiseFilterData> pdffilter, bool applyclicked,List<VehicleWiseTimeWiseSearchData> pdfsearch, bool issearch) async {
     final pdf = pw.Document();
     double fontsize = 8.0;
 
@@ -2626,7 +2643,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(article.imeino.toString(),
+                            child: pw.Text(applyclicked ?  pdffilter[index].imeino.toString() : issearch ? pdfsearch[index].imeino.toString() : pdflist[index].imeino.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2635,7 +2652,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(article.transTime.toString(),
+                            child: pw.Text(applyclicked ?  pdffilter[index].transTime.toString() : issearch ? pdfsearch[index].transTime.toString() : pdflist[index].transTime.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2644,7 +2661,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(article.speed.toString(),
+                            child: pw.Text(applyclicked ?  pdffilter[index].speed.toString() : issearch ? pdfsearch[index].speed.toString() : pdflist[index].speed.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2653,7 +2670,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(article.distancetravel.toString(),
+                            child: pw.Text(applyclicked ?  pdffilter[index].distancetravel.toString() : issearch ? pdfsearch[index].distancetravel.toString() : pdflist[index].distancetravel.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2662,7 +2679,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(article.latitude.toString(),
+                            child: pw.Text(applyclicked ?  pdffilter[index].latitude.toString() : issearch ? pdfsearch[index].latitude.toString() : pdflist[index].latitude.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2671,7 +2688,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(article.longitude.toString(),
+                            child: pw.Text(applyclicked ?  pdffilter[index].longitude.toString() : issearch ? pdfsearch[index].longitude.toString() : pdflist[index].longitude.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2687,7 +2704,11 @@ class PdfInvoiceApi {
                       ])
                     ]);
               },
-              itemCount: pdflist.length),
+              itemCount: applyclicked
+                  ? pdffilter.length
+                  : issearch
+                      ? pdfsearch.length
+                      : pdflist.length),
           // ),
           // pw.SizedBox(height: 15),
           // pw.Row(
@@ -2720,7 +2741,11 @@ class PdfInvoiceApi {
       },
     ));
 
-    return PdfApi.saveDocument(name: 'vehiclewiseTWreport.pdf', pdf: pdf);
+    return PdfApi.saveDocument(name:applyclicked
+            ? 'vehiclewiseTWFilterReport.pdf'
+            : issearch
+                ? 'vehiclewiseTWSearchReport.pdf'
+                :  'vehiclewiseTWreport.pdf', pdf: pdf);
   }
 }
 

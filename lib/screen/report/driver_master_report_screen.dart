@@ -57,6 +57,8 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
   late int branchid = 1, vendorid = 1;
   List<DriverMasterData>? data = [];
   List<DriverMasterData>? pdfdatalist = [];
+  List<FilterData>? pdffilterlist = [];
+  List<FindDriverMasterData>? pdfsearchlist = [];
   List<FindDriverMasterData>? searchData = [];
   SearchStringClass searchClass = SearchStringClass(searchStr: '');
   List<FilterData>? filterData = [];
@@ -173,6 +175,8 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
             onTap: () {
               setState(() {
                 isfilter = true;
+                dmdcvehno = "";
+                dmdcvehnolisttiletext = "";
                 isfilter
                     ? _mainBloc.add(DriverMasterDriverCodeEvent(
                         token: token, vendorId: 1, branchId: 1))
@@ -416,7 +420,7 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
                                               fontSize: 18),
                                         ),
                                         onPressed: () {
-                                          dmdcvehnolisttiletext = "-select-";
+                                          dmdcvehnolisttiletext = "";
                                           setState(() {});
                                         },
                                       ),
@@ -445,7 +449,7 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
                                                   color: Colors.white)),
                                           onPressed: () {
                                             searchController.text = "";
-                                            if (dmdcvehno != null) {
+                                            if (dmdcvehno != "") {
                                               _mainBloc
                                                   .add(DriverMasterFilterEvent(
                                                 token: token,
@@ -656,7 +660,7 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
                                             width: 2)),
                                     child: ListTile(
                                       leading: Text(
-                                        dmdcvehnolisttiletext == null
+                                        dmdcvehnolisttiletext == ""
                                             ? "-select-"
                                             : dmdcvehnolisttiletext,
                                         style: TextStyle(
@@ -825,13 +829,19 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
                               onTap: () async {
                                 pdfdatalist!.clear();
                                 pdfdatalist!.addAll(data!);
+                                pdffilterlist!.clear();
+                                pdffilterlist!.addAll(filterData!);
+                                pdfsearchlist!.clear();
+                                pdfsearchlist!.addAll(searchData!);
                                 setState(() {});
                                 var status = await Permission.storage.status;
                                 if (await Permission.storage
                                     .request()
                                     .isGranted) {
                                   final pdfFile = await PdfInvoiceApi.generate(
-                                      pdfdatalist!);
+                                      pdfdatalist!,
+                                      pdffilterlist!,
+                                      applyclicked, pdfsearchlist!, isSearch);
                                   PdfApi.openFile(pdfFile);
                                 } else {
                                   print("Request is not accepted");
@@ -1956,7 +1966,12 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
 }
 
 class PdfInvoiceApi {
-  static Future<File> generate(List<DriverMasterData> pdflist) async {
+  static Future<File> generate(
+      List<DriverMasterData> pdflist,
+      List<FilterData> pdffilter,
+      bool isfilter,
+      List<FindDriverMasterData> pdfsearch,
+      bool issearch) async {
     final pdf = pw.Document();
     double fontsize = 8.0;
     DateTime current_date = DateTime.now();
@@ -2077,7 +2092,8 @@ class PdfInvoiceApi {
           //     child:
           pw.ListView.builder(
               itemBuilder: (pw.Context context, int index) {
-                var article = pdflist[index];
+                // var article =  pdffilter[index];
+                print("This is applyclicked---" + isfilter.toString());
                 return pw.Table(
                     border:
                         pw.TableBorder.all(color: PdfColors.black, width: 0.8),
@@ -2088,7 +2104,10 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 20,
-                            child: pw.Text(article.srNo.toString(),
+                            child: pw.Text(
+                                isfilter
+                                    ? pdffilter[index].srNo.toString()
+                                    : issearch ? pdfsearch[index].srNo.toString() : pdflist[index].srNo.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2101,7 +2120,10 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 40,
-                            child: pw.Text(article.driverCode.toString(),
+                            child: pw.Text(
+                                isfilter
+                                    ? pdffilter[index].driverCode.toString()
+                                    : issearch ? pdfsearch[index].driverCode.toString() : pdflist[index].srNo.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2113,7 +2135,10 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 40,
-                            child: pw.Text(article.driverName.toString(),
+                            child: pw.Text(
+                                isfilter
+                                    ? pdffilter[index].driverName.toString()
+                                    :issearch ? pdfsearch[index].driverName.toString() : pdflist[index].driverName.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2125,7 +2150,10 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 40,
-                            child: pw.Text(article.licenceNo.toString(),
+                            child: pw.Text(
+                                isfilter
+                                    ? pdffilter[index].licenceNo.toString()
+                                    : issearch ? pdfsearch[index].licenceNo.toString() : pdflist[index].licenceNo.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2137,7 +2165,10 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 40,
-                            child: pw.Text(article.mobileNo.toString(),
+                            child: pw.Text(
+                                isfilter
+                                    ? pdffilter[index].mobileNo.toString()
+                                    :issearch ? pdfsearch[index].mobileNo.toString() : pdflist[index].mobileNo.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2149,7 +2180,10 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 40,
-                            child: pw.Text(article.doj.toString(),
+                            child: pw.Text(
+                                isfilter
+                                    ? pdffilter[index].doj.toString()
+                                    :issearch ? pdfsearch[index].doj.toString() : pdflist[index].doj.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2159,13 +2193,13 @@ class PdfInvoiceApi {
                       ])
                     ]);
               },
-              itemCount: pdflist.length)
+              itemCount: isfilter ? pdffilter.length : issearch ? pdfsearch.length : pdflist.length)
           // ),
         ];
       },
     ));
 
-    return PdfApi.saveDocument(name: 'DriverMasterReport.pdf', pdf: pdf);
+    return PdfApi.saveDocument(name: isfilter ? 'DriverMasterFilterReport.pdf' : issearch ? 'DriverMasterSearchReport.pdf': 'DriverMasterReport.pdf', pdf: pdf);
   }
 }
 

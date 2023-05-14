@@ -2482,17 +2482,17 @@ class WebService {
 
 //! TravelSummary Search web service-------------------------
   Future<TravelSummarySearch> travelsearch_web(
-    String token,
-    int vendorid,
-    int branchid,
-    int pagenumber,
-    int pagesize,
-    String arinonarai,
-    String fromdate,
-    String fromtime,
-    String searchtext,
-    String totime,
-    String todate,
+  String token,
+  int vendorid,
+  int branchid,
+  String arainonarai,
+  String fromdata,
+  String fromtime,
+  String todate,
+  String totime,
+  String searchtext,
+  int pagenumber,
+  int pagesize,
   ) async {
     var travelsearchurl = Constant.travelSummarySearch +
         "?VendorId=" +
@@ -2500,7 +2500,7 @@ class WebService {
         "&BranchId=" +
         branchid.toString() +
         "&ARAI_NONARAI=arai&FromDate=" +
-        fromdate.toString() +
+        fromdata.toString() +
         "&FromTime=" +
         fromtime.toString() +
         "&ToDate=" +
@@ -2515,22 +2515,23 @@ class WebService {
         pagesize.toString();
     // var travelsearchurl =
     //     "https://vtsgpsapi.m-techinnovations.com/api/TravelSummaryReport/SearchTravelSummaryReport?VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=01-sep-2022&FromTime=10:30&ToDate=30-sep-2022&ToTime=15:30&SearchText=MH12&PageNumber=1&PageSize=10";
+    print("This is travel summary search " + travelsearchurl);
     final response =
         await http.get(Uri.parse(travelsearchurl), headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
       'Authorization': 'Bearer $token',
     });
-    if (response.statusCode == 200) {
-      print("Successfully getting your data 2" + travelsearchurl.toString());
+    // if (response.statusCode == 200) {
+      print("Successfully getting your data 2");
       var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
 
       var travelsummaryjson = TravelSummarySearch.fromJson(jsonbody);
-      print("Json decoded body2_" + travelsummaryjson.toString());
+      print("Json decoded body2_" + jsonbody.toString());
       return travelsummaryjson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
+    // } else {
+    //   print(response.body);
+    //   throw Exception('Failed to load data');
+    // }
   }
 
   //! TravelSummary Filter web service-----------------

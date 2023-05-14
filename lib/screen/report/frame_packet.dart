@@ -52,6 +52,8 @@ class _FramePacketState extends State<FramePacket> {
   late String token = "";
   int imeno = 867322033819244;
   List<DatewiseFramepacketData> pdfdatalist = [];
+  List<FrameFilterData> pdffilterlist = [];
+  List<DatewiseFramepacketDatum> pdfsearchlist = [];
   List<DatewiseFramepacketData>? framedata = [];
   List<FrameFilterData>? framefilterdata = [];
   List<DatewiseFramepacketDatum>? searchdataList = [];
@@ -228,6 +230,12 @@ class _FramePacketState extends State<FramePacket> {
             onTap: () {
               setState(() {
                 isfilter = true;
+                todateInput.text = "";
+                fromdateInput.text = "";
+                fromTimeInput.text = "";
+                toTimrInput.text = "";
+                fpdclisttiletext = "";
+                fpgolisttiletext = "";
                 isfilter
                     ? _mainBloc.add(VehicleVSrNoEvent(
                         token: token, vendorId: 1, branchId: 1))
@@ -235,6 +243,12 @@ class _FramePacketState extends State<FramePacket> {
               });
               setState(() {
                 isfilter = true;
+                todateInput.text = "";
+                fromdateInput.text = "";
+                fromTimeInput.text = "";
+                toTimrInput.text = "";
+                fpdclisttiletext = "";
+                fpgolisttiletext = "";
                 isfilter
                     ? _mainBloc.add(FramePacketOptionGridEvent(
                         token: token,
@@ -516,8 +530,8 @@ class _FramePacketState extends State<FramePacket> {
                                         todateInput.text = "";
                                         fromTimeInput.text = "";
                                         fromdateInput.text = "";
-                                        fpgolisttiletext = "-select-";
-                                        fpdclisttiletext = "-select-";
+                                        fpgolisttiletext = "";
+                                        fpdclisttiletext = "";
                                         setState(() {});
                                       },
                                     ),
@@ -551,7 +565,11 @@ class _FramePacketState extends State<FramePacket> {
                                               toTimeController != null &&
                                               fromTimeController != null &&
                                               fpdcvehicleno != null &&
-                                              fpgovehicleno != null) {
+                                              fpgovehicleno != null  &&
+                                              fromdateInput.text.isNotEmpty &&
+                                              todateInput.text.isNotEmpty &&
+                                              fromTimeInput.text.isNotEmpty &&
+                                              toTimrInput.text.isNotEmpty) {
                                             _mainBloc.add(FrameFilterEvent(
                                                 token: token,
                                                 vendorId: vendorid,
@@ -745,7 +763,7 @@ class _FramePacketState extends State<FramePacket> {
                                           width: 2)),
                                   child: ListTile(
                                     leading: Text(
-                                      fpdclisttiletext == null
+                                      fpdclisttiletext == ""
                                           ? "-select-"
                                           : fpdclisttiletext,
                                       style: TextStyle(
@@ -856,7 +874,7 @@ class _FramePacketState extends State<FramePacket> {
                                           width: 2)),
                                   child: ListTile(
                                     leading: Text(
-                                      fpgolisttiletext == null
+                                      fpgolisttiletext == ""
                                           ? "-select-"
                                           : fpgolisttiletext,
                                       style: TextStyle(
@@ -1576,6 +1594,10 @@ class _FramePacketState extends State<FramePacket> {
                               onTap: () async {
                                 pdfdatalist.clear();
                                 pdfdatalist.addAll(framedata!);
+                                pdffilterlist.clear();
+                                pdffilterlist.addAll(framefilterdata!);
+                                pdfsearchlist.clear();
+                                pdfsearchlist.addAll(searchdataList!);
                                 setState(() {});
 
                                 var status = await Permission.storage.status;
@@ -1583,7 +1605,7 @@ class _FramePacketState extends State<FramePacket> {
                                     .request()
                                     .isGranted) {
                                   final pdfFile =
-                                      await PdfInvoiceApi.generate(pdfdatalist);
+                                      await PdfInvoiceApi.generate(pdfdatalist,pdffilterlist,applyclicked,pdfsearchlist,isSearch);
                                   PdfApi.openFile(pdfFile);
                                 } else {
                                   print("Request is not accepted");
@@ -3635,7 +3657,7 @@ class _FramePacketState extends State<FramePacket> {
 }
 
 class PdfInvoiceApi {
-  static Future<File> generate(List<DatewiseFramepacketData> pdflist) async {
+  static Future<File> generate(List<DatewiseFramepacketData> pdflist, List<FrameFilterData> pdffilter, bool applyclicked, List<DatewiseFramepacketDatum> pdfsearch, bool issearch) async {
     final pdf = pw.Document();
     double fontsize = 8.0;
 
@@ -3771,7 +3793,7 @@ class PdfInvoiceApi {
           //     child:
           pw.ListView.builder(
               itemBuilder: (pw.Context context, int index) {
-                var article = pdflist[index];
+                // var article = pdflist[index];
                 var sr = index + 1;
                 return pw.Table(
                     border:
@@ -3792,7 +3814,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(article.header.toString(),
+                            child: pw.Text(applyclicked ? pdffilter[index].header.toString() : issearch ? pdfsearch[index].header.toString() : pdflist[index].header.toString() ,
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -3801,7 +3823,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(article.imei.toString(),
+                            child: pw.Text(applyclicked ? pdffilter[index].imei.toString() : issearch ? pdfsearch[index].imei.toString() : pdflist[index].imei.toString() ,
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -3810,7 +3832,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(article.vehicleRegNo.toString(),
+                            child: pw.Text(applyclicked ? pdffilter[index].vehicleRegNo.toString() : issearch ? pdfsearch[index].vehicleRegNo.toString() : pdflist[index].vehicleRegNo.toString() ,
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -3819,7 +3841,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(article.latitude.toString(),
+                            child: pw.Text(applyclicked ? pdffilter[index].latitude.toString() : issearch ? pdfsearch[index].latitude.toString() : pdflist[index].latitude.toString() ,
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -3828,7 +3850,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(article.longitude.toString(),
+                            child: pw.Text(applyclicked ? pdffilter[index].longitude.toString() : issearch ? pdfsearch[index].longitude.toString() : pdflist[index].longitude.toString() ,
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -3877,7 +3899,7 @@ class PdfInvoiceApi {
       },
     ));
 
-    return PdfApi.saveDocument(name: 'FramePacketreport.pdf', pdf: pdf);
+    return PdfApi.saveDocument(name:applyclicked ? 'FramePacketFilterreport.pdf' : issearch ? 'FramePacketSearchreport.pdf' : 'FramePacketreport.pdf', pdf: pdf);
   }
 }
 

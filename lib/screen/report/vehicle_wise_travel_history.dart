@@ -53,6 +53,8 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
   late String token = "";
   int imeno = 867322033819244;
   List<VehicleWiseData> pdfdatalist = [];
+  List<VehihcleWiseFilterData> pdffilterlist = [];
+  List<VehicleWiseSearchData> pdfsearchlist = [];
   List<VehicleWiseData>? vehicledata = [];
   List<VehihcleWiseFilterData>? filterdata = [];
   List<VehicleWiseSearchData>? searchdata = [];
@@ -224,6 +226,11 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
             onTap: () {
               setState(() {
                 isfilter = true;
+                toTimrInput.text = "";
+                todateInput.text = "";
+                fromTimeInput.text = "";
+                fromdateInput.text = "";
+                vwdvehiclenolisttiletext = "";
                 isfilter
                     ? _mainBloc.add(VehicleVSrNoEvent(
                         token: token, vendorId: 1, branchId: 1))
@@ -395,10 +402,10 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
                 value = state.vehiclewisefilterResponse.totalRecords!;
               });
               filterdata!.addAll(state.vehiclewisefilterResponse.data!);
-            }else{
+            } else {
               setState(() {
-              _isLoading = false;
-            });
+                _isLoading = false;
+              });
             }
           } else if (state is VehicleWiseFilterErrorState) {
             print("Vehicle Wise Filter data error state");
@@ -456,10 +463,10 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
                 value = state.vehiclewisesearchResponse.totalRecords!;
               });
               searchdata!.addAll(state.vehiclewisesearchResponse.data!);
-            }else{
+            } else {
               setState(() {
-              _isLoading = false;
-            });
+                _isLoading = false;
+              });
             }
           } else if (state is VehicleWiseSearchErrorState) {
             print("Vehicle Wise search error state");
@@ -513,7 +520,7 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
                                         todateInput.text = "";
                                         fromTimeInput.text = "";
                                         fromdateInput.text = "";
-                                        vwdvehiclenolisttiletext = "-select-";
+                                        vwdvehiclenolisttiletext = "";
                                         setState(() {});
                                       },
                                     ),
@@ -546,7 +553,11 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
                                               fromTimeController != null &&
                                               toDateController != null &&
                                               toTimeController != null &&
-                                              vwdvehicleno != null) {
+                                              vwdvehicleno != null &&
+                                              fromdateInput.text.isNotEmpty &&
+                                              todateInput.text.isNotEmpty &&
+                                              fromTimeInput.text.isNotEmpty &&
+                                              toTimrInput.text.isNotEmpty) {
                                             _mainBloc.add(
                                                 VehicleWiseFilterEvents(
                                                     token: token,
@@ -739,7 +750,7 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
                                           width: 2)),
                                   child: ListTile(
                                     leading: Text(
-                                      vwdvehiclenolisttiletext == null
+                                      vwdvehiclenolisttiletext == ""
                                           ? "-select-"
                                           : vwdvehiclenolisttiletext,
                                       style: TextStyle(
@@ -1458,6 +1469,10 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
                               onTap: () async {
                                 pdfdatalist.clear();
                                 pdfdatalist.addAll(vehicledata!);
+                                pdffilterlist.clear();
+                                pdffilterlist.addAll(filterdata!);
+                                pdfsearchlist.clear();
+                                pdfsearchlist.addAll(searchdata!);
                                 setState(() {});
 
                                 var status = await Permission.storage.status;
@@ -1465,7 +1480,7 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
                                     .request()
                                     .isGranted) {
                                   final pdfFile =
-                                      await PdfInvoiceApi.generate(pdfdatalist);
+                                      await PdfInvoiceApi.generate(pdfdatalist,pdffilterlist,applyclicked,pdfsearchlist,isSearch);
                                   PdfApi.openFile(pdfFile);
                                 } else {
                                   print("Request is not accepted");
@@ -1559,13 +1574,14 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
                                     children: [
                                       Row(
                                         children: [
-                                         Text("From Date  ",
+                                          Text("From Date  ",
+                                              style: TextStyle(fontSize: 18)),
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                left: 10.0),
+                                            child: Text(" -  To Date",
                                                 style: TextStyle(fontSize: 18)),
-                                                 Padding(
-                                                   padding: const EdgeInsets.only(left: 10.0),
-                                                   child: Text(" -  To Date",
-                                                style: TextStyle(fontSize: 18)),
-                                                 ),
+                                          ),
                                         ],
                                       ),
                                       Row(
@@ -2476,7 +2492,7 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
 }
 
 class PdfInvoiceApi {
-  static Future<File> generate(List<VehicleWiseData> pdflist) async {
+  static Future<File> generate(List<VehicleWiseData> pdflist, List<VehihcleWiseFilterData> pdffilter, bool applyclicked, List<VehicleWiseSearchData> pdfsearch, bool issearch) async {
     final pdf = pw.Document();
     double fontsize = 8.0;
 
@@ -2644,7 +2660,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(article.imeino.toString(),
+                            child: pw.Text(applyclicked ?  pdffilter[index].imeino.toString() : issearch ? pdfsearch[index].imeino.toString() : pdflist[index].imeino.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2653,7 +2669,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(article.transTime.toString(),
+                            child: pw.Text(applyclicked ?  pdffilter[index].transTime.toString() : issearch ? pdfsearch[index].transTime.toString() : pdflist[index].transTime.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2662,7 +2678,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(article.speed.toString(),
+                            child: pw.Text(applyclicked ?  pdffilter[index].speed.toString() : issearch ? pdfsearch[index].speed.toString() : pdflist[index].speed.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2671,7 +2687,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(article.distancetravel.toString(),
+                            child: pw.Text(applyclicked ?  pdffilter[index].distancetravel.toString() : issearch ? pdfsearch[index].distancetravel.toString() : pdflist[index].distancetravel.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2680,7 +2696,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(article.latitude.toString(),
+                            child: pw.Text(applyclicked ?  pdffilter[index].latitude.toString() : issearch ? pdfsearch[index].latitude.toString() : pdflist[index].latitude.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2689,18 +2705,26 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(article.longitude.toString(),
+                            child: pw.Text(applyclicked ?  pdffilter[index].longitude.toString() : issearch ? pdfsearch[index].longitude.toString() : pdflist[index].longitude.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
                       ])
                     ]);
               },
-              itemCount: pdflist.length),
+              itemCount: applyclicked
+                  ? pdffilter.length
+                  : issearch
+                      ? pdfsearch.length
+                      : pdflist.length),
         ];
       },
     ));
-    return PdfApi.saveDocument(name: 'vehicledistreport.pdf', pdf: pdf);
+    return PdfApi.saveDocument(name:applyclicked
+            ? 'vehicledistFilterReport.pdf'
+            : issearch
+                ? 'vehicledistSearchReport.pdf'
+                :  'vehicledistreport.pdf', pdf: pdf);
   }
 }
 

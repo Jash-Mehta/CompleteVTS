@@ -60,6 +60,8 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
   List<DMDFData>? dmdfdata = [];
   List<DeviceData>? data = [];
   List<DeviceData> pdfdatalist = [];
+  List<DeviceMasterData> pdffilterlist = [];
+  List<SearchDMReportData> pdfsearchlist = [];
   List<SearchDMReportData>? searchData = [];
   SearchStringClass searchClass = SearchStringClass(searchStr: '');
   int filpagenumber = 1;
@@ -189,6 +191,7 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
             onTap: () {
               setState(() {
                 isfilter = true;
+                dmdfdeviceno = "";
                 isfilter
                     ? _mainBloc.add(DeviceMasterDrivercode(
                         token: token, vendorId: 1, branchId: 1))
@@ -433,7 +436,7 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
                                             fontSize: 18),
                                       ),
                                       onPressed: () {
-                                        dmdfdeviceno = "-Select-";
+                                        dmdfdeviceno = "";
                                         setState(() {});
                                       },
                                     ),
@@ -461,7 +464,7 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
                                                 TextStyle(color: Colors.white)),
                                         onPressed: () {
                                           searchController.text = "";
-                                          if (dmdfdeviceno != null) {
+                                          if (dmdfdeviceno != "") {
                                             _mainBloc.add(DeviceMasterFilter(
                                                 token: token,
                                                 vendorid: "1",
@@ -669,7 +672,7 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
                                           width: 2)),
                                   child: ListTile(
                                     leading: Text(
-                                      dmdfdeviceno == null
+                                      dmdfdeviceno == ""
                                           ? "-select-"
                                           : dmdfdeviceno,
                                       style: TextStyle(
@@ -830,6 +833,10 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
                               onTap: () async {
                                 pdfdatalist.clear();
                                 pdfdatalist.addAll(data!);
+                                pdffilterlist.clear();
+                                pdffilterlist.addAll(devicemasterdata!);
+                                pdfsearchlist.clear();
+                                pdfsearchlist.addAll(searchData!);
                                 setState(() {});
 
                                 var status = await Permission.storage.status;
@@ -837,7 +844,7 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
                                     .request()
                                     .isGranted) {
                                   final pdfFile =
-                                      await PdfInvoiceApi.generate(pdfdatalist);
+                                      await PdfInvoiceApi.generate(pdfdatalist,pdffilterlist, applyclicked, pdfsearchlist,isSearch);
                                   PdfApi.openFile(pdfFile);
                                 } else {
                                   print("Request is not accepted");
@@ -1661,7 +1668,12 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
 }
 
 class PdfInvoiceApi {
-  static Future<File> generate(List<DeviceData> pdflist) async {
+  static Future<File> generate(
+      List<DeviceData> pdflist,
+      List<DeviceMasterData> pdffilter,
+      bool applyclicked,
+      List<SearchDMReportData> pdfsearch,
+      bool issearch) async {
     final pdf = pw.Document();
     double fontsize = 8.0;
     DateTime current_date = DateTime.now();
@@ -1772,7 +1784,7 @@ class PdfInvoiceApi {
           ),
           pw.ListView.builder(
               itemBuilder: (pw.Context context, int index) {
-                var article = pdflist[index];
+                // var article = pdflist[index];
                 var sr = index + 1;
                 return pw.Table(
                     border:
@@ -1793,7 +1805,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 20,
-                            child: pw.Text(article.deviceNo.toString(),
+                            child: pw.Text(applyclicked ? pdffilter[index].deviceNo.toString() : issearch ? pdfsearch[index].deviceNo.toString() : pdflist[index].deviceNo.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -1802,7 +1814,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 20,
-                            child: pw.Text(article.modelNo.toString(),
+                            child: pw.Text(applyclicked ? pdffilter[index].modelNo.toString() : issearch ? pdfsearch[index].modelNo.toString() : pdflist[index].modelNo.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -1811,7 +1823,7 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 20,
-                            child: pw.Text(article.deviceName.toString(),
+                            child: pw.Text(applyclicked ? pdffilter[index].deviceName.toString() : issearch ? pdfsearch[index].deviceName.toString() : pdflist[index].deviceName.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -1820,19 +1832,19 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 20,
-                            child: pw.Text(article.imeino.toString(),
+                            child: pw.Text(applyclicked ? pdffilter[index].imeino.toString() : issearch ? pdfsearch[index].imeino.toString() : pdflist[index].imeino.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
                       ])
                     ]);
               },
-              itemCount: pdflist.length),
+              itemCount:applyclicked ? pdffilter.length : issearch ? pdfsearch.length : pdflist.length),
         ];
       },
     ));
 
-    return PdfApi.saveDocument(name: 'DeviceMasterreport.pdf', pdf: pdf);
+    return PdfApi.saveDocument(name:applyclicked ? 'DeviceMasterFilterreport.pdf' : issearch ? 'DeviceMasterSearchreport.pdf': 'DeviceMasterreport.pdf', pdf: pdf);
   }
 }
 
