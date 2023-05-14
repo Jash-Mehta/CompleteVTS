@@ -178,7 +178,9 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
             if (state.travelSummaryResponse.datewise != null) {
               print("Search data is printed!!");
               setState(() {
+                // traveldata!.clear();
                 _isLoading = false;
+                searchdata!.clear();
                 //pagenumber++;
                 //  searchvalue = state.travelSummaryResponse.totalRecords!;
               });
@@ -347,6 +349,8 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
                                         itemBuilder:
                                             (BuildContext context, int index) {
                                           var article = searchdata![index];
+                                          print(
+                                              "Search data is printed------->");
                                           return Card(
                                             shape: RoundedRectangleBorder(
                                               side: const BorderSide(

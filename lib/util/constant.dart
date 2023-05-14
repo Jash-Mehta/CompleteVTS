@@ -199,7 +199,7 @@ class Constant {
       baseUrl + 'DistanceTravelSummary/GetDistanceTravelSummaryReport';
   static String distancesummaryfilter = baseUrl +
       'DistanceTravelSummary/FilterDistanceTravelSummaryReport_SummaryRange';
-   static String distancesummarysearch =
+  static String distancesummarysearch =
       baseUrl + 'DistanceTravelSummary/SearchDistanceTravelSummaryReport';
   // Driver Wise Vehicle Assign
   static String driverwisevehicleassign =
@@ -309,7 +309,7 @@ class Constant {
       'VehicleStatusSummaryReport/SearchVehicleStatusSummaryReport?VendorId=';
 
   //  https://vtsgpsapi.m-techinnovations.com/api/FramePacketGridviewReport/FillFramePacket?ARAI_NONARAI=arai
-   static String getPointOfInterstCreateUrl =
+  static String getPointOfInterstCreateUrl =
       baseUrl + 'PointOfInterestCreate/GetPointofInterestDetails';
 
   // '${baseUrl}/PointOfInterestCreate/GetPointofInterestDetails';
@@ -321,8 +321,7 @@ class Constant {
       baseUrl + 'PointOfInterestCreate/GETPOITypeDetails';
   static String routesdetailbyname =
       baseUrl + 'RouteDefine/GetRoutesDetailsByRouteName';
-       static String speedurl =
+  static String speedurl =
       baseUrl + 'VTSHistory/ApplyVehicleHistoryAPI?VendorId=';
-
-
+  static String vtslivegeo = baseUrl + "VTSLive/GetGEODetails?VendorId=";
 }

@@ -1222,6 +1222,17 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           print(e.toString());
           yield SearchFramePacketGridErrorState(msg: e.toString());
         }
+        //! VTSLive Geofence ----------------->
+      } else if (event is VTSLiveGeofenceEvent) {
+        try {
+          yield VTSLiveGeofenceLoadingState();
+          var vts_live_response = await webService.getvtslivegeo(
+              event.token, event.vendorid, event.branchid, event.vehicleregNo);
+          yield VTSLiveGeofenceLoadedState(vtsLiveGeo: vts_live_response);
+        } catch (e) {
+          print(e.toString());
+          yield VTSLiveGeofenceErrorState(msg: e.toString());
+        }
       } else if (event is TravelSummaryReportEvent) {
         try {
           yield TravelSummaryReportLoadingState();
@@ -1239,6 +1250,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           yield TravelSummaryReportLoadedState(
               TravelSummaryResponse: travelsummaryresponse);
         } catch (e) {
+          print(e.toString());
           print(e.toString());
         }
         //! Travel Summary Search Event-------------------------
@@ -2519,15 +2531,14 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         } catch (e) {
           yield RouteDefinePostErrorState(msg: e.toString());
         }
-      }//Main Bloc
+      } //Main Bloc
 
- //  ------------------- // Get veh speed data--------------
+      //  ------------------- // Get veh speed data--------------
 
       else if (event is GetVehSpeedDataEvent) {
         try {
           yield GetVehSpeedLoadingState();
-          var getvehspeedDetailres =
-          await webService.getvehspeedDetail(
+          var getvehspeedDetailres = await webService.getvehspeedDetail(
             event.token,
             event.vendorId,
             event.branchid,
@@ -2541,7 +2552,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             event.pagenumber,
             event.pagesize,
           );
-          print("Enter in main bloc of speed data-----------${getvehspeedDetailres.data!.length}");
+          print(
+              "Enter in main bloc of speed data-----------${getvehspeedDetailres.data!.length}");
           yield GetVehSpeedLoadedState(
               getVehSpeedResponse: getvehspeedDetailres);
         } catch (e) {

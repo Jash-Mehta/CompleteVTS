@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter_vts/bloc/main_bloc.dart';
 import 'package:flutter_vts/bloc/main_event.dart';
 import 'package:flutter_vts/bloc/main_state.dart';
@@ -26,6 +27,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import '../../model/live/nextlocation_imei.dart';
 import '../../model/live/start_location_response.dart';
 import '../../model/live/startlocation_imei.dart';
+import '../../model/live/vts_live_geo_response.dart';
 import '../../util/constant.dart';
 
 class LiveTrackingDetailsScreen extends StatefulWidget {
@@ -59,6 +61,7 @@ class _LiveTrackingDetailsScreenState extends State<LiveTrackingDetailsScreen> {
   SolidController _controller = SolidController();
   bool toggleIcon = true;
   final Set<Marker> _marker = {};
+  final Set<Circle> _circle = {};
   Map<MarkerId, Marker> markers = {};
 
   static late LatLng latLng = new LatLng(18.6298, 73.7997);
@@ -77,10 +80,13 @@ class _LiveTrackingDetailsScreenState extends State<LiveTrackingDetailsScreen> {
   Completer<GoogleMapController> googleMapController = Completer();
   List<StartLocationImei> startLocationResponseime = [];
   List<NextLocationImei> nextlocationresponseime = [];
+  List<VtsLiveGeo> vtslivegeo = [];
   double? livelat;
   double? livlong;
   double? nextlivelat;
   double? nextlivelng;
+  double? centerlat;
+  double? centerlng;
   late bool isPlayClick = false;
   late List<LiveTrackingByIdResponse> liveTrackingByIdRespons = [];
   List<String> speedList = [
@@ -1060,6 +1066,15 @@ class _LiveTrackingDetailsScreenState extends State<LiveTrackingDetailsScreen> {
     addPolyLine(polylineCoordinates);
   }
 
+  String formatDate(String dateStr) {
+    final date = DateFormat('dd/MM/yyyy').parse(dateStr);
+    final day = DateFormat('dd').format(date);
+    final month = DateFormat('MMM').format(date)[0].toLowerCase() +
+        DateFormat('MMM').format(date).substring(1);
+    final year = date.year;
+    return '$day-$month-$year';
+  }
+
   //! Adding Polyline--------------------------------
   addPolyLine(List<LatLng> polylineCoordinates) {
     PolylineId id = PolylineId("poly");
@@ -1143,6 +1158,11 @@ class _LiveTrackingDetailsScreenState extends State<LiveTrackingDetailsScreen> {
         imeiNUmber: imei));
   }
 
+  getgeodetailscreen(String vehicleno) {
+    _mainBloc.add(VTSLiveGeofenceEvent(
+        token: token, vendorid: 1, branchid: 1, vehicleregNo: vehicleno));
+  }
+
   _livetracking() {
     //! Bloc Listner Startfrom here----------------->
     return BlocListener<MainBloc, MainState>(
@@ -1187,20 +1207,27 @@ class _LiveTrackingDetailsScreenState extends State<LiveTrackingDetailsScreen> {
           });
         } else if (state is StartLocationIMEILoadedState) {
           print("Your Start location is there---------->");
+
           setState(() {
             _isLoading = false;
 
             startLocationResponseime = state.startLocationResponse;
+            getgeodetailscreen(state.startLocationResponse[0].vehicleRegNo);
             setState(() {
               livelat = double.parse(state.startLocationResponse[0].latitude);
               livlong = double.parse(state.startLocationResponse[0].longitude);
             });
+            final formattedDate =
+                formatDate(state.startLocationResponse[0].date);
+
+            // getNextlocation(imei, transcationID, prevTime, prevDate, prevImei)
             getNextlocation(
                 state.startLocationResponse[0].imei,
                 state.startLocationResponse[0].transactionId,
-                state.startLocationResponse[0].date,
                 state.startLocationResponse[0].previousTime,
+                formattedDate,
                 state.startLocationResponse[0].imei);
+
             //  getmarkers(livelat!, livlong!);
             // showStartLocation=LatLng(double.parse(state.startLocationResponse[0].latitude!),double.parse(state.startLocationResponse[0].longitude!)/*27.7089427, 85.3086209*/);
           });
@@ -1218,6 +1245,7 @@ class _LiveTrackingDetailsScreenState extends State<LiveTrackingDetailsScreen> {
           setState(() {
             _isLoading = false;
           });
+          //! NextLocationIMIEState----------->
         } else if (state is NextLocationIMEILoadingState) {
           print("Enter in the next loading locationIMEI----------");
           setState(() {
@@ -1228,12 +1256,10 @@ class _LiveTrackingDetailsScreenState extends State<LiveTrackingDetailsScreen> {
           setState(() {
             _isLoading = false;
 
-            setState(() {
-              nextlivelat =
-                  double.parse(state.startLocationResponse[0].latitude);
-              nextlivelng =
-                  double.parse(state.startLocationResponse[0].longitude);
-            });
+            nextlivelat = double.parse(state.startLocationResponse[0].latitude);
+            nextlivelng =
+                double.parse(state.startLocationResponse[0].longitude);
+
             mapController.animateCamera(CameraUpdate.newCameraPosition(
                 CameraPosition(
                     target: LatLng(nextlivelat!, nextlivelng!), zoom: 17)));
@@ -1251,6 +1277,29 @@ class _LiveTrackingDetailsScreenState extends State<LiveTrackingDetailsScreen> {
           setState(() {
             _isLoading = false;
           });
+          //! VTSLive Geofence--------------->
+        } else if (state is VTSLiveGeofenceLoadingState) {
+          print("Enter in the  GEO loading state--------");
+          setState(() {
+            _isLoading = true;
+          });
+        } else if (state is VTSLiveGeofenceLoadedState) {
+          setState(() {
+            _isLoading = false;
+            vtslivegeo = state.vtsLiveGeo;
+          });
+          centerlat = double.parse(state.vtsLiveGeo[0].circleCenterLat);
+          centerlng = double.parse(state.vtsLiveGeo[0].circleCenterLng);
+          print("Center lan" +
+              centerlat.toString() +
+              "---------->" +
+              centerlng.toString());
+          getcircle(centerlat!, centerlng!);
+          setState(() {});
+        } else if (state is VTSLiveGeofenceErrorState) {
+          setState(() {
+            _isLoading = false;
+          });
         }
       },
       child: SizedBox(
@@ -1260,6 +1309,7 @@ class _LiveTrackingDetailsScreenState extends State<LiveTrackingDetailsScreen> {
           initialCameraPosition:
               CameraPosition(target: LatLng(18.6298, 73.7997)),
           markers: _marker,
+          circles: _circle,
           polylines: Set<Polyline>.of(polylines.values),
           /*{
                 Marker(
@@ -1307,5 +1357,17 @@ class _LiveTrackingDetailsScreenState extends State<LiveTrackingDetailsScreen> {
     ));
 
     return _marker;
+  }
+
+  Set<Circle> getcircle(double centerlat, double centerlng) {
+    _circle.add(Circle(
+      circleId: CircleId("circle_1"),
+      center: LatLng(centerlat, centerlng),
+      radius: 1000, // radius in meters
+      fillColor: Color.fromRGBO(255, 0, 0, 0.5),
+      strokeColor: Colors.redAccent,
+      strokeWidth: 2,
+    ));
+    return _circle;
   }
 }
