@@ -150,7 +150,6 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
 
     setState(() {
       getmarkers(0);
-      
     });
     getdata();
     googlemapImage();
@@ -358,10 +357,10 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
                 CameraPosition(target: LatLng(lat, lng), zoom: 17)));
           }
           //! Over speed radibutton-------------------->
-          else if(radioItemHolder1=="OVERSPEED"){
-             Uint8List markerIcon =
+          else if (radioItemHolder1 == "OVERSPEED") {
+            Uint8List markerIcon =
                 await _getBytesFromAsset("assets/overspeed_truck.png", 85);
-                  _markerlist.add(
+            _markerlist.add(
               Marker(
                 icon: BitmapDescriptor.fromBytes(markerIcon),
                 markerId: MarkerId(LatLng(lat, lng).toString()),
@@ -370,7 +369,6 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
                     title: location.vehicleRegNo,
                     snippet: location.driverName,
                     onTap: () {
-                    
                       Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -391,7 +389,6 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
             setState(() {});
             mapController?.animateCamera(CameraUpdate.newCameraPosition(
                 CameraPosition(target: LatLng(lat, lng), zoom: 17)));
-
           }
         }
       });
@@ -496,7 +493,10 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
                         ? 'assets/running_car.png'
                         : searchliveTrackingResponse[i].vehicleStatus == 'Idle'
                             ? 'assets/idle_car.png'
-                            : 'assets/inactive_car.png'), //Icon for Marker
+                            : searchliveTrackingResponse[i].vehicleStatus ==
+                                    'Overspeed'
+                                ? 'assets/overspeed_truck.png'
+                                : 'assets/inactive_car.png'), //Icon for Marker
           ));
           mapController?.animateCamera(CameraUpdate.newCameraPosition(
               CameraPosition(
@@ -506,7 +506,6 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
                   zoom: 17)));
         }
       });
-   
     } else {
       setState(() async {
         for (int i = 0; i < startLocationResponse.length; i++) {

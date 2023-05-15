@@ -708,7 +708,7 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
                                                   const EdgeInsets.all(8.0),
                                               child: GestureDetector(
                                                 child: Text(
-                                                  article.driverCode!,
+                                                  article.driverName!,
                                                   style: TextStyle(
                                                       fontSize: 16,
                                                       fontWeight:
@@ -725,7 +725,7 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
                                                         "This is vehicleregno - " +
                                                             dmdcvehno);
                                                     dmdcvehnolisttiletext =
-                                                        article.driverCode
+                                                        article.driverName
                                                             .toString();
                                                   });
                                                 },
@@ -841,7 +841,9 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
                                   final pdfFile = await PdfInvoiceApi.generate(
                                       pdfdatalist!,
                                       pdffilterlist!,
-                                      applyclicked, pdfsearchlist!, isSearch);
+                                      applyclicked,
+                                      pdfsearchlist!,
+                                      isSearch);
                                   PdfApi.openFile(pdfFile);
                                 } else {
                                   print("Request is not accepted");
@@ -2107,7 +2109,9 @@ class PdfInvoiceApi {
                             child: pw.Text(
                                 isfilter
                                     ? pdffilter[index].srNo.toString()
-                                    : issearch ? pdfsearch[index].srNo.toString() : pdflist[index].srNo.toString(),
+                                    : issearch
+                                        ? pdfsearch[index].srNo.toString()
+                                        : pdflist[index].srNo.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2123,7 +2127,9 @@ class PdfInvoiceApi {
                             child: pw.Text(
                                 isfilter
                                     ? pdffilter[index].driverCode.toString()
-                                    : issearch ? pdfsearch[index].driverCode.toString() : pdflist[index].srNo.toString(),
+                                    : issearch
+                                        ? pdfsearch[index].driverCode.toString()
+                                        : pdflist[index].srNo.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2138,7 +2144,9 @@ class PdfInvoiceApi {
                             child: pw.Text(
                                 isfilter
                                     ? pdffilter[index].driverName.toString()
-                                    :issearch ? pdfsearch[index].driverName.toString() : pdflist[index].driverName.toString(),
+                                    : issearch
+                                        ? pdfsearch[index].driverName.toString()
+                                        : pdflist[index].driverName.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2153,7 +2161,9 @@ class PdfInvoiceApi {
                             child: pw.Text(
                                 isfilter
                                     ? pdffilter[index].licenceNo.toString()
-                                    : issearch ? pdfsearch[index].licenceNo.toString() : pdflist[index].licenceNo.toString(),
+                                    : issearch
+                                        ? pdfsearch[index].licenceNo.toString()
+                                        : pdflist[index].licenceNo.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2168,7 +2178,9 @@ class PdfInvoiceApi {
                             child: pw.Text(
                                 isfilter
                                     ? pdffilter[index].mobileNo.toString()
-                                    :issearch ? pdfsearch[index].mobileNo.toString() : pdflist[index].mobileNo.toString(),
+                                    : issearch
+                                        ? pdfsearch[index].mobileNo.toString()
+                                        : pdflist[index].mobileNo.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2183,7 +2195,9 @@ class PdfInvoiceApi {
                             child: pw.Text(
                                 isfilter
                                     ? pdffilter[index].doj.toString()
-                                    :issearch ? pdfsearch[index].doj.toString() : pdflist[index].doj.toString(),
+                                    : issearch
+                                        ? pdfsearch[index].doj.toString()
+                                        : pdflist[index].doj.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2193,13 +2207,23 @@ class PdfInvoiceApi {
                       ])
                     ]);
               },
-              itemCount: isfilter ? pdffilter.length : issearch ? pdfsearch.length : pdflist.length)
+              itemCount: isfilter
+                  ? pdffilter.length
+                  : issearch
+                      ? pdfsearch.length
+                      : pdflist.length)
           // ),
         ];
       },
     ));
 
-    return PdfApi.saveDocument(name: isfilter ? 'DriverMasterFilterReport.pdf' : issearch ? 'DriverMasterSearchReport.pdf': 'DriverMasterReport.pdf', pdf: pdf);
+    return PdfApi.saveDocument(
+        name: isfilter
+            ? 'DriverMasterFilterReport.pdf'
+            : issearch
+                ? 'DriverMasterSearchReport.pdf'
+                : 'DriverMasterReport.pdf',
+        pdf: pdf);
   }
 }
 
