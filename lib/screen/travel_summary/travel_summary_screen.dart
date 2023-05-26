@@ -188,7 +188,9 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
             if (state.travelSummaryResponse.datewise != null) {
               print("Search data is printed!!");
               setState(() {
+                // traveldata!.clear();
                 _isLoading = false;
+                searchdata!.clear();
                 //pagenumber++;
                 searchdata!.clear();
                 value = state.travelSummaryResponse.totalRecords!;

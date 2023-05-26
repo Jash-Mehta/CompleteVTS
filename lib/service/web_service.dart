@@ -5,7 +5,6 @@ import 'package:flutter_vts/model/alert/add_alert_master_requesy.dart';
 import 'package:flutter_vts/model/alert/add_alert_master_response.dart';
 import 'package:flutter_vts/model/alert/all_alert_master_response.dart';
 
-
 import 'package:flutter_vts/model/alert/search_alert_master_screen.dart';
 import 'package:flutter_vts/model/alert_notification/alert_notification_response.dart';
 import 'package:flutter_vts/model/alert_notification/date_wise_search_alert_notification_response.dart';
@@ -40,6 +39,7 @@ import 'package:flutter_vts/model/live/live_tracking_filter_response.dart';
 import 'package:flutter_vts/model/live/live_tracking_response.dart';
 import 'package:flutter_vts/model/live/start_location_response.dart';
 import 'package:flutter_vts/model/live/vehicle_status_with_count_response.dart';
+import 'package:flutter_vts/model/live/vts_live_geo_response.dart';
 import 'package:flutter_vts/model/login/check_forget_password_user_response.dart';
 import 'package:flutter_vts/model/login/forget_password_request.dart';
 import 'package:flutter_vts/model/report/date_and_timewise_travel.dart';
@@ -2029,6 +2029,35 @@ class WebService {
     return startLocationResponseFromJson(response.body);
   }
 
+  //! VTSLive Geofence------------->
+  Future<List<VtsLiveGeo>> getvtslivegeo(
+    String token,
+    int vendorid,
+    int branchid,
+    String vehicleno,
+  ) async {
+    final response = await http.get(
+      Uri.parse(Constant.vtslivegeo +
+          "" +
+          vendorid.toString() +
+          "&BranchId=" +
+          branchid.toString() +
+          "&VehicleRegNo=" +
+          vehicleno.toString()),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    if (response.statusCode == 200) {
+      print(response.body);
+      print("Sucessfully geeting your data");
+    } else {
+      print(response.body);
+    }
+    return vtsLiveGeoFromJson(response.body);
+  }
+
 //! nextlocation ime---------------->
   Future<List<NextLocationImei>> getnextLocationImei(
       String token,
@@ -2065,6 +2094,8 @@ class WebService {
     );
     if (response.statusCode == 200) {
       print("Enter in the nextlocation Live----------->" + response.body);
+    } else {
+      print(response.body);
     }
     return nextLocationImeiFromJson(response.body);
   }
@@ -5140,8 +5171,9 @@ class WebService {
       throw Exception('Failed to load data');
     }
   }
+
   //! vehicle history---------------->
-   Future<GetVehSpeedResponse> getvehspeedDetail(
+  Future<GetVehSpeedResponse> getvehspeedDetail(
     String token,
     int vendorId,
     int branchid,

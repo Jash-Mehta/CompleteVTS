@@ -710,7 +710,7 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
                                                   const EdgeInsets.all(8.0),
                                               child: GestureDetector(
                                                 child: Text(
-                                                  article.driverCode!,
+                                                  article.driverName!,
                                                   style: TextStyle(
                                                       fontSize: 16,
                                                       fontWeight:
@@ -727,7 +727,7 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
                                                         "This is vehicleregno - " +
                                                             dmdcvehno);
                                                     dmdcvehnolisttiletext =
-                                                        article.driverCode
+                                                        article.driverName
                                                             .toString();
                                                   });
                                                 },

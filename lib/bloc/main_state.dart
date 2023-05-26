@@ -77,6 +77,7 @@ import '../model/getgeofence/getroute_name_list.dart';
 import '../model/getgeofence/routes_detail_routename.dart';
 import '../model/live/nextlocation_imei.dart';
 import '../model/live/startlocation_imei.dart';
+import '../model/live/vts_live_geo_response.dart';
 import '../model/point_of_interest/create_point_of_interest.dart';
 import '../model/point_of_interest/dropdown_point_of_interest.dart';
 import '../model/point_of_interest/poi_post.dart';
@@ -3699,6 +3700,25 @@ class GetVehSpeedLoadedState extends MainState {
 class GetVehSpeedErrorState extends MainState {
   String msg;
   GetVehSpeedErrorState({required this.msg});
+
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+//! VTSLive Geofence--------------->
+class VTSLiveGeofenceLoadingState extends MainState{
+    List<Object> get props => throw UnimplementedError();
+}
+class VTSLiveGeofenceLoadedState extends MainState{
+  List<VtsLiveGeo> vtsLiveGeo;
+   VTSLiveGeofenceLoadedState({required this.vtsLiveGeo});
+     @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+class VTSLiveGeofenceErrorState extends MainState{
+   String msg;
+  VTSLiveGeofenceErrorState({required this.msg});
 
   @override
   // TODO: implement props

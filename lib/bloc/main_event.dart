@@ -922,8 +922,6 @@ class NextLocationIMEIEvents extends MainEvent {
     required this.prevTime,
     required this.prevIMEINo,
   });
-
-  
 }
 
 class LiveTrackingFilterEvents extends MainEvent {
@@ -2536,7 +2534,7 @@ class RouteDefinePostEvents extends MainEvent {
 }
 //Event
 
-class  GetVehSpeedDataEvent extends MainEvent {
+class GetVehSpeedDataEvent extends MainEvent {
   String token;
   int vendorId;
   int branchid;
@@ -2562,5 +2560,19 @@ class  GetVehSpeedDataEvent extends MainEvent {
     required this.vehicleList,
     required this.pagenumber,
     required this.pagesize,
+  });
+}
+
+//! VTSLive Geofence circle event------------->
+class VTSLiveGeofenceEvent extends MainEvent {
+  String token;
+  int vendorid;
+  int branchid;
+  String vehicleregNo;
+  VTSLiveGeofenceEvent({
+    required this.token,
+    required this.vendorid,
+    required this.branchid,
+    required this.vehicleregNo,
   });
 }
