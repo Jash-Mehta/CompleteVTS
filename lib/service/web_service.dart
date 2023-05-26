@@ -2765,7 +2765,6 @@ class WebService {
     if (response.statusCode == 200) {
       print("Successfully getting your data");
       var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
-
       var driverwisevehiclejson = DriverWiseVehicleAssign.fromJson(jsonbody);
       print("Json decoded body_" + driverwisevehiclejson.toString());
       return driverwisevehiclejson;

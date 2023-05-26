@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_vts/bloc/main_bloc.dart';
 import 'package:flutter_vts/bloc/main_event.dart';
 import 'package:flutter_vts/bloc/main_state.dart';
+import 'package:flutter_vts/screen/home/home_screen.dart';
 import 'package:flutter_vts/util/MyColor.dart';
 import 'package:flutter_vts/util/custom_app_bar.dart';
 import 'package:flutter_vts/util/menu_drawer.dart';
@@ -421,6 +422,7 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
                                         ),
                                         onPressed: () {
                                           dmdcvehnolisttiletext = "";
+                                          dmdcvehno = "";
                                           setState(() {});
                                         },
                                       ),
@@ -787,6 +789,7 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
                                         // ];
                                         // print("File path------${files}");
                                         await Share.shareFiles(files!);
+                                        Navigator.of(context).popUntil((route) => route.isCurrent);
                                       } catch (e) {
                                         Fluttertoast.showToast(
                                           msg: "Download the pdf first",
@@ -841,7 +844,9 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
                                   final pdfFile = await PdfInvoiceApi.generate(
                                       pdfdatalist!,
                                       pdffilterlist!,
-                                      applyclicked, pdfsearchlist!, isSearch);
+                                      applyclicked,
+                                      pdfsearchlist!,
+                                      isSearch);
                                   PdfApi.openFile(pdfFile);
                                 } else {
                                   print("Request is not accepted");
@@ -2107,7 +2112,9 @@ class PdfInvoiceApi {
                             child: pw.Text(
                                 isfilter
                                     ? pdffilter[index].srNo.toString()
-                                    : issearch ? pdfsearch[index].srNo.toString() : pdflist[index].srNo.toString(),
+                                    : issearch
+                                        ? pdfsearch[index].srNo.toString()
+                                        : pdflist[index].srNo.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2123,7 +2130,9 @@ class PdfInvoiceApi {
                             child: pw.Text(
                                 isfilter
                                     ? pdffilter[index].driverCode.toString()
-                                    : issearch ? pdfsearch[index].driverCode.toString() : pdflist[index].srNo.toString(),
+                                    : issearch
+                                        ? pdfsearch[index].driverCode.toString()
+                                        : pdflist[index].driverCode.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2138,7 +2147,9 @@ class PdfInvoiceApi {
                             child: pw.Text(
                                 isfilter
                                     ? pdffilter[index].driverName.toString()
-                                    :issearch ? pdfsearch[index].driverName.toString() : pdflist[index].driverName.toString(),
+                                    : issearch
+                                        ? pdfsearch[index].driverName.toString()
+                                        : pdflist[index].driverName.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2153,7 +2164,9 @@ class PdfInvoiceApi {
                             child: pw.Text(
                                 isfilter
                                     ? pdffilter[index].licenceNo.toString()
-                                    : issearch ? pdfsearch[index].licenceNo.toString() : pdflist[index].licenceNo.toString(),
+                                    : issearch
+                                        ? pdfsearch[index].licenceNo.toString()
+                                        : pdflist[index].licenceNo.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2168,7 +2181,9 @@ class PdfInvoiceApi {
                             child: pw.Text(
                                 isfilter
                                     ? pdffilter[index].mobileNo.toString()
-                                    :issearch ? pdfsearch[index].mobileNo.toString() : pdflist[index].mobileNo.toString(),
+                                    : issearch
+                                        ? pdfsearch[index].mobileNo.toString()
+                                        : pdflist[index].mobileNo.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2183,7 +2198,9 @@ class PdfInvoiceApi {
                             child: pw.Text(
                                 isfilter
                                     ? pdffilter[index].doj.toString()
-                                    :issearch ? pdfsearch[index].doj.toString() : pdflist[index].doj.toString(),
+                                    : issearch
+                                        ? pdfsearch[index].doj.toString()
+                                        : pdflist[index].doj.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2193,13 +2210,23 @@ class PdfInvoiceApi {
                       ])
                     ]);
               },
-              itemCount: isfilter ? pdffilter.length : issearch ? pdfsearch.length : pdflist.length)
+              itemCount: isfilter
+                  ? pdffilter.length
+                  : issearch
+                      ? pdfsearch.length
+                      : pdflist.length)
           // ),
         ];
       },
     ));
 
-    return PdfApi.saveDocument(name: isfilter ? 'DriverMasterFilterReport.pdf' : issearch ? 'DriverMasterSearchReport.pdf': 'DriverMasterReport.pdf', pdf: pdf);
+    return PdfApi.saveDocument(
+        name: isfilter
+            ? 'DriverMasterFilterReport.pdf'
+            : issearch
+                ? 'DriverMasterSearchReport.pdf'
+                : 'DriverMasterReport.pdf',
+        pdf: pdf);
   }
 }
 

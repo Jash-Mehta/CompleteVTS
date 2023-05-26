@@ -397,6 +397,7 @@ class _DateAndTimeWiseDistanceScreenState
             } else {
               setState(() {
                 _isLoading = false;
+                filterData!.clear();
               });
             }
           } else if (state is DateAndTimeWiseFilterErrorState) {
@@ -1536,6 +1537,7 @@ class _DateAndTimeWiseDistanceScreenState
                                   // ];
                                   // print("File path------${files}");
                                   await Share.shareFiles(files!);
+                                  Navigator.of(context).popUntil((route) => route.isCurrent);
                                 } catch (e) {
                                   Fluttertoast.showToast(
                                     msg: "Download the pdf first",

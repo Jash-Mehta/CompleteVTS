@@ -127,7 +127,7 @@ class _DriverWiseVehicleAssignScreenState
       if (notificationController.position.maxScrollExtent ==
           notificationController.offset) {
         setState(() {
-          getData();
+          // getData();
           getallbranch();
         });
       }
@@ -163,7 +163,7 @@ class _DriverWiseVehicleAssignScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: MenuDrawer() /*.getMenuDrawer(context)*/,
+      drawer: MenuDrawer(),
       appBar: AppBar(
         title: !isfilter
             ? Text("Driver Wise Vehicle Assign Master")
@@ -320,17 +320,20 @@ class _DriverWiseVehicleAssignScreenState
             });
           } else if (state is DriverWiseVehicleAssignLoadedState) {
             if (state.DriverWiseVehicleAssignResponse.data != null) {
-              pageNumber++;
               print("Driver wise vehicle data loaded");
               setState(() {
+                pageNumber++;
                 _isLoading = false;
-                value = state.DriverWiseVehicleAssignResponse.totalRecords;
+                value = state.DriverWiseVehicleAssignResponse.totalRecords!;
               });
               driverwisevehicledata!
-                  .addAll(state.DriverWiseVehicleAssignResponse.data);
+                  .addAll(state.DriverWiseVehicleAssignResponse.data!);
             }
           } else if (state is DriverWiseVehicleAssignErrorState) {
             print("Driver wise vehicle assign went wrong");
+            setState(() {
+              _isLoading = false;
+            });
           }
           if (state is DriverWiseVehicleFilterLoadingState) {
             print("Driver wise vehicle filter");
@@ -775,6 +778,8 @@ class _DriverWiseVehicleAssignScreenState
                                         // ];
                                         // print("File path------${files}");
                                         await Share.shareFiles(files!);
+                                        Navigator.of(context).popUntil(
+                                            (route) => route.isCurrent);
                                       } catch (e) {
                                         Fluttertoast.showToast(
                                           msg: "Download the pdf first",
@@ -827,8 +832,12 @@ class _DriverWiseVehicleAssignScreenState
                                 if (await Permission.storage
                                     .request()
                                     .isGranted) {
-                                  final pdfFile =
-                                      await PdfInvoiceApi.generate(pdfdatalist,pdffilterlist,applyclicked,pdfsearchlist,isSearch);
+                                  final pdfFile = await PdfInvoiceApi.generate(
+                                      pdfdatalist,
+                                      pdffilterlist,
+                                      applyclicked,
+                                      pdfsearchlist,
+                                      isSearch);
                                   PdfApi.openFile(pdfFile);
                                 } else {
                                   print("Request is not accepted");
@@ -1184,6 +1193,8 @@ class _DriverWiseVehicleAssignScreenState
                                             itemCount:
                                                 driverwisevehicledata!.length,
                                             itemBuilder: (context, index) {
+                                              print("The data is loaded " +
+                                                  pageNumber.toString());
                                               var article =
                                                   driverwisevehicledata![index];
                                               var sr = index + 1;
@@ -1826,7 +1837,12 @@ class _DriverWiseVehicleAssignScreenState
 }
 
 class PdfInvoiceApi {
-  static Future<File> generate(List<DriverWiseVehicle> pdflist, List<DriverFilterData> pdffilterlist, bool applyclicked,List<Searchdetaildriverwise> pdfsearchlist, bool issearch) async {
+  static Future<File> generate(
+      List<DriverWiseVehicle> pdflist,
+      List<DriverFilterData> pdffilterlist,
+      bool applyclicked,
+      List<Searchdetaildriverwise> pdfsearchlist,
+      bool issearch) async {
     final pdf = pw.Document();
     double fontsize = 8.0;
 
@@ -1950,7 +1966,18 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 20,
-                            child: pw.Text(applyclicked ? pdffilterlist[index].vehicleRegNo.toString() : issearch ? pdfsearchlist[index].vehicleRegNo.toString() : pdflist[index].vehicleRegNo.toString() ,
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilterlist[index]
+                                        .vehicleRegNo
+                                        .toString()
+                                    : issearch
+                                        ? pdfsearchlist[index]
+                                            .vehicleRegNo
+                                            .toString()
+                                        : pdflist[index]
+                                            .vehicleRegNo
+                                            .toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -1959,7 +1986,14 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 20,
-                            child: pw.Text(applyclicked ? pdffilterlist[index].driverName.toString() : issearch ? pdfsearchlist[index].driverName.toString() : pdflist[index].driverName.toString() ,
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilterlist[index].driverName.toString()
+                                    : issearch
+                                        ? pdfsearchlist[index]
+                                            .driverName
+                                            .toString()
+                                        : pdflist[index].driverName.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -1968,19 +2002,36 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 20,
-                            child: pw.Text(applyclicked ? pdffilterlist[index].mobileNo.toString() : issearch ? pdfsearchlist[index].mobileNo.toString() : pdflist[index].mobileNo.toString() ,
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilterlist[index].mobileNo.toString()
+                                    : issearch
+                                        ? pdfsearchlist[index]
+                                            .mobileNo
+                                            .toString()
+                                        : pdflist[index].mobileNo.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
                       ])
                     ]);
               },
-              itemCount:applyclicked ? pdffilterlist.length : issearch ? pdfsearchlist.length : pdflist.length),
+              itemCount: applyclicked
+                  ? pdffilterlist.length
+                  : issearch
+                      ? pdfsearchlist.length
+                      : pdflist.length),
         ];
       },
     ));
 
-    return PdfApi.saveDocument(name:applyclicked ? 'DriverWiseVehicleFilterReport.pdf' : issearch ? '' : 'DriverWiseVehicleSearchReport.pdf', pdf: pdf);
+    return PdfApi.saveDocument(
+        name: applyclicked
+            ? 'DriverWiseVehicleFilterReport.pdf'
+            : issearch
+                ? ''
+                : 'DriverWiseVehicleSearchReport.pdf',
+        pdf: pdf);
   }
 }
 

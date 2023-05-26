@@ -69,6 +69,7 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
   bool isfilter = false;
   bool isdmdf = false;
   var dmdfdeviceno;
+  var dmdfdevicenolisttext;
   var vendoritems = [
     'M-Tech',
     'M-Phasis',
@@ -437,6 +438,7 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
                                       ),
                                       onPressed: () {
                                         dmdfdeviceno = "";
+                                        dmdfdevicenolisttext = "";
                                         setState(() {});
                                       },
                                     ),
@@ -672,9 +674,9 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
                                           width: 2)),
                                   child: ListTile(
                                     leading: Text(
-                                      dmdfdeviceno == ""
+                                      dmdfdevicenolisttext == ""
                                           ? "-select-"
-                                          : dmdfdeviceno,
+                                          : dmdfdevicenolisttext,
                                       style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w400),
@@ -722,7 +724,7 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
                                             padding: const EdgeInsets.all(8.0),
                                             child: GestureDetector(
                                               child: Text(
-                                                article.deviceNo!.toString(),
+                                                article.deviceName!.toString(),
                                                 style: TextStyle(
                                                     fontSize: 16,
                                                     fontWeight:
@@ -734,6 +736,8 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
                                                 setState(() {
                                                   dmdfdeviceno =
                                                       article.deviceNo;
+                                                  dmdfdevicenolisttext =
+                                                      article.deviceName;
                                                 });
                                               },
                                             ),
@@ -791,6 +795,7 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
                                         // ];
                                         // print("File path------${files}");
                                         await Share.shareFiles(files!);
+                                        Navigator.of(context).popUntil((route) => route.isCurrent);
                                       } catch (e) {
                                         Fluttertoast.showToast(
                                           msg: "Download the pdf first",
@@ -843,8 +848,12 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
                                 if (await Permission.storage
                                     .request()
                                     .isGranted) {
-                                  final pdfFile =
-                                      await PdfInvoiceApi.generate(pdfdatalist,pdffilterlist, applyclicked, pdfsearchlist,isSearch);
+                                  final pdfFile = await PdfInvoiceApi.generate(
+                                      pdfdatalist,
+                                      pdffilterlist,
+                                      applyclicked,
+                                      pdfsearchlist,
+                                      isSearch);
                                   PdfApi.openFile(pdfFile);
                                 } else {
                                   print("Request is not accepted");
@@ -1805,7 +1814,12 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 20,
-                            child: pw.Text(applyclicked ? pdffilter[index].deviceNo.toString() : issearch ? pdfsearch[index].deviceNo.toString() : pdflist[index].deviceNo.toString(),
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilter[index].deviceNo.toString()
+                                    : issearch
+                                        ? pdfsearch[index].deviceNo.toString()
+                                        : pdflist[index].deviceNo.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -1814,7 +1828,12 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 20,
-                            child: pw.Text(applyclicked ? pdffilter[index].modelNo.toString() : issearch ? pdfsearch[index].modelNo.toString() : pdflist[index].modelNo.toString(),
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilter[index].modelNo.toString()
+                                    : issearch
+                                        ? pdfsearch[index].modelNo.toString()
+                                        : pdflist[index].modelNo.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -1823,7 +1842,12 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 20,
-                            child: pw.Text(applyclicked ? pdffilter[index].deviceName.toString() : issearch ? pdfsearch[index].deviceName.toString() : pdflist[index].deviceName.toString(),
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilter[index].deviceName.toString()
+                                    : issearch
+                                        ? pdfsearch[index].deviceName.toString()
+                                        : pdflist[index].deviceName.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -1832,19 +1856,34 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 20,
-                            child: pw.Text(applyclicked ? pdffilter[index].imeino.toString() : issearch ? pdfsearch[index].imeino.toString() : pdflist[index].imeino.toString(),
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilter[index].imeino.toString()
+                                    : issearch
+                                        ? pdfsearch[index].imeino.toString()
+                                        : pdflist[index].imeino.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
                       ])
                     ]);
               },
-              itemCount:applyclicked ? pdffilter.length : issearch ? pdfsearch.length : pdflist.length),
+              itemCount: applyclicked
+                  ? pdffilter.length
+                  : issearch
+                      ? pdfsearch.length
+                      : pdflist.length),
         ];
       },
     ));
 
-    return PdfApi.saveDocument(name:applyclicked ? 'DeviceMasterFilterreport.pdf' : issearch ? 'DeviceMasterSearchreport.pdf': 'DeviceMasterreport.pdf', pdf: pdf);
+    return PdfApi.saveDocument(
+        name: applyclicked
+            ? 'DeviceMasterFilterreport.pdf'
+            : issearch
+                ? 'DeviceMasterSearchreport.pdf'
+                : 'DeviceMasterreport.pdf',
+        pdf: pdf);
   }
 }
 

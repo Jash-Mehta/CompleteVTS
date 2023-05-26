@@ -1404,6 +1404,7 @@ class _VehicleWiseTimeWiseTravelState extends State<VehicleWiseTimeWiseTravel> {
                                         // ];
                                         // print("File path------${files}");
                                         await Share.shareFiles(files!);
+                                        Navigator.of(context).popUntil((route) => route.isCurrent);
                                       } catch (e) {
                                         Fluttertoast.showToast(
                                           msg: "Download the pdf first",

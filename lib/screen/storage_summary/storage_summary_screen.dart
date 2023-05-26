@@ -13,6 +13,7 @@ import '../../model/travel_summary/travel_summary.dart';
 import '../../model/travel_summary/travel_summary_filter.dart';
 import '../../model/travel_summary/travel_summary_search.dart';
 import 'package:loading_overlay/loading_overlay.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class StorageSummaryScreen extends StatefulWidget {
   // const VehicleStatusScreen({Key? key}) : super(key: key);
@@ -257,6 +258,14 @@ class _StorageSummaryScreenState extends State<StorageSummaryScreen> {
                     ),
                     GestureDetector(
                       onTap: () {
+                        toTimeController = "";
+                        fromTimeController = "";
+                        fromTimeInput.text = "";
+                        todateInput.text = "";
+                        toTimrInput.text = "";
+                        fromdateInput.text = "";
+                        fromDateController = "";
+                        toDateController = "";
                         changeDatepopUp(context);
                       },
                       child: Container(
@@ -485,9 +494,25 @@ class _StorageSummaryScreenState extends State<StorageSummaryScreen> {
                                                                             index]
                                                                         .vehicleStatus
                                                                         .toString(),
-                                                                    style: const TextStyle(
-                                                                        color: MyColors
-                                                                            .analyticGreenColorCode),
+                                                                   style: TextStyle(
+                                                                            // color: Colors.green,
+                                                                            color: searchdata![
+                                                                            index].vehicleStatus == "Running"
+                                                                                ? Color.fromARGB(255, 74, 172, 79)
+                                                                                : searchdata![
+                                                                            index].vehicleStatus == "Idle"
+                                                                                    ? Color.fromARGB(255, 233, 215, 60)
+                                                                                    : searchdata![
+                                                                            index].vehicleStatus == "Inactive"
+                                                                                        ? Colors.blue
+                                                                                        : searchdata![
+                                                                            index].vehicleStatus == "Stop"
+                                                                                            ? Colors.red
+                                                                                            : searchdata![
+                                                                            index].vehicleStatus == "Overspeed"
+                                                                                                ? Colors.orange
+                                                                                                : Colors.grey,
+                                                                            fontSize: 16),
                                                                   ),
                                                                 ),
                                                               ],
@@ -673,7 +698,18 @@ class _StorageSummaryScreenState extends State<StorageSummaryScreen> {
                                           ),
                                         );
                                       }))
-                      : applyclicked ?BlocBuilder<MainBloc, MainState>(
+                      : applyclicked ? filterdata!.isEmpty
+                                  ? Center(
+                                      child: Text(
+                                      "No data found",
+                                      style: TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.w500),
+                                    ))
+                                  : _isLoading
+                                      ? Center(
+                                          child: Text("Wait data is Loading.."))
+                                      : BlocBuilder<MainBloc, MainState>(
                                   builder: (context, state) {
                                     return ListView.builder(
                                         controller: notificationController,
@@ -1866,28 +1902,38 @@ class _StorageSummaryScreenState extends State<StorageSummaryScreen> {
                         Expanded(
                           flex: 2,
                           child: MaterialButton(
-                            onPressed: () {
-                              print(
-                                  "Here is your fromdatecontroller-------------" +
-                                      fromDateController);
-                              _mainBloc.add(TravelSummaryFilterEvent(
-                                  token: token,
-                                  vendorid: vendorid,
-                                  branchid: branchid,
-                                  arainonarai: arainonari,
-                                  fromdata: fromDateController,
-                                  fromtime: fromTimeController,
-                                  todate: toDateController,
-                                  totime: toTimeController,
-                                  vehiclelist: vehiclelist,
-                                  pagesize: pagesize,
-                                  pagenumber: pagenumber));
-                              setState(() {
-                                isvalue = true;
-                                isData = true;
-                                applyclicked = true;
-                              });
-                              Navigator.of(context).pop();
+                           onPressed: () {
+                              if (toDateController != null &&
+                                  fromDateController != null &&
+                                  toTimeController != null &&
+                                  fromTimeController != null &&
+                                  fromdateInput.text.isNotEmpty &&
+                                  todateInput.text.isNotEmpty) {
+                                _mainBloc.add(TravelSummaryFilterEvent(
+                                    token: token,
+                                    vendorid: vendorid,
+                                    branchid: branchid,
+                                    arainonarai: arainonari,
+                                    fromdata: fromDateController,
+                                    fromtime: fromTimeController,
+                                    todate: toDateController,
+                                    totime: toTimeController,
+                                    vehiclelist: vehiclelist,
+                                    pagesize: pagesize,
+                                    pagenumber: pagenumber));
+                                setState(() {
+                                  isvalue = true;
+                                  isData = true;
+                                  applyclicked = true;
+                                });
+                                Navigator.of(context).pop();
+                              } else {
+                                Fluttertoast.showToast(
+                                  msg: "Enter required fields..!",
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  timeInSecForIosWeb: 1,
+                                );
+                              }
                             },
                             shape: const RoundedRectangleBorder(
                                 borderRadius:

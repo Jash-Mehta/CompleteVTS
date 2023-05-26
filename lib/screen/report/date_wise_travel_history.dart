@@ -1125,6 +1125,7 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
                                           // ];
                                           // print("File path------${files}");
                                           await Share.shareFiles(files!);
+                                          Navigator.of(context).popUntil((route) => route.isCurrent);
                                         } catch (e) {
                                           Fluttertoast.showToast(
                                             msg: "Download the pdf first",
@@ -1455,7 +1456,7 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
                                                                                 TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
                                                                           ),
                                                                           Text(
-                                                                            article.vehicleRegNo!,
+                                                                            article.imeino!,
                                                                             textAlign:
                                                                                 TextAlign.left,
                                                                             style:

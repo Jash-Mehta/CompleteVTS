@@ -1199,6 +1199,7 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
                                         // ];
                                         // print("File path------${files}");
                                         await Share.shareFiles(files!);
+                                         Navigator.of(context).popUntil((route) => route.isCurrent);
                                       } catch (e) {
                                         Fluttertoast.showToast(
                                           msg: "Download the pdf first",
@@ -1485,6 +1486,7 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
                                                     vehiclestatusfilterreport![
                                                         index];
                                                 var sr = index + 1;
+                                             
                                                 return Card(
                                                   margin: EdgeInsets.only(
                                                       bottom: 15),
