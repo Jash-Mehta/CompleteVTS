@@ -1316,6 +1316,27 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         } catch (e) {
           print(e.toString());
         }
+      } else if (event is VTSHistorySpeedParameterEvent) {
+        try {
+          yield VTSHistorySpeedParameterLoadingState();
+          var vts_history_speed_parameter = await webService.getvehhistoryspeed(
+              event.token,
+              event.vendorid,
+              event.branchid,
+              event.arainonarai,
+              event.imei,
+              event.fromdate,
+              event.fromtime,
+              event.todate,
+              event.totime,
+              event.pagenumber,
+              event.pagesize);
+          yield VTSHistorySpeedParameterLoadedState(
+              vtsLiveGeo: vts_history_speed_parameter);
+        } catch (e) {
+          print(e.toString());
+          yield VTSHistorySpeedParameterErrorState(msg: e.toString());
+        }
       }
       //! Distance Summary Filter Event-------------------------
       else if (event is DistanceSummaryFilterEvent) {

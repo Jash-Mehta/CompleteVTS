@@ -138,6 +138,7 @@ import '../model/route_define/route_define_post.dart';
 import '../model/searchString.dart';
 import '../model/travel_summary/travel_summary.dart';
 import '../model/vehicle_history/get_veh_speed_response.dart';
+import '../model/vehicle_history/vts_history_speed_parameter.dart';
 import '../model/vehicle_master/search_vehicle_report_data_response.dart';
 import '../model/vehicle_master/vehicle_master_filter.dart';
 import '../model/vehicle_master/vehicle_report_detail.dart';
@@ -2793,16 +2794,16 @@ class WebService {
       'Content-Type': 'application/json; charset=UTF-8',
       'Authorization': 'Bearer $token',
     });
-    if (response.statusCode == 200) {
+    // if (response.statusCode == 200) {
       print("Successfully getting your data");
       var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
       var driverwisevehiclejson = DriverWiseVehicleAssign.fromJson(jsonbody);
       print("Json decoded body_" + driverwisevehiclejson.toString());
       return driverwisevehiclejson;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
+    // } else {
+    //   print(response.body);
+    //   throw Exception('Failed to load data');
+    // }
   }
 
   // Driver wise vehicle filter
@@ -5497,18 +5498,68 @@ class WebService {
       'Content-Type': 'application/json; charset=UTF-8',
       'Authorization': 'Bearer $token',
     });
-    if (response.statusCode == 200) {
+    // if (response.statusCode == 200) {
       print("Successfully getting your data");
       var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
 
-      var drivermasterreportyurl = DriverMasterReport.fromJson(jsonbody);
-      print("Json decoded body_" + drivermasterreportyurl.toString());
-      return drivermasterreportyurl;
-    } else {
-      print(response.body);
-      throw Exception('Failed to load data');
-    }
+      var drivermasterreporturl = DriverMasterReport.fromJson(jsonbody);
+      print("Json decoded body_" + drivermasterreporturl.toString());
+      return drivermasterreporturl;
+    // } else {
+    //   print(response.body);
+    //   throw Exception('Failed to load data');
+    // }
   }
+
+  Future<VTSHistorySpeedParameter> getvehhistoryspeed(
+    String token,
+    int vendorId,
+    int branchid,
+    String arai,
+    String imei,
+    String fromdate,
+    String fromTime,
+    String toDate,
+    String toTime,
+  
+    int pagenumber,
+    int pagesize,
+  ) async {
+    String speedurl = Constant.vtshistoryspeedparameter +
+        vendorId.toString() +
+        "&BranchId=" +
+        branchid.toString() +
+        "&ARAI_NONARAI=" +
+        arai.toString() +
+        "&IMEINO="+
+        imei.toString()+
+        "&FromDate=" +
+        fromdate.toString() +
+        "&FromTime=" +
+        fromTime.toString() +
+        "&ToDate=" +
+        toDate.toString() +
+        "&ToTime=" +
+        toTime.toString() +
+        "&PageNumber=" +
+        pagenumber.toString() +
+        "&PageSize=" +
+        pagesize.toString();
+    print("Speed URL is---------------$speedurl");
+    final response = await http.get(
+      Uri.parse(speedurl),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': "Bearer ${token}",
+      },
+    );
+    print("Respnse body of speed details is----------${response.body}");
+    var jsonBody = VTSHistorySpeedParameter.fromJson(json.decode(response.body));
+    print(
+        "json responce body of speed details is----------${jsonBody.details!.data!.length}");
+    return jsonBody;
+  }
+  
 
 //Start Get Vehicle Report API----
   Future<VehicleReportDetails> getvehicledetailReport(String token,

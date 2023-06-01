@@ -209,6 +209,18 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
             for (int i = 0; i < location.vehicleRegNo!.length; i++) {
               _markerlist.add(
                 Marker(
+                  icon: await BitmapDescriptor.fromAssetImage(
+                      const ImageConfiguration(
+                          devicePixelRatio: 1.0, size: Size(10, 10)),
+                      location.vehicleStatus == 'Stop'
+                          ? 'assets/stop_car.png'
+                          : location.vehicleStatus == 'Running'
+                              ? 'assets/running_car.png'
+                              : location.vehicleStatus == 'Idle'
+                                  ? 'assets/idle_car.png'
+                                  : location.vehicleStatus == 'Overspeed'
+                                      ? 'assets/overspeed_truck.png'
+                                      : 'assets/inactive_car.png'),
                   markerId: MarkerId(LatLng(lat, lng).toString()),
                   position: LatLng(lat, lng),
                   infoWindow: InfoWindow(
@@ -561,11 +573,14 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
   }
 
   _getVehicleStatusWithCount() {
+    // timer = Timer.periodic(Duration(seconds: 10), (Timer t) {
+    print("Each and every 10 sec we are calling this api");
     _mainBloc.add(VehicleStatusWithCountEvents(
         token: token,
         vendorId: vendorid,
         branchId: branchid,
         araiNonarai: "arai"));
+    // });
   }
 
   getdata() async {
@@ -756,6 +771,7 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
             GestureDetector(
               onTap: () {
                 _filterResult();
+                _markers.clear();
               },
               child: Container(
                 margin: EdgeInsets.only(right: 10),
@@ -1454,6 +1470,7 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
   @override
   void dispose() {
     location!.onLocationChanged.listen((LocationData cLoc) {}).cancel();
+    timer.cancel();
     super.dispose();
   }
 }

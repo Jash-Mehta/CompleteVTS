@@ -154,7 +154,7 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
         token: token,
         vendorId: selectedVendorid,
         branchId: selectedbranchid,
-        araiNoarai: 'nonarai',
+        araiNoarai: 'arai',
         fromDate: date,
         formTime: fromTime,
         toDate: todate,
@@ -222,7 +222,7 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
         token: token,
         vendorId: vendorid,
         branchId: branchid,
-        araiNoarai: "nonarai",
+        araiNoarai: "arai",
         fromDate: date,
         toDate: todate,
         formTime: fromTime,
@@ -1248,13 +1248,13 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
                                 itemBuilder: (context, index) {
                                   return GestureDetector(
                                     onTap: () {
-                                      print("click");
+                                      print(data![index].latitude!);
 
                                       setState(() {
                                         vehicleHistoryPosition = index;
                                         //  print(
-                                        //    "vehicleHistoryPosition----------------${data!.elementAt(index).la}");
-                                        print(vehicleHistoryPosition + 1);
+                                        // //    "vehicleHistoryPosition----------------${data!.elementAt(index).la}");
+                                        // print(vehicleHistoryPosition + 1);
                                         Navigator.push(
                                             context,
                                             MaterialPageRoute(
@@ -1266,52 +1266,40 @@ class _VehicleStatusScreenState extends State<VehicleStatusScreen> {
                                                     },
                                                     child:
                                                         MapLiveTrackingDetailsScreen(
-                                                      araiNonarai: 'arai',
-                                                      transactionId:2074,
-                                                         
-                                                      fromlongitude:
-                                                          double.parse(
-                                                              data![index]
-                                                                  .latitude!),
-                                                      fromlatitude:
-                                                          double.parse(
-                                                              data![index]
-                                                                  .longitude!),
-                                                      tolatitude: double.parse(
-                                                          data!
-                                                              .elementAt(index)
-                                                              .latitude!),
-                                                      tolongitude: double.parse(
-                                                          data!
-                                                              .elementAt(index)
-                                                              .longitude!),
-                                                    )
+                                                          latitude: double.parse(data![index].latitude!),
+                                                          longitude: double.parse(data![index].longitude!),
+                                                          fromdate: date,
+                                                          todate: todate,
+                                                          totime: toTime,
+                                                          fromtime: fromTime,
+                                                          imei: data![index].imei!.toString(),
+                                                        )
 
-                                                    // VehicleStatusDetailsINFOScreen(
-                                                    //   fromlongitude:double.parse(data![vehicleHistoryPosition + 1].latitude!) ,
-                                                    //   fromlatitude: double.parse( data![vehicleHistoryPosition + 1].longitude!),
-                                                    //   tolatitude: double.parse(data!.elementAt(index).latitude!),
-                                                    //   tolongitude: double.parse(data!.elementAt(index).longitude!),
-                                                    // )
-                                                    // VehicleStatusDetailsScreen(vehicleHistoryByIdDetailResponse:  data!,
-                                                    //     latitude: data![vehicleHistoryPosition + 1].latitude!,
-                                                    //     longitude: data![vehicleHistoryPosition + 1].longitude!,
-                                                    // )
+                                                    //             // VehicleStatusDetailsINFOScreen(
+                                                    //             //   fromlongitude:double.parse(data![vehicleHistoryPosition + 1].latitude!) ,
+                                                    //             //   fromlatitude: double.parse( data![vehicleHistoryPosition + 1].longitude!),
+                                                    //             //   tolatitude: double.parse(data!.elementAt(index).latitude!),
+                                                    //             //   tolongitude: double.parse(data!.elementAt(index).longitude!),
+                                                    //             // )
+                                                    //             // VehicleStatusDetailsScreen(vehicleHistoryByIdDetailResponse:  data!,
+                                                    //             //     latitude: data![vehicleHistoryPosition + 1].latitude!,
+                                                    //             //     longitude: data![vehicleHistoryPosition + 1].longitude!,
+                                                    //             // )
 
                                                     )));
                                       });
-                                      _mainBloc.add(
-                                          VehicleHistoryByIdDetailEvents(
-                                              token: token,
-                                              vendorId: vendorid,
-                                              branchId: branchid,
-                                              araiNoarai: 'nonarai',
-                                              fromDate: date,
-                                              formTime: fromTime,
-                                              toDate: todate,
-                                              toTime: toTime,
-                                              vehicleHistoryId:
-                                                  data![index].transactionId!));
+                                      // _mainBloc.add(
+                                      //     VehicleHistoryByIdDetailEvents(
+                                      //         token: token,
+                                      //         vendorId: vendorid,
+                                      //         branchId: branchid,
+                                      //         araiNoarai: 'nonarai',
+                                      //         fromDate: date,
+                                      //         formTime: fromTime,
+                                      //         toDate: todate,
+                                      //         toTime: toTime,
+                                      //         vehicleHistoryId:
+                                      //             data![index].transactionId!));
                                     },
                                     child: Card(
                                       shape: RoundedRectangleBorder(

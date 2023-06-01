@@ -38,6 +38,7 @@ class _GettingRouteDetailState extends State<GettingRouteDetail> {
   @override
   void initState() {
     super.initState();
+
     getdata();
     setState(() {});
     _mainBloc = BlocProvider.of(context);
@@ -51,6 +52,8 @@ class _GettingRouteDetailState extends State<GettingRouteDetail> {
     if (token != "") {
       print(token);
       getBranch();
+      forcontainer = false;
+      routeselect = "--select--";
       setState(() {});
     } else {
       print("null");
@@ -227,10 +230,13 @@ class _GettingRouteDetailState extends State<GettingRouteDetail> {
                       onPressed: () async {
                         _isloading = true;
                         setState(() {});
-                        if (routeselect == null) {
+                        if (routeselect == null ||
+                            routeselect == "--select--") {
+                          _isloading = false;
                           final snackBar = SnackBar(
                             content: const Text("Select Route"),
                           );
+
                           ScaffoldMessenger.of(context).showSnackBar(snackBar);
                         } else {
                           Future.delayed(
@@ -260,33 +266,6 @@ class _GettingRouteDetailState extends State<GettingRouteDetail> {
                                         )));
                           });
                         }
-
-                        Future.delayed(
-                            Duration(
-                              seconds: 8,
-                            ), () {
-                          _isloading = false;
-                          setState(() {});
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (_) => BlocProvider(
-                                        create: (context) {
-                                          return MainBloc(
-                                              webService: WebService());
-                                        },
-                                        child: VTSGeofenceMap(
-                                          fromlatitude: fromlatitude!,
-                                          fromlongitude: fromlongitude!,
-                                          tolatitude: tolatitude!,
-                                          tolongitude: tolongitude!,
-                                          coordinatesList: coordinatesList,
-                                          // coordinatesList: coordinatesList,
-                                          // midlatitude: midlat1,
-                                          // midlongatitude: midlat2,
-                                        ),
-                                      )));
-                        });
                       },
                       child: Text("Get Route")),
                 ))
@@ -298,7 +277,6 @@ class _GettingRouteDetailState extends State<GettingRouteDetail> {
 
   Future<void> _getRouteDetails(
       String routefromaddress, String routetoaddress) async {
-  
     List<Location> locations =
         await locationFromAddress(routefromaddress.toString());
     // locations.clear();

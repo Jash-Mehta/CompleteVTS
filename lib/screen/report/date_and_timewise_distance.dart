@@ -1537,7 +1537,8 @@ class _DateAndTimeWiseDistanceScreenState
                                   // ];
                                   // print("File path------${files}");
                                   await Share.shareFiles(files!);
-                                  Navigator.of(context).popUntil((route) => route.isCurrent);
+                                  Navigator.of(context)
+                                      .popUntil((route) => route.isCurrent);
                                 } catch (e) {
                                   Fluttertoast.showToast(
                                     msg: "Download the pdf first",
@@ -1576,14 +1577,18 @@ class _DateAndTimeWiseDistanceScreenState
                                 pdffilterlist.clear();
                                 pdffilterlist.addAll(filterData!);
                                 pdfsearchlist.clear();
-                                pdfsearchlist.addAll(searchData!);                                
+                                pdfsearchlist.addAll(searchData!);
                                 setState(() {});
                                 var status = await Permission.storage.status;
                                 if (await Permission.storage
                                     .request()
                                     .isGranted) {
-                                  final pdfFile = 
-                                      await PdfInvoiceApi.generate(pdfdatalist, pdffilterlist, applyclicked, pdfsearchlist, isSearch);
+                                  final pdfFile = await PdfInvoiceApi.generate(
+                                      pdfdatalist,
+                                      pdffilterlist,
+                                      applyclicked,
+                                      pdfsearchlist,
+                                      isSearch);
                                   PdfApi.openFile(pdfFile);
                                 } else {
                                   print("Request is not accepted");
@@ -2092,7 +2097,7 @@ class _DateAndTimeWiseDistanceScreenState
                                                         (context, index) {
                                                       var article =
                                                           searchData![index];
-
+                                                      var sr = index+1;
                                                       return Card(
                                                         margin: EdgeInsets.only(
                                                             bottom: 15),
@@ -2168,7 +2173,7 @@ class _DateAndTimeWiseDistanceScreenState
                                                                                 style: TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
                                                                               ),
                                                                               Text(
-                                                                                "1",
+                                                                                sr.toString(),
                                                                                 style: TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
                                                                               ),
                                                                             ],
@@ -2748,7 +2753,7 @@ class _DateAndTimeWiseDistanceScreenState
           toTime: toTimeController ?? StoTime,
           searchtxt: searchClass.searchStr,
           pagenumber: 1,
-          pagesize: pageSize,
+          pagesize: 200,
         ));
       }
     }
@@ -2756,8 +2761,12 @@ class _DateAndTimeWiseDistanceScreenState
 }
 
 class PdfInvoiceApi {
-      
-  static Future<File> generate(List<DateAndTimewiseData> pdflist, List<DateAndTimewiseFilterData> filterpdflist, bool iscllicked, List<DateAndTimeWiseSearchData> searchpdf, bool issearch) async {
+  static Future<File> generate(
+      List<DateAndTimewiseData> pdflist,
+      List<DateAndTimewiseFilterData> filterpdflist,
+      bool iscllicked,
+      List<DateAndTimeWiseSearchData> searchpdf,
+      bool issearch) async {
     final pdf = pw.Document();
     double fontsize = 8.0;
 
@@ -2925,7 +2934,9 @@ class PdfInvoiceApi {
                             child: pw.Text(
                                 iscllicked
                                     ? filterpdflist[index].imeino.toString()
-                                    :issearch ?searchpdf[index].imeino.toString() : pdflist[index].imeino.toString(),
+                                    : issearch
+                                        ? searchpdf[index].imeino.toString()
+                                        : pdflist[index].imeino.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2937,7 +2948,9 @@ class PdfInvoiceApi {
                             child: pw.Text(
                                 iscllicked
                                     ? filterpdflist[index].transTime.toString()
-                                    :issearch ?searchpdf[index].transTime.toString() : pdflist[index].transTime.toString(),
+                                    : issearch
+                                        ? searchpdf[index].transTime.toString()
+                                        : pdflist[index].transTime.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2949,7 +2962,9 @@ class PdfInvoiceApi {
                             child: pw.Text(
                                 iscllicked
                                     ? filterpdflist[index].speed.toString()
-                                    :issearch ?searchpdf[index].speed.toString() : pdflist[index].speed.toString(),
+                                    : issearch
+                                        ? searchpdf[index].speed.toString()
+                                        : pdflist[index].speed.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2963,7 +2978,13 @@ class PdfInvoiceApi {
                                     ? filterpdflist[index]
                                         .distancetravel
                                         .toString()
-                                    :issearch ?searchpdf[index].distancetravel.toString() : pdflist[index].distancetravel.toString(),
+                                    : issearch
+                                        ? searchpdf[index]
+                                            .distancetravel
+                                            .toString()
+                                        : pdflist[index]
+                                            .distancetravel
+                                            .toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2975,7 +2996,9 @@ class PdfInvoiceApi {
                             child: pw.Text(
                                 iscllicked
                                     ? filterpdflist[index].latitude.toString()
-                                    :issearch ?searchpdf[index].latitude.toString() : pdflist[index].latitude.toString(),
+                                    : issearch
+                                        ? searchpdf[index].latitude.toString()
+                                        : pdflist[index].latitude.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2987,7 +3010,9 @@ class PdfInvoiceApi {
                             child: pw.Text(
                                 iscllicked
                                     ? filterpdflist[index].longitude.toString()
-                                    :issearch ?searchpdf[index].longitude.toString() : pdflist[index].longitude.toString(),
+                                    : issearch
+                                        ? searchpdf[index].longitude.toString()
+                                        : pdflist[index].longitude.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -3003,7 +3028,11 @@ class PdfInvoiceApi {
                       ])
                     ]);
               },
-              itemCount: iscllicked ? filterpdflist.length : issearch ? searchpdf.length :pdflist.length),
+              itemCount: iscllicked
+                  ? filterpdflist.length
+                  : issearch
+                      ? searchpdf.length
+                      : pdflist.length),
           // ),
           // pw.SizedBox(height: 15),
           // pw.Row(
@@ -3036,7 +3065,13 @@ class PdfInvoiceApi {
       },
     ));
 
-    return PdfApi.saveDocument(name: iscllicked ? 'DTwisefilterreport.pdf' : issearch ? 'DTwisesearchreport.pdf' : 'DTwisereport.pdf', pdf: pdf);
+    return PdfApi.saveDocument(
+        name: iscllicked
+            ? 'DTwisefilterreport.pdf'
+            : issearch
+                ? 'DTwisesearchreport.pdf'
+                : 'DTwisereport.pdf',
+        pdf: pdf);
   }
 }
 

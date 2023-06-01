@@ -2576,3 +2576,30 @@ class VTSLiveGeofenceEvent extends MainEvent {
     required this.vehicleregNo,
   });
 }
+
+class VTSHistorySpeedParameterEvent extends MainEvent {
+  String token;
+  int vendorid;
+  int branchid;
+  String arainonarai;
+  String imei;
+  String fromdate;
+  String todate;
+  String fromtime;
+  String totime;
+  int pagenumber;
+  int pagesize;
+  VTSHistorySpeedParameterEvent({
+    required this.token,
+    required this.vendorid,
+    required this.branchid,
+    required this.arainonarai,
+    required this.imei,
+    required this.fromdate,
+    required this.todate,
+    required this.fromtime,
+    required this.totime,
+    required this.pagenumber,
+    required this.pagesize,
+  });
+}

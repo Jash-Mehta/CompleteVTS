@@ -193,6 +193,7 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
               setState(() {
                 isfilter = true;
                 dmdfdeviceno = "";
+                dmdfdevicenolisttext = "";
                 isfilter
                     ? _mainBloc.add(DeviceMasterDrivercode(
                         token: token, vendorId: 1, branchId: 1))
@@ -471,7 +472,7 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
                                                 token: token,
                                                 vendorid: "1",
                                                 branchid: "1",
-                                                deviceno: dmdfdeviceno == null
+                                                deviceno: dmdfdeviceno == ""
                                                     ? "All"
                                                     : dmdfdeviceno,
                                                 pagenumber: 1,
@@ -795,7 +796,8 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
                                         // ];
                                         // print("File path------${files}");
                                         await Share.shareFiles(files!);
-                                        Navigator.of(context).popUntil((route) => route.isCurrent);
+                                        Navigator.of(context).popUntil(
+                                            (route) => route.isCurrent);
                                       } catch (e) {
                                         Fluttertoast.showToast(
                                           msg: "Download the pdf first",

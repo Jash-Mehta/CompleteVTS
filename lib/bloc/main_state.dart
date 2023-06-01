@@ -130,6 +130,7 @@ import '../model/report/vehicle_wise_travel_filter.dart';
 import '../model/route_define/route_define_post.dart';
 import '../model/travel_summary/travel_summary_filter.dart';
 import '../model/travel_summary/travel_summary_search.dart';
+import '../model/vehicle_history/vts_history_speed_parameter.dart';
 import '../model/vehicle_master/search_vehicle_report_data_response.dart';
 import '../model/vehicle_master/vehicle_master_filter.dart';
 import '../model/vehicle_master/vehicle_report_detail.dart';
@@ -2491,6 +2492,26 @@ class VehicleReportErrorState extends MainState {
   // TODO: implement props
   List<Object> get props => throw UnimplementedError();
 }
+
+class VTSHistorySpeedParameterLoadingState extends MainState{
+   List<Object> get props => throw UnimplementedError();
+}
+class VTSHistorySpeedParameterLoadedState extends MainState{
+  VTSHistorySpeedParameter vtsLiveGeo;
+   VTSHistorySpeedParameterLoadedState({required this.vtsLiveGeo});
+     @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+class VTSHistorySpeedParameterErrorState extends MainState{
+   String msg;
+  VTSHistorySpeedParameterErrorState({required this.msg});
+
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+
 
 // // Date and Time wise distance
 // class DateAndTimeWiseDistanceLoadingState extends MainState {

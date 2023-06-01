@@ -321,9 +321,9 @@ class _RouteDefineScreenState extends State<RouteDefineScreen> {
                     }
                     _onSearchTextChanged(value);
                   },
-                  inputFormatters: <TextInputFormatter>[
-                    FilteringTextInputFormatter.allow(RegExp("[0-9a-zA-Z]")),
-                  ],
+                  // inputFormatters: <TextInputFormatter>[
+                  //   FilteringTextInputFormatter.allow(RegExp("[0-9a-zA-Z]")),
+                  // ],
                   controller: _startcontroller,
                   enabled: true, // to trigger disabledBorder
                   decoration: const InputDecoration(
@@ -498,9 +498,9 @@ class _RouteDefineScreenState extends State<RouteDefineScreen> {
                       ),
                     )),
                 TextField(
-                  inputFormatters: <TextInputFormatter>[
-                    FilteringTextInputFormatter.allow(RegExp("[0-9a-zA-Z]")),
-                  ],
+                  // inputFormatters: <TextInputFormatter>[
+                  //   FilteringTextInputFormatter.allow(RegExp("[0-9a-zA-Z]")),
+                  // ],
                   onChanged: (value) {
                     if (value.isEmpty) {
                       endpoint = false;

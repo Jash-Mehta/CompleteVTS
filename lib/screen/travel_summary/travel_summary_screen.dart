@@ -479,8 +479,9 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
                                                                           color: filterdata![index].vehicleStatus == "Running"
                                                                               ? Colors.green
                                                                               : filterdata![index].vehicleStatus == "Idle"
-                                                                                  ? Colors.blue
-                                                                                  : filterdata![index].vehicleStatus == "Stop"
+                                                                                  ? Colors.orange
+                                                                                  :filterdata![index].vehicleStatus == "Inactive"
+                                                                                      ? Colors.blue : filterdata![index].vehicleStatus == "Stop"
                                                                                       ? Colors.red
                                                                                       : Colors.orange,
                                                                           fontSize: 16),
@@ -559,7 +560,7 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
                             ? traveldata!.isEmpty
                                 ? Center(
                                     child: Text(
-                                    "No data found",
+                                    "",
                                     style: TextStyle(
                                         fontSize: 24,
                                         fontWeight: FontWeight.w500),

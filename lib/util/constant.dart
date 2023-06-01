@@ -324,4 +324,6 @@ class Constant {
   static String speedurl =
       baseUrl + 'VTSHistory/ApplyVehicleHistoryAPI?VendorId=';
   static String vtslivegeo = baseUrl + "VTSLive/GetGEODetails?VendorId=";
+  static String vtshistoryspeedparameter = baseUrl +
+      'VTSHistory/GetHistoryStartLocationWithSpeedParameter?VendorId=';
 }
