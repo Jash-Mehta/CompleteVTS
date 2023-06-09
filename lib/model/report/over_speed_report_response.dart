@@ -1,3 +1,6 @@
+var ostotalhrs;
+
+
 class GetOverspeedReportResponse {
   int? pageNumber;
   int? pageSize;
@@ -8,6 +11,7 @@ class GetOverspeedReportResponse {
   String? nextPage;
   String? previousPage;
   List<OverSpeeddDetail>? data;
+  List<OSTotalTime>? timedata;
   bool? succeeded;
   String? errors;
   String? message;
@@ -43,6 +47,10 @@ class GetOverspeedReportResponse {
           data!.add(new OverSpeeddDetail.fromJson(element));
         });
       });
+      timedata = <OSTotalTime>[];
+      json['data'].forEach((v) {
+        timedata!.add(new OSTotalTime.fromJson(v));
+      });
     }
     succeeded = json['succeeded'];
     errors = json['errors'];
@@ -69,7 +77,7 @@ class GetOverspeedReportResponse {
   }
 }
 
-class Data {
+class OSTotalTime {
   String? fromDate;
   String? toDate;
   List<GroupByDateTotal>? groupByDateTotal;
@@ -77,7 +85,7 @@ class Data {
   double? totalOverSpeedTravel;
   List<OverSpeeddDetail>? overSpeeddDetail;
 
-  Data(
+  OSTotalTime(
       {this.fromDate,
       this.toDate,
       this.groupByDateTotal,
@@ -85,7 +93,7 @@ class Data {
       this.totalOverSpeedTravel,
       this.overSpeeddDetail});
 
-  Data.fromJson(Map<String, dynamic> json) {
+  OSTotalTime.fromJson(Map<String, dynamic> json) {
     fromDate = json['fromDate'];
     toDate = json['toDate'];
     if (json['groupByDateTotal'] != null) {
@@ -101,6 +109,7 @@ class Data {
       });
     }
     totalOverSpeedTravel = json['totalOverSpeedTravel'];
+    ostotalhrs = json['totalOverSpeedTravel'];
     if (json['overSpeeddDetail'] != null) {
       overSpeeddDetail = <OverSpeeddDetail>[];
       json['overSpeeddDetail'].forEach((v) {

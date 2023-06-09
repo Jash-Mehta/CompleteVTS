@@ -1763,7 +1763,7 @@ class Vehiclestatusreportfilter extends MainEvent {
   String vehiclelist;
   String toDate;
   String toTime;
-  int imeno;
+  String imeno;
   int pagenumber;
   int pagesize;
   Vehiclestatusreportfilter({

@@ -1,6 +1,7 @@
 var vsrtime;
 var vsrspeed;
 var vsrdistance, vsrtotalhrs;
+var gbdateth, gbvehregth;
 
 class VehicleStatusReportModel {
   int? pageNumber;
@@ -12,6 +13,9 @@ class VehicleStatusReportModel {
   String? nextPage;
   String? previousPage;
   List<VehicleStatusReportData>? data;
+  List<GroupByDateTotalHours>? groupbyth;
+  List<GroupByVehicleRegNoTotalHours>? groupbyveh;
+  List<TotalTimeData>? timedata;
   bool? succeeded;
   String? errors;
   String? message;
@@ -47,6 +51,31 @@ class VehicleStatusReportModel {
           data!.add(new VehicleStatusReportData.fromJson(element));
         });
       });
+      groupbyth = <GroupByDateTotalHours>[];
+      json['data'].forEach((v) {
+        var reportdata = v['groupByDateTotalHours'] as List<dynamic>;
+        reportdata.forEach((element) {
+          groupbyth!.add(new GroupByDateTotalHours.fromJson(element));
+        });
+      });
+      groupbyveh = <GroupByVehicleRegNoTotalHours>[];
+      json['data'].forEach((v) {
+        var reportdata = v['groupByVehicleRegNoTotalHours'] as List<dynamic>;
+        reportdata.forEach((element) {
+          groupbyveh!.add(new GroupByVehicleRegNoTotalHours.fromJson(element));
+        });
+      });
+      // timedata = <TotalTimeData>[];
+      // json['data'].forEach((v) {
+      //   var reportdata = v['data'];
+      //   // reportdata.forEach((element) {
+      //     timedata!.add(new TotalTimeData.fromJson(reportdata));
+      //   // });
+      // });
+      timedata = <TotalTimeData>[];
+      json['data'].forEach((v) {
+        timedata!.add(new TotalTimeData.fromJson(v));
+      });
     }
     succeeded = json['succeeded'];
     errors = json['errors'];
@@ -73,7 +102,7 @@ class VehicleStatusReportModel {
   }
 }
 
-class Data {
+class TotalTimeData {
   String? fromDate;
   String? toDate;
   List<GroupByDateTotalHours>? groupByDateTotalHours;
@@ -81,7 +110,7 @@ class Data {
   String? totalHours;
   List<VehicleStatusReportData>? datewiseTravelHoursData;
 
-  Data(
+  TotalTimeData(
       {this.fromDate,
       this.toDate,
       this.groupByDateTotalHours,
@@ -89,7 +118,7 @@ class Data {
       this.totalHours,
       this.datewiseTravelHoursData});
 
-  Data.fromJson(Map<String, dynamic> json) {
+  TotalTimeData.fromJson(Map<String, dynamic> json) {
     fromDate = json['fromDate'];
     toDate = json['toDate'];
     if (json['groupByDateTotalHours'] != null) {
@@ -107,6 +136,9 @@ class Data {
     }
     vsrtotalhrs = json['totalHours'];
     totalHours = json['totalHours'];
+    gbdateth = json['groupByDateTotalHours'];
+    gbvehregth = json['groupByVehicleRegNoTotalHours'];
+    
 
     if (json['datewiseTravelHoursData'] != null) {
       datewiseTravelHoursData = <VehicleStatusReportData>[];
@@ -146,6 +178,7 @@ class GroupByDateTotalHours {
   GroupByDateTotalHours.fromJson(Map<String, dynamic> json) {
     tDate = json['tDate'];
     groupByDateTimeDiff = json['groupByDateTimeDiff'];
+    gbdateth = json['tDate'];
   }
 
   Map<String, dynamic> toJson() {
@@ -170,12 +203,13 @@ class GroupByVehicleRegNoTotalHours {
 
   GroupByVehicleRegNoTotalHours.fromJson(Map<String, dynamic> json) {
     vsrdistance = json['groupByDateByVehicleRegNoTimeDiff'];
-    
+
     tDate = json['tDate'];
     vehicleRegNo = json['vehicleRegNo'];
     imei = json['imei'];
     groupByDateByVehicleRegNoTimeDiff =
         json['groupByDateByVehicleRegNoTimeDiff'];
+    gbvehregth = json['vehicleRegNo'];
   }
 
   Map<String, dynamic> toJson() {

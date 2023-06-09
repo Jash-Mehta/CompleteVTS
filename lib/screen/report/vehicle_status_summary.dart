@@ -196,6 +196,19 @@ class _VehicleStatusSummaryState extends State<VehicleStatusSummary> {
         pagesize: pageSize));
   }
 
+   String formatDuration(String durationString) {
+    List<String> components = durationString.split(', ');
+
+    int hours = int.parse(components[0].split(' ')[0]);
+    int minutes = int.parse(components[1].split(' ')[0]);
+    int seconds = int.parse(components[2].split(' ')[0]);
+
+    return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+  }
+
+  String durationString = vsstotalhrs ?? "585 Hours, 45 Minutes, 02 Seconds";
+  // String durationString = vsstotalhrs ?? "585 Hours, 45 Minutes, 02 Seconds";
+ 
   // late SharedPreferences sharedPreferences;
   // late String token="";
   // late int branchid=0,vendorid=0;
@@ -1624,8 +1637,41 @@ class _VehicleStatusSummaryState extends State<VehicleStatusSummary> {
                                       ),
                                     ],
                                   ),
-                                )
-                              ,
+                                ),
+                                  Padding(
+                            padding: EdgeInsets.all(8),
+                            child: Column(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    "Group By(${vsrdcvsrnolisttiletext ?? "-"}) Total :- " +
+                                                  formatDuration( 
+                                                      durationString),
+                                    // gbvehregth==null ? "-" : gbvehregth,
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w600),
+                                  ),
+                                ),
+                                Text(
+                                  "Group By ( ${fromDateController ?? "01-sep-2022"} ) Total :-"
+                                 +formatDuration(
+                                                      durationString),
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                                Text(
+                                  "Total Over Speed Distance :- "+formatDuration(durationString),
+                                  //  vsrtotalhrs ==null ? "-" : vsrtotalhrs,
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                              ],
+                            ),
+                          ),
                           applyclicked
                               ? filterData!.isEmpty
                                   ? Center(

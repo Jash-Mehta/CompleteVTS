@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_vts/bloc/main_bloc.dart';
 import 'package:flutter_vts/bloc/main_event.dart';
 import 'package:flutter_vts/bloc/main_state.dart';
+import 'package:flutter_vts/model/report/vehicle_status_report.dart';
 import 'package:flutter_vts/util/MyColor.dart';
 import 'package:flutter_vts/util/custom_app_bar.dart';
 import 'package:flutter_vts/util/menu_drawer.dart';
@@ -185,6 +186,18 @@ class _VehicleStatusGroupState extends State<VehicleStatusGroup> {
         pagenumber: pageNumber,
         pagesize: pageSize));
   }
+
+   String formatDuration(String durationString) {
+    List<String> components = durationString.split(', ');
+
+    int hours = int.parse(components[0].split(' ')[0]);
+    int minutes = int.parse(components[1].split(' ')[0]);
+    int seconds = int.parse(components[2].split(' ')[0]);
+
+    return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+  }
+
+  String durationString = vsgtotalhrs ?? "585 Hours, 45 Minutes, 02 Seconds";
 
   // late SharedPreferences sharedPreferences;
   // late String token="";
@@ -1632,47 +1645,37 @@ class _VehicleStatusGroupState extends State<VehicleStatusGroup> {
                                       ),
                                     ],
                                   ),
-                                )
-                              : SizedBox(),
-                          Padding(
+                                ),
+                         Padding(
                             padding: EdgeInsets.all(8),
                             child: Column(
                               children: [
                                 Padding(
                                   padding: const EdgeInsets.all(8.0),
-                                  child: Center(
-                                    child: Text(
-                                      "Group By " +
-                                          "(" +
-                                          "MH12AA0011" +
-                                          ")" +
-                                          " Total :- " +
-                                          "17:30:00",
-                                      style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w600),
-                                    ),
-                                  ),
-                                ),
-                                Center(
                                   child: Text(
-                                    "Group By ( ${vsrtotalhrs ?? "01-sep-2022"} ) Total :- 17:30:56",
+                                    "Group By(${vsrdcvsrnolisttiletext ?? "-"}) Total :- " +
+                                                  formatDuration( 
+                                                      durationString),
+                                    // gbvehregth==null ? "-" : gbvehregth,
                                     style: TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.w600),
                                   ),
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Center(
-                                    child: Text(
-                                      " Total Over Speed Distance Travel " +
-                                          "${vsrdistance}",
-                                      style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w600),
-                                    ),
-                                  ),
+                                Text(
+                                  "Group By ( ${fromDateController ?? "01-sep-2022"} ) Total :-"
+                                 +formatDuration(
+                                                      durationString),
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                                Text(
+                                  "Total Over Speed Distance :- "+formatDuration(durationString),
+                                  //  vsrtotalhrs ==null ? "-" : vsrtotalhrs,
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600),
                                 ),
                               ],
                             ),

@@ -179,7 +179,7 @@ class Constant {
   static String FramePacketReportUrl =
       baseUrl + 'FramePacketReport/GetFramepacketReport?VendorId=';
   static String FramePacketGridUrl = baseUrl +
-      '/FramePacketGridviewReport/FilterFramePacketGridViewReport?VendorId=';
+      'FramePacketGridviewReport/GetFramePacketGridViewReport?VendorId=';
   // https://vtsgpsapi.m-techinnovations.com/api/FramePacketReport/GetFramepacketReport?VendorId=1&BranchId=1&ARAI_NONARAI=arai&FromDate=01-sep-2022&FromTime=12:30&ToDate=30-sep-2022&ToTime=18:30&IMEINO=867322033819244&FramePacketOption=datapacket&PageNumber=1&PageSize=10
   static String getFramePacketReportSearchUrl =
       baseUrl + 'FramePacketReport/GetFramepacketReport?VendorId=';

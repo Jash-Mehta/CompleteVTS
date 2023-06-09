@@ -30,6 +30,7 @@ import '../../model/report/vehicle_vsrno.dart';
 import '../../model/searchString.dart';
 import '../../util/search_bar_field.dart';
 import 'package:csv/csv.dart';
+
 class VehicleStatusReport extends StatefulWidget {
   const VehicleStatusReport({Key? key}) : super(key: key);
 
@@ -75,9 +76,10 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
   late String token = "";
   late int branchid = 1, vendorid = 1;
   List<VehicleStatusReportData> pdfdatalist = [];
-   List<ReportVehicleStatusFilter> pdffilterlist = [];
-    List<DatewiseTravelHoursDataItem> pdfsearchlist = [];
+  List<ReportVehicleStatusFilter> pdffilterlist = [];
+  List<DatewiseTravelHoursDataItem> pdfsearchlist = [];
   List<VehicleStatusReportData>? data = [];
+  // List<>? gbdata = [];
   List<DatewiseTravelHoursDataItem>? searchData = [];
   // List<VehicleVSrNoData>? osvfdata = [];
   List<VehicleStatusReportDriverCode>? osvfdata = [];
@@ -185,10 +187,18 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
         pagesize: pageSize));
   }
 
-  // late SharedPreferences sharedPreferences;
-  // late String token="";
-  // late int branchid=0,vendorid=0;
+  String formatDuration(String durationString) {
+    List<String> components = durationString.split(', ');
 
+    int hours = int.parse(components[0].split(' ')[0]);
+    int minutes = int.parse(components[1].split(' ')[0]);
+    int seconds = int.parse(components[2].split(' ')[0]);
+
+    return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+  }
+
+  String durationString = vsrtotalhrs ?? "585 Hours, 45 Minutes, 02 Seconds";
+ 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -202,11 +212,11 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
                 isFilter = true;
                 vsrdcvsrnolisttiletext = "";
                 totimeInput.text = "";
-                                        todateInput.text = "";
-                                        fromtimeInput.text = "";
-                                        fromdateInput.text = "";
+                todateInput.text = "";
+                fromtimeInput.text = "";
+                fromdateInput.text = "";
                 isFilter
-                    ?   _mainBloc.add(VehicleStatusReportDrivercode(
+                    ? _mainBloc.add(VehicleStatusReportDrivercode(
                         token: token, vendorId: 1, branchId: 1))
                     // _mainBloc.add(VehicleVSrNoEvent(
                     //     token: token, vendorId: 1, branchId: 1))
@@ -277,7 +287,7 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
           // } else if (state is VehicleStsRptDriverCodeErorrState) {
           //   print("Entering in driver code filter Error State");
           // }
-           if (state is VehicleStatusReportDriverCodeLoadingState) {
+          if (state is VehicleStatusReportDriverCodeLoadingState) {
             print("Entering in driver code filter Loading State");
           } else if (state is VehicleStatusReportDriverCodeLoadedState) {
             print("Entering in driver code filter Loaded State");
@@ -439,10 +449,11 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
                                             fromTimeController != null &&
                                             toDateController != null &&
                                             toTimeController != null &&
-                                            vsrdcvehicleno != null &&  fromdateInput.text.isNotEmpty &&
-                                              todateInput.text.isNotEmpty &&
-                                              fromtimeInput.text.isNotEmpty &&
-                                              totimeInput.text.isNotEmpty) {
+                                            vsrdcvehicleno != null &&
+                                            fromdateInput.text.isNotEmpty &&
+                                            todateInput.text.isNotEmpty &&
+                                            fromtimeInput.text.isNotEmpty &&
+                                            totimeInput.text.isNotEmpty) {
                                           _mainBloc
                                               .add(Vehiclestatusreportfilter(
                                             token: token,
@@ -458,7 +469,7 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
                                                         null
                                                     ? "ALL"
                                                     : vsrdcvehicleno.toString(),
-                                            imeno: imeino,
+                                            imeno: imeino.toString(),
                                             pagesize: 200,
                                             pagenumber: 1,
                                           ));
@@ -696,13 +707,13 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
                                             isvsrdc = false;
                                             vsrdcvehicleno =
                                                 article.imeiNo == ""
-                                                              ? "ALL"
-                                                              : article.imeiNo;
+                                                    ? "ALL"
+                                                    : article.imeiNo;
                                             print("This is imei - " +
                                                 vsrdcvehicleno);
                                             vsrdcvsrnolisttiletext =
                                                 article.vehicleRegNo.toString();
-                                             print("This is vehicleregno - " +
+                                            print("This is vehicleregno - " +
                                                 vsrdcvsrnolisttiletext);
                                           });
                                         },
@@ -1189,13 +1200,14 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
                                         //   "/data/user/0/com.vts.gps/cache/file_picker/DTwisereport.pdf"
                                         // ];
                                         // print("File path------${files}");
-                                       shareDeviceData(
+                                        shareDeviceData(
                                             data!,
                                             vehiclestatusfilterreport!,
                                             applyclick,
                                             searchData!,
                                             isSearch);
-                                         Navigator.of(context).popUntil((route) => route.isCurrent);
+                                        Navigator.of(context).popUntil(
+                                            (route) => route.isCurrent);
                                       } catch (e) {
                                         Fluttertoast.showToast(
                                           msg: "Download the pdf first",
@@ -1239,7 +1251,8 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
                                 pdfdatalist.clear();
                                 pdfdatalist.addAll(data!);
                                 pdffilterlist.clear();
-                                pdffilterlist.addAll(vehiclestatusfilterreport!);
+                                pdffilterlist
+                                    .addAll(vehiclestatusfilterreport!);
                                 pdfsearchlist.clear();
                                 pdfsearchlist.addAll(searchData!);
                                 setState(() {});
@@ -1248,8 +1261,12 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
                                 if (await Permission.storage
                                     .request()
                                     .isGranted) {
-                                  final pdfFile =
-                                      await PdfInvoiceApi.generate(pdfdatalist,pdffilterlist,applyclick,pdfsearchlist,isSearch);
+                                  final pdfFile = await PdfInvoiceApi.generate(
+                                      pdfdatalist,
+                                      pdffilterlist,
+                                      applyclick,
+                                      pdfsearchlist,
+                                      isSearch);
                                   PdfApi.openFile(pdfFile);
                                 } else {
                                   print("Request is not accepted");
@@ -1329,122 +1346,118 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
                                             fontWeight: FontWeight.bold),
                                       );
                                     }),
-                           Container(
-                                  margin: EdgeInsets.only(top: 10, bottom: 20),
-                                  padding: EdgeInsets.all(15),
-                                  decoration: BoxDecoration(
-                                      color: MyColors.bluereportColorCode,
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(10))),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                          Container(
+                            margin: EdgeInsets.only(top: 10, bottom: 20),
+                            padding: EdgeInsets.all(15),
+                            decoration: BoxDecoration(
+                                color: MyColors.bluereportColorCode,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10))),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text("From Date  -  To Date",
+                                        style: TextStyle(fontSize: 18)),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Text(
+                                        fromDateController != null
+                                            ? fromDateController + "  -  "
+                                            : "01-sep-2022" + "  -  ",
+                                        style: TextStyle(fontSize: 18)),
+                                    Text(
+                                        toDateController != null
+                                            ? toDateController
+                                            : "30-sep-2022",
+                                        style: TextStyle(fontSize: 18)),
+                                  ],
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(top: 10),
+                                  child: Row(
+                                    // mainAxisAlignment: MainAxisAlignment.start,
+                                    // crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Row(
-                                        children: [
-                                          Text("From Date  -  To Date",
-                                              style: TextStyle(fontSize: 18)),
-                                        ],
-                                      ),
-                                      Row(
-                                        children: [
-                                          Text(
-                                              fromDateController != null
-                                                  ? fromDateController + "  -  "
-                                                  : "01-sep-2022" + "  -  ",
-                                              style: TextStyle(fontSize: 18)),
-                                          Text(
-                                              toDateController != null
-                                                  ? toDateController
-                                                  : "30-sep-2022",
-                                              style: TextStyle(fontSize: 18)),
-                                        ],
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsets.only(top: 10),
-                                        child: Row(
-                                          // mainAxisAlignment: MainAxisAlignment.start,
-                                          // crossAxisAlignment: CrossAxisAlignment.start,
+                                      Expanded(
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
-                                            Expanded(
-                                              child: Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    "VehicleRegNo",
-                                                    style:
-                                                        TextStyle(fontSize: 18),
-                                                  ),
-                                                  Text(vsrdcvsrnolisttiletext == null ? "-" : vsrdcvsrnolisttiletext,
-                                                      style: TextStyle(
-                                                          fontSize: 18)),
-                                                ],
-                                              ),
+                                            Text(
+                                              "VehicleRegNo",
+                                              style: TextStyle(fontSize: 18),
                                             ),
-                                            Expanded(
-                                              child: Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    "Speed Limit",
-                                                    style:
-                                                        TextStyle(fontSize: 18),
-                                                  ),
-                                                  Text("-",
-                                                      style: TextStyle(
-                                                          fontSize: 18)),
-                                                ],
-                                              ),
+                                            Text(
+                                                vsrdcvsrnolisttiletext == null
+                                                    ? "-"
+                                                    : vsrdcvsrnolisttiletext,
+                                                style: TextStyle(fontSize: 18)),
+                                          ],
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              "Speed Limit",
+                                              style: TextStyle(fontSize: 18),
                                             ),
+                                            Text("-",
+                                                style: TextStyle(fontSize: 18)),
                                           ],
                                         ),
                                       ),
                                     ],
                                   ),
-                                )
-                              ,
-                         Padding(
-                                  padding: EdgeInsets.all(8),
-                                  child: Column(
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text(
-                                          "Group By " +
-                                              "(" +
-                                            //  vsrdcvsrnolisttiletext == null ? "-" : vsrdcvsrnolisttiletext +
-                                              ")" +
-                                              " Total :- " +
-                                              "17:30:00",
-                                          style: TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.w600),
-                                        ),
-                                      ),
-                                      Text(
-                                        "Group By ( ${fromDateController ?? "01-sep-2022"} ) Total :- 17:30:56",
-                                        style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w600),
-                                      ),
-                                      Text(
-                                        " Total Over Speed Distance Travel " +
-                                            "17:30:56",
-                                        style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w600),
-                                      ),
-                                    ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.all(8),
+                            child: Column(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    "Group By(${vsrdcvsrnolisttiletext ?? "-"}) Total :- " +
+                                                  formatDuration( 
+                                                      durationString),
+                                    // gbvehregth==null ? "-" : gbvehregth,
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w600),
                                   ),
-                                )
-                              ,
+                                ),
+                                Text(
+                                  "Group By ( ${fromDateController ?? "01-sep-2022"} ) Total :-"
+                                 +formatDuration(
+                                                      durationString),
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                                Text(
+                                  "Total Over Speed Distance :- "+formatDuration(durationString),
+                                  //  vsrtotalhrs ==null ? "-" : vsrtotalhrs,
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                              ],
+                            ),
+                          ),
                           applyclick
                               ? vehiclestatusfilterreport!.isEmpty
                                   ? Center(
@@ -1471,7 +1484,7 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
                                                     vehiclestatusfilterreport![
                                                         index];
                                                 var sr = index + 1;
-                                             
+
                                                 return Card(
                                                   margin: EdgeInsets.only(
                                                       bottom: 15),
@@ -1882,6 +1895,10 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
                                             itemBuilder: (context, index) {
                                               var article = data![index];
                                               var sr = index + 1;
+                                              String formattedDuration =
+                                                  formatDuration(
+                                                      durationString);
+                                              print(formattedDuration);
                                               return Card(
                                                 margin:
                                                     EdgeInsets.only(bottom: 15),
@@ -2661,8 +2678,7 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
     );
   }
 
-  
-   String convertDataToCsv(
+  String convertDataToCsv(
       List<VehicleStatusReportData> data,
       List<ReportVehicleStatusFilter> filterdata,
       bool applyclicked,
@@ -2670,8 +2686,20 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
       bool issearch) {
     List<List<dynamic>> rows = [];
     // Add headers
-   applyclicked ?rows.add(["Vehicle Status Report Filter "]) : issearch ? rows.add(["Vehicle Status Report Search"]) : rows.add(["Vehicle Status Report Data"]);
-    rows.add(['SrNo','IMEINo', 'VendorRegNo','Start TIme', 'End Time','Vehicle Status', 'Vehicle Status Time']);
+    applyclicked
+        ? rows.add(["Vehicle Status Report Filter "])
+        : issearch
+            ? rows.add(["Vehicle Status Report Search"])
+            : rows.add(["Vehicle Status Report Data"]);
+    rows.add([
+      'SrNo',
+      'IMEINo',
+      'VendorRegNo',
+      'Start TIme',
+      'End Time',
+      'Vehicle Status',
+      'Vehicle Status Time'
+    ]);
 
     // Add data rows
     if (applyclicked) {
@@ -2693,7 +2721,7 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
         // print("This is filter lenght");
         print("Search data" + searchdata.toString());
         rows.add([
-         item.srNo,
+          item.srNo,
           item.imei,
           item.vehicleregNo,
           item.startTime,
@@ -2707,7 +2735,7 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
         // print("This is filter lenght");
         print("Filter data" + filterdata.toString());
         rows.add([
-       item.srNo,
+          item.srNo,
           item.imei,
           item.vehicleregNo,
           item.startTime,
@@ -2719,7 +2747,6 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
     }
     return ListToCsvConverter().convert(rows);
   }
-
 
   Future<File> saveCsvFile(
       String csvFilterData, bool applyclicked, bool issearch) async {
@@ -2739,19 +2766,18 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
   }
 
   void shareDeviceData(
-       List<VehicleStatusReportData> data,
+      List<VehicleStatusReportData> data,
       List<ReportVehicleStatusFilter> filterdata,
       bool applyclicked,
       List<DatewiseTravelHoursDataItem> searchdata,
       bool issearch) async {
-    String csvData = convertDataToCsv(
-        data, filterdata, applyclicked, searchdata, issearch);
+    String csvData =
+        convertDataToCsv(data, filterdata, applyclicked, searchdata, issearch);
     File csvFile = await saveCsvFile(csvData, applyclicked, issearch);
     print("This is csv Filter data " + csvData);
 
     shareCsvFile(csvFile);
   }
-
 
   onSearchTextChanged(String? text) async {
     if (text!.isEmpty || text.length < 0) {
@@ -2784,7 +2810,12 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
 }
 
 class PdfInvoiceApi {
-  static Future<File> generate(List<VehicleStatusReportData> pdflist, List<ReportVehicleStatusFilter> pdffilter, bool applyclicked,List<DatewiseTravelHoursDataItem> pdfsearch, bool issearch) async {
+  static Future<File> generate(
+      List<VehicleStatusReportData> pdflist,
+      List<ReportVehicleStatusFilter> pdffilter,
+      bool applyclicked,
+      List<DatewiseTravelHoursDataItem> pdfsearch,
+      bool issearch) async {
     final pdf = pw.Document();
     double fontsize = 8.0;
 
@@ -2930,7 +2961,12 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(applyclicked ?  pdffilter[index].imei.toString() : issearch ? pdfsearch[index].imei.toString() : pdflist[index].imei.toString(),
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilter[index].imei.toString()
+                                    : issearch
+                                        ? pdfsearch[index].imei.toString()
+                                        : pdflist[index].imei.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2939,7 +2975,16 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(applyclicked ?  pdffilter[index].vehicleregNo.toString() : issearch ? pdfsearch[index].vehicleregNo.toString() : pdflist[index].vehicleregNo.toString(),
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilter[index].vehicleregNo.toString()
+                                    : issearch
+                                        ? pdfsearch[index]
+                                            .vehicleregNo
+                                            .toString()
+                                        : pdflist[index]
+                                            .vehicleregNo
+                                            .toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2948,7 +2993,12 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(applyclicked ? pdffilter[index].startTime.toString() : issearch ? pdfsearch[index].startTime.toString() : pdflist[index].startTime.toString(),
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilter[index].startTime.toString()
+                                    : issearch
+                                        ? pdfsearch[index].startTime.toString()
+                                        : pdflist[index].startTime.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2957,7 +3007,12 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(applyclicked ? pdffilter[index].endTime.toString() : issearch ? pdfsearch[index].endTime.toString() : pdflist[index].endTime.toString(),
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilter[index].endTime.toString()
+                                    : issearch
+                                        ? pdfsearch[index].endTime.toString()
+                                        : pdflist[index].endTime.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2966,7 +3021,16 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(applyclicked ? pdffilter[index].vehicleStatus.toString() : issearch ? pdfsearch[index].vehicleStatus.toString() : pdflist[index].vehicleStatus.toString(),
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilter[index].vehicleStatus.toString()
+                                    : issearch
+                                        ? pdfsearch[index]
+                                            .vehicleStatus
+                                            .toString()
+                                        : pdflist[index]
+                                            .vehicleStatus
+                                            .toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -3019,11 +3083,13 @@ class PdfInvoiceApi {
       },
     ));
 
-    return PdfApi.saveDocument(name:applyclicked
+    return PdfApi.saveDocument(
+        name: applyclicked
             ? 'vehiclestatusFilterReport.pdf'
             : issearch
                 ? 'vehiclestatusSearchReport.pdf'
-                : 'vehiclestatusreport.pdf', pdf: pdf);
+                : 'vehiclestatusreport.pdf',
+        pdf: pdf);
   }
 }
 

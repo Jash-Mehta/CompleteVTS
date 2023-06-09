@@ -1,3 +1,4 @@
+var frametotalhrs;
 class FramePacketData {
   int? pageNumber;
   int? pageSize;
@@ -8,6 +9,7 @@ class FramePacketData {
   String? nextPage;
   String? previousPage;
   List<DatewiseFramepacketData>? data;
+  List<FrameTotalTime>? timedata;
   bool? succeeded;
   String? errors;
   String? message;
@@ -43,6 +45,10 @@ class FramePacketData {
           data!.add(DatewiseFramepacketData.fromJson(element));
         });
       });
+      timedata = <FrameTotalTime>[];
+      json['data'].forEach((v) {
+        timedata!.add(new FrameTotalTime.fromJson(v));
+      });
     }
     succeeded = json['succeeded'];
     errors = json['errors'];
@@ -69,7 +75,7 @@ class FramePacketData {
   }
 }
 
-class Data {
+class FrameTotalTime {
   String? fromDate;
   String? toDate;
   List<GroupByDateTotal>? groupByDateTotal;
@@ -77,7 +83,7 @@ class Data {
   double? totalDistanceTravel;
   List<DatewiseFramepacketData>? datewiseFramepacketData;
 
-  Data(
+  FrameTotalTime(
       {this.fromDate,
       this.toDate,
       this.groupByDateTotal,
@@ -85,7 +91,7 @@ class Data {
       this.totalDistanceTravel,
       this.datewiseFramepacketData});
 
-  Data.fromJson(Map<String, dynamic> json) {
+  FrameTotalTime.fromJson(Map<String, dynamic> json) {
     fromDate = json['fromDate'];
     toDate = json['toDate'];
     if (json['groupByDateTotal'] != null) {
@@ -101,6 +107,7 @@ class Data {
       });
     }
     totalDistanceTravel = json['totalDistanceTravel'];
+    frametotalhrs = json['totalDistanceTravel'];
     if (json['datewiseFramepacketData'] != null) {
       datewiseFramepacketData = <DatewiseFramepacketData>[];
       json['datewiseFramepacketData'].forEach((v) {
@@ -234,33 +241,33 @@ class DatewiseFramepacketData {
       this.araINONARAI});
 
   DatewiseFramepacketData.fromJson(Map<String, dynamic> json) {
-    transID = json['transID']??0;
-    header = json['header']??"";
-    vendorID = json['vendorID']??"";
-    packetType = json['packetType']??"";
-    packetStatus = json['packetStatus']??"";
-    imei = json['imei']??"";
-    vehicleRegNo = json['vehicleRegNo']??"";
-    gpsFix = json['gpsFix']??"";
-    date = json['date']??"";
-    time = json['time']??"";
-    latitude = json['latitude']??"";
-    longitude = json['longitude']??"";
-    speed = json['speed']??"";
-    networkOperatorName = json['networkOperatorName']??"";
-    ignition = json['ignition']??"";
-    mainPowerStatus = json['mainPowerStatus']??"";
-    mainInputVoltage = json['mainInputVoltage']??"";
-    internalBatteryVoltage = json['internalBatteryVoltage']??"";
-    altitude = json['altitude']??"";
-    pdop = json['pdop']??"";
-    hdop = json['hdop']??"";
-    gsmSignalStrength = json['gsmSignalStrength']??"";
-    frameNumber = json['frameNumber']??"";
-    distancetravel = json['distancetravel']??"";
-    address = json['address']??"";
-    updatedon = json['updatedon']??"";
-    araINONARAI = json['araI_NONARAI']??"";
+    transID = json['transID'] ?? 0;
+    header = json['header'] ?? "";
+    vendorID = json['vendorID'] ?? "";
+    packetType = json['packetType'] ?? "";
+    packetStatus = json['packetStatus'] ?? "";
+    imei = json['imei'] ?? "";
+    vehicleRegNo = json['vehicleRegNo'] ?? "";
+    gpsFix = json['gpsFix'] ?? "";
+    date = json['date'] ?? "";
+    time = json['time'] ?? "";
+    latitude = json['latitude'] ?? "";
+    longitude = json['longitude'] ?? "";
+    speed = json['speed'] ?? "";
+    networkOperatorName = json['networkOperatorName'] ?? "";
+    ignition = json['ignition'] ?? "";
+    mainPowerStatus = json['mainPowerStatus'] ?? "";
+    mainInputVoltage = json['mainInputVoltage'] ?? "";
+    internalBatteryVoltage = json['internalBatteryVoltage'] ?? "";
+    altitude = json['altitude'] ?? "";
+    pdop = json['pdop'] ?? "";
+    hdop = json['hdop'] ?? "";
+    gsmSignalStrength = json['gsmSignalStrength'] ?? "";
+    frameNumber = json['frameNumber'] ?? "";
+    distancetravel = json['distancetravel'] ?? "";
+    address = json['address'] ?? "";
+    updatedon = json['updatedon'] ?? "";
+    araINONARAI = json['araI_NONARAI'] ?? "";
   }
 
   Map<String, dynamic> toJson() {

@@ -220,6 +220,20 @@ class _FramePacketState extends State<FramePacket> {
   //       pageSize: pageSize));
   // }
 
+  
+  String formatDuration(String durationString) {
+    List<String> components = durationString.split(', ');
+
+    int hours = int.parse(components[0].split(' ')[0]);
+    int minutes = int.parse(components[1].split(' ')[0]);
+    int seconds = int.parse(components[2].split(' ')[0]);
+
+    return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+  }
+
+  String durationString = frametotalhrs ?? "585 Hours, 45 Minutes, 02 Seconds";
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1767,6 +1781,36 @@ class _FramePacketState extends State<FramePacket> {
                                       ),
                                     ],
                                   ),
+                                ),
+                              ],
+                            ),
+                          ),
+                           Padding(
+                            padding: EdgeInsets.all(8),
+                            child: Column(
+                              children: [
+                                Text(
+                                  "Group By(${fpdclisttiletext ?? "-"}) Total :- " +
+                                                formatDuration( 
+                                                    durationString),
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                                Text(
+                                  "Group By ( ${fromDateController ?? "01-sep-2022"} ) Total :-"
+                                 +formatDuration(
+                                                      durationString),
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                                Text(
+                                  "Total Over Speed Distance :- "+formatDuration(durationString),
+                                  //  vsrtotalhrs ==null ? "-" : vsrtotalhrs,
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600),
                                 ),
                               ],
                             ),

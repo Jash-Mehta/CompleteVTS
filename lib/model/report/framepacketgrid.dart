@@ -1,3 +1,5 @@
+var framegridtotalhrs;
+
 class FramePacketGridModel {
   int? pageNumber;
   int? pageSize;
@@ -8,6 +10,7 @@ class FramePacketGridModel {
   String? nextPage;
   String? previousPage;
   List<DatewiseFramePacketGridViewData>? data;
+  List<FrameGridTimeData>? timedata;
   bool? succeeded;
   String? errors;
   String? message;
@@ -70,7 +73,7 @@ class FramePacketGridModel {
   }
 }
 
-class Data {
+class FrameGridTimeData {
   String? fromDate;
   String? toDate;
   List<GroupByDateByCountTotal>? groupByDateByCountTotal;
@@ -78,7 +81,7 @@ class Data {
   int? totalRecordsCount;
   List<DatewiseFramePacketGridViewData>? datewiseFramePacketGridViewData;
 
-  Data(
+  FrameGridTimeData(
       {this.fromDate,
       this.toDate,
       this.groupByDateByCountTotal,
@@ -86,7 +89,7 @@ class Data {
       this.totalRecordsCount,
       this.datewiseFramePacketGridViewData});
 
-  Data.fromJson(Map<String, dynamic> json) {
+  FrameGridTimeData.fromJson(Map<String, dynamic> json) {
     fromDate = json['fromDate'];
     toDate = json['toDate'];
     if (json['groupByDateByCountTotal'] != null) {
@@ -103,6 +106,7 @@ class Data {
       });
     }
     totalRecordsCount = json['totalRecordsCount'];
+    framegridtotalhrs = json['totalRecordsCount'];
     if (json['datewiseFramePacketGridViewData'] != null) {
       datewiseFramePacketGridViewData = <DatewiseFramePacketGridViewData>[];
       json['datewiseFramePacketGridViewData'].forEach((v) {
@@ -205,17 +209,17 @@ class DatewiseFramePacketGridViewData {
       this.updatedOn});
 
   DatewiseFramePacketGridViewData.fromJson(Map<String, dynamic> json) {
-    transID = json['transID']??0;
-    imei = json['imei']??"";
-    header = json['header']??"";
-    vehicleRegNo = json['vehicleRegNo']??"";
-    firmwareversionHardware = json['firmwareversionHardware']??"";
-    firmwareversionSoftware = json['firmwareversionSoftware']??"";
-    latitude = json['latitude']??"";
-    latitudeDir = json['latitudeDir']??"";
-    longitude = json['longitude']??"";
-    longitudeDir = json['longitudeDir']??"";
-    updatedOn = json['updatedOn']??"";
+    transID = json['transID'] ?? 0;
+    imei = json['imei'] ?? "";
+    header = json['header'] ?? "";
+    vehicleRegNo = json['vehicleRegNo'] ?? "";
+    firmwareversionHardware = json['firmwareversionHardware'] ?? "";
+    firmwareversionSoftware = json['firmwareversionSoftware'] ?? "";
+    latitude = json['latitude'] ?? "";
+    latitudeDir = json['latitudeDir'] ?? "";
+    longitude = json['longitude'] ?? "";
+    longitudeDir = json['longitudeDir'] ?? "";
+    updatedOn = json['updatedOn'] ?? "";
   }
 
   Map<String, dynamic> toJson() {
