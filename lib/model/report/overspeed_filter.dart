@@ -6,11 +6,11 @@ class OverSpeedFilter {
   int? totalPages;
   int? totalRecords;
   String? nextPage;
-  Null? previousPage;
+  String? previousPage;
   List<OverSpeedFilterDetail>? data;
   bool? succeeded;
-  Null? errors;
-  Null? message;
+  String? errors;
+  String? message;
 
   OverSpeedFilter(
       {this.pageNumber,

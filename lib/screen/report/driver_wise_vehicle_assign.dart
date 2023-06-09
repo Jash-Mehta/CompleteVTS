@@ -26,6 +26,7 @@ import '../../model/driver_wise_vehicle_assign/search_driver_vehicle_assign.dart
 import '../../model/report/search_driverwise_veh_rpt.dart';
 import '../../model/report/vehicle_vsrno.dart';
 import 'package:file_picker/src/file_picker.dart';
+import 'package:csv/csv.dart';
 
 class DriverWiseVehicleAssignScreen extends StatefulWidget {
   const DriverWiseVehicleAssignScreen({Key? key}) : super(key: key);
@@ -762,22 +763,27 @@ class _DriverWiseVehicleAssignScreenState
                                 children: [
                                   GestureDetector(
                                     onTap: () async {
-                                      final result = await FilePicker.platform
-                                          .pickFiles(
-                                              type: FileType.custom,
-                                              allowedExtensions: ['pdf']);
+                                      // final result = await FilePicker.platform
+                                      //     .pickFiles(
+                                      //         type: FileType.custom,
+                                      //         allowedExtensions: ['pdf']);
                                       // FilePicker.platform.pickFiles(allowMultiple: false,allowedExtensions:FileType.custom(), );
                                       try {
-                                        List<String>? files = result?.files
-                                            .map((file) => file.path)
-                                            .cast<String>()
-                                            .toList();
-                                        print("File path------${files}");
+                                        // List<String>? files = result?.files
+                                        //     .map((file) => file.path)
+                                        //     .cast<String>()
+                                        //     .toList();
+                                        // print("File path------${files}");
                                         //    List<String>? files = [
                                         //   "/data/user/0/com.vts.gps/cache/file_picker/DTwisereport.pdf"
                                         // ];
                                         // print("File path------${files}");
-                                        await Share.shareFiles(files!);
+                                       shareDeviceData(
+                                            driverwisevehicledata!,
+                                            filterdata!,
+                                            applyclicked,
+                                            searchdatalist!,
+                                            isSearch);
                                         Navigator.of(context).popUntil(
                                             (route) => route.isCurrent);
                                       } catch (e) {
@@ -1834,6 +1840,92 @@ class _DriverWiseVehicleAssignScreenState
       ),
     );
   }
+
+  
+  String convertDataToCsv(
+      List<DriverWiseVehicle> data,
+      List<DriverFilterData> filterdata,
+      bool applyclicked,
+      List<Searchdetaildriverwise> searchdata,
+      bool issearch) {
+    List<List<dynamic>> rows = [];
+    // Add headers
+   applyclicked ?rows.add(["Device Master Filter "]) : isSearch ? rows.add(["Device Master Search"]) : rows.add(["Device Master Data"]);
+    rows.add(['SrNo', 'VehicleRegNo', 'DriverName', 'DriverPhoneNo']);
+
+    // Add data rows
+    if (applyclicked) {
+      for (var item in filterdata) {
+        // print("This is filter lenght");
+        print("Filter data" + filterdata.toString());
+        rows.add([
+          item.vsrNo,
+          item.vehicleRegNo,
+          item.driverName,
+          item.mobileNo,
+        ]);
+      }
+    } else if (isSearch) {
+      for (var item in searchdata) {
+        // print("This is filter lenght");
+        print("Search data" + searchdata.toString());
+        rows.add([
+          item.vsrNo,
+          item.vehicleRegNo,
+          item.driverName,
+          item.mobileNo,
+        ]);
+      }
+    } else {
+      for (var item in data) {
+        // print("This is filter lenght");
+        print("Filter data" + filterdata.toString());
+        rows.add([
+         item.vsrNo,
+          item.vehicleRegNo,
+          item.driverName,
+          item.mobileNo,
+        ]);
+      }
+    }
+    return ListToCsvConverter().convert(rows);
+  }
+
+
+  Future<File> saveCsvFile(
+      String csvFilterData, bool applyclicked, bool issearch) async {
+    final directory = await getTemporaryDirectory();
+    final filePath = isSearch
+        ? '${directory.path}/search_driverwisevehicle.csv'
+        : applyclicked
+            ? '${directory.path}/Filter_driverwisevehicle.csv'
+            : '${directory.path}/driverwisevehicle.csv';
+    final file = File(filePath);
+    return file.writeAsString(csvFilterData);
+  }
+
+  void shareCsvFile(File csvFilterFile) {
+    Share.shareFiles([csvFilterFile.path],
+        text: 'Sharing device data CSV file');
+  }
+
+  void shareDeviceData(
+      List<DriverWiseVehicle> data,
+      List<DriverFilterData> filterdata,
+      bool applyclicked,
+      List<Searchdetaildriverwise> searchdata,
+      bool issearch) async {
+    String csvData = convertDataToCsv(
+        data, filterdata, applyclicked, searchdata, issearch);
+    File csvFile = await saveCsvFile(csvData, applyclicked, issearch);
+    print("This is csv Filter data " + csvData);
+
+    shareCsvFile(csvFile);
+  }
+
+
+
+
 }
 
 class PdfInvoiceApi {

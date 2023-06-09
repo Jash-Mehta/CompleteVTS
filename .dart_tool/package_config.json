@@ -93,9 +93,15 @@
     },
     {
       "name": "crypto",
-      "rootUri": "file:///C:/Users/jashm/AppData/Local/Pub/Cache/hosted/pub.dev/crypto-3.0.3",
+      "rootUri": "file:///C:/Users/jashm/AppData/Local/Pub/Cache/hosted/pub.dev/crypto-3.0.2",
       "packageUri": "lib/",
-      "languageVersion": "2.19"
+      "languageVersion": "2.14"
+    },
+    {
+      "name": "csv",
+      "rootUri": "file:///C:/Users/jashm/AppData/Local/Pub/Cache/hosted/pub.dev/csv-5.0.2",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
     },
     {
       "name": "cupertino_icons",
@@ -878,7 +884,7 @@
       "languageVersion": "2.12"
     }
   ],
-  "generated": "2023-06-03T08:45:19.079126Z",
+  "generated": "2023-06-09T14:15:31.648793Z",
   "generator": "pub",
   "generatorVersion": "2.19.6"
 }

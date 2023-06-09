@@ -1,7 +1,7 @@
 class FramePacketGridRptDriverCodeModel {
   List<FramePktGrdDriverData>? data;
   bool? succeeded;
-  Null? errors;
+  String? errors;
   String? message;
 
   FramePacketGridRptDriverCodeModel(

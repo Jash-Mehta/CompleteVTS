@@ -158,7 +158,7 @@ class _MapLiveTrackingDetailsScreenState
                     double.parse(state.vtsLiveGeo.details!.data![i].latitude!);
                 long =
                     double.parse(state.vtsLiveGeo.details!.data![i].longitude!);
-                print("Marker is below---------->");
+
 
                 _marker.add(Marker(
                     //add second marker
@@ -171,6 +171,7 @@ class _MapLiveTrackingDetailsScreenState
                             .longitude!)), //position of marker
                     infoWindow: InfoWindow(title: "${i}"),
                     icon: BitmapDescriptor.defaultMarker));
+
                 mapController!.animateCamera(CameraUpdate.newCameraPosition(
                     CameraPosition(
                         target: LatLng(
@@ -179,6 +180,7 @@ class _MapLiveTrackingDetailsScreenState
                             double.parse(
                                 state.vtsLiveGeo.details!.data![i].longitude!)),
                         zoom: 17)));
+
 
                 setState(() {});
               }

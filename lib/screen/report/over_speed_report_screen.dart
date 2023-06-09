@@ -25,7 +25,7 @@ import '../../model/report/overspeed_vehicle_filter.dart';
 import '../../model/report/vehicle_vsrno.dart';
 import '../../model/searchString.dart';
 import '../../util/search_bar_field.dart';
-
+import 'package:csv/csv.dart';
 class OverSpeedReportScreen extends StatefulWidget {
   const OverSpeedReportScreen({Key? key}) : super(key: key);
 
@@ -48,7 +48,8 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
   final _text = TextEditingController();
   bool _validate = false;
 
-  List<VehicleVSrNoData>? osvfdata = [];
+  // List<VehicleVSrNoData>? osvfdata = [];
+  List<OSFilterData>? osvfdata = [];
   bool ispopup = false;
   bool isSelected = false;
   bool _isLoading = false;
@@ -161,8 +162,10 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                 osvfvehnolisttiletext = "-Select-";
                 ispopup = true;
                 isfilter
-                    ? _mainBloc.add(VehicleVSrNoEvent(
+                    ?  _mainBloc.add(OverSpeedVehicleFilterEvent(
                         token: token, vendorId: 1, branchId: 1))
+                    // _mainBloc.add(VehicleVSrNoEvent(
+                    //     token: token, vendorId: 1, branchId: 1))
                     : Text("Driver code not loaded");
               });
             },
@@ -307,54 +310,54 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
         ),
         child: BlocListener<MainBloc, MainState>(
           listener: (context, state) {
-            // if (state is OverSpeedVehicleFilterLoadingState) {
-            //   const Center(
-            //     child: CircularProgressIndicator(),
-            //   );
-            // } else if (state is OverSpeedVehicleFilterLoadedState) {
-            //   if (state.overspeedvehiclefilterresponse.data != null) {
-            //     print("overspeed vehicle filter data is Loaded state");
-            //     osvfdata!.clear();
-            //     osvfdata!.addAll(state.overspeedvehiclefilterresponse.data!);
-
-            //     // overspeedfilter!.addAll(state.overspeedFilter.data!);
-            //     osvfdata!.forEach((element) {
-            //       print("Overspeed vehicle filter element is Printed");
-            //     });
-            //   }
-            // } else if (state is OverSpeedVehicleFilterErorrState) {
-            //   print(
-            //       "Something went Wrong  data OverSpeedVehicleFilterErorrState");
-            //   Fluttertoast.showToast(
-            //     msg: state.msg,
-            //     toastLength: Toast.LENGTH_SHORT,
-            //     timeInSecForIosWeb: 1,
-            //   );
-            // }
-            // Overspeed vehicle filter-------------
-            if (state is VehicleVSrNoLoadingState) {
+            if (state is OverSpeedVehicleFilterLoadingState) {
               const Center(
                 child: CircularProgressIndicator(),
               );
-            } else if (state is VehicleVSrNoLoadedState) {
-              if (state.vehiclevsrnoresponse.data != null) {
+            } else if (state is OverSpeedVehicleFilterLoadedState) {
+              if (state.overspeedvehiclefilterresponse.data != null) {
                 print("overspeed vehicle filter data is Loaded state");
                 osvfdata!.clear();
-                osvfdata!.addAll(state.vehiclevsrnoresponse.data!);
+                osvfdata!.addAll(state.overspeedvehiclefilterresponse.data!);
 
                 // overspeedfilter!.addAll(state.overspeedFilter.data!);
                 osvfdata!.forEach((element) {
                   print("Overspeed vehicle filter element is Printed");
                 });
               }
-            } else if (state is VehicleVSrNoErorrState) {
-              print("Something went Wrong  data VehicleVSrNoErorrState");
+            } else if (state is OverSpeedVehicleFilterErorrState) {
+              print(
+                  "Something went Wrong  data OverSpeedVehicleFilterErorrState");
               Fluttertoast.showToast(
                 msg: state.msg,
                 toastLength: Toast.LENGTH_SHORT,
                 timeInSecForIosWeb: 1,
               );
             }
+            // Overspeed vehicle filter-------------
+            // if (state is VehicleVSrNoLoadingState) {
+            //   const Center(
+            //     child: CircularProgressIndicator(),
+            //   );
+            // } else if (state is VehicleVSrNoLoadedState) {
+            //   if (state.vehiclevsrnoresponse.data != null) {
+            //     print("overspeed vehicle filter data is Loaded state");
+            //     osvfdata!.clear();
+            //     osvfdata!.addAll(state.vehiclevsrnoresponse.data!);
+
+            //     // overspeedfilter!.addAll(state.overspeedFilter.data!);
+            //     osvfdata!.forEach((element) {
+            //       print("Overspeed vehicle filter element is Printed");
+            //     });
+            //   }
+            // } else if (state is VehicleVSrNoErorrState) {
+            //   print("Something went Wrong  data VehicleVSrNoErorrState");
+            //   Fluttertoast.showToast(
+            //     msg: state.msg,
+            //     toastLength: Toast.LENGTH_SHORT,
+            //     timeInSecForIosWeb: 1,
+            //   );
+            // }
 
             //! Overspeed filter Data is fetching--------------------
             if (state is OverSpeedFilterLoadingState) {
@@ -534,7 +537,7 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                               toDate: toDateController == null
                                                   ? ""
                                                   : toDateController,
-                                              vehiclelist: "8," + osvfvehno,
+                                              vehiclelist:  osvfvehno,
                                               pagenumber: 1,
                                               pagesize: 200,
                                             ));
@@ -790,11 +793,13 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                                         FontWeight.w400),
                                               ),
                                               onTap: () {
-                                                print(article.vehicleRegNo);
+                                                print(article.imeiNo);
                                                 setState(() {
                                                   isosvf = false;
                                                   osvfvehno =
-                                                      article.vsrNo.toString();
+                                                     article.imeiNo == ""
+                                                              ? "ALL"
+                                                              : article.imeiNo;
                                                   print(
                                                       "This is vehicleregno - " +
                                                           osvfvehno);
@@ -1091,22 +1096,27 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                     onTap: () async {
                                       //  final result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['pdf']);
                                       // FilePicker.platform.pickFiles(allowMultiple: false,allowedExtensions:FileType.custom(), );
-                                      final result = await FilePicker.platform
-                                          .pickFiles(
-                                              type: FileType.custom,
-                                              allowedExtensions: ['pdf']);
+                                      // final result = await FilePicker.platform
+                                      //     .pickFiles(
+                                      //         type: FileType.custom,
+                                      //         allowedExtensions: ['pdf']);
                                       // FilePicker.platform.pickFiles(allowMultiple: false,allowedExtensions:FileType.custom(), );
                                       try {
-                                        List<String>? files = result?.files
-                                            .map((file) => file.path)
-                                            .cast<String>()
-                                            .toList();
-                                        print("File path------${files}");
+                                        // List<String>? files = result?.files
+                                        //     .map((file) => file.path)
+                                        //     .cast<String>()
+                                        //     .toList();
+                                        // print("File path------${files}");
                                         //    List<String>? files = [
                                         //   "/data/user/0/com.vts.gps/cache/file_picker/DTwisereport.pdf"
                                         // ];
                                         // print("File path------${files}");
-                                        await Share.shareFiles(files!);
+                                        shareDeviceData(
+                                            overspeedlist!,
+                                            overspeedfilter!,
+                                            applyclicked,
+                                            searchData!,
+                                            isSelected);
                                         Navigator.of(context).popUntil((route) => route.isCurrent);
                                       } catch (e) {
                                         Fluttertoast.showToast(
@@ -1207,8 +1217,7 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                   searchStrClass: searchClass,
                                   controller: searchController,
                                   onChanged: onSearchTextChanged),
-                              applyclicked
-                                  ? Container(
+                               Container(
                                       margin:
                                           EdgeInsets.only(top: 10, bottom: 20),
                                       padding: EdgeInsets.all(15),
@@ -1264,7 +1273,7 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                                             fontSize: 18),
                                                       ),
                                                       Text(
-                                                          osvfvehnolisttiletext,
+                                                         osvfvehnolisttiletext == null ? "-" : osvfvehnolisttiletext,
                                                           style: TextStyle(
                                                               fontSize: 18)),
                                                     ],
@@ -1295,7 +1304,8 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                         ],
                                       ),
                                     )
-                                  : SizedBox(),
+                                  
+                                  ,
                               BlocBuilder<MainBloc, MainState>(
                                 builder: (context, state) {
                                   return applyclicked
@@ -2370,6 +2380,100 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                             ]))
                   ])),
         ));
+  }
+
+    
+  String convertDataToCsv(
+      List<OverSpeeddDetail> data,
+      List<OverSpeedFilterDetail> filterdata,
+      bool applyclicked,
+      List<OverSpeeddDetailItem> searchdata,
+      bool issearch) {
+    List<List<dynamic>> rows = [];
+    // Add headers
+   applyclicked ?rows.add(["Overspeed Filter "]) : issearch ? rows.add(["Overspeed Search"]) : rows.add(["Overspeed Data"]);
+    rows.add(['IMEINo','Trans Time','Speed', 'OverSpeed','Distance Travel', 'Latitude', 'Longitude','Adress']);
+
+    // Add data rows
+    if (applyclicked) {
+      for (var item in filterdata) {
+        // print("This is filter lenght");
+        print("Filter data" + filterdata.toString());
+        rows.add([
+          item.imeino,
+          item.transTime,
+          item.speed,
+          item.overSpeed,
+          item.distancetravel,
+          item.latitude,
+          item.longitude,
+          item.address
+        ]);
+      }
+    } else if (issearch) {
+      for (var item in searchdata) {
+        // print("This is filter lenght");
+        print("Search data" + searchdata.toString());
+        rows.add([
+          item.imeino,
+          item.transTime,
+          item.speed,
+          item.overSpeed,
+          item.distancetravel,
+          item.latitude,
+          item.longitude,
+          item.address
+        ]);
+      }
+    } else {
+      for (var item in data) {
+        // print("This is filter lenght");
+        print("Filter data" + filterdata.toString());
+        rows.add([
+        item.imeino,
+          item.transTime,
+          item.speed,
+          item.overSpeed,
+          item.distancetravel,
+          item.latitude,
+          item.longitude,
+          item.address
+        ]);
+      }
+    }
+    return ListToCsvConverter().convert(rows);
+  }
+
+
+  Future<File> saveCsvFile(
+      String csvFilterData, bool applyclicked, bool issearch) async {
+    final directory = await getTemporaryDirectory();
+    final filePath = issearch
+        ? '${directory.path}/search_overspeed.csv'
+        : applyclicked
+            ? '${directory.path}/Filter_overspeed.csv'
+            : '${directory.path}/overspeed.csv';
+    final file = File(filePath);
+    return file.writeAsString(csvFilterData);
+  }
+
+  void shareCsvFile(File csvFilterFile) {
+    Share.shareFiles([csvFilterFile.path],
+        text: 'Sharing device data CSV file');
+  }
+
+  void shareDeviceData(
+      List<OverSpeeddDetail> data,
+      List<OverSpeedFilterDetail> filterdata,
+      bool applyclicked,
+      List<OverSpeeddDetailItem> searchdata,
+      bool issearch) async {
+    String csvData = convertDataToCsv(
+        data, filterdata, applyclicked, searchdata, issearch);
+    File csvFile = await saveCsvFile(csvData, applyclicked, issearch);
+    print("This is csv Filter data " + csvData);
+
+    shareCsvFile(csvFile);
   }
 
   onSearchTextChanged(String text) async {

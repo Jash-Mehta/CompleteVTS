@@ -30,6 +30,8 @@ import '../../model/report/search_datewise_travel_history_response.dart';
 import '../../model/report/vehicle_vsrno.dart';
 import '../../model/searchString.dart';
 import '../../util/search_bar_field.dart';
+import 'package:csv/csv.dart';
+import 'package:http/http.dart' as http;
 
 class DateWiseTravelHistory extends StatefulWidget {
   const DateWiseTravelHistory({Key? key}) : super(key: key);
@@ -52,8 +54,8 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
   List<DatewiseTravelHistoryData>? dwth = [];
   List<DatewiseTravelFilterData>? dwthfilter = [];
   List<DatewiseTravelHistorySearchData>? dwthsearch = [];
-  // List<DateWiseDriverCodeData>? datewisedrivercode = [];
-  List<VehicleVSrNoData>? datewisedrivercode = [];
+  List<DateWiseDriverCodeData>? datewisedrivercode = [];
+  // List<VehicleVSrNoData>? datewisedrivercode = [];
   // List<VehicleVSrNoData>? osvfdata = [];
   bool isosvf = false;
   var osvfvehno;
@@ -210,8 +212,10 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
                 toTimrInput.text = "";
                 osvfvehnolisttiletext = "-Select-";
                 isfilter
-                    ? _mainBloc.add(VehicleVSrNoEvent(
+                    ? _mainBloc.add(DateWiseDriverCodeEvent(
                         token: token, vendorId: 1, branchId: 1))
+                    // _mainBloc.add(VehicleVSrNoEvent(
+                    //     token: token, vendorId: 1, branchId: 1))
                     : Text("Driver code not loaded");
               });
             },
@@ -340,17 +344,35 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
         ),
         child: BlocListener<MainBloc, MainState>(
             listener: (context, state) {
-              if (state is VehicleVSrNoLoadingState) {
+              // if (state is VehicleVSrNoLoadingState) {
+              //   const Center(
+              //     child: CircularProgressIndicator(),
+              //   );
+              // } else if (state is VehicleVSrNoLoadedState) {
+              //   if (state.vehiclevsrnoresponse.data != null) {
+              //     print("overspeed vehicle filter data is Loaded state");
+              //     // datewisedrivercode!.clear();
+              //     datewisedrivercode!.addAll(state.vehiclevsrnoresponse.data!);
+              //   }
+              // } else if (state is VehicleVSrNoErorrState) {
+              //   print("Something went Wrong  data VehicleVSrNoErorrState");
+              //   Fluttertoast.showToast(
+              //     msg: state.msg,
+              //     toastLength: Toast.LENGTH_SHORT,
+              //     timeInSecForIosWeb: 1,
+              //   );
+              // }
+              if (state is DateWiseDriverCodeLoadingState) {
                 const Center(
                   child: CircularProgressIndicator(),
                 );
-              } else if (state is VehicleVSrNoLoadedState) {
-                if (state.vehiclevsrnoresponse.data != null) {
+              } else if (state is DateWiseDriverCodeLoadedState) {
+                if (state.dmfdriverCoderesponse.data != null) {
                   print("overspeed vehicle filter data is Loaded state");
                   // datewisedrivercode!.clear();
-                  datewisedrivercode!.addAll(state.vehiclevsrnoresponse.data!);
+                  datewisedrivercode!.addAll(state.dmfdriverCoderesponse.data!);
                 }
-              } else if (state is VehicleVSrNoErorrState) {
+              } else if (state is DateWiseDriverCodeErorrState) {
                 print("Something went Wrong  data VehicleVSrNoErorrState");
                 Fluttertoast.showToast(
                   msg: state.msg,
@@ -408,6 +430,7 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
                 } else {
                   setState(() {
                     _isLoading = false;
+                    dwthfilter!.clear();
                   });
                 }
               } else if (state is DateWiseTravelFilterErrorState) {
@@ -531,11 +554,12 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
                                                         todate:
                                                             toDateController,
                                                         vehiclelist: dwdcdeviceno
-                                                                    .toString() ==
-                                                                null
-                                                            ? "ALL"
-                                                            : dwdcdeviceno
-                                                                .toString(),
+                                                            //         .toString()
+                                                            //         ==
+                                                            //     null
+                                                            // ? "ALL"
+                                                            // : dwdcdeviceno
+                                                            .toString(),
                                                         pagenumber: 1,
                                                         pagesize: 200));
                                                 setState(() {
@@ -794,14 +818,21 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
                                                             FontWeight.w400),
                                                   ),
                                                   onTap: () {
-                                                    print(article.vsrNo);
+                                                    print(article.imeiNo);
                                                     isdwdc = false;
                                                     setState(() {
                                                       dwdcdeviceno =
-                                                          article.vsrNo;
+                                                          article.imeiNo == ""
+                                                              ? "ALL"
+                                                              : article.imeiNo;
                                                       osvfvehnolisttiletext =
                                                           article.vehicleRegNo;
                                                     });
+                                                    print(
+                                                        "This is dwdcdeviceno" +
+                                                            dwdcdeviceno);
+                                                    print("This is osvfvehnolisttiletext " +
+                                                        osvfvehnolisttiletext);
                                                   },
                                                 ),
                                               );
@@ -1125,7 +1156,8 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
                                           // ];
                                           // print("File path------${files}");
                                           await Share.shareFiles(files!);
-                                          Navigator.of(context).popUntil((route) => route.isCurrent);
+                                          Navigator.of(context).popUntil(
+                                              (route) => route.isCurrent);
                                         } catch (e) {
                                           Fluttertoast.showToast(
                                             msg: "Download the pdf first",
@@ -1179,7 +1211,11 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
                                       .isGranted) {
                                     final pdfFile =
                                         await PdfInvoiceApi.generate(
-                                            pdfdatalist, pdffilterlist, applyclicked, pdfsearchlist, isSearch);
+                                            pdfdatalist,
+                                            pdffilterlist,
+                                            applyclicked,
+                                            pdfsearchlist,
+                                            isSearch);
                                     PdfApi.openFile(pdfFile);
                                   } else {
                                     print("Request is not accepted");
@@ -1225,8 +1261,7 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
                                 searchStrClass: searchClass,
                                 controller: searchController,
                                 onChanged: onSearchTextChanged),
-                            applyclicked
-                                ? Container(
+                            Container(
                                     margin:
                                         EdgeInsets.only(top: 10, bottom: 20),
                                     padding: EdgeInsets.all(15),
@@ -1286,7 +1321,7 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
                                                       style: TextStyle(
                                                           fontSize: 18),
                                                     ),
-                                                    Text(osvfvehnolisttiletext,
+                                                    Text(osvfvehnolisttiletext == null ? "-" : osvfvehnolisttiletext,
                                                         style: TextStyle(
                                                             fontSize: 18)),
                                                   ],
@@ -1298,7 +1333,7 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
                                       ],
                                     ),
                                   )
-                                : SizedBox(),
+                               ,
                             applyclicked
                                 ? BlocBuilder<MainBloc, MainState>(
                                     builder: (context, state) {
@@ -2276,6 +2311,101 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
                   )));
   }
 
+
+  
+  String convertDataToCsv(
+      List<DatewiseTravelHistoryData> deviceData,
+      List<DatewiseTravelFilterData> filterdata,
+      bool applyclicked,
+      List<DatewiseTravelHistorySearchData> searchdata,
+      bool issearch) {
+    List<List<dynamic>> rows = [];
+    // Add headers
+    applyclicked
+        ? rows.add(["Datewise Travel History Filter"])
+        : isSearch
+            ? rows.add(["Datewise Travel History Search"])
+            : rows.add(["Datewise Travel History"]);
+    rows.add(['IMEINo', 'TranseTime', 'Speed', 'Distance Travel', 'Latitude', 'Longitude', 'Adress']);
+
+    // Add data rows
+    if (applyclicked) {
+      for (var fitem in filterdata) {
+        // print("This is filter lenght");
+        print("Filter data" + filterdata.toString());
+        rows.add([
+          fitem.imeino,
+          fitem.transTime,
+          fitem.speed,
+          fitem.distancetravel,
+          fitem.latitude,
+          fitem.longitude,
+          fitem.address,
+        ]);
+      }
+    } else if (isSearch) {
+      for (var item in searchdata) {
+        // print("This is filter lenght");
+        print("Search data" + searchdata.toString());
+        rows.add([
+          item.imeino,
+          item.transTime,
+          item.speed,
+          item.distancetravel,
+          item.latitude,
+          item.longitude,
+          item.address,
+        ]);
+      }
+    } else {
+      for (var item in deviceData) {
+        // print("This is filter lenght");
+        rows.add([
+          item.imeino,
+          item.transTime,
+          item.speed,
+          item.distancetravel,
+          item.latitude,
+          item.longitude,
+          item.address,
+        ]);
+      }
+    }
+    return ListToCsvConverter().convert(rows);
+  }
+
+  Future<File> saveCsvFile(
+      String csvFilterData, bool applyclicked, bool issearch) async {
+    final directory = await getTemporaryDirectory();
+    final filePath = isSearch
+        ? '${directory.path}/search_datewisetravelhist.csv'
+        : applyclicked
+            ? '${directory.path}/Filter_datewisetravelhist.csv'
+            : '${directory.path}/datewisetravelhist.csv';
+    final file = File(filePath);
+    return file.writeAsString(csvFilterData);
+  }
+
+  void shareCsvFile(File csvFilterFile) {
+    Share.shareFiles([csvFilterFile.path],
+        text: 'Sharing device data CSV file');
+  }
+
+  void shareDeviceData(
+      List<DatewiseTravelHistoryData> deviceData,
+      List<DatewiseTravelFilterData> filterdata,
+      bool applyclicked,
+      List<DatewiseTravelHistorySearchData> searchdata,
+      bool issearch) async {
+    String csvData = convertDataToCsv(
+        deviceData, filterdata, applyclicked, searchdata, issearch);
+    File csvFile = await saveCsvFile(csvData, applyclicked, issearch);
+    print("This is csv Filter data " + csvData);
+
+    shareCsvFile(csvFile);
+  }
+
+
   onSearchTextChanged(String text) async {
     if (text.isEmpty) {
       setState(() {
@@ -2303,7 +2433,12 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
 }
 
 class PdfInvoiceApi {
-  static Future<File> generate(List<DatewiseTravelHistoryData> pdflist,List<DatewiseTravelFilterData> pdffilter, bool applyclicked, List<DatewiseTravelHistorySearchData> pdfsearch, bool issearch ) async {
+  static Future<File> generate(
+      List<DatewiseTravelHistoryData> pdflist,
+      List<DatewiseTravelFilterData> pdffilter,
+      bool applyclicked,
+      List<DatewiseTravelHistorySearchData> pdfsearch,
+      bool issearch) async {
     final pdf = pw.Document();
     double fontsize = 8.0;
 
@@ -2471,7 +2606,12 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 20,
-                            child: pw.Text(applyclicked ? pdffilter[index].imeino.toString() : issearch ? pdfsearch[index].imeino.toString() : pdflist[index].imeino.toString(),
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilter[index].imeino.toString()
+                                    : issearch
+                                        ? pdfsearch[index].imeino.toString()
+                                        : pdflist[index].imeino.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2480,7 +2620,12 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 20,
-                            child: pw.Text(applyclicked ? pdffilter[index].transTime.toString() : issearch ? pdfsearch[index].transTime.toString() : pdflist[index].transTime.toString(),
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilter[index].transTime.toString()
+                                    : issearch
+                                        ? pdfsearch[index].transTime.toString()
+                                        : pdflist[index].transTime.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2489,7 +2634,12 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 20,
-                            child: pw.Text(applyclicked ? pdffilter[index].speed.toString() : issearch ? pdfsearch[index].speed.toString() : pdflist[index].speed.toString(),
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilter[index].speed.toString()
+                                    : issearch
+                                        ? pdfsearch[index].speed.toString()
+                                        : pdflist[index].speed.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2498,7 +2648,16 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 20,
-                            child: pw.Text(applyclicked ? pdffilter[index].distancetravel.toString() : issearch ? pdfsearch[index].distancetravel.toString() : pdflist[index].distancetravel.toString(),
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilter[index].distancetravel.toString()
+                                    : issearch
+                                        ? pdfsearch[index]
+                                            .distancetravel
+                                            .toString()
+                                        : pdflist[index]
+                                            .distancetravel
+                                            .toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2507,7 +2666,12 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 20,
-                            child: pw.Text(applyclicked ? pdffilter[index].latitude.toString() : issearch ? pdfsearch[index].latitude.toString() : pdflist[index].latitude.toString(),
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilter[index].latitude.toString()
+                                    : issearch
+                                        ? pdfsearch[index].latitude.toString()
+                                        : pdflist[index].latitude.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2516,7 +2680,12 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 20,
-                            child: pw.Text(applyclicked ? pdffilter[index].longitude.toString() : issearch ? pdfsearch[index].longitude.toString() : pdflist[index].longitude.toString(),
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilter[index].longitude.toString()
+                                    : issearch
+                                        ? pdfsearch[index].longitude.toString()
+                                        : pdflist[index].longitude.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2532,12 +2701,22 @@ class PdfInvoiceApi {
                       ])
                     ]);
               },
-              itemCount:applyclicked ? pdffilter.length : issearch ? pdfsearch.length : pdflist.length),
+              itemCount: applyclicked
+                  ? pdffilter.length
+                  : issearch
+                      ? pdfsearch.length
+                      : pdflist.length),
         ];
       },
     ));
 
-    return PdfApi.saveDocument(name: applyclicked ?'DateWiseFilterReport.pdf': issearch? 'DateWiseSearchReport.pdf': 'DateWiseReport.pdf', pdf: pdf);
+    return PdfApi.saveDocument(
+        name: applyclicked
+            ? 'DateWiseFilterReport.pdf'
+            : issearch
+                ? 'DateWiseSearchReport.pdf'
+                : 'DateWiseReport.pdf',
+        pdf: pdf);
   }
 }
 

@@ -1128,7 +1128,7 @@ class FramePacketGridEvents extends MainEvent {
   String formTime;
   String toDate;
   String toTime;
-  String vehicleList;
+  String imeino;
   String framepacketoption;
   int pageNumber;
   int pageSize;
@@ -1142,7 +1142,7 @@ class FramePacketGridEvents extends MainEvent {
       required this.formTime,
       required this.toDate,
       required this.toTime,
-      required this.vehicleList,
+      required this.imeino,
       required this.framepacketoption,
       required this.pageNumber,
       required this.pageSize});
@@ -1852,6 +1852,84 @@ class DeviceMasterDrivercode extends MainEvent {
   });
 }
 
+class VehicleStatusGroupDrivercode extends MainEvent {
+  String token;
+  int vendorId;
+  int branchId;
+  VehicleStatusGroupDrivercode({
+    required this.token,
+    required this.vendorId,
+    required this.branchId,
+  });
+}
+
+class VehicleStatusSummaryDrivercode extends MainEvent {
+  String token;
+  int vendorId;
+  int branchId;
+  VehicleStatusSummaryDrivercode({
+    required this.token,
+    required this.vendorId,
+    required this.branchId,
+  });
+}
+
+class VehicleStatusReportDrivercode extends MainEvent {
+  String token;
+  int vendorId;
+  int branchId;
+  VehicleStatusReportDrivercode({
+    required this.token,
+    required this.vendorId,
+    required this.branchId,
+  });
+}
+
+class VehiclewiseDrivercode extends MainEvent {
+  String token;
+  int vendorId;
+  int branchId;
+  VehiclewiseDrivercode({
+    required this.token,
+    required this.vendorId,
+    required this.branchId,
+  });
+}
+
+class VehiclewiseTimewiseDrivercode extends MainEvent {
+  String token;
+  int vendorId;
+  int branchId;
+  VehiclewiseTimewiseDrivercode({
+    required this.token,
+    required this.vendorId,
+    required this.branchId,
+  });
+}
+
+class FramePacketDrivercode extends MainEvent {
+  String token;
+  int vendorId;
+  int branchId;
+  FramePacketDrivercode({
+    required this.token,
+    required this.vendorId,
+    required this.branchId,
+  });
+}
+
+class FramePacketGridDrivercode extends MainEvent {
+  String token;
+  int vendorId;
+  int branchId;
+  FramePacketGridDrivercode({
+    required this.token,
+    required this.vendorId,
+    required this.branchId,
+  });
+}
+
+
 // date wise travel history driver code event
 class DateWiseDriverCodeEvent extends MainEvent {
   String token;
@@ -2217,6 +2295,21 @@ class DateAndTimeWiseFilterEvents extends MainEvent {
     required this.pagesize,
   });
 }
+
+
+class DateAndTimeWiseDriverCode extends MainEvent {
+  String token;
+  int vendorId;
+  int branchId;
+  DateAndTimeWiseDriverCode({
+    required this.token,
+    required this.vendorId,
+    required this.branchId,
+  });
+}
+
+
+
 
 class VehicleWiseTravelEvents extends MainEvent {
   String token;

@@ -26,6 +26,8 @@ import '../../model/report/device_master_report.dart';
 import '../../model/report/over_speed_report_response.dart';
 import '../../model/searchString.dart';
 import '../../util/search_bar_field.dart';
+import 'package:csv/csv.dart';
+import 'package:http/http.dart' as http;
 
 class DeviceMasterReportScreen extends StatefulWidget {
   const DeviceMasterReportScreen({Key? key}) : super(key: key);
@@ -133,14 +135,6 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
         setState(() {
           getdata();
           getallbranch();
-        });
-      }
-    });
-    filnotificationController.addListener(() {
-      if (filnotificationController.position.maxScrollExtent ==
-          filnotificationController.offset) {
-        setState(() {
-          getfilter();
         });
       }
     });
@@ -780,7 +774,15 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
                                 children: [
                                   GestureDetector(
                                     onTap: () async {
-                                      final result = await FilePicker.platform
+                                      print("get length " +
+                                          data!.length.toString());
+                                      print("Filter length " +
+                                          devicemasterdata!.length.toString());
+                                      shareDeviceData(data!, devicemasterdata!,
+                                          applyclicked, searchData!, isSearch);
+                                      Navigator.of(context)
+                                          .popUntil((route) => route.isCurrent);
+                                      /* final result = await FilePicker.platform
                                           .pickFiles(
                                               type: FileType.custom,
                                               allowedExtensions: ['pdf']);
@@ -804,7 +806,7 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
                                           toastLength: Toast.LENGTH_SHORT,
                                           timeInSecForIosWeb: 1,
                                         );
-                                      }
+                                      } */
                                     },
                                     child: Container(
                                       padding: const EdgeInsets.only(
@@ -1653,6 +1655,90 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
               ),
       ),
     );
+  }
+
+  String convertDataToCsv(
+      List<DeviceData> data,
+      List<DeviceMasterData> filterdata,
+      bool applyclicked,
+      List<SearchDMReportData> searchdata,
+      bool issearch) {
+    List<List<dynamic>> rows = [];
+    // Add headers
+   applyclicked ?rows.add(["Device Master Filter "]) : isSearch ? rows.add(["Device Master Search"]) : rows.add(["Device Master Data"]);
+    rows.add(['SrNo', 'DeviceNo', 'ModelNo', 'DeviceName', 'IMEINo']);
+
+    // Add data rows
+    if (applyclicked) {
+      for (var fitem in filterdata) {
+        // print("This is filter lenght");
+        print("Filter data" + filterdata.toString());
+        rows.add([
+          fitem.srNo,
+          fitem.deviceNo,
+          fitem.modelNo,
+          fitem.deviceName,
+          fitem.imeino
+        ]);
+      }
+    } else if (isSearch) {
+      for (var item in searchdata) {
+        // print("This is filter lenght");
+        print("Search data" + searchdata.toString());
+        rows.add([
+          item.srNo,
+          item.deviceNo,
+          item.modelNo,
+          item.deviceName,
+          item.imeino
+        ]);
+      }
+    } else {
+      for (var item in data) {
+        // print("This is filter lenght");
+        print("Filter data" + filterdata.toString());
+        rows.add([
+          item.srNo,
+          item.deviceNo,
+          item.modelNo,
+          item.deviceName,
+          item.imeino
+        ]);
+      }
+    }
+    return ListToCsvConverter().convert(rows);
+  }
+
+
+  Future<File> saveCsvFile(
+      String csvFilterData, bool applyclicked, bool issearch) async {
+    final directory = await getTemporaryDirectory();
+    final filePath = isSearch
+        ? '${directory.path}/search_master.csv'
+        : applyclicked
+            ? '${directory.path}/Filter_master.csv'
+            : '${directory.path}/device_master.csv';
+    final file = File(filePath);
+    return file.writeAsString(csvFilterData);
+  }
+
+  void shareCsvFile(File csvFilterFile) {
+    Share.shareFiles([csvFilterFile.path],
+        text: 'Sharing device data CSV file');
+  }
+
+  void shareDeviceData(
+      List<DeviceData> deviceData,
+      List<DeviceMasterData> filterdata,
+      bool applyclicked,
+      List<SearchDMReportData> searchdata,
+      bool issearch) async {
+    String csvData = convertDataToCsv(
+        deviceData, filterdata, applyclicked, searchdata, issearch);
+    File csvFile = await saveCsvFile(csvData, applyclicked, issearch);
+    print("This is csv Filter data " + csvData);
+
+    shareCsvFile(csvFile);
   }
 
   onSearchTextChanged(String text) async {
