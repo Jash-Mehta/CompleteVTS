@@ -27,7 +27,7 @@ import '../../model/report/vehicle_vsrno.dart';
 import '../../model/searchString.dart';
 import '../../util/search_bar_field.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-
+import 'package:csv/csv.dart';
 class FramePacket extends StatefulWidget {
   const FramePacket({Key? key}) : super(key: key);
 
@@ -57,10 +57,11 @@ class _FramePacketState extends State<FramePacket> {
   List<DatewiseFramepacketData>? framedata = [];
   List<FrameFilterData>? framefilterdata = [];
   List<DatewiseFramepacketDatum>? searchdataList = [];
-  List<FramePktDriverData>? fpdcdata = [];
+  // List<FramePktDriverData>? fpdcdata = [];
   bool isfpdc = false;
   bool applyclicked = false;
-  List<VehicleVSrNoData>? osvfdata = [];
+  // List<VehicleVSrNoData>? osvfdata = [];
+  List<FramePktDriverData>? osvfdata = [];
   var fpdcvehicleno;
   var fpdclisttiletext;
 
@@ -237,8 +238,10 @@ class _FramePacketState extends State<FramePacket> {
                 fpdclisttiletext = "";
                 fpgolisttiletext = "";
                 isfilter
-                    ? _mainBloc.add(VehicleVSrNoEvent(
+                    ? _mainBloc.add(FramepacketDriverCodeEvent(
                         token: token, vendorId: 1, branchId: 1))
+                    // _mainBloc.add(VehicleVSrNoEvent(
+                    //     token: token, vendorId: 1, branchId: 1))
                     : Text("Driver code not loaded");
               });
               setState(() {
@@ -254,7 +257,7 @@ class _FramePacketState extends State<FramePacket> {
                         token: token,
                         arai: "arai",
                       ))
-                    : Text("Driver code not loaded");
+                    : Text("Frame options not loaded");
               });
             },
             child: !isfilter
@@ -345,29 +348,29 @@ class _FramePacketState extends State<FramePacket> {
       ),
       child: BlocListener<MainBloc, MainState>(
         listener: (context, state) {
-          if (state is VehicleVSrNoLoadingState) {
-            const Center(
-              child: CircularProgressIndicator(),
-            );
-          } else if (state is VehicleVSrNoLoadedState) {
-            if (state.vehiclevsrnoresponse.data != null) {
-              print("overspeed vehicle filter data is Loaded state");
-              osvfdata!.clear();
-              osvfdata!.addAll(state.vehiclevsrnoresponse.data!);
+          // if (state is VehicleVSrNoLoadingState) {
+          //   const Center(
+          //     child: CircularProgressIndicator(),
+          //   );
+          // } else if (state is VehicleVSrNoLoadedState) {
+          //   if (state.vehiclevsrnoresponse.data != null) {
+          //     print("overspeed vehicle filter data is Loaded state");
+          //     osvfdata!.clear();
+          //     osvfdata!.addAll(state.vehiclevsrnoresponse.data!);
 
-              // overspeedfilter!.addAll(state.overspeedFilter.data!);
-              osvfdata!.forEach((element) {
-                print("Overspeed vehicle filter element is Printed");
-              });
-            }
-          } else if (state is VehicleVSrNoErorrState) {
-            print("Something went Wrong  data VehicleVSrNoErorrState");
-            Fluttertoast.showToast(
-              msg: state.msg,
-              toastLength: Toast.LENGTH_SHORT,
-              timeInSecForIosWeb: 1,
-            );
-          }
+          //     // overspeedfilter!.addAll(state.overspeedFilter.data!);
+          //     osvfdata!.forEach((element) {
+          //       print("Overspeed vehicle filter element is Printed");
+          //     });
+          //   }
+          // } else if (state is VehicleVSrNoErorrState) {
+          //   print("Something went Wrong  data VehicleVSrNoErorrState");
+          //   Fluttertoast.showToast(
+          //     msg: state.msg,
+          //     toastLength: Toast.LENGTH_SHORT,
+          //     timeInSecForIosWeb: 1,
+          //   );
+          // }
           if (state is FramePacketOptiongridLoadingState) {
             print("Frame grid option loading state");
             setState(() {
@@ -382,20 +385,18 @@ class _FramePacketState extends State<FramePacket> {
           } else if (state is FramePacketOptiongridErorrState) {
             print("Frame Packet Option grid Erorr State");
           }
-          // // Frame packet driver code
-          // if (state is FramePacketDriverCodeLoadingState) {
-          //   print("Entering in frame packet Filter loading state");
-          // } else if (state is FramePacketDriverCodeLoadedState) {
-          //   if (state.dmfdriverCoderesponse.data != null) {
-          //     print("Frame packet Filter driver code loaded");
-          //     fpdcdata!.clear();
-          //     fpdcdata!.addAll(state.dmfdriverCoderesponse.data!);
-          //     print("Frame packet Filter driver code loaded total = " +
-          //         fpdcdata!.length.toString());
-          //   }
-          // } else if (state is FramePacketDriverCodeErorrState) {
-          //   print("Frame packet Filter driver code error state");
-          // }
+          // Frame packet driver code
+          if (state is FramePacketDriverCodeLoadingState) {
+            print("Entering in frame packet Filter loading state");
+          } else if (state is FramePacketDriverCodeLoadedState) {
+            if (state.dmfdriverCoderesponse.data != null) {
+              print("Frame packet Filter driver code loaded");
+              osvfdata!.clear();
+              osvfdata!.addAll(state.dmfdriverCoderesponse.data!);
+            }
+          } else if (state is FramePacketDriverCodeErorrState) {
+            print("Frame packet Filter driver code error state");
+          }
           if (state is FrameFilterLoadingState) {
             print("Entering in frame packet Filter loading state");
             setState(() {
@@ -422,12 +423,12 @@ class _FramePacketState extends State<FramePacket> {
               framefilterdata!.addAll(state.frameFilterresponse.data!);
             } else {
               setState(() {
-              _isLoading = false;
-            });
+                _isLoading = false;
+              });
             }
           } else if (state is FrameFilterErorrState) {
             print("Frame packet Filter data error state");
-             setState(() {
+            setState(() {
               _isLoading = false;
             });
           }
@@ -476,7 +477,7 @@ class _FramePacketState extends State<FramePacket> {
             setState(() {
               if (searchdataList!.contains(searchClass.searchStr)) {
                 _isContain = true;
-              } 
+              }
             });
           } else if (state is SearchFramePacketErrorState) {
             print("Frame packet data error state");
@@ -565,7 +566,7 @@ class _FramePacketState extends State<FramePacket> {
                                               toTimeController != null &&
                                               fromTimeController != null &&
                                               fpdcvehicleno != null &&
-                                              fpgovehicleno != null  &&
+                                              fpgovehicleno != null &&
                                               fromdateInput.text.isNotEmpty &&
                                               todateInput.text.isNotEmpty &&
                                               fromTimeInput.text.isNotEmpty &&
@@ -806,6 +807,7 @@ class _FramePacketState extends State<FramePacket> {
                                         itemCount: osvfdata!.length,
                                         itemBuilder:
                                             (BuildContext context, int index) {
+                                          print("Osvf data loaded");
                                           var article = osvfdata![index];
                                           return Padding(
                                             padding: const EdgeInsets.all(8.0),
@@ -819,11 +821,13 @@ class _FramePacketState extends State<FramePacket> {
                                                         FontWeight.w400),
                                               ),
                                               onTap: () {
-                                                print(article.vsrNo);
+                                                print(article.imeiNo);
                                                 isfpdc = false;
                                                 setState(() {
                                                   fpdcvehicleno =
-                                                      article.vsrNo.toString();
+                                                     article.imeiNo == ""
+                                                              ? "ALL"
+                                                              : article.imeiNo;
                                                   print(
                                                       "This is vehicleregno - " +
                                                           fpdcvehicleno);
@@ -1536,23 +1540,29 @@ class _FramePacketState extends State<FramePacket> {
                                     onTap: () async {
                                       //  final result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['pdf']);
                                       // FilePicker.platform.pickFiles(allowMultiple: false,allowedExtensions:FileType.custom(), );
-                                      final result = await FilePicker.platform
-                                          .pickFiles(
-                                              type: FileType.custom,
-                                              allowedExtensions: ['pdf']);
+                                      // final result = await FilePicker.platform
+                                      //     .pickFiles(
+                                      //         type: FileType.custom,
+                                      //         allowedExtensions: ['pdf']);
                                       // FilePicker.platform.pickFiles(allowMultiple: false,allowedExtensions:FileType.custom(), );
                                       try {
-                                        List<String>? files = result?.files
-                                            .map((file) => file.path)
-                                            .cast<String>()
-                                            .toList();
-                                        print("File path------${files}");
+                                        // List<String>? files = result?.files
+                                        //     .map((file) => file.path)
+                                        //     .cast<String>()
+                                        //     .toList();
+                                        // print("File path------${files}");
                                         //    List<String>? files = [
                                         //   "/data/user/0/com.vts.gps/cache/file_picker/DTwisereport.pdf"
                                         // ];
                                         // print("File path------${files}");
-                                        await Share.shareFiles(files!);
-                                        Navigator.of(context).popUntil((route) => route.isCurrent);
+                                        shareDeviceData(
+                                            framedata!,
+                                            framefilterdata!,
+                                            applyclicked,
+                                            searchdataList!,
+                                            isSearch);
+                                        Navigator.of(context).popUntil(
+                                            (route) => route.isCurrent);
                                       } catch (e) {
                                         Fluttertoast.showToast(
                                           msg: "Download the pdf first",
@@ -1605,8 +1615,12 @@ class _FramePacketState extends State<FramePacket> {
                                 if (await Permission.storage
                                     .request()
                                     .isGranted) {
-                                  final pdfFile =
-                                      await PdfInvoiceApi.generate(pdfdatalist,pdffilterlist,applyclicked,pdfsearchlist,isSearch);
+                                  final pdfFile = await PdfInvoiceApi.generate(
+                                      pdfdatalist,
+                                      pdffilterlist,
+                                      applyclicked,
+                                      pdfsearchlist,
+                                      isSearch);
                                   PdfApi.openFile(pdfFile);
                                 } else {
                                   print("Request is not accepted");
@@ -1689,75 +1703,74 @@ class _FramePacketState extends State<FramePacket> {
                                             fontWeight: FontWeight.bold),
                                       );
                                     }),
-                          applyclicked
-                              ? Container(
-                                  margin: EdgeInsets.only(top: 10, bottom: 20),
-                                  padding: EdgeInsets.all(15),
-                                  decoration: BoxDecoration(
-                                      color: MyColors.bluereportColorCode,
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(10))),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                          Container(
+                            margin: EdgeInsets.only(top: 10, bottom: 20),
+                            padding: EdgeInsets.all(15),
+                            decoration: BoxDecoration(
+                                color: MyColors.bluereportColorCode,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10))),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text("From Date  ",
+                                        style: TextStyle(fontSize: 18)),
+                                    Padding(
+                                      padding:
+                                          const EdgeInsets.only(left: 10.0),
+                                      child: Text(" -  To Date",
+                                          style: TextStyle(fontSize: 18)),
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Text(
+                                        fromDateController != null
+                                            ? fromDateController + "  -  "
+                                            : "01-sep-2022" + "  -  ",
+                                        style: TextStyle(fontSize: 18)),
+                                    Text(
+                                        toDateController != null
+                                            ? toDateController
+                                            : "30-sep-2022" + "  -  ",
+                                        style: TextStyle(fontSize: 18)),
+                                  ],
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(top: 10),
+                                  child: Row(
+                                    // mainAxisAlignment: MainAxisAlignment.start,
+                                    // crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Row(
-                                        children: [
-                                          Text("From Date  ",
-                                                style: TextStyle(fontSize: 18)),
-                                                 Padding(
-                                                   padding: const EdgeInsets.only(left: 10.0),
-                                                   child: Text(" -  To Date",
-                                                style: TextStyle(fontSize: 18)),
-                                                 ),
-                                        ],
-                                      ),
-                                      Row(
-                                        children: [
-                                          Text(
-                                              fromDateController != null
-                                                  ? fromDateController + "  -  "
-                                                  : "01-sep-2022" + "  -  ",
-                                              style: TextStyle(fontSize: 18)),
-                                          Text(
-                                              toDateController != null
-                                                  ? toDateController
-                                                  : "30-sep-2022" + "  -  ",
-                                              style: TextStyle(fontSize: 18)),
-                                        ],
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsets.only(top: 10),
-                                        child: Row(
-                                          // mainAxisAlignment: MainAxisAlignment.start,
-                                          // crossAxisAlignment: CrossAxisAlignment.start,
+                                      Expanded(
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
-                                            Expanded(
-                                              child: Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    "VehicleRegNo",
-                                                    style:
-                                                        TextStyle(fontSize: 18),
-                                                  ),
-                                                  Text(fpdclisttiletext,
-                                                      style: TextStyle(
-                                                          fontSize: 18)),
-                                                ],
-                                              ),
+                                            Text(
+                                              "VehicleRegNo",
+                                              style: TextStyle(fontSize: 18),
                                             ),
+                                            Text(
+                                                fpdclisttiletext == null
+                                                    ? "-"
+                                                    : fpdclisttiletext,
+                                                style: TextStyle(fontSize: 18)),
                                           ],
                                         ),
                                       ),
                                     ],
                                   ),
-                                )
-                              : SizedBox(),
+                                ),
+                              ],
+                            ),
+                          ),
                           applyclicked
                               ? framefilterdata!.isEmpty
                                   ? Center(
@@ -3131,17 +3144,18 @@ class _FramePacketState extends State<FramePacket> {
                                             });
                                       }))
                                   : searchdataList!.isEmpty
-                                  ? Center(
-                                      child: Text(
-                                      "No data found",
-                                      style: TextStyle(
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.w500),
-                                    ))
-                                  : _isLoading
                                       ? Center(
-                                          child: Text("Wait data is Loading.."))
-                                      :  Padding(
+                                          child: Text(
+                                          "No data found",
+                                          style: TextStyle(
+                                              fontSize: 24,
+                                              fontWeight: FontWeight.w500),
+                                        ))
+                                      : _isLoading
+                                          ? Center(
+                                              child: Text(
+                                                  "Wait data is Loading.."))
+                                          : Padding(
                                               padding: const EdgeInsets.only(
                                                   top: 20.0),
                                               child: searchdataList!.length != 0
@@ -3625,6 +3639,94 @@ class _FramePacketState extends State<FramePacket> {
     );
   }
 
+  
+  String convertDataToCsv(
+      List<DatewiseFramepacketData> deviceData,
+      List<FrameFilterData> filterdata,
+      bool applyclicked,
+      List<DatewiseFramepacketDatum> searchdata,
+      bool issearch) {
+    List<List<dynamic>> rows = [];
+    // Add headers
+    applyclicked
+        ? rows.add(["Frame Packet Filter"])
+        : isSearch
+            ? rows.add(["Frame Packet Search"])
+            : rows.add(["Frame Packet Data"]);
+    rows.add(['Header', 'IMEINo', 'VehicleRegNo', 'Latitude', 'Longitude']);
+
+    // Add data rows
+    if (applyclicked) {
+      for (var item in filterdata) {
+        // print("This is filter lenght");
+        print("Filter data" + filterdata.toString());
+        rows.add([
+          item.header,
+          item.imei,
+          item.vehicleRegNo,
+           "-",
+          "-",
+        ]);
+      }
+    } else if (isSearch) {
+      for (var item in searchdata) {
+        // print("This is filter lenght");
+        print("Search data" + searchdata.toString());
+        rows.add([
+        item.header,
+          item.imei,
+          item.vehicleRegNo,
+           "-",
+          "-",
+        ]);
+      }
+    } else {
+      for (var item in deviceData) {
+        // print("This is filter lenght");
+        rows.add([
+         item.header,
+          item.imei,
+          item.vehicleRegNo,
+          item.latitude,
+          item.longitude,
+        ]);
+      }
+    }
+    return ListToCsvConverter().convert(rows);
+  }
+
+  Future<File> saveCsvFile(
+      String csvFilterData, bool applyclicked, bool issearch) async {
+    final directory = await getTemporaryDirectory();
+    final filePath = isSearch
+        ? '${directory.path}/search_framepacket.csv'
+        : applyclicked
+            ? '${directory.path}/Filter_framepacket.csv'
+            : '${directory.path}/framepacketdata.csv';
+    final file = File(filePath);
+    return file.writeAsString(csvFilterData);
+  }
+
+  void shareCsvFile(File csvFilterFile) {
+    Share.shareFiles([csvFilterFile.path],
+        text: 'Sharing device data CSV file');
+  }
+
+  void shareDeviceData(
+      List<DatewiseFramepacketData> deviceData,
+      List<FrameFilterData> filterdata,
+      bool applyclicked,
+      List<DatewiseFramepacketDatum> searchdata,
+      bool issearch) async {
+    String csvData = convertDataToCsv(
+        deviceData, filterdata, applyclicked, searchdata, issearch);
+    File csvFile = await saveCsvFile(csvData, applyclicked, issearch);
+    print("This is csv Filter data " + csvData);
+
+    shareCsvFile(csvFile);
+  }
+
+
   onSearchTextChanged(String? text) async {
     if (text!.isEmpty || text.length < 0) {
       setState(() {
@@ -3658,7 +3760,12 @@ class _FramePacketState extends State<FramePacket> {
 }
 
 class PdfInvoiceApi {
-  static Future<File> generate(List<DatewiseFramepacketData> pdflist, List<FrameFilterData> pdffilter, bool applyclicked, List<DatewiseFramepacketDatum> pdfsearch, bool issearch) async {
+  static Future<File> generate(
+      List<DatewiseFramepacketData> pdflist,
+      List<FrameFilterData> pdffilter,
+      bool applyclicked,
+      List<DatewiseFramepacketDatum> pdfsearch,
+      bool issearch) async {
     final pdf = pw.Document();
     double fontsize = 8.0;
 
@@ -3815,7 +3922,12 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(applyclicked ? pdffilter[index].header.toString() : issearch ? pdfsearch[index].header.toString() : pdflist[index].header.toString() ,
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilter[index].header.toString()
+                                    : issearch
+                                        ? pdfsearch[index].header.toString()
+                                        : pdflist[index].header.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -3824,7 +3936,12 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(applyclicked ? pdffilter[index].imei.toString() : issearch ? pdfsearch[index].imei.toString() : pdflist[index].imei.toString() ,
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilter[index].imei.toString()
+                                    : issearch
+                                        ? pdfsearch[index].imei.toString()
+                                        : pdflist[index].imei.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -3833,7 +3950,16 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(applyclicked ? pdffilter[index].vehicleRegNo.toString() : issearch ? pdfsearch[index].vehicleRegNo.toString() : pdflist[index].vehicleRegNo.toString() ,
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilter[index].vehicleRegNo.toString()
+                                    : issearch
+                                        ? pdfsearch[index]
+                                            .vehicleRegNo
+                                            .toString()
+                                        : pdflist[index]
+                                            .vehicleRegNo
+                                            .toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -3842,7 +3968,12 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(applyclicked ? pdffilter[index].latitude.toString() : issearch ? pdfsearch[index].latitude.toString() : pdflist[index].latitude.toString() ,
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilter[index].latitude.toString()
+                                    : issearch
+                                        ? pdfsearch[index].latitude.toString()
+                                        : pdflist[index].latitude.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -3851,7 +3982,12 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(applyclicked ? pdffilter[index].longitude.toString() : issearch ? pdfsearch[index].longitude.toString() : pdflist[index].longitude.toString() ,
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilter[index].longitude.toString()
+                                    : issearch
+                                        ? pdfsearch[index].longitude.toString()
+                                        : pdflist[index].longitude.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -3900,7 +4036,13 @@ class PdfInvoiceApi {
       },
     ));
 
-    return PdfApi.saveDocument(name:applyclicked ? 'FramePacketFilterreport.pdf' : issearch ? 'FramePacketSearchreport.pdf' : 'FramePacketreport.pdf', pdf: pdf);
+    return PdfApi.saveDocument(
+        name: applyclicked
+            ? 'FramePacketFilterreport.pdf'
+            : issearch
+                ? 'FramePacketSearchreport.pdf'
+                : 'FramePacketreport.pdf',
+        pdf: pdf);
   }
 }
 

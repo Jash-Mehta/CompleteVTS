@@ -29,7 +29,7 @@ import '../../model/report/vehicle_status_report_drivercode.dart';
 import '../../model/report/vehicle_vsrno.dart';
 import '../../model/searchString.dart';
 import '../../util/search_bar_field.dart';
-
+import 'package:csv/csv.dart';
 class VehicleStatusReport extends StatefulWidget {
   const VehicleStatusReport({Key? key}) : super(key: key);
 
@@ -79,8 +79,8 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
     List<DatewiseTravelHoursDataItem> pdfsearchlist = [];
   List<VehicleStatusReportData>? data = [];
   List<DatewiseTravelHoursDataItem>? searchData = [];
-  List<VSRDCData>? vsrdcData = [];
-  List<VehicleVSrNoData>? osvfdata = [];
+  // List<VehicleVSrNoData>? osvfdata = [];
+  List<VehicleStatusReportDriverCode>? osvfdata = [];
   bool isvsrdc = false;
   var vsrdcvehicleno;
   var vsrdcvsrnolisttiletext;
@@ -206,8 +206,10 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
                                         fromtimeInput.text = "";
                                         fromdateInput.text = "";
                 isFilter
-                    ? _mainBloc.add(VehicleVSrNoEvent(
+                    ?   _mainBloc.add(VehicleStatusReportDrivercode(
                         token: token, vendorId: 1, branchId: 1))
+                    // _mainBloc.add(VehicleVSrNoEvent(
+                    //     token: token, vendorId: 1, branchId: 1))
                     : Text("Driver code not loaded");
               });
             },
@@ -265,37 +267,23 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
       ),
       child: BlocListener<MainBloc, MainState>(
         listener: (context, state) {
-          if (state is VehicleVSrNoLoadingState) {
-            const Center(
-              child: CircularProgressIndicator(),
-            );
-          } else if (state is VehicleVSrNoLoadedState) {
-            if (state.vehiclevsrnoresponse.data != null) {
-              print("overspeed vehicle filter data is Loaded state");
-              osvfdata!.clear();
-              osvfdata!.addAll(state.vehiclevsrnoresponse.data!);
-
-              // overspeedfilter!.addAll(state.overspeedFilter.data!);
-              osvfdata!.forEach((element) {
-                print("Overspeed vehicle filter element is Printed");
-              });
-            }
-          } else if (state is VehicleVSrNoErorrState) {
-            print("Something went Wrong  data VehicleVSrNoErorrState");
-            Fluttertoast.showToast(
-              msg: state.msg,
-              toastLength: Toast.LENGTH_SHORT,
-              timeInSecForIosWeb: 1,
-            );
-          }
           // Driver code -----------------
-          if (state is VehicleStsRptDriverCodeLoadingState) {
+          // if (state is VehicleStsRptDriverCodeLoadingState) {
+          //   print("Entering in driver code filter Loading State");
+          // } else if (state is VehicleStsRptDriverCodeLoadedState) {
+          //   print("Entering in driver code filter Loaded State");
+          //   vsrdcData!.clear();
+          //   vsrdcData!.addAll(state.dmfdriverCoderesponse.data!);
+          // } else if (state is VehicleStsRptDriverCodeErorrState) {
+          //   print("Entering in driver code filter Error State");
+          // }
+           if (state is VehicleStatusReportDriverCodeLoadingState) {
             print("Entering in driver code filter Loading State");
-          } else if (state is VehicleStsRptDriverCodeLoadedState) {
+          } else if (state is VehicleStatusReportDriverCodeLoadedState) {
             print("Entering in driver code filter Loaded State");
-            vsrdcData!.clear();
-            vsrdcData!.addAll(state.dmfdriverCoderesponse.data!);
-          } else if (state is VehicleStsRptDriverCodeErorrState) {
+            osvfdata!.clear();
+            osvfdata!.addAll(state.dmfdriverCoderesponse.data!);
+          } else if (state is VehicleStatusReportDriverCodeErorrState) {
             print("Entering in driver code filter Error State");
           }
           // filter -----------------
@@ -704,15 +692,18 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
                                               fontWeight: FontWeight.w400),
                                         ),
                                         onTap: () {
-                                          print(article.vehicleRegNo);
                                           setState(() {
                                             isvsrdc = false;
                                             vsrdcvehicleno =
-                                                article.vsrNo.toString();
-                                            print("This is vehicleregno - " +
+                                                article.imeiNo == ""
+                                                              ? "ALL"
+                                                              : article.imeiNo;
+                                            print("This is imei - " +
                                                 vsrdcvehicleno);
                                             vsrdcvsrnolisttiletext =
                                                 article.vehicleRegNo.toString();
+                                             print("This is vehicleregno - " +
+                                                vsrdcvsrnolisttiletext);
                                           });
                                         },
                                       ),
@@ -1183,22 +1174,27 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
                                     onTap: () async {
                                       //  final result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['pdf']);
                                       // FilePicker.platform.pickFiles(allowMultiple: false,allowedExtensions:FileType.custom(), );
-                                      final result = await FilePicker.platform
-                                          .pickFiles(
-                                              type: FileType.custom,
-                                              allowedExtensions: ['pdf']);
+                                      // final result = await FilePicker.platform
+                                      //     .pickFiles(
+                                      //         type: FileType.custom,
+                                      //         allowedExtensions: ['pdf']);
                                       // FilePicker.platform.pickFiles(allowMultiple: false,allowedExtensions:FileType.custom(), );
                                       try {
-                                        List<String>? files = result?.files
-                                            .map((file) => file.path)
-                                            .cast<String>()
-                                            .toList();
-                                        print("File path------${files}");
+                                        // List<String>? files = result?.files
+                                        //     .map((file) => file.path)
+                                        //     .cast<String>()
+                                        //     .toList();
+                                        // print("File path------${files}");
                                         //    List<String>? files = [
                                         //   "/data/user/0/com.vts.gps/cache/file_picker/DTwisereport.pdf"
                                         // ];
                                         // print("File path------${files}");
-                                        await Share.shareFiles(files!);
+                                       shareDeviceData(
+                                            data!,
+                                            vehiclestatusfilterreport!,
+                                            applyclick,
+                                            searchData!,
+                                            isSearch);
                                          Navigator.of(context).popUntil((route) => route.isCurrent);
                                       } catch (e) {
                                         Fluttertoast.showToast(
@@ -1333,8 +1329,7 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
                                             fontWeight: FontWeight.bold),
                                       );
                                     }),
-                          applyclick
-                              ? Container(
+                           Container(
                                   margin: EdgeInsets.only(top: 10, bottom: 20),
                                   padding: EdgeInsets.all(15),
                                   decoration: BoxDecoration(
@@ -1384,7 +1379,7 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
                                                     style:
                                                         TextStyle(fontSize: 18),
                                                   ),
-                                                  Text(vsrdcvsrnolisttiletext,
+                                                  Text(vsrdcvsrnolisttiletext == null ? "-" : vsrdcvsrnolisttiletext,
                                                       style: TextStyle(
                                                           fontSize: 18)),
                                                 ],
@@ -1414,52 +1409,42 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
                                     ],
                                   ),
                                 )
-                              : SizedBox(),
-                          applyclick
-                              ? Padding(
+                              ,
+                         Padding(
                                   padding: EdgeInsets.all(8),
                                   child: Column(
                                     children: [
                                       Padding(
                                         padding: const EdgeInsets.all(8.0),
-                                        child: Center(
-                                          child: Text(
-                                            "Group By " +
-                                                "(" +
-                                                vsrdcvsrnolisttiletext +
-                                                ")" +
-                                                " Total :- " +
-                                                "17:30:00",
-                                            style: TextStyle(
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.w600),
-                                          ),
-                                        ),
-                                      ),
-                                      Center(
                                         child: Text(
-                                          "Group By ( ${fromDateController ?? "01-sep-2022"} ) Total :- 17:30:56",
+                                          "Group By " +
+                                              "(" +
+                                            //  vsrdcvsrnolisttiletext == null ? "-" : vsrdcvsrnolisttiletext +
+                                              ")" +
+                                              " Total :- " +
+                                              "17:30:00",
                                           style: TextStyle(
                                               fontSize: 18,
                                               fontWeight: FontWeight.w600),
                                         ),
                                       ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Center(
-                                          child: Text(
-                                            " Total Over Speed Distance Travel " +
-                                                "17:30:56",
-                                            style: TextStyle(
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.w600),
-                                          ),
-                                        ),
+                                      Text(
+                                        "Group By ( ${fromDateController ?? "01-sep-2022"} ) Total :- 17:30:56",
+                                        style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                      Text(
+                                        " Total Over Speed Distance Travel " +
+                                            "17:30:56",
+                                        style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w600),
                                       ),
                                     ],
                                   ),
                                 )
-                              : SizedBox(),
+                              ,
                           applyclick
                               ? vehiclestatusfilterreport!.isEmpty
                                   ? Center(
@@ -2675,6 +2660,98 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
       ),
     );
   }
+
+  
+   String convertDataToCsv(
+      List<VehicleStatusReportData> data,
+      List<ReportVehicleStatusFilter> filterdata,
+      bool applyclicked,
+      List<DatewiseTravelHoursDataItem> searchdata,
+      bool issearch) {
+    List<List<dynamic>> rows = [];
+    // Add headers
+   applyclicked ?rows.add(["Vehicle Status Report Filter "]) : issearch ? rows.add(["Vehicle Status Report Search"]) : rows.add(["Vehicle Status Report Data"]);
+    rows.add(['SrNo','IMEINo', 'VendorRegNo','Start TIme', 'End Time','Vehicle Status', 'Vehicle Status Time']);
+
+    // Add data rows
+    if (applyclicked) {
+      for (var item in filterdata) {
+        // print("This is filter lenght");
+        print("Filter data" + filterdata.toString());
+        rows.add([
+          item.srNo,
+          item.imei,
+          item.vehicleregNo,
+          item.startTime,
+          item.endTime,
+          item.vehicleStatus,
+          item.vehicleStatusTime,
+        ]);
+      }
+    } else if (issearch) {
+      for (var item in searchdata) {
+        // print("This is filter lenght");
+        print("Search data" + searchdata.toString());
+        rows.add([
+         item.srNo,
+          item.imei,
+          item.vehicleregNo,
+          item.startTime,
+          item.endTime,
+          item.vehicleStatus,
+          item.vehicleStatusTime,
+        ]);
+      }
+    } else {
+      for (var item in data) {
+        // print("This is filter lenght");
+        print("Filter data" + filterdata.toString());
+        rows.add([
+       item.srNo,
+          item.imei,
+          item.vehicleregNo,
+          item.startTime,
+          item.endTime,
+          item.vehicleStatus,
+          item.vehicleStatusTime,
+        ]);
+      }
+    }
+    return ListToCsvConverter().convert(rows);
+  }
+
+
+  Future<File> saveCsvFile(
+      String csvFilterData, bool applyclicked, bool issearch) async {
+    final directory = await getTemporaryDirectory();
+    final filePath = issearch
+        ? '${directory.path}/search_vehiclestatuereport.csv'
+        : applyclicked
+            ? '${directory.path}/Filter_vehiclestatuereport.csv'
+            : '${directory.path}/vehiclestatuereport.csv';
+    final file = File(filePath);
+    return file.writeAsString(csvFilterData);
+  }
+
+  void shareCsvFile(File csvFilterFile) {
+    Share.shareFiles([csvFilterFile.path],
+        text: 'Sharing device data CSV file');
+  }
+
+  void shareDeviceData(
+       List<VehicleStatusReportData> data,
+      List<ReportVehicleStatusFilter> filterdata,
+      bool applyclicked,
+      List<DatewiseTravelHoursDataItem> searchdata,
+      bool issearch) async {
+    String csvData = convertDataToCsv(
+        data, filterdata, applyclicked, searchdata, issearch);
+    File csvFile = await saveCsvFile(csvData, applyclicked, issearch);
+    print("This is csv Filter data " + csvData);
+
+    shareCsvFile(csvFile);
+  }
+
 
   onSearchTextChanged(String? text) async {
     if (text!.isEmpty || text.length < 0) {

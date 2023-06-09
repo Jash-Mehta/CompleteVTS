@@ -29,7 +29,7 @@ import '../../model/report/search_frame_pckt_grid_response.dart';
 import '../../model/report/vehicle_vsrno.dart';
 import '../../model/searchString.dart';
 import '../../util/search_bar_field.dart';
-
+import 'package:csv/csv.dart';
 class FramePacketGrid extends StatefulWidget {
   const FramePacketGrid({Key? key}) : super(key: key);
 
@@ -126,7 +126,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
   int pageNumber = 1;
   int pageSize = 10;
   String arai = "arai";
-  String vehicleList = "86,76";
+  String vehicleList = "867322033819244";
   String sframePacketOption = "healthpacket";
 
   String sfromTime = "12%3A30";
@@ -194,7 +194,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
         formTime: fromtime,
         toDate: toDate,
         toTime: totime,
-        vehicleList: vehicleList,
+        imeino: vehicleList,
         framepacketoption: frampacketoption,
         pageNumber: pageNumber,
         pageSize: pageSize));
@@ -1496,22 +1496,27 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                     onTap: () async {
                                       //  final result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['pdf']);
                                       // FilePicker.platform.pickFiles(allowMultiple: false,allowedExtensions:FileType.custom(), );
-                                      final result = await FilePicker.platform
-                                          .pickFiles(
-                                              type: FileType.custom,
-                                              allowedExtensions: ['pdf']);
+                                      // final result = await FilePicker.platform
+                                      //     .pickFiles(
+                                      //         type: FileType.custom,
+                                      //         allowedExtensions: ['pdf']);
                                       // FilePicker.platform.pickFiles(allowMultiple: false,allowedExtensions:FileType.custom(), );
                                       try {
-                                        List<String>? files = result?.files
-                                            .map((file) => file.path)
-                                            .cast<String>()
-                                            .toList();
-                                        print("File path------${files}");
+                                        // List<String>? files = result?.files
+                                        //     .map((file) => file.path)
+                                        //     .cast<String>()
+                                        //     .toList();
+                                        // print("File path------${files}");
                                         //    List<String>? files = [
                                         //   "/data/user/0/com.vts.gps/cache/file_picker/DTwisereport.pdf"
                                         // ];
                                         // print("File path------${files}");
-                                        await Share.shareFiles(files!);
+                                       shareDeviceData(
+                                            framepacketgriddata!,
+                                            framefiltergriddata!,
+                                            applyclicked,
+                                            searchdatalist!,
+                                            isSearch);
                                         Navigator.of(context).popUntil((route) => route.isCurrent);
                                       } catch (e) {
                                         Fluttertoast.showToast(
@@ -1632,8 +1637,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                   fontSize: 18, fontWeight: FontWeight.bold),
                             );
                           }),
-                          applyclicked
-                              ? Container(
+                         Container(
                                   margin: EdgeInsets.only(top: 10, bottom: 20),
                                   padding: EdgeInsets.all(15),
                                   decoration: BoxDecoration(
@@ -1689,7 +1693,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                     style:
                                                         TextStyle(fontSize: 18),
                                                   ),
-                                                  Text(fpgdclisttiletext,
+                                                  Text(fpgdclisttiletext == null ? "-" : fpgdclisttiletext,
                                                       style: TextStyle(
                                                           fontSize: 18)),
                                                 ],
@@ -1701,7 +1705,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                     ],
                                   ),
                                 )
-                              : SizedBox(),
+                              ,
                           applyclicked
                               ? framefiltergriddata!.isEmpty
                                   ? Center(
@@ -4383,6 +4387,92 @@ class _FramePacketGridState extends State<FramePacketGrid> {
               ),
       ),
     );
+  }
+
+  String convertDataToCsv(
+      List<DatewiseFramePacketGridViewData> deviceData,
+      List<FrameGridFilterData> filterdata,
+      bool applyclicked,
+      List<DatewiseFramePacketGridViewItem> searchdata,
+      bool issearch) {
+    List<List<dynamic>> rows = [];
+    // Add headers
+    applyclicked
+        ? rows.add(["Frame Packet Grid Filter"])
+        : isSearch
+            ? rows.add(["Frame Packet Grid Search"])
+            : rows.add(["Frame Packet Grid Data"]);
+    rows.add(['Header', 'IMEINo', 'VehicleRegNo', 'Latitude', 'Longitude']);
+
+    // Add data rows
+    if (applyclicked) {
+      for (var item in filterdata) {
+        // print("This is filter lenght");
+        print("Filter data" + filterdata.toString());
+        rows.add([
+          item.header,
+          item.imei,
+          item.vehicleRegNo,
+           "-",
+          "-",
+        ]);
+      }
+    } else if (isSearch) {
+      for (var item in searchdata) {
+        // print("This is filter lenght");
+        print("Search data" + searchdata.toString());
+        rows.add([
+        item.header,
+          item.imei,
+          item.vehicleRegNo,
+           "-",
+          "-",
+        ]);
+      }
+    } else {
+      for (var item in deviceData) {
+        // print("This is filter lenght");
+        rows.add([
+         item.header,
+          item.imei,
+          item.vehicleRegNo,
+          item.latitude,
+          item.longitude,
+        ]);
+      }
+    }
+    return ListToCsvConverter().convert(rows);
+  }
+
+  Future<File> saveCsvFile(
+      String csvFilterData, bool applyclicked, bool issearch) async {
+    final directory = await getTemporaryDirectory();
+    final filePath = isSearch
+        ? '${directory.path}/search_framepacketgrid.csv'
+        : applyclicked
+            ? '${directory.path}/Filter_framepacketgrid.csv'
+            : '${directory.path}/framepacketgriddata.csv';
+    final file = File(filePath);
+    return file.writeAsString(csvFilterData);
+  }
+
+  void shareCsvFile(File csvFilterFile) {
+    Share.shareFiles([csvFilterFile.path],
+        text: 'Sharing device data CSV file');
+  }
+
+  void shareDeviceData(
+      List<DatewiseFramePacketGridViewData> deviceData,
+      List<FrameGridFilterData> filterdata,
+      bool applyclicked,
+      List<DatewiseFramePacketGridViewItem> searchdata,
+      bool issearch) async {
+    String csvData = convertDataToCsv(
+        deviceData, filterdata, applyclicked, searchdata, issearch);
+    File csvFile = await saveCsvFile(csvData, applyclicked, issearch);
+    print("This is csv Filter data " + csvData);
+
+    shareCsvFile(csvFile);
   }
 
   onSearchTextChanged(String? text) async {

@@ -25,7 +25,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import '../../model/vehicle_master/search_vehicle_report_data_response.dart';
 import '../../model/vehicle_master/vehicle_master_filter.dart';
 import '../../model/vehicle_master/vehicle_report_detail.dart';
-
+import 'package:csv/csv.dart';
 class VehicleReportScreen extends StatefulWidget {
   const VehicleReportScreen({Key? key}) : super(key: key);
 
@@ -742,22 +742,27 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
                                     onTap: () async {
                                       //  final result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['pdf']);
                                       // FilePicker.platform.pickFiles(allowMultiple: false,allowedExtensions:FileType.custom(), );
-                                      final result = await FilePicker.platform
-                                          .pickFiles(
-                                              type: FileType.custom,
-                                              allowedExtensions: ['pdf']);
+                                      // final result = await FilePicker.platform
+                                      //     .pickFiles(
+                                      //         type: FileType.custom,
+                                      //         allowedExtensions: ['pdf']);
                                       // FilePicker.platform.pickFiles(allowMultiple: false,allowedExtensions:FileType.custom(), );
                                       try {
-                                        List<String>? files = result?.files
-                                            .map((file) => file.path)
-                                            .cast<String>()
-                                            .toList();
-                                        print("File path------${files}");
+                                        // List<String>? files = result?.files
+                                        //     .map((file) => file.path)
+                                        //     .cast<String>()
+                                        //     .toList();
+                                        // print("File path------${files}");
                                         //    List<String>? files = [
                                         //   "/data/user/0/com.vts.gps/cache/file_picker/DTwisereport.pdf"
                                         // ];
                                         // print("File path------${files}");
-                                        await Share.shareFiles(files!);
+                                       shareDeviceData(
+                                            allVehicleDetaildatalist!,
+                                            filterData!,
+                                            applyclicked,
+                                            searchVehStrdata!,
+                                            isSelected);
                                         Navigator.of(context).popUntil((route) => route.isCurrent);
                                       } catch (e) {
                                         Fluttertoast.showToast(
@@ -1771,6 +1776,96 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
               ),
       ),
     );
+  }
+
+   String convertDataToCsv(
+      List<VehicleInfo> data,
+      List<VehicleFilterData> filterdata,
+      bool applyclicked,
+      List<SearchingVehItemInfo> searchdata,
+      bool issearch) {
+    List<List<dynamic>> rows = [];
+    // Add headers
+   applyclicked ?rows.add(["Vehicle Master Filter "]) : issearch ? rows.add(["Vehicle Master Search"]) : rows.add(["Vehicle Master Data"]);
+    rows.add(['SrNo','VehicleRegNo','VehicleName', 'Fuel Type','Speed Limit', 'Vehicle Type', 'Current Odometer']);
+
+    // Add data rows
+    if (applyclicked) {
+      for (var item in filterdata) {
+        // print("This is filter lenght");
+        print("Filter data" + filterdata.toString());
+        rows.add([
+          item.vsrNo,
+          item.vehicleRegNo,
+          item.vehicleName,
+          item.fuelType,
+          item.speedLimit,
+          item.vehicleType,
+          item.currentOdometer,
+        ]);
+      }
+    } else if (issearch) {
+      for (var item in searchdata) {
+        // print("This is filter lenght");
+        print("Search data" + searchdata.toString());
+        rows.add([
+         item.vsrNo,
+          item.vehicleRegNo,
+          item.vehicleName,
+          item.fuelType,
+          item.speedLimit,
+          item.vehicleType,
+          item.currentOdometer,
+        ]);
+      }
+    } else {
+      for (var item in data) {
+        // print("This is filter lenght");
+        print("Filter data" + filterdata.toString());
+        rows.add([
+      item.vsrNo,
+          item.vehicleRegNo,
+          item.vehicleName,
+          item.fuelType,
+          item.speedLimit,
+          item.vehicleType,
+          item.currentOdometer,
+        ]);
+      }
+    }
+    return ListToCsvConverter().convert(rows);
+  }
+
+
+  Future<File> saveCsvFile(
+      String csvFilterData, bool applyclicked, bool issearch) async {
+    final directory = await getTemporaryDirectory();
+    final filePath = issearch
+        ? '${directory.path}/search_vehiclemaster.csv'
+        : applyclicked
+            ? '${directory.path}/Filter_vehiclemaster.csv'
+            : '${directory.path}/vehiclemaster.csv';
+    final file = File(filePath);
+    return file.writeAsString(csvFilterData);
+  }
+
+  void shareCsvFile(File csvFilterFile) {
+    Share.shareFiles([csvFilterFile.path],
+        text: 'Sharing device data CSV file');
+  }
+
+  void shareDeviceData(
+       List<VehicleInfo> data,
+      List<VehicleFilterData> filterdata,
+      bool applyclicked,
+      List<SearchingVehItemInfo> searchdata,
+      bool issearch) async {
+    String csvData = convertDataToCsv(
+        data, filterdata, applyclicked, searchdata, issearch);
+    File csvFile = await saveCsvFile(csvData, applyclicked, issearch);
+    print("This is csv Filter data " + csvData);
+
+    shareCsvFile(csvFile);
   }
 
   onSearchTextChanged(String text) async {

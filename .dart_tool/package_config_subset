@@ -59,9 +59,14 @@ cross_file
 file:///C:/Users/jashm/AppData/Local/Pub/Cache/hosted/pub.dev/cross_file-0.3.3+4/
 file:///C:/Users/jashm/AppData/Local/Pub/Cache/hosted/pub.dev/cross_file-0.3.3+4/lib/
 crypto
-2.19
-file:///C:/Users/jashm/AppData/Local/Pub/Cache/hosted/pub.dev/crypto-3.0.3/
-file:///C:/Users/jashm/AppData/Local/Pub/Cache/hosted/pub.dev/crypto-3.0.3/lib/
+2.14
+file:///C:/flutter/.pub-cache/hosted/pub.dartlang.org/crypto-3.0.2/
+file:///C:/flutter/.pub-cache/hosted/pub.dartlang.org/crypto-3.0.2/lib/
+csv
+2.12
+file:///C:/flutter/.pub-cache/hosted/pub.dartlang.org/csv-5.0.2/
+file:///C:/flutter/.pub-cache/hosted/pub.dartlang.org/csv-5.0.2/lib/
+
 cupertino_icons
 2.12
 file:///C:/Users/jashm/AppData/Local/Pub/Cache/hosted/pub.dev/cupertino_icons-1.0.5/

@@ -28,6 +28,7 @@ import '../../model/Driver_Master/driver_master_filter.dart';
 import '../../model/report/over_speed_report_response.dart';
 import '../../model/searchString.dart';
 import '../../util/search_bar_field.dart';
+import 'package:csv/csv.dart';
 
 class DriverMasterReportScreen extends StatefulWidget {
   const DriverMasterReportScreen({Key? key}) : super(key: key);
@@ -705,6 +706,7 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
                                           itemBuilder: (BuildContext context,
                                               int index) {
                                             var article = dmdcData![index];
+
                                             return Padding(
                                               padding:
                                                   const EdgeInsets.all(8.0),
@@ -773,23 +775,29 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
                                       //     .pickFiles(
                                       //         type: FileType.custom,
                                       //         allowedExtensions: ['pdf']);
-                                      final result = await FilePicker.platform
-                                          .pickFiles(
-                                              type: FileType.custom,
-                                              allowedExtensions: ['pdf']);
+                                      // final result = await FilePicker.platform
+                                      //     .pickFiles(
+                                      //         type: FileType.custom,
+                                      //         allowedExtensions: ['pdf']);
                                       // FilePicker.platform.pickFiles(allowMultiple: false,allowedExtensions:FileType.custom(),);
                                       try {
-                                        List<String>? files = result?.files
-                                            .map((file) => file.path)
-                                            .cast<String>()
-                                            .toList();
-                                        print("File path------${files}");
+                                        // List<String>? files = result?.files
+                                        //     .map((file) => file.path)
+                                        //     .cast<String>()
+                                        //     .toList();
+                                        // print("File path------${files}");
                                         //    List<String>? files = [
                                         //   "/data/user/0/com.vts.gps/cache/file_picker/DTwisereport.pdf"
                                         // ];
                                         // print("File path------${files}");
-                                        await Share.shareFiles(files!);
-                                        Navigator.of(context).popUntil((route) => route.isCurrent);
+                                        shareDeviceData(
+                                            data!,
+                                            filterData!,
+                                            applyclicked,
+                                            searchData!,
+                                            isSearch);
+                                        Navigator.of(context).popUntil(
+                                            (route) => route.isCurrent);
                                       } catch (e) {
                                         Fluttertoast.showToast(
                                           msg: "Download the pdf first",
@@ -848,6 +856,9 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
                                       pdfsearchlist!,
                                       isSearch);
                                   PdfApi.openFile(pdfFile);
+                                  // _downloadCsvFile(
+                                  //     pdfdatalist, "drivermasterdata.csv");
+                                  // print("csv file downloaded");
                                 } else {
                                   print("Request is not accepted");
                                   await Permission.storage.request();
@@ -931,6 +942,7 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
                                               itemBuilder: (context, index) {
                                                 var article =
                                                     filterData![index];
+                                                var sr = index + 1;
                                                 return Card(
                                                   margin: EdgeInsets.only(
                                                       bottom: 15),
@@ -1004,9 +1016,7 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
                                                                               fontSize: 18),
                                                                         ),
                                                                         Text(
-                                                                          article
-                                                                              .srNo
-                                                                              .toString(),
+                                                                          sr.toString(),
                                                                           style: TextStyle(
                                                                               color: MyColors.text5ColorCode,
                                                                               fontSize: 18),
@@ -1205,6 +1215,7 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
                                             itemCount: data!.length,
                                             itemBuilder: (context, index) {
                                               var article = data![index];
+                                              var sr = index + 1;
                                               return Card(
                                                 margin:
                                                     EdgeInsets.only(bottom: 15),
@@ -1274,9 +1285,7 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
                                                                             fontSize: 18),
                                                                       ),
                                                                       Text(
-                                                                        article
-                                                                            .srNo
-                                                                            .toString(),
+                                                                        sr.toString(),
                                                                         style: TextStyle(
                                                                             color:
                                                                                 MyColors.text5ColorCode,
@@ -1502,6 +1511,7 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
                                                         (context, index) {
                                                       var article =
                                                           searchData![index];
+                                                      var sr = index + 1;
                                                       return Card(
                                                         margin: EdgeInsets.only(
                                                             bottom: 15),
@@ -1577,7 +1587,7 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
                                                                                 style: TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
                                                                               ),
                                                                               Text(
-                                                                                article.srNo.toString(),
+                                                                                sr.toString(),
                                                                                 style: TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
                                                                               ),
                                                                             ],
@@ -1943,6 +1953,103 @@ class _DriverMasterReportScreenState extends State<DriverMasterReportScreen> {
     );
   }
 
+  String convertDataToCsv(
+      List<DriverMasterData> data,
+      List<FilterData> filterdata,
+      bool applyclicked,
+      List<FindDriverMasterData> searchdata,
+      bool issearch) {
+    List<List<dynamic>> rows = [];
+    // Add headers
+    applyclicked
+        ? rows.add(["Driver Master Filter "])
+        : isSearch
+            ? rows.add(["Driver Master Search"])
+            : rows.add(["Driver Master Data"]);
+    rows.add([
+      'SrNo',
+      'DriverCode',
+      'DriverName',
+      'Licence No',
+      'MobileNo',
+      'Date-of-Joining'
+    ]);
+
+    // Add data rows
+    if (applyclicked) {
+      for (var fitem in filterdata) {
+        // print("This is filter lenght");
+        print("Filter data" + filterdata.toString());
+        rows.add([
+          fitem.srNo,
+          fitem.driverCode,
+          fitem.driverName,
+          fitem.licenceNo,
+          fitem.mobileNo,
+          fitem.doj
+        ]);
+      }
+    } else if (isSearch) {
+      for (var item in searchdata) {
+        // print("This is filter lenght");
+        print("Search data" + searchdata.toString());
+        rows.add([
+          item.srNo,
+          item.driverCode,
+          item.driverName,
+          item.licenceNo,
+          item.mobileNo,
+          item.doj
+        ]);
+      }
+    } else {
+      for (var item in data) {
+        // print("This is filter lenght");
+        print("Filter data" + filterdata.toString());
+        rows.add([
+          item.srNo,
+          item.driverCode,
+          item.driverName,
+          item.licenceNo,
+          item.mobileNo,
+          item.doj
+        ]);
+      }
+    }
+    return ListToCsvConverter().convert(rows);
+  }
+
+  Future<File> saveCsvFile(
+      String csvFilterData, bool applyclicked, bool issearch) async {
+    final directory = await getTemporaryDirectory();
+    final filePath = isSearch
+        ? '${directory.path}/search_Drivermaster.csv'
+        : applyclicked
+            ? '${directory.path}/Filter_Drivermaster.csv'
+            : '${directory.path}/Driver_master.csv';
+    final file = File(filePath);
+    return file.writeAsString(csvFilterData);
+  }
+
+  void shareCsvFile(File csvFilterFile) {
+    Share.shareFiles([csvFilterFile.path],
+        text: 'Sharing device data CSV file');
+  }
+
+  void shareDeviceData(
+      List<DriverMasterData> data,
+      List<FilterData> filterdata,
+      bool applyclicked,
+      List<FindDriverMasterData> searchdata,
+      bool issearch) async {
+    String csvData =
+        convertDataToCsv(data, filterdata, applyclicked, searchdata, issearch);
+    File csvFile = await saveCsvFile(csvData, applyclicked, issearch);
+    print("This is csv Filter data " + csvData);
+
+    shareCsvFile(csvFile);
+  }
+
   onSearchTextChanged(String text) async {
     if (text.isEmpty) {
       setState(() {
@@ -2097,6 +2204,7 @@ class PdfInvoiceApi {
           //     child:
           pw.ListView.builder(
               itemBuilder: (pw.Context context, int index) {
+                var sr = index + 1;
                 // var article =  pdffilter[index];
                 print("This is applyclicked---" + isfilter.toString());
                 return pw.Table(
@@ -2111,10 +2219,10 @@ class PdfInvoiceApi {
                             width: 20,
                             child: pw.Text(
                                 isfilter
-                                    ? pdffilter[index].srNo.toString()
+                                    ? sr.toString()
                                     : issearch
-                                        ? pdfsearch[index].srNo.toString()
-                                        : pdflist[index].srNo.toString(),
+                                        ? sr.toString()
+                                        : sr.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
