@@ -98,6 +98,12 @@
       "languageVersion": "2.14"
     },
     {
+      "name": "csv",
+      "rootUri": "file:///C:/flutter/.pub-cache/hosted/pub.dartlang.org/csv-5.0.2",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "cupertino_icons",
       "rootUri": "file:///C:/flutter/.pub-cache/hosted/pub.dartlang.org/cupertino_icons-1.0.5",
       "packageUri": "lib/",
@@ -866,7 +872,7 @@
       "languageVersion": "2.12"
     }
   ],
-  "generated": "2023-05-26T15:29:48.369262Z",
+  "generated": "2023-06-05T10:49:46.221528Z",
   "generator": "pub",
   "generatorVersion": "2.18.4"
 }

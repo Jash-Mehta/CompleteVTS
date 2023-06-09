@@ -23,10 +23,13 @@ import 'package:fluttertoast/fluttertoast.dart';
 import '../../model/report/date_and_timewise_filter.dart';
 import '../../model/report/date_and_timewise_search.dart';
 import '../../model/report/date_and_timewise_travel.dart';
+import '../../model/report/dateandtimewisedrivercode.dart';
 import '../../model/report/over_speed_report_response.dart';
 import '../../model/report/vehicle_vsrno.dart';
 import '../../model/searchString.dart';
 import '../../util/search_bar_field.dart';
+import 'package:csv/csv.dart';
+import 'package:http/http.dart' as http;
 
 class DateAndTimeWiseDistanceScreen extends StatefulWidget {
   const DateAndTimeWiseDistanceScreen({Key? key}) : super(key: key);
@@ -101,7 +104,8 @@ class _DateAndTimeWiseDistanceScreenState
 
   bool isfilter = false;
   bool applyclicked = false;
-  List<VehicleVSrNoData>? osvfdata = [];
+  // List<VehicleVSrNoData>? osvfdata = [];
+  List<DateAndTimeWiseDrivercode>? osvfdata = [];
   bool isosvf = false;
   var osvfvehno;
   var osvfvehnolisttiletext;
@@ -201,8 +205,10 @@ class _DateAndTimeWiseDistanceScreenState
               osvfvehnolisttiletext = "-Select-";
               setState(() {
                 isfilter
-                    ? _mainBloc.add(VehicleVSrNoEvent(
+                    ? _mainBloc.add(DateAndTimeWiseDriverCode(
                         token: token, vendorId: 1, branchId: 1))
+                    //  _mainBloc.add(VehicleVSrNoEvent(
+                    //     token: token, vendorId: 1, branchId: 1))
                     : Text("Driver code not loaded");
               });
             },
@@ -331,22 +337,45 @@ class _DateAndTimeWiseDistanceScreenState
       ),
       child: BlocListener<MainBloc, MainState>(
         listener: (context, state) {
-          if (state is VehicleVSrNoLoadingState) {
+          // if (state is VehicleVSrNoLoadingState) {
+          //   const Center(
+          //     child: CircularProgressIndicator(),
+          //   );
+          // } else if (state is VehicleVSrNoLoadedState) {
+          //   if (state.vehiclevsrnoresponse.data != null) {
+          //     print("overspeed vehicle filter data is Loaded state");
+          //     osvfdata!.clear();
+          //     osvfdata!.addAll(state.vehiclevsrnoresponse.data!);
+
+          //     // overspeedfilter!.addAll(state.overspeedFilter.data!);
+          //     osvfdata!.forEach((element) {
+          //       print("Overspeed vehicle filter element is Printed");
+          //     });
+          //   }
+          // } else if (state is VehicleVSrNoErorrState) {
+          //   print("Something went Wrong  data VehicleVSrNoErorrState");
+          //   Fluttertoast.showToast(
+          //     msg: state.msg,
+          //     toastLength: Toast.LENGTH_SHORT,
+          //     timeInSecForIosWeb: 1,
+          //   );
+          // }
+          if (state is DateAndTimeWiseDriverCodeLoadingState) {
             const Center(
               child: CircularProgressIndicator(),
             );
-          } else if (state is VehicleVSrNoLoadedState) {
-            if (state.vehiclevsrnoresponse.data != null) {
+          } else if (state is DateAndTimeWiseDriverCodeLoadedState) {
+            if (state.dmfdriverCoderesponse.data != null) {
               print("overspeed vehicle filter data is Loaded state");
               osvfdata!.clear();
-              osvfdata!.addAll(state.vehiclevsrnoresponse.data!);
+              osvfdata!.addAll(state.dmfdriverCoderesponse.data!);
 
               // overspeedfilter!.addAll(state.overspeedFilter.data!);
               osvfdata!.forEach((element) {
                 print("Overspeed vehicle filter element is Printed");
               });
             }
-          } else if (state is VehicleVSrNoErorrState) {
+          } else if (state is DateAndTimeWiseDriverCodeErorrState) {
             print("Something went Wrong  data VehicleVSrNoErorrState");
             Fluttertoast.showToast(
               msg: state.msg,
@@ -811,14 +840,16 @@ class _DateAndTimeWiseDistanceScreenState
                                                     print(article.vehicleRegNo);
                                                     setState(() {
                                                       isosvf = false;
-                                                      osvfvehno = article.vsrNo
+                                                      osvfvehno = article.imeiNo
                                                           .toString();
-                                                      print(
-                                                          "This is vehicleregno - " +
-                                                              osvfvehno);
                                                       osvfvehnolisttiletext =
                                                           article.vehicleRegNo
                                                               .toString();
+                                                      print("This is vehicleregno - " +
+                                                          osvfvehnolisttiletext);
+                                                      print(
+                                                          "This is imei no - " +
+                                                              osvfvehno);
                                                     });
                                                   },
                                                 ),
@@ -1521,22 +1552,23 @@ class _DateAndTimeWiseDistanceScreenState
                           children: [
                             GestureDetector(
                               onTap: () async {
-                                final result = await FilePicker.platform
-                                    .pickFiles(
-                                        type: FileType.custom,
-                                        allowedExtensions: ['pdf']);
+                                // final result = await FilePicker.platform
+                                //     .pickFiles(
+                                //         type: FileType.custom,
+                                //         allowedExtensions: ['pdf']);
                                 // FilePicker.platform.pickFiles(allowMultiple: false,allowedExtensions:FileType.custom(), );
                                 try {
-                                  List<String>? files = result?.files
-                                      .map((file) => file.path)
-                                      .cast<String>()
-                                      .toList();
-                                  print("File path------${files}");
+                                  //   List<String>? files = result?.files
+                                  //       .map((file) => file.path)
+                                  //       .cast<String>()
+                                  //       .toList();
+                                  //   print("File path------${files}");
                                   //    List<String>? files = [
                                   //   "/data/user/0/com.vts.gps/cache/file_picker/DTwisereport.pdf"
                                   // ];
                                   // print("File path------${files}");
-                                  await Share.shareFiles(files!);
+                                  shareDeviceData(data!, filterData!,
+                                      applyclicked, searchData!, isSearch);
                                   Navigator.of(context)
                                       .popUntil((route) => route.isCurrent);
                                 } catch (e) {
@@ -1588,7 +1620,9 @@ class _DateAndTimeWiseDistanceScreenState
                                       pdffilterlist,
                                       applyclicked,
                                       pdfsearchlist,
-                                      isSearch);
+                                      isSearch,
+                                      fromDateController,
+                                      toDateController);
                                   PdfApi.openFile(pdfFile);
                                 } else {
                                   print("Request is not accepted");
@@ -1667,70 +1701,68 @@ class _DateAndTimeWiseDistanceScreenState
                                             fontWeight: FontWeight.bold),
                                       );
                                     }),
-                          applyclicked
-                              ? Container(
-                                  margin: EdgeInsets.only(top: 10, bottom: 20),
-                                  padding: EdgeInsets.all(15),
-                                  decoration: BoxDecoration(
-                                      color: MyColors.bluereportColorCode,
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(10))),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                          Container(
+                            margin: EdgeInsets.only(top: 10, bottom: 20),
+                            padding: EdgeInsets.all(15),
+                            decoration: BoxDecoration(
+                                color: MyColors.bluereportColorCode,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10))),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text("From Date  -  To Date",
+                                        style: TextStyle(fontSize: 18)),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Text(
+                                        fromDateController != null
+                                            ? fromDateController + "  -  "
+                                            : "01-sep-2022   -  ",
+                                        style: TextStyle(fontSize: 18)),
+                                    Text(
+                                        toDateController != null
+                                            ? toDateController
+                                            : "30-sep-2022",
+                                        style: TextStyle(fontSize: 18)),
+                                  ],
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(top: 10),
+                                  child: Row(
+                                    // mainAxisAlignment: MainAxisAlignment.start,
+                                    // crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Row(
-                                        children: [
-                                          Text("From Date  -  To Date",
-                                              style: TextStyle(fontSize: 18)),
-                                        ],
-                                      ),
-                                      Row(
-                                        children: [
-                                          Text(
-                                              fromDateController != null
-                                                  ? fromDateController + "  -  "
-                                                  : "01-sep-2022" + "  -  ",
-                                              style: TextStyle(fontSize: 18)),
-                                          Text(
-                                              toDateController != null
-                                                  ? toDateController
-                                                  : "30-sep-2022" + "  -  ",
-                                              style: TextStyle(fontSize: 18)),
-                                        ],
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsets.only(top: 10),
-                                        child: Row(
-                                          // mainAxisAlignment: MainAxisAlignment.start,
-                                          // crossAxisAlignment: CrossAxisAlignment.start,
+                                      Expanded(
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
-                                            Expanded(
-                                              child: Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    "VehicleRegNo",
-                                                    style:
-                                                        TextStyle(fontSize: 18),
-                                                  ),
-                                                  Text(osvfvehnolisttiletext,
-                                                      style: TextStyle(
-                                                          fontSize: 18)),
-                                                ],
-                                              ),
+                                            Text(
+                                              "VehicleRegNo",
+                                              style: TextStyle(fontSize: 18),
                                             ),
+                                            Text(
+                                                osvfvehnolisttiletext == null
+                                                    ? "-"
+                                                    : osvfvehnolisttiletext,
+                                                style: TextStyle(fontSize: 18)),
                                           ],
                                         ),
                                       ),
                                     ],
                                   ),
-                                )
-                              : SizedBox(),
+                                ),
+                              ],
+                            ),
+                          ),
                           applyclicked
                               ? filterData!.isEmpty
                                   ? Center(
@@ -2097,7 +2129,7 @@ class _DateAndTimeWiseDistanceScreenState
                                                         (context, index) {
                                                       var article =
                                                           searchData![index];
-                                                      var sr = index+1;
+                                                      var sr = index + 1;
                                                       return Card(
                                                         margin: EdgeInsets.only(
                                                             bottom: 15),
@@ -2729,6 +2761,98 @@ class _DateAndTimeWiseDistanceScreenState
     );
   }
 
+  String convertDataToCsv(
+      List<DateAndTimewiseData> deviceData,
+      List<DateAndTimewiseFilterData> filterdata,
+      bool applyclicked,
+      List<DateAndTimeWiseSearchData> searchdata,
+      bool issearch) {
+    List<List<dynamic>> rows = [];
+    // Add headers
+    applyclicked
+        ? rows.add(["DateAndTwise Distance Filter"])
+        : isSearch
+            ? rows.add(["DateAndTwise Distance Search"])
+            : rows.add(["DateAndTwise Distance Data"]);
+   rows.add(['IMEINo', 'TranseTime', 'Speed', 'Distance Travel', 'Latitude', 'Longitude', 'Adress']);
+
+    // Add data rows
+    if (applyclicked) {
+      for (var fitem in filterdata) {
+        // print("This is filter lenght");
+        print("Filter data" + filterdata.toString());
+        rows.add([
+          fitem.imeino,
+          fitem.transTime,
+          fitem.speed,
+          fitem.distancetravel,
+          fitem.latitude,
+          fitem.longitude,
+          fitem.address,
+        ]);
+      }
+    } else if (isSearch) {
+      for (var item in searchdata) {
+        // print("This is filter lenght");
+        print("Search data" + searchdata.toString());
+        rows.add([
+          item.imeino,
+          item.transTime,
+          item.speed,
+          item.distancetravel,
+          item.latitude,
+          item.longitude,
+          item.address,
+        ]);
+      }
+    } else {
+      for (var item in deviceData) {
+        // print("This is filter lenght");
+        rows.add([
+          item.imeino,
+          item.transTime,
+          item.speed,
+          item.distancetravel,
+          item.latitude,
+          item.longitude,
+          item.address,
+        ]);
+      }
+    }
+    return ListToCsvConverter().convert(rows);
+  }
+
+  Future<File> saveCsvFile(
+      String csvFilterData, bool applyclicked, bool issearch) async {
+    final directory = await getTemporaryDirectory();
+    final filePath = isSearch
+        ? '${directory.path}/search_dateAndTwiseDistance.csv'
+        : applyclicked
+            ? '${directory.path}/Filter_dateAndTwiseDistance.csv'
+            : '${directory.path}/dateAndTwiseDistance.csv';
+    final file = File(filePath);
+    return file.writeAsString(csvFilterData);
+  }
+
+  void shareCsvFile(File csvFilterFile) {
+    Share.shareFiles([csvFilterFile.path],
+        text: 'Sharing device data CSV file');
+  }
+
+  void shareDeviceData(
+      List<DateAndTimewiseData> deviceData,
+      List<DateAndTimewiseFilterData> filterdata,
+      bool applyclicked,
+      List<DateAndTimeWiseSearchData> searchdata,
+      bool issearch) async {
+    String csvData = convertDataToCsv(
+        deviceData, filterdata, applyclicked, searchdata, issearch);
+    File csvFile = await saveCsvFile(csvData, applyclicked, issearch);
+    print("This is csv Filter data " + csvData);
+
+    shareCsvFile(csvFile);
+  }
+
   onSearchTextChanged(String? text) async {
     if (text!.isEmpty || text.length < 0) {
       setState(() {
@@ -2766,7 +2890,9 @@ class PdfInvoiceApi {
       List<DateAndTimewiseFilterData> filterpdflist,
       bool iscllicked,
       List<DateAndTimeWiseSearchData> searchpdf,
-      bool issearch) async {
+      bool issearch,
+      var fromDateController,
+      var toDateController) async {
     final pdf = pw.Document();
     double fontsize = 8.0;
 
@@ -2808,6 +2934,20 @@ class PdfInvoiceApi {
               child: pw.Text("DATE AND TIME WISE DISTANCE TRAVEL",
                   style: pw.TextStyle(
                       fontSize: 20.0, fontWeight: pw.FontWeight.bold))),
+          pw.Row(
+            children: [
+              pw.Text(
+                  fromDateController != null
+                      ? fromDateController + "  -  "
+                      : "01-sep-2022   -  ",
+                  style: pw.TextStyle(fontSize: 18)),
+              pw.Text(
+                  toDateController != null
+                      ? toDateController
+                      : "30-sep-2022   -  ",
+                  style: pw.TextStyle(fontSize: 18)),
+            ],
+          ),
           pw.Container(
             margin: const pw.EdgeInsets.only(top: 10.0),
             child: pw.Table(

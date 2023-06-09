@@ -1591,7 +1591,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             event.formTime,
             event.toDate,
             event.toTime,
-            event.vehicleList,
+            event.imeino,
             event.framepacketoption,
             event.pageNumber,
             event.pageSize,
@@ -2181,6 +2181,73 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             event.branchId,
           );
           yield DateWiseDriverCodeLoadedState(
+              dmfdriverCoderesponse: vehiclestatusreportfilterbloc);
+        } catch (e) {
+          print(e.toString());
+        }
+      }
+
+       else if (event is DateAndTimeWiseDriverCode) {
+        try {
+          yield DateAndTimeWiseDriverCodeLoadingState();
+          var vehiclestatusreportfilterbloc =
+              await webService.dateandtimewisedrivercode(
+            event.token,
+            event.vendorId,
+            event.branchId,
+          );
+          yield DateAndTimeWiseDriverCodeLoadedState(
+              dmfdriverCoderesponse: vehiclestatusreportfilterbloc);
+        } catch (e) {
+          print(e.toString());
+        }
+      }
+
+      // Vehicle status summary
+       else if (event is VehicleStatusSummaryDrivercode) {
+        try {
+          yield VehicleStatusSummaryDriverCodeLoadingState();
+          var vehiclestatusreportfilterbloc =
+              await webService.vssdcdrivercode(
+            event.token,
+            event.vendorId,
+            event.branchId,
+          );
+          yield VehicleStatusSummaryDriverCodeLoadedState(
+              dmfdriverCoderesponse: vehiclestatusreportfilterbloc);
+        } catch (e) {
+          print(e.toString());
+        }
+      }
+
+        // Vehicle status report
+       else if (event is VehicleStatusReportDrivercode) {
+        try {
+          yield VehicleStatusReportDriverCodeLoadingState();
+          var vehiclestatusreportfilterbloc =
+              await webService.vsrdcdrivercode(
+            event.token,
+            event.vendorId,
+            event.branchId,
+          );
+          yield VehicleStatusReportDriverCodeLoadedState(
+              dmfdriverCoderesponse: vehiclestatusreportfilterbloc);
+        } catch (e) {
+          print(e.toString());
+        }
+      }
+
+       // Vehicle status Group
+       else if (event is VehicleStatusGroupDrivercode) {
+        try {
+          yield VehicleStatusGroupDriverCodeLoadingState();
+          var vehiclestatusreportfilterbloc =
+              await webService.vsgdcdrivercode(
+            event.token,
+            event.vendorId,
+            event.branchId,
+          );
+          yield VehicleStatusGroupDriverCodeLoadedState(
               dmfdriverCoderesponse: vehiclestatusreportfilterbloc);
         } catch (e) {
           print(e.toString());

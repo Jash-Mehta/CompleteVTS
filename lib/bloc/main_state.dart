@@ -85,6 +85,7 @@ import '../model/point_of_interest/poi_type.dart';
 import '../model/point_of_interest/search_point_of_interest.dart';
 import '../model/report/date_and_timewise_search.dart';
 import '../model/report/date_and_timewise_travel.dart';
+import '../model/report/dateandtimewisedrivercode.dart';
 import '../model/report/device_master_filter.dart';
 import '../model/report/device_master_filter_drivercode.dart';
 import '../model/report/device_master_report.dart';
@@ -117,14 +118,18 @@ import '../model/report/search_vehicle_status_summary.dart';
 import '../model/report/vehicle_group_filter.dart';
 import '../model/report/vehicle_status_filter_report.dart';
 import '../model/report/vehicle_status_group.dart';
+import '../model/report/vehicle_status_group_drivercode.dart';
 import '../model/report/vehicle_status_report.dart';
 import '../model/report/vehicle_status_report_drivercode.dart';
 import '../model/report/vehicle_status_summary.dart';
+import '../model/report/vehicle_status_summary_drivercode.dart';
 import '../model/report/vehicle_summary_filter.dart';
 import '../model/report/vehicle_vsrno.dart';
+import '../model/report/vehicle_wise_drivercode.dart';
 import '../model/report/vehicle_wise_search.dart';
 import '../model/report/vehicle_wise_timewise_filter.dart';
 import '../model/report/vehicle_wise_timewise_travel.dart';
+import '../model/report/vehicle_wise_twise_drivercode.dart';
 import '../model/report/vehicle_wise_travel.dart';
 import '../model/report/vehicle_wise_travel_filter.dart';
 import '../model/route_define/route_define_post.dart';
@@ -3289,6 +3294,154 @@ class DateWiseDriverCodeErorrState extends MainState {
   // TODO: implement props
   List<Object> get props => throw UnimplementedError();
 }
+
+// date and time wise driver code
+class DateAndTimeWiseDriverCodeLoadingState extends MainState {
+  List<Object> get props => throw UnimplementedError();
+}
+
+class DateAndTimeWiseDriverCodeLoadedState extends MainState {
+  DateAndTimeWiseDriverCodeModel dmfdriverCoderesponse;
+  DateAndTimeWiseDriverCodeLoadedState({
+    required this.dmfdriverCoderesponse,
+  });
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+
+class DateAndTimeWiseDriverCodeErorrState extends MainState {
+  String msg;
+  DateAndTimeWiseDriverCodeErorrState({required this.msg});
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+
+// Vehicle status group
+class VehicleStatusGroupDriverCodeLoadingState extends MainState {
+  List<Object> get props => throw UnimplementedError();
+}
+
+class VehicleStatusGroupDriverCodeLoadedState extends MainState {
+  VehicleStatusGroupDriverCodeModel dmfdriverCoderesponse;
+  VehicleStatusGroupDriverCodeLoadedState({
+    required this.dmfdriverCoderesponse,
+  });
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+
+class VehicleStatusGroupDriverCodeErorrState extends MainState {
+  String msg;
+  VehicleStatusGroupDriverCodeErorrState({required this.msg});
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+
+// Vehicle status summary
+class VehicleStatusSummaryDriverCodeLoadingState extends MainState {
+  List<Object> get props => throw UnimplementedError();
+}
+
+class VehicleStatusSummaryDriverCodeLoadedState extends MainState {
+  VehicleStatusSummaryDriverCodeModel dmfdriverCoderesponse;
+  VehicleStatusSummaryDriverCodeLoadedState({
+    required this.dmfdriverCoderesponse,
+  });
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+
+class VehicleStatusSummaryDriverCodeErorrState extends MainState {
+  String msg;
+  VehicleStatusSummaryDriverCodeErorrState({required this.msg});
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+
+// vehicle status report
+class VehicleStatusReportDriverCodeLoadingState extends MainState {
+  List<Object> get props => throw UnimplementedError();
+}
+
+class VehicleStatusReportDriverCodeLoadedState extends MainState {
+  VehicleStatusReportDriverCodeModel dmfdriverCoderesponse;
+  VehicleStatusReportDriverCodeLoadedState({
+    required this.dmfdriverCoderesponse,
+  });
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+
+class VehicleStatusReportDriverCodeErorrState extends MainState {
+  String msg;
+  VehicleStatusReportDriverCodeErorrState({required this.msg});
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+
+
+// vehicle wise distance
+class VehicleWiseDriverCodeLoadingState extends MainState {
+  List<Object> get props => throw UnimplementedError();
+}
+
+class VehicleWiseDriverCodeLoadedState extends MainState {
+  VehicleWiseDriverCodeModel dmfdriverCoderesponse;
+  VehicleWiseDriverCodeLoadedState({
+    required this.dmfdriverCoderesponse,
+  });
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+
+class VehicleWiseDriverCodeErorrState extends MainState {
+  String msg;
+  VehicleWiseDriverCodeErorrState({required this.msg});
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+
+
+
+// Vehicle wise time wise distance
+class VehicleWiseTWiseDriverCodeLoadingState extends MainState {
+  List<Object> get props => throw UnimplementedError();
+}
+
+class VehicleWiseTWiseDriverCodeLoadedState extends MainState {
+  VehicleWiseTwiseDriverCodeModel dmfdriverCoderesponse;
+  VehicleWiseTWiseDriverCodeLoadedState({
+    required this.dmfdriverCoderesponse,
+  });
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+
+class VehicleWiseTWiseDriverCodeErorrState extends MainState {
+  String msg;
+ VehicleWiseTWiseDriverCodeErorrState({required this.msg});
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+
+
+
+
+
+
+
 
 // Driver wise vehicle assign driver code
 class DriverWiseDriverCodeLoadingState extends MainState {

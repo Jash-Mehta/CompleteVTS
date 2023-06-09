@@ -1,17 +1,17 @@
-class VehicleStatusReportDriverCodeModel {
-  List<VehicleStatusReportDriverCode>? data;
+class DateAndTimeWiseDriverCodeModel {
+  List<DateAndTimeWiseDrivercode>? data;
   bool? succeeded;
   String? errors;
   String? message;
 
-  VehicleStatusReportDriverCodeModel(
+  DateAndTimeWiseDriverCodeModel(
       {this.data, this.succeeded, this.errors, this.message});
 
-  VehicleStatusReportDriverCodeModel.fromJson(Map<String, dynamic> json) {
+  DateAndTimeWiseDriverCodeModel.fromJson(Map<String, dynamic> json) {
     if (json['data'] != null) {
-      data = <VehicleStatusReportDriverCode>[];
+      data = <DateAndTimeWiseDrivercode>[];
       json['data'].forEach((v) {
-        data!.add(new VehicleStatusReportDriverCode.fromJson(v));
+        data!.add(new DateAndTimeWiseDrivercode.fromJson(v));
       });
     }
     succeeded = json['succeeded'];
@@ -31,14 +31,14 @@ class VehicleStatusReportDriverCodeModel {
   }
 }
 
-class VehicleStatusReportDriverCode {
+class DateAndTimeWiseDrivercode {
   String? imeino;
   String? vehicleRegNo;
   String? imeiNo;
 
-  VehicleStatusReportDriverCode({this.imeino, this.vehicleRegNo, this.imeiNo});
+  DateAndTimeWiseDrivercode({this.imeino, this.vehicleRegNo, this.imeiNo});
 
-  VehicleStatusReportDriverCode.fromJson(Map<String, dynamic> json) {
+  DateAndTimeWiseDrivercode.fromJson(Map<String, dynamic> json) {
     imeino = json['imeino'];
     vehicleRegNo = json['vehicleRegNo'];
     imeiNo = json['imeiNo'];

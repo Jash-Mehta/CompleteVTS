@@ -30,7 +30,7 @@ import '../../model/report/vehicle_wise_timewise_travel.dart';
 import '../../model/searchString.dart';
 import '../../util/search_bar_field.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-
+import 'package:csv/csv.dart';
 class VehicleWiseTimeWiseTravel extends StatefulWidget {
   const VehicleWiseTimeWiseTravel({Key? key}) : super(key: key);
 
@@ -1388,22 +1388,27 @@ class _VehicleWiseTimeWiseTravelState extends State<VehicleWiseTimeWiseTravel> {
                                     onTap: () async {
                                       //  final result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['pdf']);
                                       // FilePicker.platform.pickFiles(allowMultiple: false,allowedExtensions:FileType.custom(), );
-                                      final result = await FilePicker.platform
-                                          .pickFiles(
-                                              type: FileType.custom,
-                                              allowedExtensions: ['pdf']);
+                                      // final result = await FilePicker.platform
+                                      //     .pickFiles(
+                                      //         type: FileType.custom,
+                                      //         allowedExtensions: ['pdf']);
                                       // FilePicker.platform.pickFiles(allowMultiple: false,allowedExtensions:FileType.custom(), );
                                       try {
-                                        List<String>? files = result?.files
-                                            .map((file) => file.path)
-                                            .cast<String>()
-                                            .toList();
-                                        print("File path------${files}");
+                                        // List<String>? files = result?.files
+                                        //     .map((file) => file.path)
+                                        //     .cast<String>()
+                                        //     .toList();
+                                        // print("File path------${files}");
                                         //    List<String>? files = [
                                         //   "/data/user/0/com.vts.gps/cache/file_picker/DTwisereport.pdf"
                                         // ];
                                         // print("File path------${files}");
-                                        await Share.shareFiles(files!);
+                                      shareDeviceData(
+                                            vehicledata!,
+                                            filterdata!,
+                                            applyclicked,
+                                            searchdata!,
+                                            isSearch);
                                         Navigator.of(context).popUntil((route) => route.isCurrent);
                                       } catch (e) {
                                         Fluttertoast.showToast(
@@ -1540,8 +1545,7 @@ class _VehicleWiseTimeWiseTravelState extends State<VehicleWiseTimeWiseTravel> {
                                             fontWeight: FontWeight.bold),
                                       );
                                     }),
-                          applyclicked
-                              ? Container(
+                          Container(
                                   margin: EdgeInsets.only(top: 10, bottom: 20),
                                   padding: EdgeInsets.all(15),
                                   decoration: BoxDecoration(
@@ -1598,7 +1602,7 @@ class _VehicleWiseTimeWiseTravelState extends State<VehicleWiseTimeWiseTravel> {
                                                         TextStyle(fontSize: 18),
                                                   ),
                                                   Text(
-                                                      vtwdvehiclenolisttiletext,
+                                                      vtwdvehiclenolisttiletext == null ? "-" : vtwdvehiclenolisttiletext,
                                                       style: TextStyle(
                                                           fontSize: 18)),
                                                 ],
@@ -1610,7 +1614,7 @@ class _VehicleWiseTimeWiseTravelState extends State<VehicleWiseTimeWiseTravel> {
                                     ],
                                   ),
                                 )
-                              : SizedBox(),
+                              ,
                           applyclicked
                               ? filterdata!.isEmpty
                                   ? Center(
@@ -2443,6 +2447,99 @@ class _VehicleWiseTimeWiseTravelState extends State<VehicleWiseTimeWiseTravel> {
       ),
     );
   }
+
+  
+   String convertDataToCsv(
+      List<VehicleWiseTimeWiseData> data,
+      List<VehihcleWiseTimeWiseFilterData> filterdata,
+      bool applyclicked,
+      List<VehicleWiseTimeWiseSearchData> searchdata,
+      bool issearch) {
+    List<List<dynamic>> rows = [];
+    // Add headers
+   applyclicked ?rows.add(["Vehicle wise Time wise Distance Filter "]) : issearch ? rows.add(["Vehicle wise Time wise Distance Search"]) : rows.add(["Vehicle wise Time wise Distance Data"]);
+    rows.add(['IMEINo','Trans Time','Speed','Distance Travel', 'Latitude', 'Longitude','Adress']);
+
+    // Add data rows
+    if (applyclicked) {
+      for (var item in filterdata) {
+        // print("This is filter lenght");
+        print("Filter data" + filterdata.toString());
+        rows.add([
+          item.imeino,
+          item.transTime,
+          item.speed,
+          item.distancetravel,
+          item.latitude,
+          item.longitude,
+          item.address
+        ]);
+      }
+    } else if (issearch) {
+      for (var item in searchdata) {
+        // print("This is filter lenght");
+        print("Search data" + searchdata.toString());
+        rows.add([
+        item.imeino,
+          item.transTime,
+          item.speed,
+          item.distancetravel,
+          item.latitude,
+          item.longitude,
+          item.address
+        ]);
+      }
+    } else {
+      for (var item in data) {
+        // print("This is filter lenght");
+        print("Filter data" + filterdata.toString());
+        rows.add([
+       item.imeino,
+          item.transTime,
+          item.speed,
+          item.distancetravel,
+          item.latitude,
+          item.longitude,
+          item.address
+        ]);
+      }
+    }
+    return ListToCsvConverter().convert(rows);
+  }
+
+
+  Future<File> saveCsvFile(
+      String csvFilterData, bool applyclicked, bool issearch) async {
+    final directory = await getTemporaryDirectory();
+    final filePath = issearch
+        ? '${directory.path}/search_vehicleTwisedistance.csv'
+        : applyclicked
+            ? '${directory.path}/Filter_vehicleTwisedistance.csv'
+            : '${directory.path}/vehicleTwisedistance.csv';
+    final file = File(filePath);
+    return file.writeAsString(csvFilterData);
+  }
+
+  void shareCsvFile(File csvFilterFile) {
+    Share.shareFiles([csvFilterFile.path],
+        text: 'Sharing device data CSV file');
+  }
+
+  void shareDeviceData(
+       List<VehicleWiseTimeWiseData> data,
+      List<VehihcleWiseTimeWiseFilterData> filterdata,
+      bool applyclicked,
+      List<VehicleWiseTimeWiseSearchData> searchdata,
+      bool issearch) async {
+    String csvData = convertDataToCsv(
+        data, filterdata, applyclicked, searchdata, issearch);
+    File csvFile = await saveCsvFile(csvData, applyclicked, issearch);
+    print("This is csv Filter data " + csvData);
+
+    shareCsvFile(csvFile);
+  }
+
+
 
   onSearchTextChanged(String? text) async {
     if (text!.isEmpty || text.length < 0) {

@@ -157,9 +157,6 @@ class _MapLiveTrackingDetailsScreenState
                     double.parse(state.vtsLiveGeo.details!.data![i].latitude!);
                 long =
                     double.parse(state.vtsLiveGeo.details!.data![i].longitude!);
-             
-             
-                
                 _marker.add(Marker(
                     //add second marker
                     markerId: MarkerId("Backend"),
@@ -167,8 +164,8 @@ class _MapLiveTrackingDetailsScreenState
                         widget.latitude, widget.longitude), //position of marker
                     infoWindow: InfoWindow(title: "Backend Marker"),
                     icon: BitmapDescriptor.defaultMarker));
-                if (i == 0) {
                 
+                if (i == 0) {
                   _marker.add(Marker(
                       //add second marker
                       markerId:

@@ -101,6 +101,7 @@ import '../model/point_of_interest/poi_type.dart';
 import '../model/point_of_interest/search_point_of_interest.dart';
 import '../model/report/date_and_timewise_filter.dart';
 import '../model/report/date_and_timewise_search.dart';
+import '../model/report/dateandtimewisedrivercode.dart';
 import '../model/report/device_master_filter.dart';
 import '../model/report/device_master_filter_drivercode.dart';
 import '../model/report/device_master_report.dart';
@@ -124,16 +125,20 @@ import '../model/report/search_vehicle_status_response.dart';
 import '../model/report/search_vehicle_status_summary.dart';
 import '../model/report/vehicle_group_filter.dart';
 import '../model/report/vehicle_status_filter_report.dart';
+import '../model/report/vehicle_status_group_drivercode.dart';
 import '../model/report/vehicle_status_report.dart';
 import '../model/report/vehicle_status_report_drivercode.dart';
 import '../model/report/vehicle_status_summary.dart';
+import '../model/report/vehicle_status_summary_drivercode.dart';
 import '../model/report/vehicle_vsrno.dart';
+import '../model/report/vehicle_wise_drivercode.dart';
 import '../model/report/vehicle_wise_search.dart';
 import '../model/report/vehicle_wise_timewise_filter.dart';
 import '../model/report/vehicle_wise_timewise_search.dart';
 import '../model/report/vehicle_wise_timewise_travel.dart';
 import '../model/report/vehicle_wise_travel.dart';
 import '../model/report/vehicle_wise_travel_filter.dart';
+import '../model/report/vehicle_wise_twise_drivercode.dart';
 import '../model/route_define/route_define_post.dart';
 import '../model/searchString.dart';
 import '../model/travel_summary/travel_summary.dart';
@@ -4340,7 +4345,7 @@ class WebService {
     // }
   }
 
-  // Vehicle Status Driver code
+  // Vehicle Status Report Driver code
   Future<VehicleStatusReportDriverCodeModel> vsrdcdrivercode(
     String token,
     int vendorid,
@@ -4370,6 +4375,133 @@ class WebService {
       throw Exception('Failed to load data');
     }
   }
+
+ // Vehicle Status Summary Driver code
+  Future<VehicleStatusSummaryDriverCodeModel> vssdcdrivercode(
+    String token,
+    int vendorid,
+    int branchid,
+  ) async {
+    var dmfdrivercodeurl =
+        "https://vtsgpsapi.m-techinnovations.com/api/VehicleStatusSummaryReport/FillVehicleListIMEINo/1/1";
+
+    print("This is vehicle status report filter driver code url " +
+        dmfdrivercodeurl);
+
+    final response =
+        await http.get(Uri.parse(dmfdrivercodeurl), headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    });
+    if (response.statusCode == 200) {
+      print("Successfully getting your driver code data");
+      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
+
+      var ddevicemasterjson =
+          VehicleStatusSummaryDriverCodeModel.fromJson(jsonbody);
+      print("Json decoded body_" + dmfdrivercodeurl.toString());
+      return ddevicemasterjson;
+    } else {
+      print(response.body);
+      throw Exception('Failed to load data');
+    }
+  }
+
+  // Vehicle Status Group Driver code
+  Future<VehicleStatusGroupDriverCodeModel> vsgdcdrivercode(
+    String token,
+    int vendorid,
+    int branchid,
+  ) async {
+    var dmfdrivercodeurl =
+        "https://vtsgpsapi.m-techinnovations.com/api/VehicleStatusGroupByReport/FillVehicleListIMEINo/1/1";
+
+    print("This is vehicle status report filter driver code url " +
+        dmfdrivercodeurl);
+
+    final response =
+        await http.get(Uri.parse(dmfdrivercodeurl), headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    });
+    if (response.statusCode == 200) {
+      print("Successfully getting your driver code data");
+      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
+
+      var ddevicemasterjson =
+          VehicleStatusGroupDriverCodeModel.fromJson(jsonbody);
+      print("Json decoded body_" + dmfdrivercodeurl.toString());
+      return ddevicemasterjson;
+    } else {
+      print(response.body);
+      throw Exception('Failed to load data');
+    }
+  }
+
+ // Vehicle wise Driver code
+  Future<VehicleWiseDriverCodeModel> vwdrivercode(
+    String token,
+    int vendorid,
+    int branchid,
+  ) async {
+    var dmfdrivercodeurl =
+        "https://vtsgpsapi.m-techinnovations.com/api/VehicleWiseTravelHistoryReport/FillVehicleList_IMEINo/1/1";
+
+    print("This is vehicle status report filter driver code url " +
+        dmfdrivercodeurl);
+
+    final response =
+        await http.get(Uri.parse(dmfdrivercodeurl), headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    });
+    if (response.statusCode == 200) {
+      print("Successfully getting your driver code data");
+      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
+
+      var ddevicemasterjson =
+          VehicleWiseDriverCodeModel.fromJson(jsonbody);
+      print("Json decoded body_" + dmfdrivercodeurl.toString());
+      return ddevicemasterjson;
+    } else {
+      print(response.body);
+      throw Exception('Failed to load data');
+    }
+  }
+
+// Vehicle wise time wise Driver code
+  Future<VehicleWiseTwiseDriverCodeModel> vwtwdrivercode(
+    String token,
+    int vendorid,
+    int branchid,
+  ) async {
+    var dmfdrivercodeurl =
+        "https://vtsgpsapi.m-techinnovations.com/api/VehiclewiseTimewiseTravelHistoryReport/FillVehicleList_IMEINo/1/1";
+
+    print("This is vehicle status report filter driver code url " +
+        dmfdrivercodeurl);
+
+    final response =
+        await http.get(Uri.parse(dmfdrivercodeurl), headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    });
+    if (response.statusCode == 200) {
+      print("Successfully getting your driver code data");
+      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
+
+      var ddevicemasterjson =
+          VehicleWiseTwiseDriverCodeModel.fromJson(jsonbody);
+      print("Json decoded body_" + dmfdrivercodeurl.toString());
+      return ddevicemasterjson;
+    } else {
+      print(response.body);
+      throw Exception('Failed to load data');
+    }
+  }
+
+
+
 
   // Vehicle VSrNo
   Future<VehicleVSrNoModel> vehiclevsrno(
@@ -4509,6 +4641,35 @@ class WebService {
       var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
 
       var ddevicemasterjson = DateWiseDriverCodeModel.fromJson(jsonbody);
+      print("Json decoded body_" + dmfdrivercodeurl.toString());
+      return ddevicemasterjson;
+    } else {
+      print(response.body);
+      throw Exception('Failed to load data');
+    }
+  }
+
+   Future<DateAndTimeWiseDriverCodeModel> dateandtimewisedrivercode(
+    String token,
+    int vendorid,
+    int branchid,
+  ) async {
+    var dmfdrivercodeurl =
+        "https://vtsgpsapi.m-techinnovations.com/api/TimeWiseTravelHistoryReport/FillVehicleList_IMEINo/1/1";
+
+    print("This is date and time wise vehicle assign filter driver code url " +
+        dmfdrivercodeurl);
+
+    final response =
+        await http.get(Uri.parse(dmfdrivercodeurl), headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    });
+    if (response.statusCode == 200) {
+      print("Successfully getting your driver code data");
+      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
+
+      var ddevicemasterjson = DateAndTimeWiseDriverCodeModel.fromJson(jsonbody);
       print("Json decoded body_" + dmfdrivercodeurl.toString());
       return ddevicemasterjson;
     } else {
@@ -5416,7 +5577,7 @@ class WebService {
     String fromTime,
     String toDate,
     String toTime,
-    String vehicleList,
+    String imeino,
     String frampacketoption,
     int pagenumber,
     int pagesize,
@@ -5435,8 +5596,8 @@ class WebService {
         toDate.toString() +
         "&ToTime=" +
         toTime.toString() +
-        "&VehicleList=" +
-        vehicleList.toString() +
+        "&IMEINO=" +
+        imeino.toString() +
         "&FramePacketOption=" +
         frampacketoption.toString() +
         "&PageNumber=" +
