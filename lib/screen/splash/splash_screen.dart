@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_vts/screen/onboarding/OnboardingScreen.dart';
 import 'package:flutter_vts/util/MyColor.dart';
-import 'package:lottie/lottie.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -22,7 +21,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   gotonextpage() {
     Timer(Duration(seconds: 3), () {
-      Navigator.pushReplacement(
+      Navigator.push(
           context, MaterialPageRoute(builder: (context) => OnboardingScreen()));
     });
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_vts/bloc/main_bloc.dart';
+import 'package:flutter_vts/screen/login/login_screen.dart';
 import 'package:flutter_vts/screen/splash/splash_screen.dart';
 import 'package:flutter_vts/service/web_service.dart';
 import 'package:flutter_vts/simple_bloc_observer.dart';
@@ -29,7 +30,7 @@ class MyApp extends StatelessWidget {
             create: (context) {
               return MainBloc(webService: WebService());
             },
-            child: SplashScreen()
+            child: LoginScreen()
             // SplashScreen()/*NotificationScreen(isappbar: true,)*//*VehicleAnalyticsReportsStatusScreen(truckImage: '', analyticTiltle: '', colorCode: MyColors.whiteColorCode,)*//*NotificationScreen(isappbar: true,)*/
             ));
   }

@@ -92,13 +92,13 @@ class MyColors {
 
 
   ThemeData _darkTheme = ThemeData(
-    accentColor: Colors.red,
+    hintColor: Colors.red,
     brightness: Brightness.dark,
     primaryColor: Colors.amber,
   );
 
   ThemeData _lightTheme = ThemeData(
-      accentColor: Colors.pink,
+      hintColor: Colors.pink,
       brightness: Brightness.light,
       primaryColor: Colors.blue);
 }

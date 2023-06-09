@@ -24,6 +24,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import '../../model/report/search_vehicle_status_group_response.dart';
 import '../../model/report/vehicle_group_filter.dart';
 import '../../model/report/vehicle_status_group.dart';
+import '../../model/report/vehicle_status_report.dart';
 import '../../model/report/vehicle_vsrno.dart';
 import '../../model/searchString.dart';
 import '../../util/search_bar_field.dart';
@@ -288,32 +289,6 @@ class _VehicleStatusGroupState extends State<VehicleStatusGroup> {
     print("branchid ${branchid}   Vendor id   ${vendorid}");
 
     //print(""+vendorid.toString()+" "+branchid.toString()+" "+userName+" "+vendorName+" "+branchName+" "+userType);
-    print("" +
-        vehicleRegNo.toString() +
-        " " +
-        imeino.toString() +
-        " " +
-        latitude.toString() +
-        " " +
-        longitude.toString() +
-        " " +
-        address.toString() +
-        " " +
-        transDate.toString() +
-        " " +
-        transTime.toString() +
-        " " +
-        speed.toString() +
-        " " +
-        overSpeed.toString() +
-        " " +
-        updatedOn.toString() +
-        " " +
-        distancetravel.toString() +
-        " " +
-        speedLimit.toString() +
-        " " +
-        searchText);
 
     if (token != "" ||
         vehicleRegNo != 0 ||
@@ -1402,7 +1377,8 @@ class _VehicleStatusGroupState extends State<VehicleStatusGroup> {
                                         // ];
                                         // print("File path------${files}");
                                         await Share.shareFiles(files!);
-                                        Navigator.of(context).popUntil((route) => route.isCurrent);
+                                        Navigator.of(context).popUntil(
+                                            (route) => route.isCurrent);
                                       } catch (e) {
                                         Fluttertoast.showToast(
                                           msg: "Download the pdf first",
@@ -1625,49 +1601,49 @@ class _VehicleStatusGroupState extends State<VehicleStatusGroup> {
                                   ),
                                 )
                               : SizedBox(),
-                          // Padding(
-                          //   padding: EdgeInsets.all(8),
-                          //   child: Column(
-                          //     children: [
-                          //       Padding(
-                          //         padding: const EdgeInsets.all(8.0),
-                          //         child: Center(
-                          //           child: Text(
-                          //             "Group By " +
-                          //                 "(" +
-                          //                 "MH12AA0011" +
-                          //                 ")" +
-                          //                 " Total :- " +
-                          //                 "17:30:00",
-                          //             style: TextStyle(
-                          //                 fontSize: 18,
-                          //                 fontWeight: FontWeight.w600),
-                          //           ),
-                          //         ),
-                          //       ),
-                          //       Center(
-                          //         child: Text(
-                          //           "Group By ( ${fromDateController ?? "01-sep-2022"} ) Total :- 17:30:56",
-                          //           style: TextStyle(
-                          //               fontSize: 18,
-                          //               fontWeight: FontWeight.w600),
-                          //         ),
-                          //       ),
-                          //       Padding(
-                          //         padding: const EdgeInsets.all(8.0),
-                          //         child: Center(
-                          //           child: Text(
-                          //             " Total Over Speed Distance Travel " +
-                          //                 "17:30:56",
-                          //             style: TextStyle(
-                          //                 fontSize: 18,
-                          //                 fontWeight: FontWeight.w600),
-                          //           ),
-                          //         ),
-                          //       ),
-                          //     ],
-                          //   ),
-                          // ),
+                          Padding(
+                            padding: EdgeInsets.all(8),
+                            child: Column(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Center(
+                                    child: Text(
+                                      "Group By " +
+                                          "(" +
+                                          "MH12AA0011" +
+                                          ")" +
+                                          " Total :- " +
+                                          "17:30:00",
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                  ),
+                                ),
+                                Center(
+                                  child: Text(
+                                    "Group By ( ${vsrtotalhrs ?? "01-sep-2022"} ) Total :- 17:30:56",
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w600),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Center(
+                                    child: Text(
+                                      " Total Over Speed Distance Travel " +
+                                          "${vsrdistance}",
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                           applyclicked
                               ? filterData!.isEmpty
                                   ? Center(
@@ -3036,7 +3012,12 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(applyclicked ? pdffilter[index].imei.toString() : issearch ? pdfsearch[index].imei.toString() : pdflist[index].imei.toString(),
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilter[index].imei.toString()
+                                    : issearch
+                                        ? pdfsearch[index].imei.toString()
+                                        : pdflist[index].imei.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -3045,7 +3026,16 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(applyclicked ? pdffilter[index].vehicleregNo.toString() : issearch ? pdfsearch[index].vehicleregNo.toString() : pdflist[index].vehicleregNo.toString(),
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilter[index].vehicleregNo.toString()
+                                    : issearch
+                                        ? pdfsearch[index]
+                                            .vehicleregNo
+                                            .toString()
+                                        : pdflist[index]
+                                            .vehicleregNo
+                                            .toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -3054,7 +3044,12 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(applyclicked ? pdffilter[index].startTime.toString() : issearch ? pdfsearch[index].startTime.toString() : pdflist[index].startTime.toString(),
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilter[index].startTime.toString()
+                                    : issearch
+                                        ? pdfsearch[index].startTime.toString()
+                                        : pdflist[index].startTime.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -3063,7 +3058,12 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(applyclicked ? pdffilter[index].endTime.toString() : issearch ? pdfsearch[index].endTime.toString() : pdflist[index].endTime.toString(),
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilter[index].endTime.toString()
+                                    : issearch
+                                        ? pdfsearch[index].endTime.toString()
+                                        : pdflist[index].endTime.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -3072,7 +3072,16 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(applyclicked ? pdffilter[index].vehicleStatus.toString() : issearch ? pdfsearch[index].vehicleStatus.toString() : pdflist[index].vehicleStatus.toString(),
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilter[index].vehicleStatus.toString()
+                                    : issearch
+                                        ? pdfsearch[index]
+                                            .vehicleStatus
+                                            .toString()
+                                        : pdflist[index]
+                                            .vehicleStatus
+                                            .toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),

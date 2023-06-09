@@ -56,8 +56,10 @@ class _MapLiveTrackingDetailsScreenState
     long = widget.longitude;
     pagenumber = 1;
     _mainBloc = BlocProvider.of(context);
+    _marker.clear();
+
     getdata();
-    ;
+
     setState(() {});
   }
 
@@ -95,11 +97,11 @@ class _MapLiveTrackingDetailsScreenState
       print("Error message: ${result.errorMessage}");
     } else {
       // print(polylineWayPoints.toList().toString());
-      print(result.errorMessage);
+      print(result.status);
     }
     //polulineCoordinates is the List of longitute and latidtude.
 
-    setState(() {});
+    //setState(() {});
     addPolyLine(polylineCoordinates);
   }
 
@@ -113,12 +115,11 @@ class _MapLiveTrackingDetailsScreenState
       width: 5,
     );
     polylines[id] = polyline;
-    setState(() {});
+    //setState(() {});
   }
 
   getVehicleStatus() {
     timer = Timer.periodic(Duration(seconds: 5), (Timer t) {
-      pagenumber++;
       _mainBloc.add(VTSHistorySpeedParameterEvent(
           token: token,
           vendorid: 1,
@@ -144,7 +145,7 @@ class _MapLiveTrackingDetailsScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       body: BlocListener<MainBloc, MainState>(
-        listener: (context, state) {
+        listener: (context, state) async {
           if (state is VTSHistorySpeedParameterLoadingState) {
             print("Enter in the Loading state VTSSHistory--------->");
           } else if (state is VTSHistorySpeedParameterLoadedState) {
@@ -157,48 +158,35 @@ class _MapLiveTrackingDetailsScreenState
                     double.parse(state.vtsLiveGeo.details!.data![i].latitude!);
                 long =
                     double.parse(state.vtsLiveGeo.details!.data![i].longitude!);
-             
-             
-                
+                print("Marker is below---------->");
+
                 _marker.add(Marker(
                     //add second marker
-                    markerId: MarkerId("Backend"),
+                    markerId:
+                        MarkerId(LatLng(27.7089427, 85.3086209).toString()),
                     position: LatLng(
-                        widget.latitude, widget.longitude), //position of marker
-                    infoWindow: InfoWindow(title: "Backend Marker"),
+                        double.parse(
+                            state.vtsLiveGeo.details!.data![i].latitude!),
+                        double.parse(state.vtsLiveGeo.details!.data![i]
+                            .longitude!)), //position of marker
+                    infoWindow: InfoWindow(title: "${i}"),
                     icon: BitmapDescriptor.defaultMarker));
-                if (i == 0) {
-                
-                  _marker.add(Marker(
-                      //add second marker
-                      markerId:
-                          MarkerId(LatLng(27.7089427, 85.3086209).toString()),
-                      position: LatLng(
-                          double.parse(
-                              state.vtsLiveGeo.details!.data![i].latitude!),
-                          double.parse(state.vtsLiveGeo.details!.data![i]
-                              .longitude!)), //position of marker
-                      infoWindow: InfoWindow(title: "${i}"),
-                      icon: BitmapDescriptor.defaultMarker));
-                  mapController!.animateCamera(CameraUpdate.newCameraPosition(
-                      CameraPosition(
-                          target: LatLng(
-                              double.parse(
-                                  state.vtsLiveGeo.details!.data![i].latitude!),
-                              double.parse(state
-                                  .vtsLiveGeo.details!.data![i].longitude!)),
-                          zoom: 17)));
-                  getDirections(
-                      widget.latitude,
-                      widget.longitude,
-                      double.parse(
-                          state.vtsLiveGeo.details!.data![i].latitude!),
-                      double.parse(
-                          state.vtsLiveGeo.details!.data![i].longitude!));
+                mapController!.animateCamera(CameraUpdate.newCameraPosition(
+                    CameraPosition(
+                        target: LatLng(
+                            double.parse(
+                                state.vtsLiveGeo.details!.data![i].latitude!),
+                            double.parse(
+                                state.vtsLiveGeo.details!.data![i].longitude!)),
+                        zoom: 17)));
 
-                  setState(() {});
-                }
+                setState(() {});
               }
+              getDirections(
+                  widget.latitude, widget.longitude, latitude!, long!);
+              setState(() {
+                pagenumber++;
+              });
             }
           } else if (state is VTSHistorySpeedParameterErrorState) {}
         },
@@ -223,60 +211,60 @@ class _MapLiveTrackingDetailsScreenState
                     });
                   },
                 )),
-            SingleChildScrollView(
-              child: Column(
-                children: [
-                  Container(
-                      margin: EdgeInsets.only(
-                          top: MediaQuery.of(context).size.height / 2),
-                      height: MediaQuery.of(context).size.height / 2,
-                      width: double.infinity,
-                      child: Card(
-                        child: Column(children: [
-                          Expanded(
-                            child: ListView.builder(
-                              itemCount: vtshistoryspeeddata.length,
-                              itemBuilder: (BuildContext context, int index) {
-                                return Row(
-                                  children: [
-                                    // Container(
-                                    //     decoration: BoxDecoration(
-                                    //         border: Border.all(
-                                    //             color:
-                                    //                 Color.fromARGB(255, 207, 205, 205))),
-                                    //     child: Text(
-                                    //         vtshistoryspeeddata[index].speed.toString())),
-                                       Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text(
-                                              vtshistoryspeeddata[index].date.toString()),
-                                      ),
-                                       Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text(
-                                              vtshistoryspeeddata[index].time.toString()),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text(
-                                              vtshistoryspeeddata[index].distancetravel.toString()),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text(
-                                              vtshistoryspeeddata[index].speed.toString()),
-                                      )
-                                      
-                                  ],
-                                );
-                              },
-                            ),
-                          ),
-                        ]),
-                      )),
-                ],
-              ),
-            )
+            // SingleChildScrollView(
+            //   child: Column(
+            //     children: [
+            //       Container(
+            //           margin: EdgeInsets.only(
+            //               top: MediaQuery.of(context).size.height / 2),
+            //           height: MediaQuery.of(context).size.height / 2,
+            //           width: double.infinity,
+            //           child: Card(
+            //             child: Column(children: [
+            //               Expanded(
+            //                 child: ListView.builder(
+            //                   itemCount: vtshistoryspeeddata.length,
+            //                   itemBuilder: (BuildContext context, int index) {
+            //                     return Row(
+            //                       children: [
+            //                         // Container(
+            //                         //     decoration: BoxDecoration(
+            //                         //         border: Border.all(
+            //                         //             color:
+            //                         //                 Color.fromARGB(255, 207, 205, 205))),
+            //                         //     child: Text(
+            //                         //         vtshistoryspeeddata[index].speed.toString())),
+            //                            Padding(
+            //                             padding: const EdgeInsets.all(8.0),
+            //                             child: Text(
+            //                                   vtshistoryspeeddata[index].date.toString()),
+            //                           ),
+            //                            Padding(
+            //                             padding: const EdgeInsets.all(8.0),
+            //                             child: Text(
+            //                                   vtshistoryspeeddata[index].time.toString()),
+            //                           ),
+            //                           Padding(
+            //                             padding: const EdgeInsets.all(8.0),
+            //                             child: Text(
+            //                                   vtshistoryspeeddata[index].distancetravel.toString()),
+            //                           ),
+            //                           Padding(
+            //                             padding: const EdgeInsets.all(8.0),
+            //                             child: Text(
+            //                                   vtshistoryspeeddata[index].speed.toString()),
+            //                           )
+
+            //                       ],
+            //                     );
+            //                   },
+            //                 ),
+            //               ),
+            //             ]),
+            //           )),
+            //     ],
+            //   ),
+            // )
           ],
         ),
       ),

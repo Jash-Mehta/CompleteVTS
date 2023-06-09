@@ -50,11 +50,22 @@ List<SearchLiveTrackingResponse> searchliveTrackingResponse = [];
 double distance = 0.0;
 var textselected;
 var time;
+bool track = false;
 var hour, min;
 double straightDistance = 0.0;
 late places.GoogleMapsPlaces _places;
 List<String> stepsList = [];
-var googlesteps;
+var googlesteps,
+    runningstatus,
+    drivername,
+    datetime,
+    address,
+    lat,
+    lng,
+    speedlimit,
+    speed,
+    distancetravel,
+    ignition;
 
 class _VTSGeofenceMapState extends State<VTSGeofenceMap> {
   double? fromlatitude;
@@ -78,7 +89,10 @@ class _VTSGeofenceMapState extends State<VTSGeofenceMap> {
     // LatLng midpoint = LatLng(midlatitude!, midlongitude!);
 
     markers.clear();
-
+    getsteps();
+    track = false;
+    steps = false;
+    //  containerselected = true;
     LatLng startingpoint = LatLng(fromlatitude!, fromlongitude!);
     LatLng destationpoint = LatLng(tolatitude!, tolongitude!);
 
@@ -91,9 +105,12 @@ class _VTSGeofenceMapState extends State<VTSGeofenceMap> {
     //! Markers are addeddd----------------
 
     for (int i = 0; i < midpointlist.length; i++) {
+      int j = i + 1;
+
       markers.add(
         Marker(
           markerId: MarkerId(i.toString()),
+          infoWindow: InfoWindow(title: "MidPoint ${j}"),
           position: LatLng(
               midpointlist[i]["latitude"]!, midpointlist[i]["longitude"]!),
         ),
@@ -141,6 +158,16 @@ class _VTSGeofenceMapState extends State<VTSGeofenceMap> {
           //       await _getBytesFromAsset("assets/stop_car.png", 85);
           //       Uint8List markerIconincative =
           //       await _getBytesFromAsset("assets/inactive_car.png", 85);
+          runningstatus = searchliveTrackingResponse[i].vehicleStatus;
+          drivername = searchliveTrackingResponse[i].driverName;
+          datetime = searchliveTrackingResponse[i].date;
+          address = searchliveTrackingResponse[i].address;
+          lat = searchliveTrackingResponse[i].latitude;
+          lng = searchliveTrackingResponse[i].longitude;
+          speedlimit = searchliveTrackingResponse[i].speedLimit;
+          speed = searchliveTrackingResponse[i].speed;
+          distancetravel = searchliveTrackingResponse[i].distancetravel;
+          ignition = searchliveTrackingResponse[i].ignition;
           markers.add(Marker(
             //add second marker
             markerId: MarkerId(showLocation.toString()),
@@ -180,7 +207,6 @@ class _VTSGeofenceMapState extends State<VTSGeofenceMap> {
   bool steps = false;
   List<String> directions = [];
   List<String> turnsList = [];
-
   //! getData-------------------------
   getdata() async {
     sharedPreferences = await SharedPreferences.getInstance();
@@ -267,7 +293,7 @@ class _VTSGeofenceMapState extends State<VTSGeofenceMap> {
     );
 
     if (result.points.isNotEmpty) {
-      getsteps();
+      // getsteps();
       //setState(() {});
       result.points.forEach((PointLatLng point) {
         polylineCoordinates.add(LatLng(point.latitude, point.longitude));
@@ -387,7 +413,7 @@ class _VTSGeofenceMapState extends State<VTSGeofenceMap> {
             //     state.searchliveTrackingResponse[0].latitude.toString());
           } else if (state is SearchLiveTrackingErrorState) {
             setState(() {
-              markers.clear();
+              //  markers.clear();
             });
 
             Fluttertoast.showToast(
@@ -589,10 +615,26 @@ class _VTSGeofenceMapState extends State<VTSGeofenceMap> {
                                       MainAxisAlignment.spaceEvenly,
                                   children: [
                                     ElevatedButton(
-                                        onPressed: () {}, child: Text("Track")),
+                                        onPressed: () {
+                                          if (textselected != null) {
+                                            track = true;
+                                            steps = false;
+
+                                            setState(() {});
+                                          } else {
+                                            Fluttertoast.showToast(
+                                              toastLength: Toast.LENGTH_SHORT,
+                                              timeInSecForIosWeb: 1,
+                                              msg:
+                                                  "Please Select the Vehicle...!",
+                                            );
+                                          }
+                                        },
+                                        child: Text("Track")),
                                     ElevatedButton(
                                         onPressed: () {
-                                          getsteps();
+                                          //  getsteps();
+                                          track = false;
                                           steps = true;
                                           setState(() {});
 
@@ -604,7 +646,150 @@ class _VTSGeofenceMapState extends State<VTSGeofenceMap> {
                               ],
                             ),
                           )),
-                    ))
+                    )),
+            track
+                ? Container(
+                    height: 200.0,
+                    width: double.infinity,
+                    margin: EdgeInsets.only(
+                        left: 15.0,
+                        right: 15.0,
+                        top: MediaQuery.of(context).size.height / 2),
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20.0)),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 30.0),
+                          child: Text(
+                            runningstatus.toString(),
+                            style: TextStyle(
+                                color: Color.fromARGB(255, 49, 113, 51),
+                                fontSize: 19.0,
+                                fontWeight: FontWeight.w400),
+                          ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Column(
+                              children: [
+                                Text(
+                                  "Driver Name",
+                                  style: TextStyle(
+                                      color: Colors.grey, fontSize: 16.0),
+                                ),
+                                Text(
+                                  drivername.toString(),
+                                  style: TextStyle(
+                                      color: Colors.black, fontSize: 16.0),
+                                ),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                Text(
+                                  "Date & Time",
+                                  style: TextStyle(
+                                      color: Colors.grey, fontSize: 16.0),
+                                ),
+                                Text(
+                                  datetime.toString(),
+                                  style: TextStyle(
+                                      color: Colors.black, fontSize: 16.0),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Column(
+                              children: [
+                                Text(
+                                  "Address",
+                                  style: TextStyle(
+                                      color: Colors.grey, fontSize: 16.0),
+                                ),
+                                Text(
+                                  address.toString(),
+                                  style: TextStyle(
+                                      color: Colors.black, fontSize: 16.0),
+                                ),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                Text(
+                                  "Lat.Lng",
+                                  style: TextStyle(
+                                      color: Colors.grey, fontSize: 16.0),
+                                ),
+                                Text(
+                                  "${lat.toString()}| ${lng.toString()}",
+                                  style: TextStyle(
+                                      color: Colors.black, fontSize: 16.0),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Column(
+                              children: [
+                                Text(
+                                  "Speed Limit",
+                                  style: TextStyle(
+                                      color: Colors.grey, fontSize: 16.0),
+                                ),
+                                Text(
+                                  speedlimit.toString(),
+                                  style: TextStyle(
+                                      color: Colors.black, fontSize: 16.0),
+                                ),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                Text(
+                                  "Speed",
+                                  style: TextStyle(
+                                      color: Colors.grey, fontSize: 16.0),
+                                ),
+                                Text(
+                                  speed.toString(),
+                                  style: TextStyle(
+                                      color: Colors.black, fontSize: 16.0),
+                                ),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                Text(
+                                  "Distance Travel",
+                                  style: TextStyle(
+                                      color: Colors.grey, fontSize: 16.0),
+                                ),
+                                Text(
+                                  distance.toString(),
+                                  style: TextStyle(
+                                      color: Colors.black, fontSize: 16.0),
+                                ),
+                              ],
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                  )
+                : SizedBox(),
           ]),
         ),
       ),

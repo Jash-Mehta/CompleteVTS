@@ -51,6 +51,7 @@ dev_dependencies:
   lottie: ^1.1.0
   flutter_bloc: ^7.3.0
   http: ^0.13.3
+  package_info_plus: any
   loading_overlay: ^0.3.0
   fluttertoast: ^8.0.8
   syncfusion_flutter_charts: ^20.1.52
@@ -62,6 +63,8 @@ dev_dependencies:
   google_maps_webservice: ^0.0.19
   google_maps_cluster_manager: ^3.0.0+1
   location: ^4.4.0
+  wakelock_windows: any
+  win32: any
   flutter_polyline_points: ^1.0.0
   solid_bottom_sheet: ^0.1.10
   permission_handler: ^10.2.0

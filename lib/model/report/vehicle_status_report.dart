@@ -1,3 +1,7 @@
+var vsrtime;
+var vsrspeed;
+var vsrdistance, vsrtotalhrs;
+
 class VehicleStatusReportModel {
   int? pageNumber;
   int? pageSize;
@@ -101,7 +105,9 @@ class Data {
             .add(new GroupByVehicleRegNoTotalHours.fromJson(v));
       });
     }
+    vsrtotalhrs = json['totalHours'];
     totalHours = json['totalHours'];
+
     if (json['datewiseTravelHoursData'] != null) {
       datewiseTravelHoursData = <VehicleStatusReportData>[];
       json['datewiseTravelHoursData'].forEach((v) {
@@ -163,6 +169,8 @@ class GroupByVehicleRegNoTotalHours {
       this.groupByDateByVehicleRegNoTimeDiff});
 
   GroupByVehicleRegNoTotalHours.fromJson(Map<String, dynamic> json) {
+    vsrdistance = json['groupByDateByVehicleRegNoTimeDiff'];
+    
     tDate = json['tDate'];
     vehicleRegNo = json['vehicleRegNo'];
     imei = json['imei'];
