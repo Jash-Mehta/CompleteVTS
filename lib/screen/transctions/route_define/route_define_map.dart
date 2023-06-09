@@ -87,11 +87,13 @@ class _VTSRouteDefineMapState extends State<VTSRouteDefineMap> {
     //! Markers are addeddd----------------
 
     for (int i = 0; i < midpointlist.length; i++) {
+      int j = i + 1;
       markers.add(
         Marker(
           markerId: MarkerId(i.toString()),
           position: LatLng(
               midpointlist[i]["latitude"]!, midpointlist[i]["longitude"]!),
+              
         ),
       );
     }
