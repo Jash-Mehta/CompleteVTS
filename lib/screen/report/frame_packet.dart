@@ -838,16 +838,20 @@ class _FramePacketState extends State<FramePacket> {
                                                 print(article.imeiNo);
                                                 isfpdc = false;
                                                 setState(() {
-                                                  fpdcvehicleno =
-                                                     article.imeiNo == ""
+                                                    fpdclisttiletext = article
+                                                      .vehicleRegNo
+                                                      .toString();
+                                                  fpdcvehicleno =  article.vehicleRegNo == "ALL"
                                                               ? "ALL"
-                                                              : article.imeiNo;
+                                                              : article.imeiNo
+                                                          .toString();
                                                   print(
                                                       "This is vehicleregno - " +
                                                           fpdcvehicleno);
-                                                  fpdclisttiletext = article
-                                                      .vehicleRegNo
-                                                      .toString();
+                                                   print(
+                                                      "This is imeino - " +
+                                                          fpdclisttiletext);
+                                                
                                                 });
                                               },
                                             ),
@@ -1634,7 +1638,7 @@ class _FramePacketState extends State<FramePacket> {
                                       pdffilterlist,
                                       applyclicked,
                                       pdfsearchlist,
-                                      isSearch);
+                                      isSearch,fromDateController,toDateController);
                                   PdfApi.openFile(pdfFile);
                                 } else {
                                   print("Request is not accepted");
@@ -1785,36 +1789,36 @@ class _FramePacketState extends State<FramePacket> {
                               ],
                             ),
                           ),
-                           Padding(
-                            padding: EdgeInsets.all(8),
-                            child: Column(
-                              children: [
-                                Text(
-                                  "Group By(${fpdclisttiletext ?? "-"}) Total :- " +
-                                                formatDuration( 
-                                                    durationString),
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600),
-                                ),
-                                Text(
-                                  "Group By ( ${fromDateController ?? "01-sep-2022"} ) Total :-"
-                                 +formatDuration(
-                                                      durationString),
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600),
-                                ),
-                                Text(
-                                  "Total Over Speed Distance :- "+formatDuration(durationString),
-                                  //  vsrtotalhrs ==null ? "-" : vsrtotalhrs,
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600),
-                                ),
-                              ],
-                            ),
-                          ),
+                          //  Padding(
+                          //   padding: EdgeInsets.all(8),
+                          //   child: Column(
+                          //     children: [
+                          //       Text(
+                          //         "Group By(${fpdclisttiletext ?? "-"}) Total :- " +
+                          //                       formatDuration( 
+                          //                           durationString),
+                          //         style: TextStyle(
+                          //             fontSize: 18,
+                          //             fontWeight: FontWeight.w600),
+                          //       ),
+                          //       Text(
+                          //         "Group By ( ${fromDateController ?? "01-sep-2022"} ) Total :-"
+                          //        +formatDuration(
+                          //                             durationString),
+                          //         style: TextStyle(
+                          //             fontSize: 18,
+                          //             fontWeight: FontWeight.w600),
+                          //       ),
+                          //       Text(
+                          //         "Total Over Speed Distance :- "+formatDuration(durationString),
+                          //         //  vsrtotalhrs ==null ? "-" : vsrtotalhrs,
+                          //         style: TextStyle(
+                          //             fontSize: 18,
+                          //             fontWeight: FontWeight.w600),
+                          //       ),
+                          //     ],
+                          //   ),
+                          // ),
                           applyclicked
                               ? framefilterdata!.isEmpty
                                   ? Center(
@@ -3697,6 +3701,7 @@ class _FramePacketState extends State<FramePacket> {
         : isSearch
             ? rows.add(["Frame Packet Search"])
             : rows.add(["Frame Packet Data"]);
+       rows.add(["Date :- ${fromDateController != null ? fromDateController : "01-sep-2022"} - ${toDateController != null ? toDateController : "30-sep-2022"}"]);
     rows.add(['Header', 'IMEINo', 'VehicleRegNo', 'Latitude', 'Longitude']);
 
     // Add data rows
@@ -3809,7 +3814,8 @@ class PdfInvoiceApi {
       List<FrameFilterData> pdffilter,
       bool applyclicked,
       List<DatewiseFramepacketDatum> pdfsearch,
-      bool issearch) async {
+      bool issearch,var fromDateController,
+      var toDateController) async {
     final pdf = pw.Document();
     double fontsize = 8.0;
 
@@ -3854,6 +3860,10 @@ class PdfInvoiceApi {
               child: pw.Text("FRAME PACKET REPORT",
                   style: pw.TextStyle(
                       fontSize: 20.0, fontWeight: pw.FontWeight.bold))),
+          pw.Center(
+              child: pw.Text("Date :- ${fromDateController != null ? fromDateController : "01-sep-2022"} - ${toDateController != null ? toDateController : "30-sep-2022"}",
+                  style: pw.TextStyle(
+                      fontSize: 18.0))),
           pw.Container(
             margin: const pw.EdgeInsets.only(top: 10.0),
             child: pw.Table(

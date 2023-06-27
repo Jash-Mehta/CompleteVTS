@@ -147,6 +147,7 @@ import '../model/vehicle_history/vts_history_speed_parameter.dart';
 import '../model/vehicle_master/search_vehicle_report_data_response.dart';
 import '../model/vehicle_master/vehicle_master_filter.dart';
 import '../model/vehicle_master/vehicle_report_detail.dart';
+import '../model/vehicle_master/vehicle_report_vsrno.dart';
 import '../screen/report/frame_packet_grid.dart';
 
 class WebService {
@@ -4531,6 +4532,38 @@ class WebService {
       throw Exception('Failed to load data');
     }
   }
+
+
+  // Vehicle VSrNo
+  Future<VehicleMasterVSrModel> vehiclemastervsrno(
+    String token,
+    int vendorid,
+    int branchid,
+  ) async {
+    var dmfdrivercodeurl =
+        "https://vtsgpsapi.m-techinnovations.com/api/VehicleMasterReports/FillVehicleVSrNo/1/1";
+
+    print("This is vehicle vsrno url " + dmfdrivercodeurl);
+
+    final response =
+        await http.get(Uri.parse(dmfdrivercodeurl), headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    });
+    if (response.statusCode == 200) {
+      print("Successfully getting your driver code data");
+      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
+
+      var ddevicemasterjson = VehicleMasterVSrModel.fromJson(jsonbody);
+      print("Json decoded body_" + dmfdrivercodeurl.toString());
+      return ddevicemasterjson;
+    } else {
+      print(response.body);
+      throw Exception('Failed to load data');
+    }
+  }
+
+
 
   // Frame packet option
   Future<FramePacketOptionGridModel> framepacketoptiongrid(

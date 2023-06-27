@@ -1,16 +1,16 @@
-class VehicleReportModel {
-  List<Data>? data;
+class VehicleMasterVSrModel {
+  List<VehicleVSrData>? data;
   bool? succeeded;
   String? errors;
   String? message;
 
-  VehicleReportModel({this.data, this.succeeded, this.errors, this.message});
+  VehicleMasterVSrModel({this.data, this.succeeded, this.errors, this.message});
 
-  VehicleReportModel.fromJson(Map<String, dynamic> json) {
+  VehicleMasterVSrModel.fromJson(Map<String, dynamic> json) {
     if (json['data'] != null) {
-      data = <Data>[];
+      data = <VehicleVSrData>[];
       json['data'].forEach((v) {
-        data!.add(new Data.fromJson(v));
+        data!.add(new VehicleVSrData.fromJson(v));
       });
     }
     succeeded = json['succeeded'];
@@ -30,13 +30,13 @@ class VehicleReportModel {
   }
 }
 
-class Data {
+class VehicleVSrData {
   String? vsrNo;
   String? vehicleRegNo;
 
-  Data({this.vsrNo, this.vehicleRegNo});
+  VehicleVSrData({this.vsrNo, this.vehicleRegNo});
 
-  Data.fromJson(Map<String, dynamic> json) {
+  VehicleVSrData.fromJson(Map<String, dynamic> json) {
     vsrNo = json['vsrNo'];
     vehicleRegNo = json['vehicleRegNo'];
   }

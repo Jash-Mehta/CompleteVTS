@@ -23,6 +23,7 @@ import 'package:file_picker/src/file_picker.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../model/report/search_frame_pckt_report.dart';
 import '../../model/report/vehicle_vsrno.dart';
+import '../../model/report/vehicle_wise_drivercode.dart';
 import '../../model/report/vehicle_wise_search.dart';
 import '../../model/report/vehicle_wise_travel.dart';
 import '../../model/report/vehicle_wise_travel_filter.dart';
@@ -59,7 +60,7 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
   List<VehihcleWiseFilterData>? filterdata = [];
   List<VehicleWiseSearchData>? searchdata = [];
   List<FramePktDriverData>? fpdcdata = [];
-  List<VehicleVSrNoData>? osvfdata = [];
+  List<VehicleDistanceVsr>? osvfdata = [];
   bool isvwd = false;
   var vwdvehicleno;
   var vwdvehiclenolisttiletext;
@@ -232,7 +233,7 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
                 fromdateInput.text = "";
                 vwdvehiclenolisttiletext = "";
                 isfilter
-                    ? _mainBloc.add(VehicleVSrNoEvent(
+                    ? _mainBloc.add(VehiclewiseDrivercode(
                         token: token, vendorId: 1, branchId: 1))
                     : Text("Driver code not loaded");
               });
@@ -351,22 +352,22 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
       ),
       child: BlocListener<MainBloc, MainState>(
         listener: (context, state) {
-          if (state is VehicleVSrNoLoadingState) {
+          if (state is VehicleWiseDriverCodeLoadingState) {
             const Center(
               child: CircularProgressIndicator(),
             );
-          } else if (state is VehicleVSrNoLoadedState) {
-            if (state.vehiclevsrnoresponse.data != null) {
+          } else if (state is VehicleWiseDriverCodeLoadedState) {
+            if (state.dmfdriverCoderesponse.data != null) {
               print("overspeed vehicle filter data is Loaded state");
               osvfdata!.clear();
-              osvfdata!.addAll(state.vehiclevsrnoresponse.data!);
+              osvfdata!.addAll(state.dmfdriverCoderesponse.data!);
 
               // overspeedfilter!.addAll(state.overspeedFilter.data!);
               osvfdata!.forEach((element) {
                 print("Overspeed vehicle filter element is Printed");
               });
             }
-          } else if (state is VehicleVSrNoErorrState) {
+          } else if (state is VehicleWiseDriverCodeErorrState) {
             print("Something went Wrong  data VehicleVSrNoErorrState");
             Fluttertoast.showToast(
               msg: state.msg,
@@ -806,17 +807,23 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
                                                         FontWeight.w400),
                                               ),
                                               onTap: () {
-                                                print(article.vsrNo);
+                                                print(article.imeiNo);
                                                 isvwd = false;
                                                 setState(() {
-                                                  vwdvehicleno =
-                                                      article.vsrNo.toString();
-                                                  print(
-                                                      "This is vehicleregno - " +
-                                                          vwdvehicleno);
                                                   vwdvehiclenolisttiletext =
                                                       article.vehicleRegNo
                                                           .toString();
+                                                  vwdvehicleno =
+                                                     article.vehicleRegNo == "ALL"
+                                                              ? "ALL"
+                                                              : article.imeiNo
+                                                          .toString();
+                                                  print(
+                                                      "This is vehicleregno - " +
+                                                          vwdvehiclenolisttiletext);
+                                                  print(
+                                                      "This is imeino - " +
+                                                          vwdvehicleno);
                                                 });
                                               },
                                             ),
@@ -1486,7 +1493,7 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
                                     .request()
                                     .isGranted) {
                                   final pdfFile =
-                                      await PdfInvoiceApi.generate(pdfdatalist,pdffilterlist,applyclicked,pdfsearchlist,isSearch);
+                                      await PdfInvoiceApi.generate(pdfdatalist,pdffilterlist,applyclicked,pdfsearchlist,isSearch,fromDateController,toDateController);
                                   PdfApi.openFile(pdfFile);
                                 } else {
                                   print("Request is not accepted");
@@ -2476,6 +2483,7 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
     List<List<dynamic>> rows = [];
     // Add headers
    applyclicked ?rows.add(["Vehicle wise Distance Filter "]) : issearch ? rows.add(["Vehicle  wise Distance Search"]) : rows.add(["Vehicle wise Distance Data"]);
+    rows.add(["Date :- ${fromDateController != null ? fromDateController : "01-sep-2022"} - ${toDateController != null ? toDateController : "30-sep-2022"}"]);
     rows.add(['IMEINo','Trans Time','Speed','Distance Travel', 'Latitude', 'Longitude','Adress']);
 
     // Add data rows
@@ -2589,7 +2597,8 @@ class _VehicleWiseTravelState extends State<VehicleWiseTravel> {
 }
 
 class PdfInvoiceApi {
-  static Future<File> generate(List<VehicleWiseData> pdflist, List<VehihcleWiseFilterData> pdffilter, bool applyclicked, List<VehicleWiseSearchData> pdfsearch, bool issearch) async {
+  static Future<File> generate(List<VehicleWiseData> pdflist, List<VehihcleWiseFilterData> pdffilter, bool applyclicked, List<VehicleWiseSearchData> pdfsearch, bool issearch,var fromDateController,
+      var toDateController) async {
     final pdf = pw.Document();
     double fontsize = 8.0;
 
@@ -2634,6 +2643,10 @@ class PdfInvoiceApi {
               child: pw.Text("VEHICLE DISTANCE TRAVEL",
                   style: pw.TextStyle(
                       fontSize: 20.0, fontWeight: pw.FontWeight.bold))),
+          pw.Center(
+              child: pw.Text("Date :- ${fromDateController != null ? fromDateController : "01-sep-2022"} - ${toDateController != null ? toDateController : "30-sep-2022"}",
+                  style: pw.TextStyle(
+                      fontSize: 18.0))),
           pw.Container(
             margin: const pw.EdgeInsets.only(top: 10.0),
             child: pw.Table(

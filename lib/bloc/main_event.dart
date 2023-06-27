@@ -2480,6 +2480,17 @@ class VehicleVSrNoEvent extends MainEvent {
   });
 }
 
+class VehicleMasterVSrNoEvent extends MainEvent {
+  String token;
+  int vendorId;
+  int branchId;
+  VehicleMasterVSrNoEvent({
+    required this.token,
+    required this.vendorId,
+    required this.branchId,
+  });
+}
+
 class FramePacketOptionGridEvent extends MainEvent {
   String token;
   String arai;

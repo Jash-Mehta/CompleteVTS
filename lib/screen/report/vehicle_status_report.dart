@@ -705,14 +705,15 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
                                         onTap: () {
                                           setState(() {
                                             isvsrdc = false;
+                                             vsrdcvsrnolisttiletext =
+                                                article.vehicleRegNo.toString();
                                             vsrdcvehicleno =
-                                                article.imeiNo == ""
-                                                    ? "ALL"
-                                                    : article.imeiNo;
+                                               article.vehicleRegNo == "ALL"
+                                                              ? "ALL"
+                                                              : article.imeiNo
+                                                          .toString();
                                             print("This is imei - " +
                                                 vsrdcvehicleno);
-                                            vsrdcvsrnolisttiletext =
-                                                article.vehicleRegNo.toString();
                                             print("This is vehicleregno - " +
                                                 vsrdcvsrnolisttiletext);
                                           });
@@ -1266,7 +1267,7 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
                                       pdffilterlist,
                                       applyclick,
                                       pdfsearchlist,
-                                      isSearch);
+                                      isSearch,fromDateController,toDateController);
                                   PdfApi.openFile(pdfFile);
                                 } else {
                                   print("Request is not accepted");
@@ -1424,40 +1425,40 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
                               ],
                             ),
                           ),
-                          Padding(
-                            padding: EdgeInsets.all(8),
-                            child: Column(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    "Group By(${vsrdcvsrnolisttiletext ?? "-"}) Total :- " +
-                                                  formatDuration( 
-                                                      durationString),
-                                    // gbvehregth==null ? "-" : gbvehregth,
-                                    style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                ),
-                                Text(
-                                  "Group By ( ${fromDateController ?? "01-sep-2022"} ) Total :-"
-                                 +formatDuration(
-                                                      durationString),
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600),
-                                ),
-                                Text(
-                                  "Total Over Speed Distance :- "+formatDuration(durationString),
-                                  //  vsrtotalhrs ==null ? "-" : vsrtotalhrs,
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600),
-                                ),
-                              ],
-                            ),
-                          ),
+                          // Padding(
+                          //   padding: EdgeInsets.all(8),
+                          //   child: Column(
+                          //     children: [
+                          //       Padding(
+                          //         padding: const EdgeInsets.all(8.0),
+                          //         child: Text(
+                          //           "Group By(${vsrdcvsrnolisttiletext ?? "-"}) Total :- " +
+                          //                         formatDuration( 
+                          //                             durationString),
+                          //           // gbvehregth==null ? "-" : gbvehregth,
+                          //           style: TextStyle(
+                          //               fontSize: 18,
+                          //               fontWeight: FontWeight.w600),
+                          //         ),
+                          //       ),
+                          //       Text(
+                          //         "Group By ( ${fromDateController ?? "01-sep-2022"} ) Total :-"
+                          //        +formatDuration(
+                          //                             durationString),
+                          //         style: TextStyle(
+                          //             fontSize: 18,
+                          //             fontWeight: FontWeight.w600),
+                          //       ),
+                          //       Text(
+                          //         "Total Over Speed Distance :- "+formatDuration(durationString),
+                          //         //  vsrtotalhrs ==null ? "-" : vsrtotalhrs,
+                          //         style: TextStyle(
+                          //             fontSize: 18,
+                          //             fontWeight: FontWeight.w600),
+                          //       ),
+                          //     ],
+                          //   ),
+                          // ),
                           applyclick
                               ? vehiclestatusfilterreport!.isEmpty
                                   ? Center(
@@ -2691,6 +2692,7 @@ class _VehicleStatusReportState extends State<VehicleStatusReport> {
         : issearch
             ? rows.add(["Vehicle Status Report Search"])
             : rows.add(["Vehicle Status Report Data"]);
+       rows.add(["Date :- ${fromDateController != null ? fromDateController : "01-sep-2022"} - ${toDateController != null ? toDateController : "30-sep-2022"}"]);
     rows.add([
       'SrNo',
       'IMEINo',
@@ -2815,7 +2817,8 @@ class PdfInvoiceApi {
       List<ReportVehicleStatusFilter> pdffilter,
       bool applyclicked,
       List<DatewiseTravelHoursDataItem> pdfsearch,
-      bool issearch) async {
+      bool issearch,var fromDateController,
+      var toDateController) async {
     final pdf = pw.Document();
     double fontsize = 8.0;
 
@@ -2860,6 +2863,10 @@ class PdfInvoiceApi {
               child: pw.Text("VEHICLE STATUS REPORT",
                   style: pw.TextStyle(
                       fontSize: 20.0, fontWeight: pw.FontWeight.bold))),
+          pw.Center(
+              child: pw.Text("Date :- ${fromDateController != null ? fromDateController : "01-sep-2022"} - ${toDateController != null ? toDateController : "30-sep-2022"}",
+                  style: pw.TextStyle(
+                      fontSize: 18.0))),
           pw.Container(
             margin: const pw.EdgeInsets.only(top: 10.0),
             child: pw.Table(

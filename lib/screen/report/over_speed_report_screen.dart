@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_vts/model/Driver_Master/driver_master_filter.dart';
 import 'package:flutter_vts/model/report/overspeed_filter.dart';
+import 'package:flutter_vts/screen/onboarding/OnboardingScreen.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:loading_overlay/loading_overlay.dart';
 import 'package:open_file/open_file.dart';
@@ -25,6 +27,7 @@ import '../../model/report/overspeed_vehicle_filter.dart';
 import '../../model/report/vehicle_vsrno.dart';
 import '../../model/searchString.dart';
 import '../../util/search_bar_field.dart';
+import 'package:csv/csv.dart';
 
 class OverSpeedReportScreen extends StatefulWidget {
   const OverSpeedReportScreen({Key? key}) : super(key: key);
@@ -43,12 +46,12 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
   bool isosvf = false;
   var osvfvehno;
   var osvfvehnolisttiletext;
-  // List<OSFilterData>? osvfdata = [];
+  List<OSFilterData>? osvfdata = [];
 
   final _text = TextEditingController();
   bool _validate = false;
 
-  List<VehicleVSrNoData>? osvfdata = [];
+  // List<VehicleVSrNoData>? osvfdata = [];
   bool ispopup = false;
   bool isSelected = false;
   bool _isLoading = false;
@@ -142,7 +145,6 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
     super.dispose();
   }
 
-  
   String formatDuration(String durationString) {
     List<String> components = durationString.split(', ');
 
@@ -153,7 +155,7 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
     return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 
-  String durationString = ostotalhrs ?? "585 Hours, 45 Minutes, 02 Seconds";
+  String durationString = ostotalhrs.toString()=="" ? "" : "585 Hours, 45 Minutes, 02 Seconds";
 
   // List<OverSpeeddSearchDetail>? overspeedsearchlist = [];
   @override
@@ -174,7 +176,7 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                 osvfvehnolisttiletext = "-Select-";
                 ispopup = true;
                 isfilter
-                    ? _mainBloc.add(VehicleVSrNoEvent(
+                    ? _mainBloc.add(OverSpeedVehicleFilterEvent(
                         token: token, vendorId: 1, branchId: 1))
                     : Text("Driver code not loaded");
               });
@@ -320,54 +322,54 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
         ),
         child: BlocListener<MainBloc, MainState>(
           listener: (context, state) {
-            // if (state is OverSpeedVehicleFilterLoadingState) {
-            //   const Center(
-            //     child: CircularProgressIndicator(),
-            //   );
-            // } else if (state is OverSpeedVehicleFilterLoadedState) {
-            //   if (state.overspeedvehiclefilterresponse.data != null) {
-            //     print("overspeed vehicle filter data is Loaded state");
-            //     osvfdata!.clear();
-            //     osvfdata!.addAll(state.overspeedvehiclefilterresponse.data!);
-
-            //     // overspeedfilter!.addAll(state.overspeedFilter.data!);
-            //     osvfdata!.forEach((element) {
-            //       print("Overspeed vehicle filter element is Printed");
-            //     });
-            //   }
-            // } else if (state is OverSpeedVehicleFilterErorrState) {
-            //   print(
-            //       "Something went Wrong  data OverSpeedVehicleFilterErorrState");
-            //   Fluttertoast.showToast(
-            //     msg: state.msg,
-            //     toastLength: Toast.LENGTH_SHORT,
-            //     timeInSecForIosWeb: 1,
-            //   );
-            // }
-            // Overspeed vehicle filter-------------
-            if (state is VehicleVSrNoLoadingState) {
+            if (state is OverSpeedVehicleFilterLoadingState) {
               const Center(
                 child: CircularProgressIndicator(),
               );
-            } else if (state is VehicleVSrNoLoadedState) {
-              if (state.vehiclevsrnoresponse.data != null) {
+            } else if (state is OverSpeedVehicleFilterLoadedState) {
+              if (state.overspeedvehiclefilterresponse.data != null) {
                 print("overspeed vehicle filter data is Loaded state");
                 osvfdata!.clear();
-                osvfdata!.addAll(state.vehiclevsrnoresponse.data!);
+                osvfdata!.addAll(state.overspeedvehiclefilterresponse.data!);
 
                 // overspeedfilter!.addAll(state.overspeedFilter.data!);
                 osvfdata!.forEach((element) {
                   print("Overspeed vehicle filter element is Printed");
                 });
               }
-            } else if (state is VehicleVSrNoErorrState) {
-              print("Something went Wrong  data VehicleVSrNoErorrState");
+            } else if (state is OverSpeedVehicleFilterErorrState) {
+              print(
+                  "Something went Wrong  data OverSpeedVehicleFilterErorrState");
               Fluttertoast.showToast(
                 msg: state.msg,
                 toastLength: Toast.LENGTH_SHORT,
                 timeInSecForIosWeb: 1,
               );
             }
+            // Overspeed vehicle filter-------------
+            // if (state is VehicleVSrNoLoadingState) {
+            //   const Center(
+            //     child: CircularProgressIndicator(),
+            //   );
+            // } else if (state is VehicleVSrNoLoadedState) {
+            //   if (state.vehiclevsrnoresponse.data != null) {
+            //     print("overspeed vehicle filter data is Loaded state");
+            //     osvfdata!.clear();
+            //     osvfdata!.addAll(state.vehiclevsrnoresponse.data!);
+
+            //     // overspeedfilter!.addAll(state.overspeedFilter.data!);
+            //     osvfdata!.forEach((element) {
+            //       print("Overspeed vehicle filter element is Printed");
+            //     });
+            //   }
+            // } else if (state is VehicleVSrNoErorrState) {
+            //   print("Something went Wrong  data VehicleVSrNoErorrState");
+            //   Fluttertoast.showToast(
+            //     msg: state.msg,
+            //     toastLength: Toast.LENGTH_SHORT,
+            //     timeInSecForIosWeb: 1,
+            //   );
+            // }
 
             //! Overspeed filter Data is fetching--------------------
             if (state is OverSpeedFilterLoadingState) {
@@ -534,7 +536,9 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                           searchController.text = "";
                                           if (toDateController != null &&
                                               fromDateController != null &&
-                                              osvfvehnolisttiletext != null && fromdateInput.text.isNotEmpty && todateInput.text.isNotEmpty) {
+                                              osvfvehnolisttiletext != null &&
+                                              fromdateInput.text.isNotEmpty &&
+                                              todateInput.text.isNotEmpty) {
                                             _mainBloc.add(OverSpeedFilterEvents(
                                               token: token,
                                               vendorid: vendorid,
@@ -806,14 +810,16 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                                 print(article.vehicleRegNo);
                                                 setState(() {
                                                   isosvf = false;
-                                                  osvfvehno =
-                                                      article.vsrNo.toString();
-                                                  print(
-                                                      "This is vehicleregno - " +
-                                                          osvfvehno);
                                                   osvfvehnolisttiletext =
                                                       article.vehicleRegNo
                                                           .toString();
+                                                  osvfvehno = article.vehicleRegNo == "ALL"
+                                                              ? "ALL"
+                                                              : article.imeiNo
+                                                          .toString();
+                                                   print(
+                                                      "This is vehicleregno - " +
+                                                          osvfvehno);
                                                 });
                                               },
                                             ),
@@ -1104,23 +1110,30 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                     onTap: () async {
                                       //  final result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['pdf']);
                                       // FilePicker.platform.pickFiles(allowMultiple: false,allowedExtensions:FileType.custom(), );
-                                      final result = await FilePicker.platform
-                                          .pickFiles(
-                                              type: FileType.custom,
-                                              allowedExtensions: ['pdf']);
+                                      // final result = await FilePicker.platform
+                                      //     .pickFiles(
+                                      //         type: FileType.custom,
+                                      //         allowedExtensions: ['pdf']);
                                       // FilePicker.platform.pickFiles(allowMultiple: false,allowedExtensions:FileType.custom(), );
                                       try {
-                                        List<String>? files = result?.files
-                                            .map((file) => file.path)
-                                            .cast<String>()
-                                            .toList();
-                                        print("File path------${files}");
+                                        // List<String>? files = result?.files
+                                        //     .map((file) => file.path)
+                                        //     .cast<String>()
+                                        //     .toList();
+                                        // print("File path------${files}");
                                         //    List<String>? files = [
                                         //   "/data/user/0/com.vts.gps/cache/file_picker/DTwisereport.pdf"
                                         // ];
                                         // print("File path------${files}");
-                                        await Share.shareFiles(files!);
-                                        Navigator.of(context).popUntil((route) => route.isCurrent);
+                                        // await Share.shareFiles(files!);
+                                        shareDeviceData(
+                                            overspeedlist!,
+                                            overspeedfilter!,
+                                            applyclicked,
+                                            searchData!,
+                                            isSelected);
+                                        Navigator.of(context).popUntil(
+                                            (route) => route.isCurrent);
                                       } catch (e) {
                                         Fluttertoast.showToast(
                                           msg: "Download the pdf first",
@@ -1173,8 +1186,12 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                 if (await Permission.storage
                                     .request()
                                     .isGranted) {
-                                  final pdfFile =
-                                      await PdfInvoiceApi.generate(pdfdatalist,pdffilterlist,applyclicked,pdfsearchlist,isSelected);
+                                  final pdfFile = await PdfInvoiceApi.generate(
+                                      pdfdatalist,
+                                      pdffilterlist,
+                                      applyclicked,
+                                      pdfsearchlist,
+                                      isSelected,fromDateController,toDateController);
                                   PdfApi.openFile(pdfFile);
                                 } else {
                                   print("Request is not accepted");
@@ -1220,124 +1237,116 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
                                   searchStrClass: searchClass,
                                   controller: searchController,
                                   onChanged: onSearchTextChanged),
-                               Container(
-                                      margin:
-                                          EdgeInsets.only(top: 10, bottom: 20),
-                                      padding: EdgeInsets.all(15),
-                                      decoration: BoxDecoration(
-                                          color: MyColors.bluereportColorCode,
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(10))),
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                              Container(
+                                margin: EdgeInsets.only(top: 10, bottom: 20),
+                                padding: EdgeInsets.all(15),
+                                decoration: BoxDecoration(
+                                    color: MyColors.bluereportColorCode,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(10))),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Text("From Date  -  To Date",
+                                            style: TextStyle(fontSize: 18)),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        Text(
+                                            fromDateController != null
+                                                ? fromDateController + "  -  "
+                                                : "01-sep-2022" + "  -  ",
+                                            style: TextStyle(fontSize: 18)),
+                                        Text(
+                                            toDateController != null
+                                                ? toDateController
+                                                : "30-sep-2022",
+                                            style: TextStyle(fontSize: 18)),
+                                      ],
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.only(top: 10),
+                                      child: Row(
                                         children: [
-                                          Row(
-                                            children: [
-                                              Text("From Date  -  To Date",
-                                                  style:
-                                                      TextStyle(fontSize: 18)),
-                                            ],
-                                          ),
-                                          Row(
-                                            children: [
-                                              Text(
-                                                  fromDateController != null
-                                                      ? fromDateController +
-                                                          "  -  "
-                                                      : "01-sep-2022" + "  -  ",
-                                                  style:
-                                                      TextStyle(fontSize: 18)),
-                                              Text(
-                                                  toDateController != null
-                                                      ? toDateController
-                                                      : "30-sep-2022",
-                                                  style:
-                                                      TextStyle(fontSize: 18)),
-                                            ],
-                                          ),
-                                          Padding(
-                                            padding: EdgeInsets.only(top: 10),
-                                            child: Row(
+                                          Expanded(
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
                                               children: [
-                                                Expanded(
-                                                  child: Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.start,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Text(
-                                                        "VehicleRegNo",
-                                                        style: TextStyle(
-                                                            fontSize: 18),
-                                                      ),
-                                                      Text(
-                                                          osvfvehnolisttiletext  == null ? "-" : osvfvehnolisttiletext,
-                                                          style: TextStyle(
-                                                              fontSize: 18)),
-                                                    ],
-                                                  ),
+                                                Text(
+                                                  "VehicleRegNo",
+                                                  style:
+                                                      TextStyle(fontSize: 18),
                                                 ),
-                                                Expanded(
-                                                  child: Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.start,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Text(
-                                                        "Speed Limit",
-                                                        style: TextStyle(
-                                                            fontSize: 18),
-                                                      ),
-                                                      Text("-",
-                                                          style: TextStyle(
-                                                              fontSize: 18)),
-                                                    ],
-                                                  ),
+                                                Text(
+                                                    osvfvehnolisttiletext ==
+                                                            null
+                                                        ? "-"
+                                                        : osvfvehnolisttiletext,
+                                                    style: TextStyle(
+                                                        fontSize: 18)),
+                                              ],
+                                            ),
+                                          ),
+                                          Expanded(
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  "Speed Limit",
+                                                  style:
+                                                      TextStyle(fontSize: 18),
                                                 ),
+                                                Text("-",
+                                                    style: TextStyle(
+                                                        fontSize: 18)),
                                               ],
                                             ),
                                           ),
                                         ],
                                       ),
                                     ),
-                                     Padding(
-                            padding: EdgeInsets.all(8),
-                            child: Column(
-                              children: [
-                                Text(
-                                  "Group By(${osvfvehnolisttiletext ?? "-"}) Total :- " +
-                                                formatDuration( 
-                                                    durationString),
-                                  // gbvehregth==null ? "-" : gbvehregth,
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600),
+                                  ],
                                 ),
-                                Text(
-                                  "Group By ( ${fromDateController ?? "01-sep-2022"} ) Total :-"
-                                 +formatDuration(
-                                                      durationString),
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600),
-                                ),
-                                Text(
-                                  "Total Over Speed Distance :- "+formatDuration(durationString),
-                                  //  vsrtotalhrs ==null ? "-" : vsrtotalhrs,
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600),
-                                ),
-                              ],
-                            ),
-                          ),
+                              ),
+                              // Padding(
+                              //   padding: EdgeInsets.all(8),
+                              //   child: Column(
+                              //     children: [
+                              //       Text(
+                              //         "Group By(${osvfvehnolisttiletext ?? "-"}) Total :- " +
+                              //             formatDuration(durationString),
+                              //         // gbvehregth==null ? "-" : gbvehregth,
+                              //         style: TextStyle(
+                              //             fontSize: 18,
+                              //             fontWeight: FontWeight.w600),
+                              //       ),
+                              //       Text(
+                              //         "Group By ( ${fromDateController ?? "01-sep-2022"} ) Total :-" +
+                              //             formatDuration(durationString),
+                              //         style: TextStyle(
+                              //             fontSize: 18,
+                              //             fontWeight: FontWeight.w600),
+                              //       ),
+                              //       Text(
+                              //         "Total Over Speed Distance :- " +
+                              //             formatDuration(durationString),
+                              //         style: TextStyle(
+                              //             fontSize: 18,
+                              //             fontWeight: FontWeight.w600),
+                              //       ),
+                              //     ],
+                              //   ),
+                              // ),
                               BlocBuilder<MainBloc, MainState>(
                                 builder: (context, state) {
                                   return applyclicked
@@ -2414,6 +2423,112 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
         ));
   }
 
+  String convertDataToCsv(
+      List<OverSpeeddDetail> data,
+      List<OverSpeedFilterDetail> filterdata,
+      bool applyclicked,
+      List<OverSpeeddDetailItem> searchdata,
+      bool issearch) {
+    List<List<dynamic>> rows = [];
+    // Add headers
+    applyclicked
+        ? rows.add(["Overspeed Filter "])
+        : issearch
+            ? rows.add(["Overspeed Search"])
+            : rows.add(["Overspeed Data"]);
+       rows.add(["Date :- ${fromDateController != null ? fromDateController : "01-sep-2022"} - ${toDateController != null ? toDateController : "30-sep-2022"}"]);
+    rows.add([
+      'IMEINo',
+      'TransTime',
+      'Speed',
+      'Overspeed',
+      'Distance Travel',
+      'Latitude',
+      'Longitude',
+      'Address'
+    ]);
+
+    // Add data rows
+    if (applyclicked) {
+      for (var item in filterdata) {
+        // print("This is filter lenght");
+        print("Filter data" + filterdata.toString());
+        rows.add([
+          item.imeino,
+          item.transTime,
+          item.speed,
+          item.overSpeed,
+          item.distancetravel,
+          item.latitude,
+          item.longitude,
+          item.address
+        ]);
+      }
+    } else if (issearch) {
+      for (var item in searchdata) {
+        // print("This is filter lenght");
+        print("Search data" + searchdata.toString());
+        rows.add([
+          item.imeino,
+          item.transTime,
+          item.speed,
+          item.overSpeed,
+          item.distancetravel,
+          item.latitude,
+          item.longitude,
+          item.address
+        ]);
+      }
+    } else {
+      for (var item in data) {
+        // print("This is filter lenght");
+        print("Filter data" + filterdata.toString());
+        rows.add([
+          item.imeino,
+          item.transTime,
+          item.speed,
+          item.overSpeed,
+          item.distancetravel,
+          item.latitude,
+          item.longitude,
+          item.address
+        ]);
+      }
+    }
+    return ListToCsvConverter().convert(rows);
+  }
+
+  Future<File> saveCsvFile(
+      String csvFilterData, bool applyclicked, bool issearch) async {
+    final directory = await getTemporaryDirectory();
+    final filePath = issearch
+        ? '${directory.path}/search_overspeed.csv'
+        : applyclicked
+            ? '${directory.path}/Filter_overspeed.csv'
+            : '${directory.path}/overspeed.csv';
+    final file = File(filePath);
+    return file.writeAsString(csvFilterData);
+  }
+
+  void shareCsvFile(File csvFilterFile) {
+    Share.shareFiles([csvFilterFile.path],
+        text: 'Sharing device data CSV file');
+  }
+
+  void shareDeviceData(
+      List<OverSpeeddDetail> data,
+      List<OverSpeedFilterDetail> filterdata,
+      bool applyclicked,
+      List<OverSpeeddDetailItem> searchdata,
+      bool issearch) async {
+    String csvData =
+        convertDataToCsv(data, filterdata, applyclicked, searchdata, issearch);
+    File csvFile = await saveCsvFile(csvData, applyclicked, issearch);
+    print("This is csv Filter data " + csvData);
+
+    shareCsvFile(csvFile);
+  }
+
   onSearchTextChanged(String text) async {
     if (text.isEmpty) {
       setState(() {
@@ -2440,7 +2555,13 @@ class _OverSpeedReportScreenState extends State<OverSpeedReportScreen> {
 }
 
 class PdfInvoiceApi {
-  static Future<File> generate(List<OverSpeeddDetail> pdflist, List<OverSpeedFilterDetail> pdffilter, bool applyclicked, List<OverSpeeddDetailItem> pdfsearch, bool issearch) async {
+  static Future<File> generate(
+      List<OverSpeeddDetail> pdflist,
+      List<OverSpeedFilterDetail> pdffilter,
+      bool applyclicked,
+      List<OverSpeeddDetailItem> pdfsearch,
+      bool issearch,var fromDateController,
+      var toDateController) async {
     final pdf = pw.Document();
     double fontsize = 8.0;
     DateTime current_date = DateTime.now();
@@ -2481,6 +2602,10 @@ class PdfInvoiceApi {
               child: pw.Text("OVER SPEED REPORT",
                   style: pw.TextStyle(
                       fontSize: 20.0, fontWeight: pw.FontWeight.bold))),
+          pw.Center(
+              child: pw.Text("Date :- ${fromDateController != null ? fromDateController : "01-sep-2022"} - ${toDateController != null ? toDateController : "30-sep-2022"}",
+                  style: pw.TextStyle(
+                      fontSize: 18.0))),
           pw.Container(
             margin: const pw.EdgeInsets.only(top: 10.0),
             child: pw.Table(
@@ -2613,7 +2738,12 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(applyclicked ? pdffilter[index].imeino.toString() : issearch ? pdfsearch[index].imeino.toString() : pdflist[index].imeino.toString(),
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilter[index].imeino.toString()
+                                    : issearch
+                                        ? pdfsearch[index].imeino.toString()
+                                        : pdflist[index].imeino.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2622,7 +2752,12 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(applyclicked ? pdffilter[index].transTime.toString() : issearch ? pdfsearch[index].transTime.toString() : pdflist[index].transTime.toString(),
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilter[index].transTime.toString()
+                                    : issearch
+                                        ? pdfsearch[index].transTime.toString()
+                                        : pdflist[index].transTime.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2631,7 +2766,12 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(applyclicked ? pdffilter[index].speed.toString() : issearch ? pdfsearch[index].speed.toString() : pdflist[index].speed.toString(),
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilter[index].speed.toString()
+                                    : issearch
+                                        ? pdfsearch[index].speed.toString()
+                                        : pdflist[index].speed.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2640,7 +2780,12 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(applyclicked ? pdffilter[index].overSpeed.toString() : issearch ? pdfsearch[index].overSpeed.toString() : pdflist[index].overSpeed.toString(),
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilter[index].overSpeed.toString()
+                                    : issearch
+                                        ? pdfsearch[index].overSpeed.toString()
+                                        : pdflist[index].overSpeed.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2649,7 +2794,16 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(applyclicked ? pdffilter[index].distancetravel.toString() : issearch ? pdfsearch[index].distancetravel.toString() : pdflist[index].distancetravel.toString(),
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilter[index].distancetravel.toString()
+                                    : issearch
+                                        ? pdfsearch[index]
+                                            .distancetravel
+                                            .toString()
+                                        : pdflist[index]
+                                            .distancetravel
+                                            .toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2658,7 +2812,12 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(applyclicked ? pdffilter[index].latitude.toString() : issearch ? pdfsearch[index].latitude.toString() : pdflist[index].latitude.toString(),
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilter[index].latitude.toString()
+                                    : issearch
+                                        ? pdfsearch[index].latitude.toString()
+                                        : pdflist[index].latitude.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2667,7 +2826,12 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(applyclicked ? pdffilter[index].longitude.toString() : issearch ? pdfsearch[index].longitude.toString() : pdflist[index].longitude.toString(),
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilter[index].longitude.toString()
+                                    : issearch
+                                        ? pdfsearch[index].longitude.toString()
+                                        : pdflist[index].longitude.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2683,13 +2847,23 @@ class PdfInvoiceApi {
                       ])
                     ]);
               },
-              itemCount: applyclicked ? pdffilter.length : issearch ? pdfsearch.length : pdflist.length)
+              itemCount: applyclicked
+                  ? pdffilter.length
+                  : issearch
+                      ? pdfsearch.length
+                      : pdflist.length)
           // ),
         ];
       },
     ));
 
-    return PdfApi.saveDocument(name:applyclicked ? 'OverSpeedFilterReport.pdf': issearch ? 'OverSpeedSearchReport.pdf': 'OverSpeedReport.pdf', pdf: pdf);
+    return PdfApi.saveDocument(
+        name: applyclicked
+            ? 'OverSpeedFilterReport.pdf'
+            : issearch
+                ? 'OverSpeedSearchReport.pdf'
+                : 'OverSpeedReport.pdf',
+        pdf: pdf);
   }
 }
 

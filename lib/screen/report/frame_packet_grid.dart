@@ -30,6 +30,7 @@ import '../../model/report/vehicle_vsrno.dart';
 import '../../model/searchString.dart';
 import '../../util/search_bar_field.dart';
 import 'package:csv/csv.dart';
+
 class FramePacketGrid extends StatefulWidget {
   const FramePacketGrid({Key? key}) : super(key: key);
 
@@ -147,7 +148,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
   var fpgovehicleno;
   var fpgolisttiletext;
   bool isfpgo = false;
-  List<VehicleVSrNoData>? osvfdata = [];
+  List<FramePktGrdDriverData>? osvfdata = [];
   var fpgdcvehicleno;
   var fpgdclisttiletext;
   bool isfpgdc = false;
@@ -200,7 +201,6 @@ class _FramePacketGridState extends State<FramePacketGrid> {
         pageSize: pageSize));
   }
 
-  
   String formatDuration(String durationString) {
     List<String> components = durationString.split(', ');
 
@@ -211,8 +211,8 @@ class _FramePacketGridState extends State<FramePacketGrid> {
     return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 
-  String durationString = framegridtotalhrs ?? "585 Hours, 45 Minutes, 02 Seconds";
-
+  String durationString =
+      framegridtotalhrs ?? "585 Hours, 45 Minutes, 02 Seconds";
 
   // late SharedPreferences sharedPreferences;
   // late String token="";
@@ -236,7 +236,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                 fpgdclisttiletext = "";
                 fpgolisttiletext = "";
                 isfilter
-                    ? _mainBloc.add(VehicleVSrNoEvent(
+                    ? _mainBloc.add(FramepacketGridDriverCodeEvent(
                         token: token, vendorId: 1, branchId: 1))
                     : Text("Driver code not loaded");
               });
@@ -347,22 +347,22 @@ class _FramePacketGridState extends State<FramePacketGrid> {
       ),
       child: BlocListener<MainBloc, MainState>(
         listener: (context, state) {
-          if (state is VehicleVSrNoLoadingState) {
+          if (state is FramePacketGridDriverCodeLoadingState) {
             const Center(
               child: CircularProgressIndicator(),
             );
-          } else if (state is VehicleVSrNoLoadedState) {
-            if (state.vehiclevsrnoresponse.data != null) {
+          } else if (state is FramePacketGridDriverCodeLoadedState) {
+            if (state.dmfdriverCoderesponse.data != null) {
               print("overspeed vehicle filter data is Loaded state");
               osvfdata!.clear();
-              osvfdata!.addAll(state.vehiclevsrnoresponse.data!);
+              osvfdata!.addAll(state.dmfdriverCoderesponse.data!);
 
               // overspeedfilter!.addAll(state.overspeedFilter.data!);
               osvfdata!.forEach((element) {
                 print("Overspeed vehicle filter element is Printed");
               });
             }
-          } else if (state is VehicleVSrNoErorrState) {
+          } else if (state is FramePacketGridDriverCodeErorrState) {
             print("Something went Wrong  data VehicleVSrNoErorrState");
             Fluttertoast.showToast(
               msg: state.msg,
@@ -780,6 +780,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                         itemCount: osvfdata!.length,
                                         itemBuilder:
                                             (BuildContext context, int index) {
+                                          print("Fram grid vsrno entered");
                                           var article = osvfdata![index];
                                           return Padding(
                                             padding: const EdgeInsets.all(8.0),
@@ -793,17 +794,23 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                                         FontWeight.w400),
                                               ),
                                               onTap: () {
-                                                print(article.vsrNo);
+                                                print(article.imeiNo);
                                                 isfpgdc = false;
                                                 setState(() {
-                                                  fpgdcvehicleno =
-                                                      article.vsrNo.toString();
-                                                  print(
-                                                      "This is vehicleregno - " +
-                                                          fpgdcvehicleno);
                                                   fpgdclisttiletext = article
                                                       .vehicleRegNo
                                                       .toString();
+                                                  fpgdcvehicleno =
+                                                      article.vehicleRegNo ==
+                                                              "ALL"
+                                                          ? "ALL"
+                                                          : article.imeiNo
+                                                              .toString();
+                                                  print(
+                                                      "This is vehicleregno - " +
+                                                          fpgdcvehicleno);
+                                                  print("This is imeino - " +
+                                                      fpgdclisttiletext);
                                                 });
                                               },
                                             ),
@@ -1525,13 +1532,14 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                         //   "/data/user/0/com.vts.gps/cache/file_picker/DTwisereport.pdf"
                                         // ];
                                         // print("File path------${files}");
-                                       shareDeviceData(
+                                        shareDeviceData(
                                             framepacketgriddata!,
                                             framefiltergriddata!,
                                             applyclicked,
                                             searchdatalist!,
                                             isSearch);
-                                        Navigator.of(context).popUntil((route) => route.isCurrent);
+                                        Navigator.of(context).popUntil(
+                                            (route) => route.isCurrent);
                                       } catch (e) {
                                         Fluttertoast.showToast(
                                           msg: "Download the pdf first",
@@ -1586,7 +1594,9 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                   final pdfFile = await PdfInvoiceApi.generate(
                                       pdfdatalist,
                                       applyclicked,
-                                      pdffilterdatalist, pdfsearchdatalist, isSearch);
+                                      pdffilterdatalist,
+                                      pdfsearchdatalist,
+                                      isSearch,fromDateController,toDateController);
                                   PdfApi.openFile(pdfFile);
                                 } else {
                                   print("Request is not accepted");
@@ -1651,104 +1661,104 @@ class _FramePacketGridState extends State<FramePacketGrid> {
                                   fontSize: 18, fontWeight: FontWeight.bold),
                             );
                           }),
-                         Container(
-                                  margin: EdgeInsets.only(top: 10, bottom: 20),
-                                  padding: EdgeInsets.all(15),
-                                  decoration: BoxDecoration(
-                                      color: MyColors.bluereportColorCode,
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(10))),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                          Container(
+                            margin: EdgeInsets.only(top: 10, bottom: 20),
+                            padding: EdgeInsets.all(15),
+                            decoration: BoxDecoration(
+                                color: MyColors.bluereportColorCode,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10))),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text("From Date  ",
+                                        style: TextStyle(fontSize: 18)),
+                                    Padding(
+                                      padding:
+                                          const EdgeInsets.only(left: 10.0),
+                                      child: Text(" -  To Date",
+                                          style: TextStyle(fontSize: 18)),
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Text(
+                                        fromDateController != null
+                                            ? fromDateController + "  -  "
+                                            : "01-sep-2022" + "  -  ",
+                                        style: TextStyle(fontSize: 18)),
+                                    Text(
+                                        toDateController != null
+                                            ? toDateController
+                                            : "30-sep-2022" + "  -  ",
+                                        style: TextStyle(fontSize: 18)),
+                                  ],
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(top: 10),
+                                  child: Row(
+                                    // mainAxisAlignment: MainAxisAlignment.start,
+                                    // crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Row(
-                                        children: [
-                                          Text("From Date  ",
-                                              style: TextStyle(fontSize: 18)),
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                                left: 10.0),
-                                            child: Text(" -  To Date",
-                                                style: TextStyle(fontSize: 18)),
-                                          ),
-                                        ],
-                                      ),
-                                      Row(
-                                        children: [
-                                          Text(
-                                              fromDateController != null
-                                                  ? fromDateController + "  -  "
-                                                  : "01-sep-2022" + "  -  ",
-                                              style: TextStyle(fontSize: 18)),
-                                          Text(
-                                              toDateController != null
-                                                  ? toDateController
-                                                  : "30-sep-2022" + "  -  ",
-                                              style: TextStyle(fontSize: 18)),
-                                        ],
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsets.only(top: 10),
-                                        child: Row(
-                                          // mainAxisAlignment: MainAxisAlignment.start,
-                                          // crossAxisAlignment: CrossAxisAlignment.start,
+                                      Expanded(
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
-                                            Expanded(
-                                              child: Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    "VehicleRegNo",
-                                                    style:
-                                                        TextStyle(fontSize: 18),
-                                                  ),
-                                                  Text(fpgdclisttiletext == null ? "-" : fpgdclisttiletext,
-                                                      style: TextStyle(
-                                                          fontSize: 18)),
-                                                ],
-                                              ),
+                                            Text(
+                                              "VehicleRegNo",
+                                              style: TextStyle(fontSize: 18),
                                             ),
+                                            Text(
+                                                fpgdclisttiletext == null
+                                                    ? "-"
+                                                    : fpgdclisttiletext,
+                                                style: TextStyle(fontSize: 18)),
                                           ],
                                         ),
                                       ),
                                     ],
                                   ),
                                 ),
-                                 Padding(
-                            padding: EdgeInsets.all(8),
-                            child: Column(
-                              children: [
-                                Text(
-                                  "Group By(${fpgdclisttiletext ?? "-"}) Total :- " +
-                                                formatDuration( 
-                                                    durationString),
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600),
-                                ),
-                                Text(
-                                  "Group By ( ${fromDateController ?? "01-sep-2022"} ) Total :-"
-                                 +formatDuration(
-                                                      durationString),
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600),
-                                ),
-                                Text(
-                                  "Total Over Speed Distance :- "+formatDuration(durationString),
-                                  //  vsrtotalhrs ==null ? "-" : vsrtotalhrs,
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600),
-                                ),
                               ],
                             ),
                           ),
+                          //        Padding(
+                          //   padding: EdgeInsets.all(8),
+                          //   child: Column(
+                          //     children: [
+                          //       Text(
+                          //         "Group By(${fpgdclisttiletext ?? "-"}) Total :- " +
+                          //                       formatDuration(
+                          //                           durationString),
+                          //         style: TextStyle(
+                          //             fontSize: 18,
+                          //             fontWeight: FontWeight.w600),
+                          //       ),
+                          //       Text(
+                          //         "Group By ( ${fromDateController ?? "01-sep-2022"} ) Total :-"
+                          //        +formatDuration(
+                          //                             durationString),
+                          //         style: TextStyle(
+                          //             fontSize: 18,
+                          //             fontWeight: FontWeight.w600),
+                          //       ),
+                          //       Text(
+                          //         "Total Over Speed Distance :- "+formatDuration(durationString),
+                          //         //  vsrtotalhrs ==null ? "-" : vsrtotalhrs,
+                          //         style: TextStyle(
+                          //             fontSize: 18,
+                          //             fontWeight: FontWeight.w600),
+                          //       ),
+                          //     ],
+                          //   ),
+                          // ),
                           applyclicked
                               ? framefiltergriddata!.isEmpty
                                   ? Center(
@@ -4445,6 +4455,9 @@ class _FramePacketGridState extends State<FramePacketGrid> {
         : isSearch
             ? rows.add(["Frame Packet Grid Search"])
             : rows.add(["Frame Packet Grid Data"]);
+    rows.add([
+      "Date :- ${fromDateController != null ? fromDateController : "01-sep-2022"} - ${toDateController != null ? toDateController : "30-sep-2022"}"
+    ]);
     rows.add(['Header', 'IMEINo', 'VehicleRegNo', 'Latitude', 'Longitude']);
 
     // Add data rows
@@ -4456,7 +4469,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
           item.header,
           item.imei,
           item.vehicleRegNo,
-           "-",
+          "-",
           "-",
         ]);
       }
@@ -4465,10 +4478,10 @@ class _FramePacketGridState extends State<FramePacketGrid> {
         // print("This is filter lenght");
         print("Search data" + searchdata.toString());
         rows.add([
-        item.header,
+          item.header,
           item.imei,
           item.vehicleRegNo,
-           "-",
+          "-",
           "-",
         ]);
       }
@@ -4476,7 +4489,7 @@ class _FramePacketGridState extends State<FramePacketGrid> {
       for (var item in deviceData) {
         // print("This is filter lenght");
         rows.add([
-         item.header,
+          item.header,
           item.imei,
           item.vehicleRegNo,
           item.latitude,
@@ -4551,8 +4564,13 @@ class _FramePacketGridState extends State<FramePacketGrid> {
 }
 
 class PdfInvoiceApi {
-  static Future<File> generate(List<DatewiseFramePacketGridViewData> pdflist,
-      bool applyclicked, List<FrameGridFilterData> pdffilterlist,  List<DatewiseFramePacketGridViewItem> pdfsearch, bool issearch) async {
+  static Future<File> generate(
+      List<DatewiseFramePacketGridViewData> pdflist,
+      bool applyclicked,
+      List<FrameGridFilterData> pdffilterlist,
+      List<DatewiseFramePacketGridViewItem> pdfsearch,
+      bool issearch,var fromDateController,
+      var toDateController) async {
     final pdf = pw.Document();
     double fontsize = 8.0;
 
@@ -4597,6 +4615,10 @@ class PdfInvoiceApi {
               child: pw.Text("FRAME PACKET GRID REPORT",
                   style: pw.TextStyle(
                       fontSize: 20.0, fontWeight: pw.FontWeight.bold))),
+          pw.Center(
+              child: pw.Text("Date :- ${fromDateController != null ? fromDateController : "01-sep-2022"} - ${toDateController != null ? toDateController : "30-sep-2022"}",
+                  style: pw.TextStyle(
+                      fontSize: 18.0))),
           pw.Container(
             margin: const pw.EdgeInsets.only(top: 10.0),
             child: pw.Table(
@@ -4709,7 +4731,12 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(applyclicked ? pdffilterlist[index].header.toString() : issearch ? pdfsearch[index].header.toString() :  pdflist[index].header.toString(),
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilterlist[index].header.toString()
+                                    : issearch
+                                        ? pdfsearch[index].header.toString()
+                                        : pdflist[index].header.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -4718,7 +4745,12 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(applyclicked ? pdffilterlist[index].imei.toString() : issearch ? pdfsearch[index].imei.toString() :  pdflist[index].imei.toString(),
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilterlist[index].imei.toString()
+                                    : issearch
+                                        ? pdfsearch[index].imei.toString()
+                                        : pdflist[index].imei.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -4727,7 +4759,18 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(applyclicked ? pdffilterlist[index].vehicleRegNo.toString() : issearch ? pdfsearch[index].vehicleRegNo.toString() :  pdflist[index].vehicleRegNo.toString(),
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilterlist[index]
+                                        .vehicleRegNo
+                                        .toString()
+                                    : issearch
+                                        ? pdfsearch[index]
+                                            .vehicleRegNo
+                                            .toString()
+                                        : pdflist[index]
+                                            .vehicleRegNo
+                                            .toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -4736,7 +4779,12 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(applyclicked ? "-" : issearch ? "-" :  pdflist[index].latitude.toString(),
+                            child: pw.Text(
+                                applyclicked
+                                    ? "-"
+                                    : issearch
+                                        ? "-"
+                                        : pdflist[index].latitude.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -4745,7 +4793,12 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 50,
-                            child: pw.Text(applyclicked ? "-" : issearch ? "-" :  pdflist[index].header.toString(),
+                            child: pw.Text(
+                                applyclicked
+                                    ? "-"
+                                    : issearch
+                                        ? "-"
+                                        : pdflist[index].header.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -4761,7 +4814,11 @@ class PdfInvoiceApi {
                       ])
                     ]);
               },
-              itemCount: applyclicked ? pdffilterlist.length : issearch ? pdfsearch.length : pdflist.length),
+              itemCount: applyclicked
+                  ? pdffilterlist.length
+                  : issearch
+                      ? pdfsearch.length
+                      : pdflist.length),
           // ),
           // pw.SizedBox(height: 15),
           // pw.Row(
@@ -4794,7 +4851,13 @@ class PdfInvoiceApi {
       },
     ));
 
-    return PdfApi.saveDocument(name: applyclicked ? 'FramePacketgridFilterreport.pdf' : issearch ? 'FramePacketgridSearchreport.pdf' : 'FramePacketgridreport.pdf', pdf: pdf);
+    return PdfApi.saveDocument(
+        name: applyclicked
+            ? 'FramePacketgridFilterreport.pdf'
+            : issearch
+                ? 'FramePacketgridSearchreport.pdf'
+                : 'FramePacketgridreport.pdf',
+        pdf: pdf);
   }
 }
 

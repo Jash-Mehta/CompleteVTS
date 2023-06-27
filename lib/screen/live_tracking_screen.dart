@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:ui' as ui;
-
+import 'package:geocoding_platform_interface/src/models/placemark.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -13,10 +13,14 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:loading_overlay/loading_overlay.dart';
 import 'package:location/location.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:snippet_coder_utils/FormHelper.dart';
-
+import 'package:location/location.dart' as loc;
+import 'package:geolocator/geolocator.dart';
 import 'package:flutter_vts/bloc/main_bloc.dart';
+import 'package:geolocator_platform_interface/src/enums/location_accuracy.dart'
+    as lc;
 import 'package:flutter_vts/bloc/main_event.dart';
 import 'package:flutter_vts/bloc/main_state.dart';
 import 'package:flutter_vts/model/live/live_tracking_filter_response.dart';
@@ -74,7 +78,9 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
   String selectedVehicle = "";
   String vehicledropdown = "";
   String selectedvehicleno = "";
-
+  String? _currentAddress;
+  Position? _currentPosition;
+  loc.Location gps = loc.Location();
   List<LiveTrackingDetail>? liveTrackingDetails = [];
   List<LiveStatusCountList>? livetrackingstatus = [];
 
@@ -152,6 +158,8 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
       getmarkers(0);
     });
     getdata();
+    _getCurrentPosition();
+    setState(() {});
     googlemapImage();
     location = Location();
     polylinePoints = PolylinePoints();
@@ -166,6 +174,69 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
     setInitialLocation();
     // getstartlocation("865006049169296");
   }
+
+  //! Current location--------------------
+  Future<void> _getCurrentPosition() async {
+    final hasPermission = await _handleLocationPermission();
+    if (!hasPermission) return;
+    await Geolocator.getCurrentPosition(
+            desiredAccuracy: lc.LocationAccuracy.high)
+        .then((Position position) {
+      setState(() => _currentPosition = position);
+      print("Current location----------->" +
+          _currentPosition!.latitude.toString());
+      _markerlist.clear();
+      setState(() {});
+      _markerlist.add(Marker(
+          position:
+              LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
+          markerId: MarkerId(
+              LatLng(_currentPosition!.latitude, _currentPosition!.longitude)
+                  .toString())));
+      mapController?.animateCamera(CameraUpdate.newCameraPosition(
+          CameraPosition(
+              target: LatLng(
+                  _currentPosition!.latitude, _currentPosition!.longitude),
+              zoom: 17)));
+    }).catchError((e) {
+      debugPrint(e);
+    });
+  }
+
+  //! handle the google permission----------------
+  Future<bool> _handleLocationPermission() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      gps.requestService();
+      setState(() {});
+      openAppSettings();
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text(
+              'Location services are disabled. Please enable the services')));
+      return false;
+    }
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Location permissions are denied')));
+        return false;
+      }
+    }
+    if (permission == LocationPermission.deniedForever) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text(
+              'Location permissions are permanently denied, we cannot request permissions.')));
+      return false;
+    }
+    return true;
+  }
+
+  //! GetAddressfromLarling-------------------------------------------------
 
   //! GetBytes from Assets--------------------------->
   static Future<Uint8List> _getBytesFromAsset(String path, int width) async {
@@ -573,14 +644,14 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
   }
 
   _getVehicleStatusWithCount() {
-    // timer = Timer.periodic(Duration(seconds: 10), (Timer t) {
-    print("Each and every 10 sec we are calling this api");
-    _mainBloc.add(VehicleStatusWithCountEvents(
-        token: token,
-        vendorId: vendorid,
-        branchId: branchid,
-        araiNonarai: "arai"));
-    // });
+    timer = Timer.periodic(Duration(seconds: 10), (Timer t) {
+      print("Each and every 10 sec we are calling this api");
+      _mainBloc.add(VehicleStatusWithCountEvents(
+          token: token,
+          vendorId: vendorid,
+          branchId: branchid,
+          araiNonarai: "arai"));
+    });
   }
 
   getdata() async {

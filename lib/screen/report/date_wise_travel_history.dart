@@ -1140,22 +1140,28 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
                                         //     .pickFiles(
                                         //         type: FileType.custom,
                                         //         allowedExtensions: ['pdf']);
-                                        final result = await FilePicker.platform
-                                            .pickFiles(
-                                                type: FileType.custom,
-                                                allowedExtensions: ['pdf']);
+                                        // final result = await FilePicker.platform
+                                        //     .pickFiles(
+                                        //         type: FileType.custom,
+                                        //         allowedExtensions: ['pdf']);
                                         // FilePicker.platform.pickFiles(allowMultiple: false,allowedExtensions:FileType.custom(), );
                                         try {
-                                          List<String>? files = result?.files
-                                              .map((file) => file.path)
-                                              .cast<String>()
-                                              .toList();
-                                          print("File path------${files}");
+                                          // List<String>? files = result?.files
+                                          //     .map((file) => file.path)
+                                          //     .cast<String>()
+                                          //     .toList();
+                                          // print("File path------${files}");
                                           //    List<String>? files = [
                                           //   "/data/user/0/com.vts.gps/cache/file_picker/DTwisereport.pdf"
                                           // ];
                                           // print("File path------${files}");
-                                          await Share.shareFiles(files!);
+                                          shareDeviceData(
+                                              dwth!,
+                                              dwthfilter!,
+                                              applyclicked,
+                                              dwthsearch!,
+                                              isSearch);
+                                          // await Share.shareFiles(files!);
                                           Navigator.of(context).popUntil(
                                               (route) => route.isCurrent);
                                         } catch (e) {
@@ -1215,7 +1221,7 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
                                             pdffilterlist,
                                             applyclicked,
                                             pdfsearchlist,
-                                            isSearch);
+                                            isSearch,fromDateController,toDateController);
                                     PdfApi.openFile(pdfFile);
                                   } else {
                                     print("Request is not accepted");
@@ -1262,78 +1268,74 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
                                 controller: searchController,
                                 onChanged: onSearchTextChanged),
                             Container(
-                                    margin:
-                                        EdgeInsets.only(top: 10, bottom: 20),
-                                    padding: EdgeInsets.all(15),
-                                    decoration: BoxDecoration(
-                                        color: MyColors.bluereportColorCode,
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(10))),
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                              margin: EdgeInsets.only(top: 10, bottom: 20),
+                              padding: EdgeInsets.all(15),
+                              decoration: BoxDecoration(
+                                  color: MyColors.bluereportColorCode,
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10))),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text("From Date  ",
+                                          style: TextStyle(fontSize: 18)),
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(left: 10.0),
+                                        child: Text(" -  To Date",
+                                            style: TextStyle(fontSize: 18)),
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      Text(
+                                          fromDateController != null
+                                              ? fromDateController + "  -  "
+                                              : "01-sep-2022" + "  -  ",
+                                          style: TextStyle(fontSize: 18)),
+                                      Text(
+                                          toDateController != null
+                                              ? toDateController
+                                              : "30-sep-2022",
+                                          style: TextStyle(fontSize: 18)),
+                                    ],
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.only(top: 10),
+                                    child: Row(
+                                      // mainAxisAlignment: MainAxisAlignment.start,
+                                      // crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Row(
-                                          children: [
-                                            Text("From Date  ",
-                                                style: TextStyle(fontSize: 18)),
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                  left: 10.0),
-                                              child: Text(" -  To Date",
+                                        Expanded(
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                "VehicleRegNo",
+                                                style: TextStyle(fontSize: 18),
+                                              ),
+                                              Text(
+                                                  osvfvehnolisttiletext == null
+                                                      ? "-"
+                                                      : osvfvehnolisttiletext,
                                                   style:
                                                       TextStyle(fontSize: 18)),
-                                            ),
-                                          ],
-                                        ),
-                                        Row(
-                                          children: [
-                                            Text(
-                                                fromDateController != null
-                                                    ? fromDateController +
-                                                        "  -  "
-                                                    : "01-sep-2022" + "  -  ",
-                                                style: TextStyle(fontSize: 18)),
-                                            Text(
-                                                toDateController != null
-                                                    ? toDateController
-                                                    : "30-sep-2022",
-                                                style: TextStyle(fontSize: 18)),
-                                          ],
-                                        ),
-                                        Padding(
-                                          padding: EdgeInsets.only(top: 10),
-                                          child: Row(
-                                            // mainAxisAlignment: MainAxisAlignment.start,
-                                            // crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Expanded(
-                                                child: Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.start,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                      "VehicleRegNo",
-                                                      style: TextStyle(
-                                                          fontSize: 18),
-                                                    ),
-                                                    Text(osvfvehnolisttiletext == null ? "-" : osvfvehnolisttiletext,
-                                                        style: TextStyle(
-                                                            fontSize: 18)),
-                                                  ],
-                                                ),
-                                              ),
                                             ],
                                           ),
                                         ),
                                       ],
                                     ),
-                                  )
-                               ,
+                                  ),
+                                ],
+                              ),
+                            ),
                             applyclicked
                                 ? BlocBuilder<MainBloc, MainState>(
                                     builder: (context, state) {
@@ -2311,8 +2313,6 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
                   )));
   }
 
-
-  
   String convertDataToCsv(
       List<DatewiseTravelHistoryData> deviceData,
       List<DatewiseTravelFilterData> filterdata,
@@ -2326,7 +2326,16 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
         : isSearch
             ? rows.add(["Datewise Travel History Search"])
             : rows.add(["Datewise Travel History"]);
-    rows.add(['IMEINo', 'TranseTime', 'Speed', 'Distance Travel', 'Latitude', 'Longitude', 'Adress']);
+       rows.add(["Date :- ${fromDateController != null ? fromDateController : "01-sep-2022"} - ${toDateController != null ? toDateController : "30-sep-2022"}"]);
+    rows.add([
+      'IMEINo',
+      'TranseTime',
+      'Speed',
+      'Distance Travel',
+      'Latitude',
+      'Longitude',
+      'Adress'
+    ]);
 
     // Add data rows
     if (applyclicked) {
@@ -2405,7 +2414,6 @@ class _DateWiseTravelHistoryState extends State<DateWiseTravelHistory> {
     shareCsvFile(csvFile);
   }
 
-
   onSearchTextChanged(String text) async {
     if (text.isEmpty) {
       setState(() {
@@ -2438,7 +2446,8 @@ class PdfInvoiceApi {
       List<DatewiseTravelFilterData> pdffilter,
       bool applyclicked,
       List<DatewiseTravelHistorySearchData> pdfsearch,
-      bool issearch) async {
+      bool issearch,var fromDateController,
+      var toDateController) async {
     final pdf = pw.Document();
     double fontsize = 8.0;
 
@@ -2483,6 +2492,11 @@ class PdfInvoiceApi {
               child: pw.Text("DATE WISE TRAVEL HISTORY",
                   style: pw.TextStyle(
                       fontSize: 20.0, fontWeight: pw.FontWeight.bold))),
+           pw.Center(
+              child: pw.Text("Date :- ${fromDateController != null ? fromDateController : "01-sep-2022"} - ${toDateController != null ? toDateController : "30-sep-2022"}",
+                  style: pw.TextStyle(
+                      fontSize: 18.0))),
+         
           pw.Container(
             margin: const pw.EdgeInsets.only(top: 10.0),
             child: pw.Table(

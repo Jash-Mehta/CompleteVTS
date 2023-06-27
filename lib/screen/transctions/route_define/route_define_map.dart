@@ -91,6 +91,7 @@ class _VTSRouteDefineMapState extends State<VTSRouteDefineMap> {
       markers.add(
         Marker(
           markerId: MarkerId(i.toString()),
+          infoWindow: InfoWindow(title: "MidPoint ${j}"),
           position: LatLng(
               midpointlist[i]["latitude"]!, midpointlist[i]["longitude"]!),
               

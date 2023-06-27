@@ -26,6 +26,9 @@ import '../../model/vehicle_master/search_vehicle_report_data_response.dart';
 import '../../model/vehicle_master/vehicle_master_filter.dart';
 import '../../model/vehicle_master/vehicle_report_detail.dart';
 import 'package:csv/csv.dart';
+
+import '../../model/vehicle_master/vehicle_report_vsrno.dart';
+
 class VehicleReportScreen extends StatefulWidget {
   const VehicleReportScreen({Key? key}) : super(key: key);
 
@@ -56,7 +59,7 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
   List<VehicleFilterData> pdffilterlist = [];
   List<SearchingVehItemInfo> pdfsearchlist = [];
   List<VehicleFilterData>? filterData = [];
-  List<VehicleVSrNoData>? datewisedrivercode = [];
+  List<VehicleVSrData>? datewisedrivercode = [];
   // List<AllVehicleDetailResponse>? searchData = [];
   int totalVehicleRecords = 0;
   // late bool isSearch = false;
@@ -155,7 +158,7 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
                 isfilter = true;
                 osvfvehnolisttiletext = "";
                 isfilter
-                    ? _mainBloc.add(VehicleVSrNoEvent(
+                    ? _mainBloc.add(VehicleMasterVSrNoEvent(
                         token: token, vendorId: 1, branchId: 1))
                     : Text("Driver code not loaded");
               });
@@ -255,16 +258,17 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
       ),
       child: BlocListener<MainBloc, MainState>(
         listener: (context, state) {
-          if (state is VehicleVSrNoLoadingState) {
+          if (state is VehicleMasterVSrNoLoadingState) {
             const Center(
               child: CircularProgressIndicator(),
             );
-          } else if (state is VehicleVSrNoLoadedState) {
-            if (state.vehiclevsrnoresponse.data != null) {
+          } else if (state is VehicleMasterVSrNoLoadedState) {
+            if (state.vehiclemastervsrnoresponse.data != null) {
               print("overspeed vehicle filter data is Loaded state");
-              datewisedrivercode!.addAll(state.vehiclevsrnoresponse.data!);
+              datewisedrivercode!
+                  .addAll(state.vehiclemastervsrnoresponse.data!);
             }
-          } else if (state is VehicleVSrNoErorrState) {
+          } else if (state is VehicleMasterVSrNoErorrState) {
             print("Something went Wrong  data VehicleVSrNoErorrState");
             Fluttertoast.showToast(
               msg: state.msg,
@@ -425,7 +429,8 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
                                         onPressed: () {
                                           print("Apply button clicked ");
                                           searhcontroller.text = "";
-                                          if (dwdcdeviceno != null && osvfvehnolisttiletext != "") {
+                                          if (dwdcdeviceno != null &&
+                                              osvfvehnolisttiletext != "") {
                                             _mainBloc
                                                 .add(VehicleReportFilterEvent(
                                               token: token,
@@ -679,6 +684,7 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
                                         itemCount: datewisedrivercode!.length,
                                         itemBuilder:
                                             (BuildContext context, int index) {
+                                          print("This is vsrdata--"+datewisedrivercode.toString());
                                           var article =
                                               datewisedrivercode![index];
                                           return Padding(
@@ -693,12 +699,14 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
                                                         FontWeight.w400),
                                               ),
                                               onTap: () {
-                                                print(article.vsrNo);
+                                                print(article.vsrNo.toString());
                                                 isdwdc = false;
                                                 setState(() {
-                                                  dwdcdeviceno = article.vsrNo;
+                                                  dwdcdeviceno =
+                                                      article.vsrNo.toString();
                                                   osvfvehnolisttiletext =
-                                                      article.vehicleRegNo;
+                                                      article.vehicleRegNo
+                                                          .toString();
                                                 });
                                               },
                                             ),
@@ -757,13 +765,14 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
                                         //   "/data/user/0/com.vts.gps/cache/file_picker/DTwisereport.pdf"
                                         // ];
                                         // print("File path------${files}");
-                                       shareDeviceData(
+                                        shareDeviceData(
                                             allVehicleDetaildatalist!,
                                             filterData!,
                                             applyclicked,
                                             searchVehStrdata!,
                                             isSelected);
-                                        Navigator.of(context).popUntil((route) => route.isCurrent);
+                                        Navigator.of(context).popUntil(
+                                            (route) => route.isCurrent);
                                       } catch (e) {
                                         Fluttertoast.showToast(
                                           msg: "Download the pdf first",
@@ -816,8 +825,12 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
                                 if (await Permission.storage
                                     .request()
                                     .isGranted) {
-                                  final pdfFile =
-                                      await PdfInvoiceApi.generate(pdfdatalist,pdffilterlist,applyclicked,pdfsearchlist,isSearch);
+                                  final pdfFile = await PdfInvoiceApi.generate(
+                                      pdfdatalist,
+                                      pdffilterlist,
+                                      applyclicked,
+                                      pdfsearchlist,
+                                      isSearch);
                                   PdfApi.openFile(pdfFile);
                                 } else {
                                   print("Request is not accepted");
@@ -985,7 +998,7 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
                                                                               fontSize: 18),
                                                                         ),
                                                                         Text(
-                                                                          "${filterData!.elementAt(index).vsrNo}",
+                                                                          "${filterData!.elementAt(index).vsrNo.toString()}",
                                                                           style: TextStyle(
                                                                               color: MyColors.text5ColorCode,
                                                                               fontSize: 18),
@@ -1778,7 +1791,7 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
     );
   }
 
-   String convertDataToCsv(
+  String convertDataToCsv(
       List<VehicleInfo> data,
       List<VehicleFilterData> filterdata,
       bool applyclicked,
@@ -1786,8 +1799,20 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
       bool issearch) {
     List<List<dynamic>> rows = [];
     // Add headers
-   applyclicked ?rows.add(["Vehicle Master Filter "]) : issearch ? rows.add(["Vehicle Master Search"]) : rows.add(["Vehicle Master Data"]);
-    rows.add(['SrNo','VehicleRegNo','VehicleName', 'Fuel Type','Speed Limit', 'Vehicle Type', 'Current Odometer']);
+    applyclicked
+        ? rows.add(["Vehicle Master Filter "])
+        : issearch
+            ? rows.add(["Vehicle Master Search"])
+            : rows.add(["Vehicle Master Data"]);
+    rows.add([
+      'SrNo',
+      'VehicleRegNo',
+      'VehicleName',
+      'Fuel Type',
+      'Speed Limit',
+      'Vehicle Type',
+      'Current Odometer'
+    ]);
 
     // Add data rows
     if (applyclicked) {
@@ -1809,7 +1834,7 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
         // print("This is filter lenght");
         print("Search data" + searchdata.toString());
         rows.add([
-         item.vsrNo,
+          item.vsrNo,
           item.vehicleRegNo,
           item.vehicleName,
           item.fuelType,
@@ -1823,7 +1848,7 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
         // print("This is filter lenght");
         print("Filter data" + filterdata.toString());
         rows.add([
-      item.vsrNo,
+          item.vsrNo,
           item.vehicleRegNo,
           item.vehicleName,
           item.fuelType,
@@ -1835,7 +1860,6 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
     }
     return ListToCsvConverter().convert(rows);
   }
-
 
   Future<File> saveCsvFile(
       String csvFilterData, bool applyclicked, bool issearch) async {
@@ -1855,13 +1879,13 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
   }
 
   void shareDeviceData(
-       List<VehicleInfo> data,
+      List<VehicleInfo> data,
       List<VehicleFilterData> filterdata,
       bool applyclicked,
       List<SearchingVehItemInfo> searchdata,
       bool issearch) async {
-    String csvData = convertDataToCsv(
-        data, filterdata, applyclicked, searchdata, issearch);
+    String csvData =
+        convertDataToCsv(data, filterdata, applyclicked, searchdata, issearch);
     File csvFile = await saveCsvFile(csvData, applyclicked, issearch);
     print("This is csv Filter data " + csvData);
 
@@ -1895,7 +1919,12 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
 }
 
 class PdfInvoiceApi {
-  static Future<File> generate(List<VehicleInfo> pdflist,  List<VehicleFilterData> pdffilterlist, bool applyclicked, List<SearchingVehItemInfo> pdfsearchlist, bool issearch ) async {
+  static Future<File> generate(
+      List<VehicleInfo> pdflist,
+      List<VehicleFilterData> pdffilterlist,
+      bool applyclicked,
+      List<SearchingVehItemInfo> pdfsearchlist,
+      bool issearch) async {
     final pdf = pw.Document();
     double fontsize = 8.0;
     DateTime current_date = DateTime.now();
@@ -2048,7 +2077,18 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 20,
-                            child: pw.Text(applyclicked ?  pdffilterlist[index].vehicleRegNo.toString() : issearch ? pdfsearchlist[index].vehicleRegNo.toString() : pdflist[index].vehicleRegNo.toString(),
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilterlist[index]
+                                        .vehicleRegNo
+                                        .toString()
+                                    : issearch
+                                        ? pdfsearchlist[index]
+                                            .vehicleRegNo
+                                            .toString()
+                                        : pdflist[index]
+                                            .vehicleRegNo
+                                            .toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2057,7 +2097,16 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 20,
-                            child: pw.Text(applyclicked ?  pdffilterlist[index].vehicleName.toString() : issearch ? pdfsearchlist[index].vehicleName.toString() : pdflist[index].vehicleName.toString(),
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilterlist[index]
+                                        .vehicleName
+                                        .toString()
+                                    : issearch
+                                        ? pdfsearchlist[index]
+                                            .vehicleName
+                                            .toString()
+                                        : pdflist[index].vehicleName.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2066,7 +2115,14 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 20,
-                            child: pw.Text(applyclicked ?  pdffilterlist[index].fuelType.toString() : issearch ? pdfsearchlist[index].fuelType.toString() : pdflist[index].fuelType.toString(),
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilterlist[index].fuelType.toString()
+                                    : issearch
+                                        ? pdfsearchlist[index]
+                                            .fuelType
+                                            .toString()
+                                        : pdflist[index].fuelType.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2075,7 +2131,14 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 20,
-                            child: pw.Text(applyclicked ?  pdffilterlist[index].speedLimit.toString() : issearch ? pdfsearchlist[index].speedLimit.toString() : pdflist[index].speedLimit.toString(),
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilterlist[index].speedLimit.toString()
+                                    : issearch
+                                        ? pdfsearchlist[index]
+                                            .speedLimit
+                                            .toString()
+                                        : pdflist[index].speedLimit.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2084,7 +2147,16 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 20,
-                            child: pw.Text(applyclicked ?  pdffilterlist[index].vehicleType.toString() : issearch ? pdfsearchlist[index].vehicleType.toString() : pdflist[index].vehicleType.toString(),
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilterlist[index]
+                                        .vehicleType
+                                        .toString()
+                                    : issearch
+                                        ? pdfsearchlist[index]
+                                            .vehicleType
+                                            .toString()
+                                        : pdflist[index].vehicleType.toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
@@ -2093,20 +2165,41 @@ class PdfInvoiceApi {
                               left: 5.0, top: 8.0, bottom: 8.0, right: 5.0),
                           child: pw.SizedBox(
                             width: 20,
-                            child: pw.Text(applyclicked ?  pdffilterlist[index].currentOdometer.toString() : issearch ? pdfsearchlist[index].currentOdometer.toString() : pdflist[index].currentOdometer.toString(),
+                            child: pw.Text(
+                                applyclicked
+                                    ? pdffilterlist[index]
+                                        .currentOdometer
+                                        .toString()
+                                    : issearch
+                                        ? pdfsearchlist[index]
+                                            .currentOdometer
+                                            .toString()
+                                        : pdflist[index]
+                                            .currentOdometer
+                                            .toString(),
                                 style: pw.TextStyle(fontSize: fontsize)),
                           ),
                         ),
                       ])
                     ]);
               },
-              itemCount: applyclicked ? pdffilterlist.length : issearch ? pdfsearchlist.length : pdflist.length)
+              itemCount: applyclicked
+                  ? pdffilterlist.length
+                  : issearch
+                      ? pdfsearchlist.length
+                      : pdflist.length)
           // ),
         ];
       },
     ));
 
-    return PdfApi.saveDocument(name:applyclicked ? 'VehicleFilterReport.pdf': issearch ? 'VehicleSearchReport.pdf': 'VehicleReport.pdf', pdf: pdf);
+    return PdfApi.saveDocument(
+        name: applyclicked
+            ? 'VehicleFilterReport.pdf'
+            : issearch
+                ? 'VehicleSearchReport.pdf'
+                : 'VehicleReport.pdf',
+        pdf: pdf);
   }
 }
 

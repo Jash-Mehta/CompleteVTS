@@ -906,19 +906,18 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
                           BlocBuilder<MainBloc, MainState>(
                               builder: (context, state) {
                             return Text(
-                              isSearch
-                                  ? searchData!.isEmpty
+                              applyclicked
+                                  ? devicemasterdata!.isEmpty
                                       ? ""
-                                      : searchData!.length.toString() +
-                                          " Record found"
-                                  : applyclicked
-                                      ? devicemasterdata!.isEmpty
+                                      : devicemasterdata!.length.toString() +
+                                          " Filter Records found"
+                                  : !isSearch
+                                      ? data!.length != 0
+                                          ? "${data!.length} Records found"
+                                          : "0 Records found"
+                                      : searchData!.isEmpty
                                           ? ""
-                                          : devicemasterdata!.length
-                                                  .toString() +
-                                              " Filter Records found"
-                                      : data!.length.toString() +
-                                          " Records found",
+                                          : "${searchData!.length} Search Records found",
                               style: TextStyle(
                                   fontSize: 18, fontWeight: FontWeight.bold),
                             );
@@ -1665,7 +1664,11 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
       bool issearch) {
     List<List<dynamic>> rows = [];
     // Add headers
-   applyclicked ?rows.add(["Device Master Filter "]) : isSearch ? rows.add(["Device Master Search"]) : rows.add(["Device Master Data"]);
+    applyclicked
+        ? rows.add(["Device Master Filter "])
+        : isSearch
+            ? rows.add(["Device Master Search"])
+            : rows.add(["Device Master Data"]);
     rows.add(['SrNo', 'DeviceNo', 'ModelNo', 'DeviceName', 'IMEINo']);
 
     // Add data rows
@@ -1708,7 +1711,6 @@ class _DeviceMasterReportScreenState extends State<DeviceMasterReportScreen> {
     }
     return ListToCsvConverter().convert(rows);
   }
-
 
   Future<File> saveCsvFile(
       String csvFilterData, bool applyclicked, bool issearch) async {

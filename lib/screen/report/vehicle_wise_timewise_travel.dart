@@ -1463,7 +1463,7 @@ class _VehicleWiseTimeWiseTravelState extends State<VehicleWiseTimeWiseTravel> {
                                     .request()
                                     .isGranted) {
                                   final pdfFile =
-                                      await PdfInvoiceApi.generate(pdfdatalist,pdffilterlist,applyclicked,pdfsearchlist,isSearch);
+                                      await PdfInvoiceApi.generate(pdfdatalist,pdffilterlist,applyclicked,pdfsearchlist,isSearch,fromDateController,toDateController);
                                   PdfApi.openFile(pdfFile);
                                 } else {
                                   print("Request is not accepted");
@@ -2458,6 +2458,7 @@ class _VehicleWiseTimeWiseTravelState extends State<VehicleWiseTimeWiseTravel> {
     List<List<dynamic>> rows = [];
     // Add headers
    applyclicked ?rows.add(["Vehicle wise Time wise Distance Filter "]) : issearch ? rows.add(["Vehicle wise Time wise Distance Search"]) : rows.add(["Vehicle wise Time wise Distance Data"]);
+    rows.add(["Date :- ${fromDateController != null ? fromDateController : "01-sep-2022"} - ${toDateController != null ? toDateController : "30-sep-2022"}"]);
     rows.add(['IMEINo','Trans Time','Speed','Distance Travel', 'Latitude', 'Longitude','Adress']);
 
     // Add data rows
@@ -2573,7 +2574,8 @@ class _VehicleWiseTimeWiseTravelState extends State<VehicleWiseTimeWiseTravel> {
 }
 
 class PdfInvoiceApi {
-  static Future<File> generate(List<VehicleWiseTimeWiseData> pdflist, List<VehihcleWiseTimeWiseFilterData> pdffilter, bool applyclicked,List<VehicleWiseTimeWiseSearchData> pdfsearch, bool issearch) async {
+  static Future<File> generate(List<VehicleWiseTimeWiseData> pdflist, List<VehihcleWiseTimeWiseFilterData> pdffilter, bool applyclicked,List<VehicleWiseTimeWiseSearchData> pdfsearch, bool issearch,var fromDateController,
+      var toDateController) async {
     final pdf = pw.Document();
     double fontsize = 8.0;
 
@@ -2618,6 +2620,10 @@ class PdfInvoiceApi {
               child: pw.Text("VEHICLE WISE TIME WISE DISTANCE TRAVEL",
                   style: pw.TextStyle(
                       fontSize: 20.0, fontWeight: pw.FontWeight.bold))),
+                      pw.Center(
+              child: pw.Text("Date :- ${fromDateController != null ? fromDateController : "01-sep-2022"} - ${toDateController != null ? toDateController : "30-sep-2022"}",
+                  style: pw.TextStyle(
+                      fontSize: 18.0))),
           pw.Container(
             margin: const pw.EdgeInsets.only(top: 10.0),
             child: pw.Table(

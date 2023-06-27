@@ -2138,6 +2138,37 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         }
       }
 
+       else if (event is VehiclewiseDrivercode) {
+        try {
+          yield VehicleWiseDriverCodeLoadingState();
+          var vehiclestatusreportfilterbloc = await webService.vwdrivercode(
+            event.token,
+            event.vendorId,
+            event.branchId,
+          );
+          yield VehicleWiseDriverCodeLoadedState(
+              dmfdriverCoderesponse: vehiclestatusreportfilterbloc);
+        } catch (e) {
+          print(e.toString());
+        }
+      }
+
+        //Vehicle master vsrno
+      else if (event is VehicleMasterVSrNoEvent) {
+        try {
+          yield VehicleMasterVSrNoLoadingState();
+          var vehiclestatusreportfilterbloc = await webService.vehiclemastervsrno(
+            event.token,
+            event.vendorId,
+            event.branchId,
+          );
+          yield VehicleMasterVSrNoLoadedState(
+              vehiclemastervsrnoresponse: vehiclestatusreportfilterbloc);
+        } catch (e) {
+          print(e.toString());
+        }
+      }
+
       //Frame Packet Option Grid
       else if (event is FramePacketOptionGridEvent) {
         try {

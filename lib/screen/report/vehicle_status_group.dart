@@ -798,16 +798,21 @@ class _VehicleStatusGroupState extends State<VehicleStatusGroup> {
                                                 print(article.vehicleRegNo);
                                                 setState(() {
                                                   isdmdc = false;
-                                                  vsrdcvehicleno =
-                                                      article.imeiNo == ""
-                                                              ? "ALL"
-                                                              : article.imeiNo;
-                                                  print(
-                                                      "This is vehicleregno - " +
-                                                          vsrdcvehicleno);
-                                                  vsrdcvsrnolisttiletext =
+                                                   vsrdcvsrnolisttiletext =
                                                       article.vehicleRegNo
                                                           .toString();
+                                                  vsrdcvehicleno =
+                                                      article.vehicleRegNo == "ALL"
+                                                              ? "ALL"
+                                                              : article.imeiNo
+                                                          .toString();
+                                                  print(
+                                                      "This is vehicleregno - " +
+                                                          vsrdcvsrnolisttiletext);
+                                                    print(
+                                                      "This is imeino - " +
+                                                          vsrdcvehicleno);
+                                                 
                                                 });
                                               },
                                             ),
@@ -1483,7 +1488,7 @@ class _VehicleStatusGroupState extends State<VehicleStatusGroup> {
                                       pdffilterlist,
                                       applyclicked,
                                       pdfsearchlist,
-                                      isSearch);
+                                      isSearch,fromDateController,toDateController);
                                   PdfApi.openFile(pdfFile);
                                 } else {
                                   print("Request is not accepted");
@@ -1646,40 +1651,40 @@ class _VehicleStatusGroupState extends State<VehicleStatusGroup> {
                                     ],
                                   ),
                                 ),
-                         Padding(
-                            padding: EdgeInsets.all(8),
-                            child: Column(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    "Group By(${vsrdcvsrnolisttiletext ?? "-"}) Total :- " +
-                                                  formatDuration( 
-                                                      durationString),
-                                    // gbvehregth==null ? "-" : gbvehregth,
-                                    style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                ),
-                                Text(
-                                  "Group By ( ${fromDateController ?? "01-sep-2022"} ) Total :-"
-                                 +formatDuration(
-                                                      durationString),
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600),
-                                ),
-                                Text(
-                                  "Total Over Speed Distance :- "+formatDuration(durationString),
-                                  //  vsrtotalhrs ==null ? "-" : vsrtotalhrs,
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600),
-                                ),
-                              ],
-                            ),
-                          ),
+                        //  Padding(
+                        //     padding: EdgeInsets.all(8),
+                        //     child: Column(
+                        //       children: [
+                        //         Padding(
+                        //           padding: const EdgeInsets.all(8.0),
+                        //           child: Text(
+                        //             "Group By(${vsrdcvsrnolisttiletext ?? "-"}) Total :- " +
+                        //                           formatDuration( 
+                        //                               durationString),
+                        //             // gbvehregth==null ? "-" : gbvehregth,
+                        //             style: TextStyle(
+                        //                 fontSize: 18,
+                        //                 fontWeight: FontWeight.w600),
+                        //           ),
+                        //         ),
+                        //         Text(
+                        //           "Group By ( ${fromDateController ?? "01-sep-2022"} ) Total :-"
+                        //          +formatDuration(
+                        //                               durationString),
+                        //           style: TextStyle(
+                        //               fontSize: 18,
+                        //               fontWeight: FontWeight.w600),
+                        //         ),
+                        //         Text(
+                        //           "Total Over Speed Distance :- "+formatDuration(durationString),
+                        //           //  vsrtotalhrs ==null ? "-" : vsrtotalhrs,
+                        //           style: TextStyle(
+                        //               fontSize: 18,
+                        //               fontWeight: FontWeight.w600),
+                        //         ),
+                        //       ],
+                        //     ),
+                        //   ),
                           applyclicked
                               ? filterData!.isEmpty
                                   ? Center(
@@ -2875,6 +2880,7 @@ class _VehicleStatusGroupState extends State<VehicleStatusGroup> {
     List<List<dynamic>> rows = [];
     // Add headers
    applyclicked ?rows.add(["Vehicle Status Group Filter "]) : issearch ? rows.add(["Vehicle Status Group Search"]) : rows.add(["Vehicle Status Group Data"]);
+    rows.add(["Date :- ${fromDateController != null ? fromDateController : "01-sep-2022"} - ${toDateController != null ? toDateController : "30-sep-2022"}"]);
     rows.add(['SrNo','IMEINo', 'VendorRegNo','Start TIme', 'End Time','Vehicle Status', 'Vehicle Status Time']);
 
     // Add data rows
@@ -2992,7 +2998,8 @@ class PdfInvoiceApi {
       List<VehicleGroupFilterData> pdffilter,
       bool applyclicked,
       List<DatewiseTravelHoursDatum> pdfsearch,
-      bool issearch) async {
+      bool issearch,var fromDateController,
+      var toDateController) async {
     final pdf = pw.Document();
     double fontsize = 8.0;
 
@@ -3037,6 +3044,10 @@ class PdfInvoiceApi {
               child: pw.Text("VEHICLE STATUS GROUP REPORT",
                   style: pw.TextStyle(
                       fontSize: 20.0, fontWeight: pw.FontWeight.bold))),
+          pw.Center(
+              child: pw.Text("Date :- ${fromDateController != null ? fromDateController : "01-sep-2022"} - ${toDateController != null ? toDateController : "30-sep-2022"}",
+                  style: pw.TextStyle(
+                      fontSize: 18.0))),
           pw.Container(
             margin: const pw.EdgeInsets.only(top: 10.0),
             child: pw.Table(

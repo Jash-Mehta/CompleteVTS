@@ -840,11 +840,13 @@ class _DateAndTimeWiseDistanceScreenState
                                                     print(article.vehicleRegNo);
                                                     setState(() {
                                                       isosvf = false;
-                                                      osvfvehno = article.imeiNo
-                                                          .toString();
                                                       osvfvehnolisttiletext =
                                                           article.vehicleRegNo
                                                               .toString();
+                                                       osvfvehno = article.vehicleRegNo == "ALL"
+                                                              ? "ALL"
+                                                              : article.imeiNo
+                                                          .toString();
                                                       print("This is vehicleregno - " +
                                                           osvfvehnolisttiletext);
                                                       print(
@@ -2774,6 +2776,7 @@ class _DateAndTimeWiseDistanceScreenState
         : isSearch
             ? rows.add(["DateAndTwise Distance Search"])
             : rows.add(["DateAndTwise Distance Data"]);
+            rows.add(["Date :- ${fromDateController != null ? fromDateController : "01-sep-2022"} - ${toDateController != null ? toDateController : "30-sep-2022"}"]);
    rows.add(['IMEINo', 'TranseTime', 'Speed', 'Distance Travel', 'Latitude', 'Longitude', 'Adress']);
 
     // Add data rows
@@ -2934,20 +2937,11 @@ class PdfInvoiceApi {
               child: pw.Text("DATE AND TIME WISE DISTANCE TRAVEL",
                   style: pw.TextStyle(
                       fontSize: 20.0, fontWeight: pw.FontWeight.bold))),
-          pw.Row(
-            children: [
-              pw.Text(
-                  fromDateController != null
-                      ? fromDateController + "  -  "
-                      : "01-sep-2022   -  ",
-                  style: pw.TextStyle(fontSize: 18)),
-              pw.Text(
-                  toDateController != null
-                      ? toDateController
-                      : "30-sep-2022   -  ",
-                  style: pw.TextStyle(fontSize: 18)),
-            ],
-          ),
+                      // "Date :- ${fromDateController != null ? fromDateController : "01-sep-2022"} - ${toDateController != null ? toDateController : "30-sep-2022"}"
+           pw.Center(
+              child: pw.Text("Date :- ${fromDateController != null ? fromDateController : "01-sep-2022"} - ${toDateController != null ? toDateController : "30-sep-2022"}",
+                  style: pw.TextStyle(
+                      fontSize: 18.0))),
           pw.Container(
             margin: const pw.EdgeInsets.only(top: 10.0),
             child: pw.Table(

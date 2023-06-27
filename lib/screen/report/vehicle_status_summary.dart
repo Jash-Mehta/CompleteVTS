@@ -796,16 +796,21 @@ class _VehicleStatusSummaryState extends State<VehicleStatusSummary> {
                                                 print(article.vehicleRegNo);
                                                 setState(() {
                                                   isdmdc = false;
-                                                  vsrdcvehicleno =
-                                                     article.imeiNo == ""
-                                                              ? "ALL"
-                                                              : article.imeiNo;
-                                                  print(
-                                                      "This is vehicleregno - " +
-                                                          vsrdcvehicleno);
-                                                  vsrdcvsrnolisttiletext =
+                                                   vsrdcvsrnolisttiletext =
                                                       article.vehicleRegNo
                                                           .toString();
+                                                  vsrdcvehicleno =
+                                                     article.vehicleRegNo == "ALL"
+                                                              ? "ALL"
+                                                              : article.imeiNo
+                                                          .toString();
+                                                  print(
+                                                      "This is vehicleregno - " +
+                                                          vsrdcvsrnolisttiletext);
+                                                  print(
+                                                      "This is imeino - " +
+                                                          vsrdcvehicleno);
+                                                 
                                                 });
                                               },
                                             ),
@@ -1475,7 +1480,7 @@ class _VehicleStatusSummaryState extends State<VehicleStatusSummary> {
                                     .request()
                                     .isGranted) {
                                   final pdfFile =
-                                      await PdfInvoiceApi.generate(pdfdatalist,pdffilterlist,applyclicked,pdfsearchlist,isSearch);
+                                      await PdfInvoiceApi.generate(pdfdatalist,pdffilterlist,applyclicked,pdfsearchlist,isSearch,fromDateController,toDateController);
                                   PdfApi.openFile(pdfFile);
                                 } else {
                                   print("Request is not accepted");
@@ -1638,40 +1643,40 @@ class _VehicleStatusSummaryState extends State<VehicleStatusSummary> {
                                     ],
                                   ),
                                 ),
-                                  Padding(
-                            padding: EdgeInsets.all(8),
-                            child: Column(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    "Group By(${vsrdcvsrnolisttiletext ?? "-"}) Total :- " +
-                                                  formatDuration( 
-                                                      durationString),
-                                    // gbvehregth==null ? "-" : gbvehregth,
-                                    style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                ),
-                                Text(
-                                  "Group By ( ${fromDateController ?? "01-sep-2022"} ) Total :-"
-                                 +formatDuration(
-                                                      durationString),
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600),
-                                ),
-                                Text(
-                                  "Total Over Speed Distance :- "+formatDuration(durationString),
-                                  //  vsrtotalhrs ==null ? "-" : vsrtotalhrs,
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600),
-                                ),
-                              ],
-                            ),
-                          ),
+                          //         Padding(
+                          //   padding: EdgeInsets.all(8),
+                          //   child: Column(
+                          //     children: [
+                          //       Padding(
+                          //         padding: const EdgeInsets.all(8.0),
+                          //         child: Text(
+                          //           "Group By(${vsrdcvsrnolisttiletext ?? "-"}) Total :- " +
+                          //                         formatDuration( 
+                          //                             durationString),
+                          //           // gbvehregth==null ? "-" : gbvehregth,
+                          //           style: TextStyle(
+                          //               fontSize: 18,
+                          //               fontWeight: FontWeight.w600),
+                          //         ),
+                          //       ),
+                          //       Text(
+                          //         "Group By ( ${fromDateController ?? "01-sep-2022"} ) Total :-"
+                          //        +formatDuration(
+                          //                             durationString),
+                          //         style: TextStyle(
+                          //             fontSize: 18,
+                          //             fontWeight: FontWeight.w600),
+                          //       ),
+                          //       Text(
+                          //         "Total Over Speed Distance :- "+formatDuration(durationString),
+                          //         //  vsrtotalhrs ==null ? "-" : vsrtotalhrs,
+                          //         style: TextStyle(
+                          //             fontSize: 18,
+                          //             fontWeight: FontWeight.w600),
+                          //       ),
+                          //     ],
+                          //   ),
+                          // ),
                           applyclicked
                               ? filterData!.isEmpty
                                   ? Center(
@@ -2506,6 +2511,7 @@ class _VehicleStatusSummaryState extends State<VehicleStatusSummary> {
     List<List<dynamic>> rows = [];
     // Add headers
    applyclicked ?rows.add(["Vehicle Status Summary Filter "]) : issearch ? rows.add(["Vehicle Status Summary Search"]) : rows.add(["Vehicle Status Summary Data"]);
+    rows.add(["Date :- ${fromDateController != null ? fromDateController : "01-sep-2022"} - ${toDateController != null ? toDateController : "30-sep-2022"}"]);
     rows.add(['SrNo','IMEINo', 'VendorRegNo','Start TIme', 'End Time','Vehicle Status', 'Vehicle Status Time']);
 
     // Add data rows
@@ -2621,7 +2627,8 @@ class _VehicleStatusSummaryState extends State<VehicleStatusSummary> {
 }
 
 class PdfInvoiceApi {
-  static Future<File> generate(List<StatusSummaryData> pdflist, List<VehicleSummaryFilterData> pdffilter, bool applyclicked, List<DatewiseStatusWiseTravelSummaryDatum> pdfsearch, bool issearch) async {
+  static Future<File> generate(List<StatusSummaryData> pdflist, List<VehicleSummaryFilterData> pdffilter, bool applyclicked, List<DatewiseStatusWiseTravelSummaryDatum> pdfsearch, bool issearch,var fromDateController,
+      var toDateController) async {
     final pdf = pw.Document();
     double fontsize = 8.0;
     DateTime current_date = DateTime.now();
@@ -2665,6 +2672,10 @@ class PdfInvoiceApi {
               child: pw.Text("VEHICLE STATUS SUMMARY REPORT",
                   style: pw.TextStyle(
                       fontSize: 20.0, fontWeight: pw.FontWeight.bold))),
+          pw.Center(
+              child: pw.Text("Date :- ${fromDateController != null ? fromDateController : "01-sep-2022"} - ${toDateController != null ? toDateController : "30-sep-2022"}",
+                  style: pw.TextStyle(
+                      fontSize: 18.0))),
           pw.Container(
             margin: const pw.EdgeInsets.only(top: 10.0),
             child: pw.Table(

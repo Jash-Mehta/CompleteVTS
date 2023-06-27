@@ -649,7 +649,7 @@ class _VTSGeofenceMapState extends State<VTSGeofenceMap> {
                     )),
             track
                 ? Container(
-                    height: 200.0,
+                    height: 300.0,
                     width: double.infinity,
                     margin: EdgeInsets.only(
                         left: 15.0,
@@ -662,15 +662,33 @@ class _VTSGeofenceMapState extends State<VTSGeofenceMap> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 30.0),
-                          child: Text(
-                            runningstatus.toString(),
-                            style: TextStyle(
-                                color: Color.fromARGB(255, 49, 113, 51),
-                                fontSize: 19.0,
-                                fontWeight: FontWeight.w400),
-                          ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(left: 30.0),
+                              child: Text(
+                                runningstatus.toString(),
+                                style: TextStyle(
+                                    color: Color.fromARGB(255, 49, 113, 51),
+                                    fontSize: 19.0,
+                                    fontWeight: FontWeight.w400),
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                track = false;
+                                setState(() {});
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 30.0),
+                                child: Icon(
+                                  Icons.cancel,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            )
+                          ],
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -716,10 +734,14 @@ class _VTSGeofenceMapState extends State<VTSGeofenceMap> {
                                   style: TextStyle(
                                       color: Colors.grey, fontSize: 16.0),
                                 ),
-                                Text(
-                                  address.toString(),
-                                  style: TextStyle(
-                                      color: Colors.black, fontSize: 16.0),
+                                SizedBox(
+                                  height: 60.0,
+                                  width: 100.0,
+                                  child: Text(
+                                    address.toString(),
+                                    style: TextStyle(
+                                        color: Colors.black, fontSize: 16.0),
+                                  ),
                                 ),
                               ],
                             ),

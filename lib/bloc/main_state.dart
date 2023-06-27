@@ -139,6 +139,7 @@ import '../model/vehicle_history/vts_history_speed_parameter.dart';
 import '../model/vehicle_master/search_vehicle_report_data_response.dart';
 import '../model/vehicle_master/vehicle_master_filter.dart';
 import '../model/vehicle_master/vehicle_report_detail.dart';
+import '../model/vehicle_master/vehicle_report_vsrno.dart';
 
 class MainState {
   @override
@@ -3249,7 +3250,32 @@ class VehicleVSrNoErorrState extends MainState {
   List<Object> get props => throw UnimplementedError();
 }
 
+
+
 // Vehicle VSrNo
+class VehicleMasterVSrNoLoadingState extends MainState {
+  List<Object> get props => throw UnimplementedError();
+}
+
+class VehicleMasterVSrNoLoadedState extends MainState {
+  VehicleMasterVSrModel vehiclemastervsrnoresponse;
+  VehicleMasterVSrNoLoadedState({
+    required this.vehiclemastervsrnoresponse,
+  });
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+
+class VehicleMasterVSrNoErorrState extends MainState {
+  String msg;
+  VehicleMasterVSrNoErorrState({required this.msg});
+  @override
+  // TODO: implement props
+  List<Object> get props => throw UnimplementedError();
+}
+
+
 class FramePacketOptiongridLoadingState extends MainState {
   List<Object> get props => throw UnimplementedError();
 }
