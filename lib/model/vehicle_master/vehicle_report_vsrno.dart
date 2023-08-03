@@ -10,7 +10,7 @@ class VehicleMasterVSrModel {
     if (json['data'] != null) {
       data = <VehicleVSrData>[];
       json['data'].forEach((v) {
-        data!.add(new VehicleVSrData.fromJson(v));
+        data!.add(VehicleVSrData.fromJson(v));
       });
     }
     succeeded = json['succeeded'];
@@ -31,13 +31,13 @@ class VehicleMasterVSrModel {
 }
 
 class VehicleVSrData {
-  String? vsrNo;
+  int? vsrNo;
   String? vehicleRegNo;
 
   VehicleVSrData({this.vsrNo, this.vehicleRegNo});
 
   VehicleVSrData.fromJson(Map<String, dynamic> json) {
-    vsrNo = json['vsrNo'];
+    vsrNo = json[vsrNo];
     vehicleRegNo = json['vehicleRegNo'];
   }
 

@@ -259,12 +259,10 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
       child: BlocListener<MainBloc, MainState>(
         listener: (context, state) {
           if (state is VehicleMasterVSrNoLoadingState) {
-            const Center(
-              child: CircularProgressIndicator(),
-            );
+              print("vehicle vsr data is Loading state");
           } else if (state is VehicleMasterVSrNoLoadedState) {
             if (state.vehiclemastervsrnoresponse.data != null) {
-              print("overspeed vehicle filter data is Loaded state");
+              print("vehicle vsr data is Loaded state");
               datewisedrivercode!
                   .addAll(state.vehiclemastervsrnoresponse.data!);
             }
@@ -684,7 +682,7 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
                                         itemCount: datewisedrivercode!.length,
                                         itemBuilder:
                                             (BuildContext context, int index) {
-                                          print("This is vsrdata--"+datewisedrivercode.toString());
+                                          print("This is vsrdata-->");
                                           var article =
                                               datewisedrivercode![index];
                                           return Padding(

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter_vts/bloc/main_event.dart';
 import 'package:flutter_vts/bloc/main_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_vts/model/date_wise_travel_history/date_wise_travelfiltersearch.dart';
 import 'package:flutter_vts/model/report/frame_packet_report_response.dart';
 import 'package:flutter_vts/service/web_service.dart';
 
@@ -419,6 +420,29 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         } catch (e) {
           print(e.toString());
           yield SearchDatewiseTravelReportErrorState(msg: e.toString());
+        }
+      }
+      // filter search
+      else if (event is DateWiseTravelHFilterSearchEvent) {
+        try {
+          yield DateWiseTravelHFilterSearchLoadingState();
+          var driverMasterReportresponse =
+              await webService.datewisetravelfiltersearch(
+                  event.token,
+                  event.vendorid,
+                  event.branchid,
+                  event.arainonarai,
+                  event.fromdate,
+                  event.todate,
+                  event.imeino,
+                  event.searchtext,
+                  event.pageNumber,
+                  event.pageSize);
+          yield DateWiseTravelHFilterSearchLoadedState(
+              datedisetravelhistoryresponse: driverMasterReportresponse);
+        } catch (e) {
+          print(e.toString());
+          yield DateWiseTravelHFilterSearchErrorState(msg: e.toString());
         }
       }
       // -----------------------------------------------------
@@ -1258,17 +1282,18 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         try {
           yield TravelSummarySearchLoadingState();
           var travelsummarysearch = await webService.travelsearch_web(
-              event.token,
-              event.vendorid,
-              event.branchid,
-              event.arainonarai,
-              event.fromdata,
-              event.fromtime,
-              event.todate,
-              event.totime,
-              event.searchtext,
-              event.pagenumber,
-              event.pagesize,);
+            event.token,
+            event.vendorid,
+            event.branchid,
+            event.arainonarai,
+            event.fromdata,
+            event.fromtime,
+            event.todate,
+            event.totime,
+            event.searchtext,
+            event.pagenumber,
+            event.pagesize,
+          );
           yield TravelSummarySearchLoadedState(
               travelSummaryResponse: travelsummarysearch);
         } catch (e) {
@@ -1437,7 +1462,27 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         }
       }
       //End.
-      else if (event is DateWiseTravelHistoryEvent) {
+      else if (event is DriverwiseVAFilterSearchEvent) {
+        print("Enter in main bloc event.......${event.searchText}");
+        try {
+          yield DriverWiseVAFilterSearchLoadingState();
+          var findstrDetailResp = await webService.driverwisevafiltersearch(
+            event.token,
+            event.vendorid,
+            event.branchid,
+            event.vsrno,
+            event.searchText,
+            event.pageNumber,
+            event.pageSize,
+          );
+          print("Api response in event is--------${findstrDetailResp}");
+          yield DriverWiseVAFilterSearchLoadedState(
+              searchvehassignResponse: findstrDetailResp);
+        } catch (e) {
+          print(e.toString());
+          yield DriverWiseVAFilterSearchErrorState(msg: e.toString());
+        }
+      } else if (event is DateWiseTravelHistoryEvent) {
         try {
           yield DateWiseTravelHistoryLoadingState();
           var datewisetravelhistoryresponse =
@@ -1554,7 +1599,30 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         }
       }
       //End.
-      else if (event is FramePacketEvents) {
+      // overspeed filter
+      else if (event is OverSpeedFilterSearchEvents) {
+        print("Enter in main bloc event.......");
+        try {
+          yield OverSpeedFilterSearchLoadingState();
+          var overspeed = await webService.overspeedfiltersearch(
+              event.token,
+              event.barnchId,
+              event.vendorId,
+              event.arainonarai,
+              event.fromDate,
+              event.toDate,
+              event.imeino,
+              event.searchText,
+              event.pageNumber,
+              event.pageSize);
+          print("Api response in event is--------${overspeed}");
+          yield OverSpeedFilterSearchLoadedState(
+              overspeedvehiclefilterresponse: overspeed);
+        } catch (e) {
+          print(e.toString());
+          yield OverSpeedFilterSearchErorrState(msg: e.toString());
+        }
+      } else if (event is FramePacketEvents) {
         try {
           yield FramePacketLoadingState();
           var frame_packet_response = await webService.getframepacketreport(
@@ -1576,8 +1644,54 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         } catch (e) {
           print(e.toString());
         }
+      } else if (event is FrameFilterSearchEvent) {
+        try {
+          yield FrameFilterSearchLoadingState();
+          var frame_packet_response = await webService.framefiltersearch(
+            event.token,
+            event.vendorId,
+            event.branchId,
+            event.araiNonarai,
+            event.fromDate,
+            event.formTime,
+            event.toDate,
+            event.toTime,
+            event.imeino,
+            event.searchText,
+            event.framepacketoption,
+            event.pageNumber,
+            event.pageSize,
+          );
+          yield FrameFilterSearchLoadedState(
+              searchFramePacket: frame_packet_response);
+        } catch (e) {
+          print(e.toString());
+        }
       }
-
+      else if (event is FrameGridFilterSearchEvent) {
+        try {
+          yield FrameGridFilterSearchLoadingState();
+          var frame_packet_response = await webService.framegridfiltersearch(
+            event.token,
+            event.vendorId,
+            event.branchId,
+            event.araiNonarai,
+            event.fromDate,
+            event.formTime,
+            event.toDate,
+            event.toTime,
+            event.imeino,
+            event.searchText,
+            event.framepacketoption,
+            event.pageNumber,
+            event.pageSize,
+          );
+          yield FrameGridFilterSearchLoadedState(
+              searchFrameGridPacket: frame_packet_response);
+        } catch (e) {
+          print(e.toString());
+        }
+      }
       // frame packet grid ----------
       else if (event is FramePacketGridEvents) {
         try {
@@ -1644,6 +1758,58 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           print(e.toString());
 
           yield SearchDeviceMasterReportErrorState(msg: e.toString());
+          print("error msg--------${e.toString()}");
+        }
+      }
+
+      // device master filter search
+      else if (event is DeviceMasterFilterSearchEvent) {
+        print(
+            "Enter in main bloc event of filter serach vehicle rept.......${event.searchText}");
+        try {
+          yield DeviceMasterFilterSearchLoadingState();
+          var finddmDetailResp = await webService.devicemasterfiltersrch(
+            event.token,
+            event.branchid,
+            event.deviceno,
+            event.searchText,
+            event.pageNumber,
+            event.vendorid,
+            event.pageSize,
+          );
+          print("Api response in event is--------${finddmDetailResp}");
+          yield DeviceMasterFilterSearchLoadedState(
+              searchdmReportResponse: finddmDetailResp);
+        } catch (e) {
+          print(e.toString());
+
+          yield DeviceMasterFilterSearchErrorState(msg: e.toString());
+          print("error msg--------${e.toString()}");
+        }
+      }
+
+      // drivermaster filter search
+      else if (event is DriverMasterFilterSearchEvent) {
+        print(
+            "Enter in main bloc event of filter serach vehicle rept.......${event.searchText}");
+        try {
+          yield DriverMasterFilterSearchLoadingState();
+          var finddmDetailResp = await webService.drivermasterfilsearch(
+            event.token,
+            event.branchid,
+            event.drivercode,
+            event.searchText,
+            event.pagenumber,
+            event.vendorid,
+            event.pagesize,
+          );
+          print("Api response in event is--------${finddmDetailResp}");
+          yield DriverMasterFilterSearchLoadedState(
+              searchResponse: finddmDetailResp);
+        } catch (e) {
+          print(e.toString());
+
+          yield DriverMasterFilterSearchErrorState(msg: e.toString());
           print("error msg--------${e.toString()}");
         }
       }
@@ -1866,7 +2032,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         }
       }
 
-      // Vehicle wise time wise travel history
+      // Vehicle wise time wise travel history VehiclewiseTimewiseDrivercode
       else if (event is VehicleWiseTimeWiseTravelEvents) {
         try {
           yield VehicleWiseTimeWiseTravelLoadingState();
@@ -1885,6 +2051,22 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                   event.pagesize);
           yield VehicleWiseTimeWiseTravelLoadedState(
               vehiclewisewimewisetravelResponse: vehiclestatusreportfilterbloc);
+        } catch (e) {
+          print(e.toString());
+        }
+      }
+        //   Vehicle wise time wise driver code
+         else if (event is VehiclewiseTimewiseDrivercode) {
+        try {
+          yield VehicleWiseTWiseDriverCodeLoadingState();
+          var vehiclestatusreportfilterbloc = 
+              await webService.vwtwdrivercode(
+                  event.token,
+                  event.vendorId,
+                  event.branchId,
+                  );
+          yield VehicleWiseTWiseDriverCodeLoadedState(
+              dmfdriverCoderesponse: vehiclestatusreportfilterbloc);
         } catch (e) {
           print(e.toString());
         }
@@ -1908,6 +2090,54 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                   event.pagenumber,
                   event.pagesize);
           yield VehicleWiseFilterLoadedState(
+              vehiclewisefilterResponse: vehiclestatusreportfilterbloc);
+        } catch (e) {
+          print(e.toString());
+        }
+      }
+
+       // Vehicle  wise filter search
+      else if (event is VehicleWiseFilterSearchEvents) {
+        try {
+          yield VehicleWiseFilterSearchLoadingState();
+          var vehiclestatusreportfilterbloc =
+              await webService.vehiclewisefiltersearch(
+                  event.token,
+                  event.vendorId,
+                  event.branchid,
+                  event.araino,
+                  event.fromdate,
+                  event.toDate,
+                  event.vehiclelist,
+                  event.searchtext,
+                  event.pagenumber,
+                  event.pagesize);
+          yield VehicleWiseFilterSearchLoadedState(
+              vehiclewisefilterResponse: vehiclestatusreportfilterbloc);
+        } catch (e) {
+          print(e.toString());
+        }
+      }
+
+        // Vehicle  wise t wise filter search
+      else if (event is VehicleWiseTWiseFilterSearchEvents) {
+        try {
+          yield VehicleWiseTWiseFilterSearchLoadingState();
+          var vehiclestatusreportfilterbloc =
+              await webService.vehiclewisetwisefiltersearch(
+                  event.token,
+                  event.vendorId,
+                  event.branchid,
+                  event.araino,
+                  event.fromdate,
+                  event.fromTime,
+                  event.toDate,
+                  event.toTime,
+                  event.vehiclelist,
+                  event.searchtext,
+                  event.pagenumber,
+                  event.pagesize);
+          yield VehicleWiseTWiseFilterSearchLoadedState(
               vehiclewisefilterResponse: vehiclestatusreportfilterbloc);
         } catch (e) {
           print(e.toString());
@@ -2056,6 +2286,35 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         }
       }
 
+      // filter search
+      else if (event is DateAndTimeWiseDFilterSearchEvents) {
+        try {
+          yield DateAndTimeWiseDFilterSearchLoadingState();
+          var vehiclestatusreportfilterbloc =
+              await webService.datetimewisefiltersearch(
+                  event.token,
+                  event.vendorId,
+                  event.branchid,
+                  event.araino,
+                  event.fromdate,
+                  event.fromTime,
+                  event.toDate,
+                  event.toTime,
+                  event.imeno,
+                  event.searchtext,
+                  event.pagenumber,
+                  event.pagesize);
+          print(
+              "Entering in main bloc of DateAndTimeWiseDFilterSearchLoadingState");
+          yield DateAndTimeWiseDFilterSearchLoadedState(
+              dateandtimewisetravelResponse: vehiclestatusreportfilterbloc);
+          print(
+              "Entering in main bloc of DateAndTimeWiseDFilterSearchLoadedState");
+        } catch (e) {
+          print(e.toString());
+        }
+      }
+
       // Frame packet filter
       else if (event is FrameFilterEvent) {
         try {
@@ -2136,9 +2395,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         } catch (e) {
           print(e.toString());
         }
-      }
-
-       else if (event is VehiclewiseDrivercode) {
+      } else if (event is VehiclewiseDrivercode) {
         try {
           yield VehicleWiseDriverCodeLoadingState();
           var vehiclestatusreportfilterbloc = await webService.vwdrivercode(
@@ -2153,11 +2410,12 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         }
       }
 
-        //Vehicle master vsrno
+      //Vehicle master vsrno
       else if (event is VehicleMasterVSrNoEvent) {
         try {
           yield VehicleMasterVSrNoLoadingState();
-          var vehiclestatusreportfilterbloc = await webService.vehiclemastervsrno(
+          var vehiclestatusreportfilterbloc =
+              await webService.vehiclemastervsrno(
             event.token,
             event.vendorId,
             event.branchId,
@@ -2216,9 +2474,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         } catch (e) {
           print(e.toString());
         }
-      }
-
-       else if (event is DateAndTimeWiseDriverCode) {
+      } else if (event is DateAndTimeWiseDriverCode) {
         try {
           yield DateAndTimeWiseDriverCodeLoadingState();
           var vehiclestatusreportfilterbloc =
@@ -2235,11 +2491,10 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       }
 
       // Vehicle status summary
-       else if (event is VehicleStatusSummaryDrivercode) {
+      else if (event is VehicleStatusSummaryDrivercode) {
         try {
           yield VehicleStatusSummaryDriverCodeLoadingState();
-          var vehiclestatusreportfilterbloc =
-              await webService.vssdcdrivercode(
+          var vehiclestatusreportfilterbloc = await webService.vssdcdrivercode(
             event.token,
             event.vendorId,
             event.branchId,
@@ -2251,12 +2506,11 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         }
       }
 
-        // Vehicle status report
-       else if (event is VehicleStatusReportDrivercode) {
+      // Vehicle status report
+      else if (event is VehicleStatusReportDrivercode) {
         try {
           yield VehicleStatusReportDriverCodeLoadingState();
-          var vehiclestatusreportfilterbloc =
-              await webService.vsrdcdrivercode(
+          var vehiclestatusreportfilterbloc = await webService.vsrdcdrivercode(
             event.token,
             event.vendorId,
             event.branchId,
@@ -2268,12 +2522,11 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         }
       }
 
-       // Vehicle status Group
-       else if (event is VehicleStatusGroupDrivercode) {
+      // Vehicle status Group
+      else if (event is VehicleStatusGroupDrivercode) {
         try {
           yield VehicleStatusGroupDriverCodeLoadingState();
-          var vehiclestatusreportfilterbloc =
-              await webService.vsgdcdrivercode(
+          var vehiclestatusreportfilterbloc = await webService.vsgdcdrivercode(
             event.token,
             event.vendorId,
             event.branchId,
@@ -2478,6 +2731,81 @@ class MainBloc extends Bloc<MainEvent, MainState> {
               searchVehicleStatusGroupResponse: vehiclestatussummaryresponse);
         } catch (e) {
           print(e.toString());
+        }
+      }
+
+      // Vehicle status filter search
+      else if (event is VehStatusFilterSearchEvent) {
+        try {
+          yield VehStatusFilterSearchLoadingState();
+          var response = await webService.vehstatusfiltersearch(
+              event.token,
+              event.vendorId,
+              event.branchid,
+              event.araino,
+              event.fromdate,
+              event.fromTime,
+              event.toDate,
+              event.toTime,
+              event.imeino,
+              event.searchText,
+              event.pagenumber,
+              event.pagesize);
+          yield VehStatusFilterSearchLoadedState(
+              searchvehicleStatusGroupResponse: response);
+        } catch (e) {
+          print(e.toString());
+          yield VehStatusFilterSearchErrorState(msg: e.toString());
+        }
+      }
+
+      // Vehicle Summary filter search
+      else if (event is VehSummaryFilterSearchEvent) {
+        try {
+          yield VehSummaryFilterSearchLoadingState();
+          var response = await webService.vehsummaryfiltersearch(
+              event.token,
+              event.vendorId,
+              event.branchid,
+              event.araino,
+              event.fromdate,
+              event.fromTime,
+              event.toDate,
+              event.toTime,
+              event.imeino,
+              event.searchText,
+              event.pagenumber,
+              event.pagesize);
+          yield VehSummaryFilterSearchLoadedState(
+              searchvehicleSummaryResponse: response);
+        } catch (e) {
+          print(e.toString());
+          yield VehSummaryFilterSearchErrorState(msg: e.toString());
+        }
+      }
+
+      // Vehicle Group filter search
+      else if (event is VehGroupFilterSearchEvent) {
+        try {
+          yield VehGroupFilterSearchLoadingState();
+          var response = await webService.vehgroupfiltersearch(
+              event.token,
+              event.vendorId,
+              event.branchid,
+              event.araino,
+              event.fromdate,
+              event.fromTime,
+              event.toDate,
+              event.toTime,
+              event.imeino,
+              event.searchText,
+              event.pagenumber,
+              event.pagesize);
+          yield VehGroupFilterSearchLoadedState(
+              searchvehicleGroupResponse: response);
+        } catch (e) {
+          print(e.toString());
+          yield VehGroupFilterSearchErrorState(msg: e.toString());
         }
       }
 

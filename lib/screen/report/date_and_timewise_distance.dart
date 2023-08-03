@@ -21,6 +21,7 @@ import 'package:pdf/pdf.dart';
 import 'package:intl/intl.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import '../../model/report/date_and_timewise_filter.dart';
+import '../../model/report/date_and_timewise_filtersearch.dart';
 import '../../model/report/date_and_timewise_search.dart';
 import '../../model/report/date_and_timewise_travel.dart';
 import '../../model/report/dateandtimewisedrivercode.dart';
@@ -66,6 +67,7 @@ class _DateAndTimeWiseDistanceScreenState
   List<DateAndTimeWiseSearchData> pdfsearchlist = [];
   List<DateAndTimewiseData>? data = [];
   List<DateAndTimeWiseSearchData>? searchData = [];
+  List<DateTimewiseDFSData>? filtersearchData = [];
   List<DateAndTimewiseFilterData>? filterData = [];
 
   var fromDateController,
@@ -198,6 +200,8 @@ class _DateAndTimeWiseDistanceScreenState
           GestureDetector(
             onTap: () {
               isfilter = true;
+              isSearch = false;
+              searchController.text = "";
               todateInput.text = "";
               fromdateInput.text = "";
               fromTimeInput.text = "";
@@ -463,6 +467,32 @@ class _DateAndTimeWiseDistanceScreenState
             }
           } else if (state is DateAndTimeWiseSearchErrorState) {
             print("Entering in Date And Time Wise search loading state");
+            setState(() {
+              _isLoading = false;
+            });
+          }
+           if (state is DateAndTimeWiseDFilterSearchLoadingState) {
+            print("Entering in Date And Time Wise Filter search loading state");
+            setState(() {
+              _isLoading = true;
+            });
+          } else if (state is DateAndTimeWiseDFilterSearchLoadedState) {
+            print("Entering in Date And Time Wise filter search loaded state");
+            if (state.dateandtimewisetravelResponse.data != null) {
+              setState(() {
+                _isLoading = false;
+                filtersearchData!.clear();
+                // value = state.dateandtimewisetravelResponse.totalRecords!;
+              });
+              filtersearchData!.clear();
+              filtersearchData!.addAll(state.dateandtimewisetravelResponse.data!);
+            } else {
+              setState(() {
+                _isLoading = false;
+              });
+            }
+          } else if (state is DateAndTimeWiseDFilterSearchErrorState) {
+            print("Entering in Date And Time Wise filter search loading state");
             setState(() {
               _isLoading = false;
             });
@@ -843,10 +873,12 @@ class _DateAndTimeWiseDistanceScreenState
                                                       osvfvehnolisttiletext =
                                                           article.vehicleRegNo
                                                               .toString();
-                                                       osvfvehno = article.vehicleRegNo == "ALL"
+                                                      osvfvehno =
+                                                          article.vehicleRegNo ==
+                                                                  "ALL"
                                                               ? "ALL"
                                                               : article.imeiNo
-                                                          .toString();
+                                                                  .toString();
                                                       print("This is vehicleregno - " +
                                                           osvfvehnolisttiletext);
                                                       print(
@@ -1667,6 +1699,20 @@ class _DateAndTimeWiseDistanceScreenState
                               searchStrClass: searchClass,
                               controller: searchController,
                               onChanged: onSearchTextChanged),
+                              (applyclicked && isSearch)
+                              ? BlocBuilder<MainBloc, MainState>(
+                                  builder: (context, state) {
+                                  return Text(
+                                    filtersearchData!.isEmpty
+                                        ? ""
+                                        : filtersearchData!.length.toString() +
+                                            " Filter Search Records found",
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold),
+                                  );
+                                })
+                              :
                           applyclicked
                               ? BlocBuilder<MainBloc, MainState>(
                                   builder: (context, state) {
@@ -1765,6 +1811,344 @@ class _DateAndTimeWiseDistanceScreenState
                               ],
                             ),
                           ),
+                          (applyclicked && isSearch)
+                              ? filtersearchData!.isEmpty
+                                  ? Center(
+                                      child: Text(
+                                      "No data found",
+                                      style: TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.w500),
+                                    ))
+                                  : _isLoading
+                                      ? Center(
+                                          child: Text("Wait data is Loading.."))
+                                      : Padding(
+                                          padding:
+                                              const EdgeInsets.only(top: 20.0),
+                                          child:
+                                              BlocBuilder<MainBloc, MainState>(
+                                                  builder: (context, state) {
+                                            return ListView.builder(
+                                                shrinkWrap: true,
+                                                physics: const ScrollPhysics(),
+                                                controller:
+                                                    vehicleRecordController,
+                                                itemCount: filtersearchData!.length,
+                                                itemBuilder: (context, index) {
+                                                  var sr = index + 1;
+                                                  var article =
+                                                      filtersearchData![index];
+                                                  return Card(
+                                                    margin: EdgeInsets.only(
+                                                        bottom: 15),
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      side: BorderSide(
+                                                          width: 1,
+                                                          color: MyColors
+                                                              .textBoxBorderColorCode),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10.0),
+                                                    ),
+                                                    child: Container(
+                                                      padding: EdgeInsets.only(
+                                                          top: 15,
+                                                          left: 14,
+                                                          right: 14,
+                                                          bottom: 15),
+                                                      width:
+                                                          MediaQuery.of(context)
+                                                              .size
+                                                              .width,
+                                                      decoration: BoxDecoration(
+                                                        borderRadius:
+                                                            BorderRadius.all(
+                                                                Radius.circular(
+                                                                    10)),
+                                                      ),
+                                                      child:
+                                                          SingleChildScrollView(
+                                                        // controller: overSpeedScrollController,
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .only(
+                                                                  top: 20.0,
+                                                                  left: 15,
+                                                                  right: 15,
+                                                                  bottom: 20),
+                                                          child: Column(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .only(
+                                                                        top:
+                                                                            15.0,
+                                                                        bottom:
+                                                                            15),
+                                                                child: Row(
+                                                                  mainAxisAlignment:
+                                                                      MainAxisAlignment
+                                                                          .spaceAround,
+                                                                  children: [
+                                                                    Expanded(
+                                                                      child:
+                                                                          Column(
+                                                                        mainAxisAlignment:
+                                                                            MainAxisAlignment.start,
+                                                                        crossAxisAlignment:
+                                                                            CrossAxisAlignment.start,
+                                                                        children: [
+                                                                          Text(
+                                                                            "Sr.No",
+                                                                            style:
+                                                                                TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
+                                                                          ),
+                                                                          Text(
+                                                                            sr.toString(),
+                                                                            style:
+                                                                                TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                    ),
+                                                                    Expanded(
+                                                                        child:
+                                                                            Column(
+                                                                      mainAxisAlignment:
+                                                                          MainAxisAlignment
+                                                                              .start,
+                                                                      crossAxisAlignment:
+                                                                          CrossAxisAlignment
+                                                                              .start,
+                                                                      children: [
+                                                                        Text(
+                                                                          "IMEI NO",
+                                                                          style: TextStyle(
+                                                                              color: MyColors.textprofiledetailColorCode,
+                                                                              fontSize: 18),
+                                                                        ),
+                                                                        Text(
+                                                                          article
+                                                                              .imeino ?? "-",
+                                                                          textAlign:
+                                                                              TextAlign.left,
+                                                                          style: TextStyle(
+                                                                              color: MyColors.text5ColorCode,
+                                                                              fontSize: 18),
+                                                                        ),
+                                                                      ],
+                                                                    ))
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                              Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .only(
+                                                                        top:
+                                                                            15.0,
+                                                                        bottom:
+                                                                            15),
+                                                                child: Row(
+                                                                  mainAxisAlignment:
+                                                                      MainAxisAlignment
+                                                                          .spaceAround,
+                                                                  children: [
+                                                                    Expanded(
+                                                                      child:
+                                                                          Column(
+                                                                        mainAxisAlignment:
+                                                                            MainAxisAlignment.start,
+                                                                        crossAxisAlignment:
+                                                                            CrossAxisAlignment.start,
+                                                                        children: [
+                                                                          Text(
+                                                                            "Trans Time",
+                                                                            style:
+                                                                                TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
+                                                                          ),
+                                                                          Text(
+                                                                            article.transTime ?? "-",
+                                                                            style:
+                                                                                TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                    ),
+                                                                    Expanded(
+                                                                        child:
+                                                                            Column(
+                                                                      mainAxisAlignment:
+                                                                          MainAxisAlignment
+                                                                              .start,
+                                                                      crossAxisAlignment:
+                                                                          CrossAxisAlignment
+                                                                              .start,
+                                                                      children: [
+                                                                        Text(
+                                                                          "Speed",
+                                                                          style: TextStyle(
+                                                                              color: MyColors.textprofiledetailColorCode,
+                                                                              fontSize: 18),
+                                                                        ),
+                                                                        Text(
+                                                                          article.speed ?? "-" +
+                                                                              "/Kmph",
+                                                                          textAlign:
+                                                                              TextAlign.left,
+                                                                          style: TextStyle(
+                                                                              color: MyColors.text5ColorCode,
+                                                                              fontSize: 18),
+                                                                        ),
+                                                                      ],
+                                                                    ))
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                              Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .only(
+                                                                        top:
+                                                                            15.0,
+                                                                        bottom:
+                                                                            15),
+                                                                child: Row(
+                                                                  mainAxisAlignment:
+                                                                      MainAxisAlignment
+                                                                          .spaceAround,
+                                                                  children: [
+                                                                    Expanded(
+                                                                      child:
+                                                                          Column(
+                                                                        mainAxisAlignment:
+                                                                            MainAxisAlignment.start,
+                                                                        crossAxisAlignment:
+                                                                            CrossAxisAlignment.start,
+                                                                        children: [
+                                                                          Text(
+                                                                            "Distance Travel",
+                                                                            style:
+                                                                                TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
+                                                                          ),
+                                                                          Text(
+                                                                            article.distancetravel ?? "-",
+                                                                            style:
+                                                                                TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                    ),
+                                                                    Expanded(
+                                                                        child:
+                                                                            Column(
+                                                                      mainAxisAlignment:
+                                                                          MainAxisAlignment
+                                                                              .start,
+                                                                      crossAxisAlignment:
+                                                                          CrossAxisAlignment
+                                                                              .start,
+                                                                      children: [
+                                                                        Text(
+                                                                          "Lattitude",
+                                                                          style: TextStyle(
+                                                                              color: MyColors.textprofiledetailColorCode,
+                                                                              fontSize: 18),
+                                                                        ),
+                                                                        Text(
+                                                                          article
+                                                                              .latitude ?? "-",
+                                                                          textAlign:
+                                                                              TextAlign.left,
+                                                                          style: TextStyle(
+                                                                              color: MyColors.text5ColorCode,
+                                                                              fontSize: 18),
+                                                                        ),
+                                                                      ],
+                                                                    ))
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                              Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .only(
+                                                                        top:
+                                                                            15.0,
+                                                                        bottom:
+                                                                            15),
+                                                                child: Row(
+                                                                  mainAxisAlignment:
+                                                                      MainAxisAlignment
+                                                                          .spaceAround,
+                                                                  children: [
+                                                                    Expanded(
+                                                                      child:
+                                                                          Column(
+                                                                        mainAxisAlignment:
+                                                                            MainAxisAlignment.start,
+                                                                        crossAxisAlignment:
+                                                                            CrossAxisAlignment.start,
+                                                                        children: [
+                                                                          Text(
+                                                                            "Longitude",
+                                                                            style:
+                                                                                TextStyle(color: MyColors.textprofiledetailColorCode, fontSize: 18),
+                                                                          ),
+                                                                          Text(
+                                                                            article.longitude ?? "-",
+                                                                            style:
+                                                                                TextStyle(color: MyColors.text5ColorCode, fontSize: 18),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                    ),
+                                                                    Expanded(
+                                                                        child:
+                                                                            Column(
+                                                                      mainAxisAlignment:
+                                                                          MainAxisAlignment
+                                                                              .start,
+                                                                      crossAxisAlignment:
+                                                                          CrossAxisAlignment
+                                                                              .start,
+                                                                      children: [
+                                                                        Text(
+                                                                          "Address",
+                                                                          style: TextStyle(
+                                                                              color: MyColors.textprofiledetailColorCode,
+                                                                              fontSize: 18),
+                                                                        ),
+                                                                        Text(
+                                                                          article
+                                                                              .address ?? "-",
+                                                                          textAlign:
+                                                                              TextAlign.left,
+                                                                          style: TextStyle(
+                                                                              color: MyColors.text5ColorCode,
+                                                                              fontSize: 18),
+                                                                        ),
+                                                                      ],
+                                                                    ))
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  );
+                                                });
+                                          }))
+                              :
                           applyclicked
                               ? filterData!.isEmpty
                                   ? Center(
@@ -2776,8 +3160,18 @@ class _DateAndTimeWiseDistanceScreenState
         : isSearch
             ? rows.add(["DateAndTwise Distance Search"])
             : rows.add(["DateAndTwise Distance Data"]);
-            rows.add(["Date :- ${fromDateController != null ? fromDateController : "01-sep-2022"} - ${toDateController != null ? toDateController : "30-sep-2022"}"]);
-   rows.add(['IMEINo', 'TranseTime', 'Speed', 'Distance Travel', 'Latitude', 'Longitude', 'Adress']);
+    rows.add([
+      "Date :- ${fromDateController != null ? fromDateController : "01-sep-2022"} - ${toDateController != null ? toDateController : "30-sep-2022"}"
+    ]);
+    rows.add([
+      'IMEINo',
+      'TranseTime',
+      'Speed',
+      'Distance Travel',
+      'Latitude',
+      'Longitude',
+      'Adress'
+    ]);
 
     // Add data rows
     if (applyclicked) {
@@ -2868,20 +3262,36 @@ class _DateAndTimeWiseDistanceScreenState
           isSearch = true;
           searchClass.searchStr = text;
         });
-
-        _mainBloc.add(DateAndTimeWiseSearchEvents(
-          token: token,
-          vendorId: vendorid,
-          branchid: branchid,
-          araino: arai,
-          fromdate: fromDateController ?? fromdate,
-          fromTime: fromTimeController ?? SfromTime,
-          toDate: toDateController ?? todate,
-          toTime: toTimeController ?? StoTime,
-          searchtxt: searchClass.searchStr,
-          pagenumber: 1,
-          pagesize: 200,
-        ));
+        (applyclicked && isSearch)
+            ? _mainBloc.add(DateAndTimeWiseDFilterSearchEvents(
+                token: token,
+                vendorId: vendorid,
+                branchid: branchid,
+                araino: arai,
+                fromdate: fromDateController,
+                fromTime: fromTimeController,
+                toDate: toDateController,
+                toTime: toTimeController,
+                imeno: osvfvehno,
+                searchtext: searchClass.searchStr,
+                pagenumber: 1,
+                pagesize: 10,
+              ))
+            : isSearch
+                ? _mainBloc.add(DateAndTimeWiseSearchEvents(
+                    token: token,
+                    vendorId: vendorid,
+                    branchid: branchid,
+                    araino: arai,
+                    fromdate: fromDateController ?? fromdate,
+                    fromTime: fromTimeController ?? SfromTime,
+                    toDate: toDateController ?? todate,
+                    toTime: toTimeController ?? StoTime,
+                    searchtxt: searchClass.searchStr,
+                    pagenumber: 1,
+                    pagesize: 200,
+                  ))
+                : Text("Something went wrong in filter search");
       }
     }
   }
@@ -2937,11 +3347,11 @@ class PdfInvoiceApi {
               child: pw.Text("DATE AND TIME WISE DISTANCE TRAVEL",
                   style: pw.TextStyle(
                       fontSize: 20.0, fontWeight: pw.FontWeight.bold))),
-                      // "Date :- ${fromDateController != null ? fromDateController : "01-sep-2022"} - ${toDateController != null ? toDateController : "30-sep-2022"}"
-           pw.Center(
-              child: pw.Text("Date :- ${fromDateController != null ? fromDateController : "01-sep-2022"} - ${toDateController != null ? toDateController : "30-sep-2022"}",
-                  style: pw.TextStyle(
-                      fontSize: 18.0))),
+          // "Date :- ${fromDateController != null ? fromDateController : "01-sep-2022"} - ${toDateController != null ? toDateController : "30-sep-2022"}"
+          pw.Center(
+              child: pw.Text(
+                  "Date :- ${fromDateController != null ? fromDateController : "01-sep-2022"} - ${toDateController != null ? toDateController : "30-sep-2022"}",
+                  style: pw.TextStyle(fontSize: 18.0))),
           pw.Container(
             margin: const pw.EdgeInsets.only(top: 10.0),
             child: pw.Table(
