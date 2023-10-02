@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
             create: (context) {
               return MainBloc(webService: WebService());
             },
-            child: LoginScreen()
+            child: SplashScreen()
             // SplashScreen()/*NotificationScreen(isappbar: true,)*//*VehicleAnalyticsReportsStatusScreen(truckImage: '', analyticTiltle: '', colorCode: MyColors.whiteColorCode,)*//*NotificationScreen(isappbar: true,)*/
             ));
   }

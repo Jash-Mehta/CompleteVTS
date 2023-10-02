@@ -28,6 +28,7 @@ import 'package:flutter_vts/model/device/add_device_response.dart';
 import 'package:flutter_vts/model/device/device_master_response.dart';
 import 'package:flutter_vts/model/device/edit_device_response.dart';
 import 'package:flutter_vts/model/device/search_device_response.dart';
+import 'package:flutter_vts/model/device_master/filtersearch.dart';
 import 'package:flutter_vts/model/distanceSummary/distance_summary_filter.dart';
 import 'package:flutter_vts/model/driver/add_driver_master_request.dart';
 import 'package:flutter_vts/model/driver/add_driver_master_response.dart';
@@ -78,9 +79,11 @@ import 'package:flutter_vts/util/constant.dart';
 import 'package:http/http.dart' as http;
 import '../model/Driver_Master/driver_master.dart';
 import '../model/Driver_Master/driver_master_drivercode.dart';
+import '../model/Driver_Master/drivermasterfiltersearch.dart';
 import '../model/Driver_Master/search_driver_master_report_response.dart';
 import '../model/date_wise_travel_history/date_wise_travel_filter.dart';
 import '../model/date_wise_travel_history/date_wise_travel_history.dart';
+import '../model/date_wise_travel_history/date_wise_travelfiltersearch.dart';
 import '../model/date_wise_travel_history/search_datewise_travel_history_response.dart';
 import '../model/device_master/get_device_master_report.dart';
 import '../model/device_master/search_device_master_report.dart';
@@ -89,6 +92,7 @@ import '../model/distanceSummary/distancesummary_entity.dart';
 import '../model/driver_wise_vehicle_assign/driver_wise_drivercode.dart';
 import '../model/driver_wise_vehicle_assign/driver_wise_vehicle_assign.dart';
 import '../model/driver_wise_vehicle_assign/driver_wise_vehicle_filter.dart';
+import '../model/driver_wise_vehicle_assign/driverwisevafiltersearch.dart';
 import '../model/driver_wise_vehicle_assign/search_driver_vehicle_assign.dart';
 import '../model/getgeofence/getroute_name_list.dart';
 import '../model/getgeofence/routes_detail_routename.dart';
@@ -100,20 +104,24 @@ import '../model/point_of_interest/poi_post.dart';
 import '../model/point_of_interest/poi_type.dart';
 import '../model/point_of_interest/search_point_of_interest.dart';
 import '../model/report/date_and_timewise_filter.dart';
+import '../model/report/date_and_timewise_filtersearch.dart';
 import '../model/report/date_and_timewise_search.dart';
 import '../model/report/dateandtimewisedrivercode.dart';
 import '../model/report/device_master_filter.dart';
 import '../model/report/device_master_filter_drivercode.dart';
 import '../model/report/device_master_report.dart';
 import '../model/Driver_Master/driver_master_filter.dart';
+import '../model/report/frame_filtersearch.dart';
 import '../model/report/frame_grid_filter.dart';
 import '../model/report/frame_packet_drivercode.dart';
 import '../model/report/frame_packet_report_response.dart';
 import '../model/report/frame_packetgrid_drivercode.dart';
 import '../model/report/frame_packetoption_grid.dart';
+import '../model/report/framegrid_filtersearch.dart';
 import '../model/report/framepacketgrid.dart';
 import '../model/report/over_speed_report_response.dart';
 import '../model/report/overspeed_filter.dart';
+import '../model/report/overspeed_filtersearch.dart';
 import '../model/report/overspeed_vehicle_filter.dart';
 import '../model/report/search_driverwise_veh_rpt.dart';
 import '../model/report/search_frame_packet_report_response.dart';
@@ -124,12 +132,15 @@ import '../model/report/search_vehicle_status_group_response.dart';
 import '../model/report/search_vehicle_status_response.dart';
 import '../model/report/search_vehicle_status_summary.dart';
 import '../model/report/vehicle_group_filter.dart';
+import '../model/report/vehicle_group_filtersearch.dart';
 import '../model/report/vehicle_status_filter_report.dart';
+import '../model/report/vehicle_status_filtersearch.dart';
 import '../model/report/vehicle_status_group_drivercode.dart';
 import '../model/report/vehicle_status_report.dart';
 import '../model/report/vehicle_status_report_drivercode.dart';
 import '../model/report/vehicle_status_summary.dart';
 import '../model/report/vehicle_status_summary_drivercode.dart';
+import '../model/report/vehicle_summary_filtersearch.dart';
 import '../model/report/vehicle_vsrno.dart';
 import '../model/report/vehicle_wise_drivercode.dart';
 import '../model/report/vehicle_wise_search.dart';
@@ -139,6 +150,8 @@ import '../model/report/vehicle_wise_timewise_travel.dart';
 import '../model/report/vehicle_wise_travel.dart';
 import '../model/report/vehicle_wise_travel_filter.dart';
 import '../model/report/vehicle_wise_twise_drivercode.dart';
+import '../model/report/vehiclewise_filtersearch.dart';
+import '../model/report/vehiclewise_twise_filtersearch.dart';
 import '../model/route_define/route_define_post.dart';
 import '../model/searchString.dart';
 import '../model/travel_summary/travel_summary.dart';
@@ -147,6 +160,7 @@ import '../model/vehicle_history/vts_history_speed_parameter.dart';
 import '../model/vehicle_master/search_vehicle_report_data_response.dart';
 import '../model/vehicle_master/vehicle_master_filter.dart';
 import '../model/vehicle_master/vehicle_report_detail.dart';
+import '../model/vehicle_master/vehicle_report_vsrno.dart';
 import '../screen/report/frame_packet_grid.dart';
 
 class WebService {
@@ -2879,7 +2893,7 @@ class WebService {
         fromdate.toString() +
         "&ToDate=" +
         todate.toString() +
-        "&VehicleList=" +
+        "&VehicleList_IMEINO=" +
         vehiclelist.toString() +
         "&PageNumber=" +
         pagenumber.toString() +
@@ -2943,7 +2957,7 @@ class WebService {
         todate.toString() +
         "&ToTime=" +
         totime.toString() +
-        "&VehicleList=" +
+        "&VehicleList_IMEINO=" +
         vehiclelist.toString() +
         "&FramePacketOption=" +
         framepacketoption.toString() +
@@ -3011,7 +3025,7 @@ class WebService {
         todate.toString() +
         "&ToTime=" +
         totime.toString() +
-        "&VehicleList=" +
+        "&VehicleList_IMEINO=" +
         vehiclelist.toString() +
         "&FramePacketOption=" +
         framepacketoption.toString() +
@@ -3046,6 +3060,126 @@ class WebService {
     // }
   }
 
+  // filter search
+  Future<FrameFilterSearchModel> framefiltersearch(
+    String token,
+    int vendorId,
+    int branchid,
+    String arai,
+    String fromdate,
+    String fromtime,
+    String todate,
+    String totime,
+    String vehiclelist,
+    String searchtext,
+    String framepacketoption,
+    int pagenumber,
+    int pagesize,
+  ) async {
+    var framepacketfilterurl = Constant.FramefiltersearchUrl +
+        "?VendorId=" +
+        vendorId.toString() +
+        "&BranchId=" +
+        branchid.toString() +
+        "&ARAI_NONARAI=" +
+        arai.toString() +
+        "&FromDate=" +
+        fromdate.toString() +
+        "&FromTime=" +
+        fromtime.toString() +
+        "&ToDate=" +
+        todate.toString() +
+        "&ToTime=" +
+        totime.toString() +
+        "&VehicleList_IMEINO=" +
+        vehiclelist.toString() +
+        "&SearchText="+ searchtext.toString()+
+        "&FramePacketOption=" +
+        framepacketoption.toString() +
+        "&PageNumber=" +
+        pagenumber.toString() +
+        "&PageSize=" +
+        pagesize.toString();
+
+
+    print("This is Frame packet filter search url " + framepacketfilterurl);
+    /*
+    var driverwisevehicleassign ="https://vtsgpsapi.m-techinnovations.com/api/DriverWiseVehicalAssignReports/GetDriverVehicleAssign?VendorId=1&BranchId=1&PageNumber=1&PageSize=10";
+
+     */
+    final response = await http
+        .get(Uri.parse(framepacketfilterurl), headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    });
+    // if (response.statusCode == 200) {
+    print("Successfully getting your data");
+    var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
+
+    var driverwisevehiclejson = FrameFilterSearchModel.fromJson(jsonbody);
+    print("Json decoded body_" + framepacketfilterurl.toString());
+    return driverwisevehiclejson;
+  
+  }
+
+   // filter search Grid
+  Future<FrameGridFilterSearchModel> framegridfiltersearch(
+    String token,
+    int vendorId,
+    int branchid,
+    String arai,
+    String fromdate,
+    String fromtime,
+    String todate,
+    String totime,
+    String vehiclelist,
+    String searchtext,
+    String framepacketoption,
+    int pagenumber,
+    int pagesize,
+  ) async {
+    var framepacketfilterurl = Constant.FramegridfiltersearchUrl +
+        "?VendorId=" +
+        vendorId.toString() +
+        "&BranchId=" +
+        branchid.toString() +
+        "&ARAI_NONARAI=" +
+        arai.toString() +
+        "&FromDate=" +
+        fromdate.toString() +
+        "&FromTime=" +
+        fromtime.toString() +
+        "&ToDate=" +
+        todate.toString() +
+        "&ToTime=" +
+        totime.toString() +
+        "&VehicleList_IMEINO=" +
+        vehiclelist.toString() +
+        "&SearchText="+ searchtext.toString()+
+        "&FramePacketOption=" +
+        framepacketoption.toString() +
+        "&PageNumber=" +
+        pagenumber.toString() +
+        "&PageSize=" +
+        pagesize.toString();
+
+
+    print("This is Frame packet Grid filter search url " + framepacketfilterurl);
+    final response = await http
+        .get(Uri.parse(framepacketfilterurl), headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    });
+    // if (response.statusCode == 200) {
+    print("Successfully getting your data");
+    var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
+
+    var driverwisevehiclejson = FrameGridFilterSearchModel.fromJson(jsonbody);
+    print("Json decoded body_" + framepacketfilterurl.toString());
+    return driverwisevehiclejson;
+  
+  }
+
   // vehicle status report filter
   Future<VehicleStatusReportFilter> vehiclestatusreportfilter(
     String token,
@@ -3057,7 +3191,7 @@ class WebService {
     String vehiclelist,
     String toDate,
     String toTime,
-    int imeno,
+    String imeno,
     int pagenumber,
     int pagesize,
   ) async {
@@ -3074,7 +3208,7 @@ class WebService {
         toDate.toString() +
         "&ToTime=" +
         toTime.toString() +
-        "&VehicleList=" +
+        "&VehicleList_IMEINO=" +
         vehiclelist.toString() +
         "&PageNumber=" +
         pagenumber.toString() +
@@ -3331,7 +3465,7 @@ class WebService {
         todate.toString() +
         "&ToTime=" +
         totime.toString() +
-        "&Vehiclelist=" +
+        "&Vehiclelist_IMEINO=" +
         vehiclelist.toString() +
         "&PageNumber=" +
         pageNumber.toString() +
@@ -3357,6 +3491,106 @@ class WebService {
     //   print(response.body);
     //   throw Exception('Failed to load data');
     // }
+  }
+
+// filter search
+  Future<VehicleWiseFilterSearchModel> vehiclewisefiltersearch(
+    String token,
+    int vendorid,
+    int branchid,
+    String arainonarai,
+    String fromdate,
+    String todate,
+    String vehiclelist,
+    String searchtext,
+    int pageNumber,
+    int pageSize,
+  ) async {
+    var vehiclewisefilter = Constant.vehiclewisefiltersearch +
+        vendorid.toString() +
+        "&BranchId=" +
+        branchid.toString() +
+        "&ARAI_NONARAI=arai&FromDate=" +
+        fromdate.toString() +
+        "&ToDate=" +
+        todate.toString() +
+        "&Vehiclelist_IMEINO=" +
+        vehiclelist.toString() +
+         "&SearchText=" +
+        searchtext.toString() +
+        "&PageNumber=" +
+        pageNumber.toString() +
+        "&PageSize=" +
+        pageSize.toString();
+
+    print("This is vehicle wise Time wise travel filter search url " +
+        vehiclewisefilter);
+
+    final response =
+        await http.get(Uri.parse(vehiclewisefilter), headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    });
+    // if (response.statusCode == 200) {
+    print("Successfully getting your data");
+    var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
+
+    var vehiclewisetravelhistoryjson =
+        VehicleWiseFilterSearchModel.fromJson(jsonbody);
+    return vehiclewisetravelhistoryjson;
+  }
+
+  // filter search
+   Future<VehicleWiseTWiseFilterSearchModel> vehiclewisetwisefiltersearch(
+    String token,
+    int vendorid,
+    int branchid,
+    String arainonarai,
+    String fromdate,
+    String fromtime,
+    String todate,
+    String totime,
+    String vehiclelist,
+    String searchtext,
+    int pageNumber,
+    int pageSize,
+  ) async {
+    var vehiclewisefilter = Constant.vehiclewisetwisefiltersearch +
+        vendorid.toString() +
+        "&BranchId=" +
+        branchid.toString() +
+        "&ARAI_NONARAI=arai&FromDate=" +
+        fromdate.toString() +
+        "&FromTime=" +
+        fromtime.toString() +
+        "&ToDate=" +
+        todate.toString() +
+        "&ToTime=" +
+        totime.toString() +
+        "&Vehiclelist_IMEINO=" +
+        vehiclelist.toString() +
+         "&SearchText=" +
+        searchtext.toString() +
+        "&PageNumber=" +
+        pageNumber.toString() +
+        "&PageSize=" +
+        pageSize.toString();
+
+    print("This is vehicle wise Time wise travel filter search url " +
+        vehiclewisefilter);
+
+    final response =
+        await http.get(Uri.parse(vehiclewisefilter), headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    });
+    // if (response.statusCode == 200) {
+    print("Successfully getting your data");
+    var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
+
+    var vehiclewisetravelhistoryjson =
+        VehicleWiseTWiseFilterSearchModel.fromJson(jsonbody);
+    return vehiclewisetravelhistoryjson;
   }
 
   // Vehicle wise Time wise FIlter
@@ -3386,7 +3620,7 @@ class WebService {
         todate.toString() +
         "&ToTime=" +
         totime.toString() +
-        "&Vehiclelist=" +
+        "&Vehiclelist_IMEINO=" +
         vehiclelist.toString() +
         "&PageNumber=" +
         pageNumber.toString() +
@@ -3600,7 +3834,7 @@ class WebService {
         todate.toString() +
         "&ToTime=" +
         totime.toString() +
-        "&Vehiclelist=" +
+        "&Vehiclelist_IMEINO=" +
         vehiclelist.toString() +
         "&PageNumber=" +
         pageNumber.toString() +
@@ -3624,6 +3858,58 @@ class WebService {
     //   print(response.body);
     //   throw Exception('Failed to load data');
     // }
+  }
+
+  // date and time wise filter search
+  Future<DateTimeWiseDFilterSearchModel> datetimewisefiltersearch(
+    String token,
+    int vendorid,
+    int branchid,
+    String arainonarai,
+    String fromdate,
+    String fromtime,
+    String todate,
+    String totime,
+    String vehiclelist,
+    String searchtext,
+    int pageNumber,
+    int pageSize,
+  ) async {
+    var dateandtimewisefilter = Constant.DateTimewiseDFilterSearchurl +
+        vendorid.toString() +
+        "&BranchId=" +
+        branchid.toString() +
+        "&ARAI_NONARAI=arai&FromDate=" +
+        fromdate.toString() +
+        "&FromTime=" +
+        fromtime.toString() +
+        "&ToDate=" +
+        todate.toString() +
+        "&ToTime=" +
+        totime.toString() +
+        "&Vehiclelist_IMEINO=" +
+        vehiclelist.toString() +
+        "&SearchText="+searchtext.toString()+
+        "&PageNumber=" +
+        pageNumber.toString() +
+        "&PageSize=" +
+        pageSize.toString();
+
+    print("This is date and Time wise filter url " + dateandtimewisefilter);
+
+    final response = await http
+        .get(Uri.parse(dateandtimewisefilter), headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    });
+    // if (response.statusCode == 200) {
+    // print("Successfully getting your data");
+    var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
+    print("This is the response data ---- > "+ response.toString());
+     print("This is the json data ---- > "+ jsonbody.toString());
+    var vehiclewisetravelhistoryjson = DateTimeWiseDFilterSearchModel.fromJson(jsonbody);
+    return vehiclewisetravelhistoryjson;
+    
   }
 
   // Date and time wise search
@@ -3749,7 +4035,7 @@ class WebService {
         fromDate.toString() +
         "&ToDate=" +
         toDate.toString() +
-        "&VehicleList=" +
+        "&VehicleList_IMEINO=" +
         vehiclelist.toString() +
         "&PageNumber=" +
         pagenumber.toString() +
@@ -3772,6 +4058,61 @@ class WebService {
     var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
 
     var overspeedurljson = OverSpeedFilter.fromJson(jsonbody);
+    print("Json decoded body_" + overspeedurl.toString());
+    return overspeedurljson;
+    // } else {
+    //   print(response.body);
+    //   throw Exception('Failed to load data');
+    // }
+  }
+
+
+// filter search
+ Future<OverSpeedFilterSearchModel> overspeedfiltersearch(
+      String token,
+      int vendorid,
+      int branchid,
+      String arai,
+      String fromDate,
+      String toDate,
+      String vehiclelist,
+      String searchtext,
+      int pagenumber,
+      int pagesize) async {
+    var overspeedurl = Constant.OverSpeedfiltersearchUrl +
+        vendorid.toString() +
+        "&BranchId=" +
+        branchid.toString() +
+        "&ARAI_NONARAI=" +
+        arai.toString() +
+        "&FromDate=" +
+        fromDate.toString() +
+        "&ToDate=" +
+        toDate.toString() +
+        "&VehicleList_IMEINO=" +
+        vehiclelist.toString() +
+        "&SearchText=" + searchtext.toString()+
+        "&PageNumber=" +
+        pagenumber.toString() +
+        "&PageSize=" +
+        pagesize.toString();
+
+    print("Over speed filter search url " + overspeedurl);
+
+    // var overspeedurl =
+    //     "https://vtsgpsapi.m-techinnovations.com/api/VehicleWiseOverSpeedReport/FilterOverSpeed?VendorId=1&BranchId=1&ARAI_NONARAI=nonarai&FromDate=01-sep-2022&ToDate=30-sep-2022&VehicleList=8,46&PageNumber=1&PageSize=10";
+
+    final response =
+        await http.get(Uri.parse(overspeedurl), headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    });
+    // if (response.statusCode == 200) {
+    print("Successfully getting your data");
+    print("This is overspeed filter -------- " + response.body);
+    var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
+
+    var overspeedurljson = OverSpeedFilterSearchModel.fromJson(jsonbody);
     print("Json decoded body_" + overspeedurl.toString());
     return overspeedurljson;
     // } else {
@@ -3821,6 +4162,56 @@ class WebService {
       var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
 
       var datewisesearchjson = DateWiseTravelHistory.fromJson(jsonbody);
+      print("Json decoded body_" + datewisesearchurl.toString());
+      return datewisesearchjson;
+    } else {
+      print(response.body);
+      throw Exception('Failed to load data');
+    }
+  }
+
+   Future<DateWiseTravelHFilterSearch> datewisetravelfiltersearch(
+    String token,
+    int vendorid,
+    int branchid,
+    String arainonarai,
+    String fromdate,
+    String todate,
+    String imeino,
+    String searchtext,
+    int pageNumber,
+    int pageSize,
+    
+  ) async {
+    var datewisesearchurl = Constant.DatewiseTravelHFilterSearchurl +
+        vendorid.toString() +
+        "&BranchId=" +
+        branchid.toString() +
+        "&ARAI_NONARAI=arai&FromDate=" +
+        fromdate.toString() +
+        "&ToDate=" +
+        todate.toString() +
+        "&VehicleList_IMEINO=" + imeino.toString() +
+        "&SearchText=" +searchtext.toString()+
+        "&PageNumber=" +
+        pageNumber.toString() +
+        "&PageSize=" +
+        pageSize.toString();
+
+    print("This is date wise travel history url " + datewisesearchurl);
+
+    print("This is date wise travel history url " + datewisesearchurl);
+
+    final response =
+        await http.get(Uri.parse(datewisesearchurl), headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    });
+    if (response.statusCode == 200) {
+      print("Successfully getting your data");
+      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
+
+      var datewisesearchjson = DateWiseTravelHFilterSearch.fromJson(jsonbody);
       print("Json decoded body_" + datewisesearchurl.toString());
       return datewisesearchjson;
     } else {
@@ -3944,6 +4335,38 @@ class WebService {
     );
 
     var jsonBody = SearchDriverwiseVehRpt.fromJson(json.decode(response.body));
+    print("JSon  assign body are:-------------$jsonBody");
+    return jsonBody;
+  }
+
+  // driverwise vehicle assign filter search
+   Future<DriverWiseVAFilterSearchModel> driverwisevafiltersearch(
+  String token,
+  int vendorid,
+  int branchid,
+  String vsrno,
+  String searchText,
+  int pageNumber,
+  int pageSize,) async {
+    String searchdmdataurl = Constant.driverwisevafiltersearchurl +
+    vendorid.toString()+
+        "&BranchId=$branchid" +
+        "&VSrNo="+vsrno.toString()+
+        "&SearchText=" +
+        searchText.toString() +
+        "&PageNumber=$pageNumber" +
+        "&PageSize=$pageSize";
+
+    print("URL of driver wise veh------${searchdmdataurl}");
+    final response = await http.get(
+      Uri.parse(searchdmdataurl),
+      headers: <String, String>{
+        // 'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': "Bearer ${token}",
+      },
+    );
+
+    var jsonBody = DriverWiseVAFilterSearchModel.fromJson(json.decode(response.body));
     print("JSon  assign body are:-------------$jsonBody");
     return jsonBody;
   }
@@ -4235,7 +4658,7 @@ class WebService {
         "&ToTime=" +
         toTime.toString() +
         "&SearchText=" +
-        ((searchText == null) ? "" : searchText) +
+        searchText.toString() +
         "&PageNumber=" +
         pagenumber.toString() +
         "&PageSize=" +
@@ -4262,6 +4685,168 @@ class WebService {
     // }
   }
 // ----------------------------------------------------------------
+
+// Vehicle status filter search
+  Future<VehicleStatusRFilterSearchModel> vehstatusfiltersearch(
+    String token,
+    int vendorId,
+    int branchid,
+    String arai,
+    String fromdate,
+    String fromTime,
+    String toDate,
+    String toTime,
+    String imeino,
+    String searchText,
+    int pagenumber,
+    int pagesize,
+  ) async {
+    String vehiclestatussummaryurl = Constant.vehstatusfiltersearchurl +
+        vendorId.toString() +
+        "&BranchId=" +
+        branchid.toString() +
+        "&ARAI_NONARAI=" +
+        arai.toString() +
+        "&FromDate=" +
+        fromdate.toString() +
+        "&FromTime=" +
+        fromTime.toString() +
+        "&ToDate=" +
+        toDate.toString() +
+        "&ToTime=" +
+        toTime.toString() +
+        "&VehicleList_IMEINO=" + imeino.toString()+
+        "&SearchText=" +
+        searchText.toString() +
+        "&PageNumber=" +
+        pagenumber.toString() +
+        "&PageSize=" +
+        pagesize.toString();
+
+    print("search url of veh status summary----$vehiclestatussummaryurl");
+    final response = await http.get(
+      Uri.parse(vehiclestatussummaryurl),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': "Bearer ${token}",
+      },
+    );
+    var jsonBody =
+        VehicleStatusRFilterSearchModel.fromJson(json.decode(response.body));
+
+    return jsonBody;
+  }
+
+  // vehicle Summary filter search
+  Future<VehicleSummaryFilterSearchModel> vehsummaryfiltersearch(
+    String token,
+    int vendorId,
+    int branchid,
+    String arai,
+    String fromdate,
+    String fromTime,
+    String toDate,
+    String toTime,
+    String imeino,
+    String searchText,
+    int pagenumber,
+    int pagesize,
+  ) async {
+    String vehiclestatussummaryurl = Constant.vehsummaryfiltersearchurl +
+        vendorId.toString() +
+        "&BranchId=" +
+        branchid.toString() +
+        "&ARAI_NONARAI=" +
+        arai.toString() +
+        "&FromDate=" +
+        fromdate.toString() +
+        "&FromTime=" +
+        fromTime.toString() +
+        "&ToDate=" +
+        toDate.toString() +
+        "&ToTime=" +
+        toTime.toString() +
+        "&VehicleList_IMEINO=" + imeino.toString()+
+        "&SearchText=" +
+        searchText.toString() +
+        "&PageNumber=" +
+        pagenumber.toString() +
+        "&PageSize=" +
+        pagesize.toString();
+
+    print("search url of veh summary----$vehiclestatussummaryurl");
+    final response = await http.get(
+      Uri.parse(vehiclestatussummaryurl),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': "Bearer ${token}",
+      },
+    );
+
+    var jsonBody =
+        VehicleSummaryFilterSearchModel.fromJson(json.decode(response.body));
+
+    return jsonBody;
+  }
+
+// vehicle Group filter search
+  Future<VehicleGroupFilterSearchModel> vehgroupfiltersearch(
+    String token,
+    int vendorId,
+    int branchid,
+    String arai,
+    String fromdate,
+    String fromTime,
+    String toDate,
+    String toTime,
+    String imeino,
+    String searchText,
+    int pagenumber,
+    int pagesize,
+  ) async {
+    String vehiclestatussummaryurl = Constant.vehgroupfiltersearchurl +
+        vendorId.toString() +
+        "&BranchId=" +
+        branchid.toString() +
+        "&ARAI_NONARAI=" +
+        arai.toString() +
+        "&FromDate=" +
+        fromdate.toString() +
+        "&FromTime=" +
+        fromTime.toString() +
+        "&ToDate=" +
+        toDate.toString() +
+        "&ToTime=" +
+        toTime.toString() +
+        "&VehicleList_IMEINO=" + imeino.toString()+
+        "&SearchText=" +
+        searchText.toString() +
+        "&PageNumber=" +
+        pagenumber.toString() +
+        "&PageSize=" +
+        pagesize.toString();
+
+    print("search url of veh summary----$vehiclestatussummaryurl");
+    final response = await http.get(
+      Uri.parse(vehiclestatussummaryurl),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': "Bearer ${token}",
+      },
+    );
+
+    var jsonBody =
+        VehicleGroupFilterSearchModel.fromJson(json.decode(response.body));
+
+    return jsonBody;
+  }
+
+
+
+
+
+
+
 
 // search device master
   Future<SearchDeviceMasterReport> findStringInDMReport(
@@ -4297,6 +4882,44 @@ class WebService {
 
     var jsonBody =
         SearchDeviceMasterReport.fromJson(json.decode(response.body));
+    print("JSon  dm body are:-------------$jsonBody");
+    return jsonBody;
+  }
+
+// device master filter search 
+ Future<DeviceMasterFilterSearchModel> devicemasterfiltersrch(
+      String token,
+      int vendorId,
+      String deviceno,
+      String searchText,
+      int branchId,
+      int pageNumber,
+      int pageSize) async {
+    print(
+        "${searchStrClass.searchStr}-----Enter in SEARCH dm future api ----$searchText");
+    String searchdmdataurl = Constant.DeviceMasterFilterSearchUrl +
+        vendorId.toString() +
+        "&BranchId=1" +
+        "&deviceno="+
+        deviceno.toString() +
+        "&SearchText=" +
+        searchText +
+        "&PageNumber=" +
+        pageNumber.toString() +
+        "&PageSize="+
+        pageSize.toString();
+
+    print("URi is DM filtersearch Report---------$searchdmdataurl");
+    final response = await http.get(
+      Uri.parse(searchdmdataurl),
+      headers: <String, String>{
+        // 'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': "Bearer ${token}",
+      },
+    );
+
+    var jsonBody =
+        DeviceMasterFilterSearchModel.fromJson(json.decode(response.body));
     print("JSon  dm body are:-------------$jsonBody");
     return jsonBody;
   }
@@ -4531,6 +5154,38 @@ class WebService {
       throw Exception('Failed to load data');
     }
   }
+
+
+  // Vehicle VSrNo
+  Future<VehicleMasterVSrModel> vehiclemastervsrno(
+    String token,
+    int vendorid,
+    int branchid,
+  ) async {
+    var dmfdrivercodeurl =
+        "https://vtsgpsapi.m-techinnovations.com/api/VehicleMasterReports/FillVehicleVSrNo/1/1";
+
+    print("This is vehicle vsrno url " + dmfdrivercodeurl);
+
+    final response =
+        await http.get(Uri.parse(dmfdrivercodeurl), headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    });
+    if (response.statusCode == 200) {
+      print("Successfully getting your driver code data");
+      var jsonbody = jsonDecode(response.body) as Map<String, dynamic>;
+
+      var vehiclemasterjson = VehicleMasterVSrModel.fromJson(jsonbody);
+      print("Json decoded body_" + dmfdrivercodeurl.toString());
+      return vehiclemasterjson;
+    } else {
+      print(response.body);
+      throw Exception('Failed to load data');
+    }
+  }
+
+
 
   // Frame packet option
   Future<FramePacketOptionGridModel> framepacketoptiongrid(
@@ -4868,7 +5523,7 @@ class WebService {
         toDate.toString() +
         "&ToTime=" +
         toTime.toString() +
-        "&VehicleList=" +
+        "&VehicleList_IMEINO=" +
         vehiclelist.toString() +
         "&PageNumber=" +
         pagenumber.toString() +
@@ -4927,7 +5582,7 @@ class WebService {
         toDate.toString() +
         "&ToTime=" +
         toTime.toString() +
-        "&VehicleList=" +
+        "&VehicleList_IMEINO=" +
         vehiclelist.toString() +
         "&PageNumber=" +
         pagenumber.toString() +
@@ -5504,6 +6159,38 @@ class WebService {
     return jsonBody;
   }
   //End..
+
+  // drivermaster filter search
+   Future<DriverMasterFilterSearchModel> drivermasterfilsearch(String token, int vendorId, String drivercode,
+      String searchText, int branchId, int pageNumber, int pageSize) async {
+    String searchdmdataurl = Constant.searchdrivermasterurl +
+        vendorId.toString() +
+        "&BranchId=1" +
+        "&DriverCode=" +
+        drivercode.toString()+
+        "&SearchText=" +
+        searchText +
+        "&PageNumber=" +
+        pageNumber.toString() +
+        "&PageSize=10"+
+    pageSize.toString();
+    // /DriverMasterReports/FilterSearchApplyDriverReport?VendorId=1&BranchId=1&DriverCode=ALL&SearchText=adi&PageNumber=1&PageSize=10
+    // VendorId=1&BranchId=1&SearchText=AIS&PageNumber=1&PageSize=8';
+    //vtsgpsapi.m-techinnovations.com/api/DriverWiseVehicalAssignReports/
+    // SearchDriverVehicleAssign?VendorId=1&BranchId=1&SearchText=as&PageNumber=1&PageSize=10
+
+    final response = await http.get(
+      Uri.parse(searchdmdataurl),
+      headers: <String, String>{
+        // 'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': "Bearer ${token}",
+      },
+    );
+
+    var jsonBody = DriverMasterFilterSearchModel.fromJson(json.decode(response.body));
+    print("JSon  assign body are:-------------$jsonBody");
+    return jsonBody;
+  }
 
   //Frame packet
 

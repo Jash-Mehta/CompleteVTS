@@ -1,5 +1,5 @@
 class VehicleWiseDriverCodeModel {
-  List<Data>? data;
+  List<VehicleDistanceVsr>? data;
   bool? succeeded;
   String? errors;
   String? message;
@@ -9,9 +9,9 @@ class VehicleWiseDriverCodeModel {
 
   VehicleWiseDriverCodeModel.fromJson(Map<String, dynamic> json) {
     if (json['data'] != null) {
-      data = <Data>[];
+      data = <VehicleDistanceVsr>[];
       json['data'].forEach((v) {
-        data!.add(new Data.fromJson(v));
+        data!.add(new VehicleDistanceVsr.fromJson(v));
       });
     }
     succeeded = json['succeeded'];
@@ -31,14 +31,14 @@ class VehicleWiseDriverCodeModel {
   }
 }
 
-class Data {
+class VehicleDistanceVsr {
   String? imeino;
   String? vehicleRegNo;
   String? imeiNo;
 
-  Data({this.imeino, this.vehicleRegNo, this.imeiNo});
+  VehicleDistanceVsr({this.imeino, this.vehicleRegNo, this.imeiNo});
 
-  Data.fromJson(Map<String, dynamic> json) {
+  VehicleDistanceVsr.fromJson(Map<String, dynamic> json) {
     imeino = json['imeino'];
     vehicleRegNo = json['vehicleRegNo'];
     imeiNo = json['imeiNo'];

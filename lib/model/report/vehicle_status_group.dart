@@ -1,3 +1,5 @@
+var vsgtotalhrs;
+
 class VehicleStatusGroupModel {
   int? pageNumber;
   int? pageSize;
@@ -8,6 +10,7 @@ class VehicleStatusGroupModel {
   String? nextPage;
   String? previousPage;
   List<DatewiseTravelHoursData>? data;
+  List<GroupTimeData>? timedata;
   bool? succeeded;
   String? errors;
   String? message;
@@ -43,6 +46,10 @@ class VehicleStatusGroupModel {
           data!.add(DatewiseTravelHoursData.fromJson(element));
         });
       });
+       timedata = <GroupTimeData>[];
+      json['data'].forEach((v) {
+        timedata!.add(new GroupTimeData.fromJson(v));
+      });
     }
     succeeded = json['succeeded'];
     errors = json['errors'];
@@ -69,7 +76,7 @@ class VehicleStatusGroupModel {
   }
 }
 
-class Data {
+class GroupTimeData {
   String? fromDate;
   String? toDate;
   List<GroupByDateTotalHours>? groupByDateTotalHours;
@@ -78,7 +85,7 @@ class Data {
   String? totalHours;
   List<DatewiseTravelHoursData>? datewiseTravelHoursData;
 
-  Data(
+  GroupTimeData(
       {this.fromDate,
       this.toDate,
       this.groupByDateTotalHours,
@@ -87,7 +94,7 @@ class Data {
       this.totalHours,
       this.datewiseTravelHoursData});
 
-  Data.fromJson(Map<String, dynamic> json) {
+  GroupTimeData.fromJson(Map<String, dynamic> json) {
     fromDate = json['fromDate'];
     toDate = json['toDate'];
     if (json['groupByDateTotalHours'] != null) {
@@ -111,6 +118,7 @@ class Data {
       });
     }
     totalHours = json['totalHours'];
+    vsgtotalhrs = json['totalHours'];
     if (json['datewiseTravelHoursData'] != null) {
       datewiseTravelHoursData = <DatewiseTravelHoursData>[];
       json['datewiseTravelHoursData'].forEach((v) {
