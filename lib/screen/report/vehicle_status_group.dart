@@ -26,6 +26,7 @@ import '../../model/report/vehicle_group_filter.dart';
 import '../../model/report/vehicle_status_group.dart';
 import '../../model/report/vehicle_status_group_drivercode.dart';
 
+import '../../model/report/vehicle_status_report.dart';
 import '../../model/searchString.dart';
 import '../../util/search_bar_field.dart';
 import 'package:csv/csv.dart';
@@ -1632,8 +1633,8 @@ class _VehicleStatusGroupState extends State<VehicleStatusGroup> {
                                       ),
                                     ],
                                   ),
-                                )
-                              : SizedBox(),
+                                ),
+                              
                           Padding(
                             padding: EdgeInsets.all(8),
                             child: Column(

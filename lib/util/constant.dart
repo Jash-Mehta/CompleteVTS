@@ -1,7 +1,7 @@
 class Constant {
   static String baseUrl = 'https://vtsgpsapi.m-techinnovations.com/api/';
-  // static String loginUrl = baseUrl + 'Users/authenticate';
-  static String loginUrl = baseUrl + 'Users/authenticate';
+ // static String loginUrl = baseUrl + 'Users/authenticate';
+  static String loginUrl = baseUrl + 'Users/AuthenticateNew';
   static String updateloginUrl =
       baseUrl + 'UpdateLogin_Audit_History/AddUpdateLogin_Audit_History_Login';
   static String updatelogoutUrl =

@@ -10,7 +10,7 @@ import 'package:flutter_vts/model/live/live_tracking_response.dart';
 import 'package:flutter_vts/model/vehicle_history/vehicle_history_filter_response.dart';
 import 'package:flutter_vts/screen/master/alert/alert_master_screen.dart';
 import 'package:flutter_session_manager/flutter_session_manager.dart';
-
+import 'dart:math' as math;
 import 'package:flutter_vts/screen/notification/notification_screen.dart';
 import 'package:flutter_vts/service/web_service.dart';
 import 'package:flutter_vts/util/MyColor.dart';
@@ -52,7 +52,8 @@ class LiveTrackingDetailsScreen extends StatefulWidget {
       _LiveTrackingDetailsScreenState();
 }
 
-class _LiveTrackingDetailsScreenState extends State<LiveTrackingDetailsScreen> {
+class _LiveTrackingDetailsScreenState extends State<LiveTrackingDetailsScreen>
+    with TickerProviderStateMixin {
   Completer<GoogleMapController> controller1 = Completer();
   double _lat = 18.5204;
   double _lng = 73.8567;
@@ -70,11 +71,14 @@ class _LiveTrackingDetailsScreenState extends State<LiveTrackingDetailsScreen> {
   late GoogleMapController mapController;
   late bool _isLoading = false;
   late MainBloc _mainBloc;
+  AnimationController? animationController;
+  Animation<double>? animation;
   late String token = "";
   late SharedPreferences sharedPreferences;
   late String userName = "";
   late String vendorName = "", branchName = "", userType = "";
   late int branchid = 0, vendorid = 0;
+  int speed = 20;
   Map<PolylineId, Polyline> polylines = {};
   PolylinePoints polylinePoints = PolylinePoints();
   Completer<GoogleMapController> googleMapController = Completer();
@@ -121,11 +125,32 @@ class _LiveTrackingDetailsScreenState extends State<LiveTrackingDetailsScreen> {
     super.dispose();
   }
 
+  double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+    // Calculate distance using Haversine formula
+    const int earthRadius = 6371; // Radius of the earth in km
+
+    double dLat = _toRadians(lat2 - lat1);
+    double dLon = _toRadians(lon2 - lon1);
+
+    double a = (math.sin(dLat / 2) * math.sin(dLat / 2)) +
+        (math.cos(_toRadians(lat1)) *
+            math.cos(_toRadians(lat2)) *
+            math.sin(dLon / 2) *
+            math.sin(dLon / 2));
+    double c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
+    print("Here is your C value---------->" + c.toString());
+    return earthRadius * c;
+  }
+
+  double _toRadians(double degree) {
+    return degree * (math.pi / 180);
+  }
+
   //! NextLocation Ime Number------------------>
   getNextlocation(String imei, int transcationID, String prevTime,
       String prevDate, String prevImei) {
     timer = Timer.periodic(Duration(seconds: 10), (Timer t) {
-      print("Every 5 second-------");
+      print("Every 10 second-------");
       // _mainBloc.add(NextLocationEvents(vendorId: vendorid,branchId: branchid,token: token, araiNonarai: 'nonarai'));
       _mainBloc.add(NextLocationIMEIEvents(
           vendorId: vendorid,
@@ -1271,6 +1296,30 @@ class _LiveTrackingDetailsScreenState extends State<LiveTrackingDetailsScreen> {
                 nextlivelng.toString());
             getDirections(livelat!, livlong!, nextlivelat!, nextlivelng!);
             getmarkers(livelat!, livelat!, nextlivelat!, nextlivelng!);
+
+            double distance = calculateDistance(
+                livelat!, livlong!, nextlivelat!, nextlivelng!);
+            int speed = int.parse(state.startLocationResponse[0].speed);
+            int time = distance ~/ speed;
+            print("Here is the total time taken for the devices----------->" +
+                time.toString());
+            animation = Tween<double>(begin: 0.0, end: 1.0)
+                .animate(animationController!)
+              ..addListener(() {
+                // Update car position based on animation value
+                LatLng currentLocation = LatLng(
+                  livelat! + (nextlivelat! - livelat!) * animation!.value,
+                  livlong! + (nextlivelng! - livlong!) * animation!.value,
+                );
+
+                // Update car marker position
+
+                // Move camera to the updated car position
+                mapController
+                    ?.animateCamera(CameraUpdate.newLatLng(currentLocation));
+
+                setState(() {});
+              });
             setState(() {});
           });
         } else if (state is NextLocationIMEIErrorState) {

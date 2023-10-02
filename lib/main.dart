@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
         theme: ThemeData(
-          appBarTheme: AppBarTheme(
+         appBarTheme: AppBarTheme(
             color: MyColors.appBarColorCode,
           ),
           primarySwatch: Colors.blue,
@@ -41,8 +41,7 @@ class MyApp extends StatelessWidget {
 
 // bitbucket password : BjtNkcSDgW8h6vdzAvtX
 // swagger
-// https://vtsgpsapi.m-techinnovations.com/swagger/index.html
-
+// https://vtsgpsapi.m-techinnovations.com/swagger/index.ht
 
 // https://vtsnew.m-techinnovations.com/VTSGPSLogin.aspx
     //Techno  Techno@8521$  userid:16(Techno1234,Techno@123,Techno123)  19diJC9yqSaXf/QgO4P8gQ==

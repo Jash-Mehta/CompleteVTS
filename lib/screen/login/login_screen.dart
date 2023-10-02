@@ -1,5 +1,4 @@
-
-
+import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:flutter/material.dart' hide Key;
 import 'package:flutter_vts/bloc/main_bloc.dart';
 import 'package:flutter_vts/bloc/main_event.dart';
@@ -44,6 +43,20 @@ class _LoginScreenState extends State<LoginScreen> {
     _mainBloc = BlocProvider.of(context);
   }
 
+  firstdata() {
+    String keySTR = "abcdefghijklmno9"; //16 byte
+    String ivSTR = "abcdefghijklmnop"; //16 byte
+    final key = encrypt.Key.fromUtf8(keySTR);
+    final iv = encrypt.IV.fromUtf8(ivSTR);
+    final encrypter = encrypt.Encrypter(
+        encrypt.AES(key, mode: encrypt.AESMode.cbc, padding: 'PKCS7'));
+    final encrypted = encrypter.encrypt(passwordController.text, iv: iv);
+    print(
+        "here is your ecrypyted data---------->" + encrypted.base64.toString());
+    _mainBloc.add(LoginEvents(
+        username: usernameController.text, password: encrypted.base64));
+  }
+
   _updateLogin(String token, int vendorid, int branchid, int userid) {
     _mainBloc.add(UpdateLoginEvents(
         menuCaption: "application",
@@ -77,21 +90,6 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       }
     }
-  }
-
-  decryptionwithAES(String key, String encryptedData) {
-    final cipherKey = Key.fromUtf8(key);
-    final encryptService = Encrypter(AES(cipherKey, mode: AESMode.cbc));
-    final initVector = IV.fromUtf8(key.substring(0, 16));
-    return encryptService.decrypt64(encryptedData, iv: initVector);
-  }
-
-  Encrypted encryptWithAES(String key, String plaintext) {
-    final ciphertext = Key.fromUtf8(key);
-    final encryptService = Encrypter(AES(ciphertext, mode: AESMode.cbc));
-    final initVector = IV.fromUtf8(key.substring(0, 16));
-    Encrypted encrypteddata = encryptService.encrypt(plaintext, iv: initVector);
-    return encrypteddata;
   }
 
   loginbloc() async {
@@ -548,7 +546,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: MaterialButton(
                         onPressed: () async {
                           print(string);
-                          loginbloc();
+                          firstdata();
+                          // loginbloc();
                           // _encrypt();
                           // _encrypt1();
                         },
@@ -753,7 +752,8 @@ class _LoginScreenState extends State<LoginScreen> {
             // ignore: deprecated_member_use
             child: MaterialButton(
                 onPressed: () {
-                  loginbloc();
+                  // loginbloc();
+                  firstdata();
                 },
                 color: MyColors.buttonColorCode,
                 height: 50,

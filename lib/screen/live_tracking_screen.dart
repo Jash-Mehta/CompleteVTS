@@ -88,7 +88,7 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
   final Set<Polyline> _polylines = <Polyline>{};
   List<LatLng> polylineCoordinates = [];
   PolylinePoints? polylinePoints;
-  String googleAPIKey = "AIzaSyBnJPusnfAjrL9xofBjC_R5heU4uPZXgDY";
+  String googleAPIKey = "AIzaSyDlSSkw31UcsS-WeGTC2qRVvnZXBvYP3gs";
   //     "AIzaSyDep6h2RAS-sJyVdHogJMWxnK2NrqaVjkY";
   // 'AIzaSyDyF2jZu5TYaQlMgprBSLeWS5MJDTc2xFY';
 // for my custom marker pins
@@ -644,14 +644,14 @@ class LiveTrackingScreenState extends State<LiveTrackingScreen> {
   }
 
   _getVehicleStatusWithCount() {
-    timer = Timer.periodic(Duration(seconds: 10), (Timer t) {
-      print("Each and every 10 sec we are calling this api");
-      _mainBloc.add(VehicleStatusWithCountEvents(
-          token: token,
-          vendorId: vendorid,
-          branchId: branchid,
-          araiNonarai: "arai"));
-    });
+    // timer = Timer.periodic(Duration(seconds: 10), (Timer t) {
+    print("Each and every 10 sec we are calling this api");
+    _mainBloc.add(VehicleStatusWithCountEvents(
+        token: token,
+        vendorId: vendorid,
+        branchId: branchid,
+        araiNonarai: "arai"));
+    // });
   }
 
   getdata() async {

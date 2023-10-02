@@ -227,7 +227,7 @@ class _VTSGeofenceMapState extends State<VTSGeofenceMap> {
       .toList();
   getsteps() async {
     final googledirections = stepdirection.GoogleMapsDirections(
-        apiKey: 'AIzaSyBnJPusnfAjrL9xofBjC_R5heU4uPZXgDY');
+        apiKey: 'AIzaSyDlSSkw31UcsS-WeGTC2qRVvnZXBvYP3gs');
     final response = await googledirections.directionsWithLocation(
         stepdirection.Location(lat: fromlatitude!, lng: fromlongitude!),
         stepdirection.Location(lat: tolatitude!, lng: tolongitude!),

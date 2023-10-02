@@ -36,6 +36,7 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
   final controller = ScrollController();
   late String token = "";
   late MainBloc _mainBloc;
+var  usedid;
   late SharedPreferences sharedPreferences;
   TextEditingController searhcontroller = new TextEditingController();
   late int value = 0;
@@ -92,7 +93,9 @@ class _TravelSummaryScreenState extends State<TravelSummaryScreen> {
     sharedPreferences = await SharedPreferences.getInstance();
     if (sharedPreferences.getString("auth_token") != null) {
       token = sharedPreferences.getString("auth_token")!;
+
     }
+    if(sharedPreferences.getInt("VendorId")!=null)
     if (token != "" || vendorid != 0 || branchid != 0) {
       print(token);
       getallbranch();
